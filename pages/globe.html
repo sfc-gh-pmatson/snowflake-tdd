@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Across Clouds, Regions, Formats — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: var(--sf-navy); margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div style="position:relative;width:100%;height:100%">
+    <div class="nav-bar">
+      <a href="../pages/connected.html" class="btn-back">&#8592; Back</a>
+      <a href="../index.html" class="btn-home">&#8962; Home</a>
+      <span class="nav-label">Data Across Clouds · Regions · Storage Formats · Data Types</span>
+    </div>
+    <div class="slide-canvas with-nav" style="position:relative">
+      <!-- Native render of Slide 9 -->
+      <div id="s9" class="sf-slide">
+        <div class="s9-header">
+          <div class="s9-title">Data is Valuable — We Help Maximize Its Insights</div>
+        </div>
+        <div class="s9-body">
+          <!-- Cloud nodes positioned to match SVG overlay arrow endpoints -->
+          <div class="cloud-node cloud-node-aws">
+            <div class="cloud-logo cloud-logo-aws">AWS</div>
+            <div class="cloud-name">Amazon Web<br>Services</div>
+          </div>
+          <div class="cloud-node cloud-node-gcp">
+            <div class="cloud-logo cloud-logo-gcp">GCP</div>
+            <div class="cloud-name">Google Cloud<br>Platform</div>
+          </div>
+          <div class="cloud-node cloud-node-azure">
+            <div class="cloud-logo cloud-logo-azure">Azure</div>
+            <div class="cloud-name">Microsoft<br>Azure</div>
+          </div>
+          <!-- Snowflake center -->
+          <div class="sf-center-node">
+            <div class="sf-center-logo">
+              <svg width="clamp(20px,3vw,36px)" height="clamp(20px,3vw,36px)" viewBox="0 0 40 40" fill="none" stroke="#29B5E8" stroke-width="2.6" stroke-linecap="round">
+                <line x1="20" y1="3" x2="20" y2="37"/>
+                <line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/>
+                <line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
+                <line x1="13" y1="6.2" x2="20" y2="13"/>
+                <line x1="27" y1="6.2" x2="20" y2="13"/>
+                <line x1="13" y1="33.8" x2="20" y2="27"/>
+                <line x1="27" y1="33.8" x2="20" y2="27"/>
+                <line x1="5.5" y1="18" x2="11" y2="18"/>
+                <line x1="5.5" y1="22" x2="11" y2="22"/>
+                <line x1="35" y1="18" x2="29" y2="18"/>
+                <line x1="35" y1="22" x2="29" y2="22"/>
+              </svg>
+            </div>
+            <div class="sf-center-name">Snowflake</div>
+          </div>
+          <!-- Axis labels -->
+          <div class="axis-labels">
+            <div class="axis-label al-top">Across Regions</div>
+            <div class="axis-label al-bottom">Across Data Types</div>
+            <div class="axis-label al-left">Across Storage Formats</div>
+            <div class="axis-label al-right">Across Clouds</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated arrow overlay (viewBox matches cloud-node % positions) -->
+      <svg class="arrows-overlay" viewBox="0 0 1600 900"
+           xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arr-aws"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#FF9900"/></marker>
+          <marker id="arr-gcp"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4285F4"/></marker>
+          <marker id="arr-azure" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0089D6"/></marker>
+        </defs>
+        <path class="flow-path flow-aws"   d="M 310,450 C 450,330 660,360 800,455" marker-end="url(#arr-aws)"/>
+        <path class="flow-path flow-gcp"   d="M 800,175 C 800,290 800,370 800,445" marker-end="url(#arr-gcp)"/>
+        <path class="flow-path flow-azure" d="M 1285,450 C 1140,330 940,360 808,455" marker-end="url(#arr-azure)"/>
+        <circle class="sf-pulse-ring" cx="800" cy="455" r="18"/>
+        <circle r="6" class="dot-aws" opacity="0">
+          <animateMotion dur="3.4s" repeatCount="indefinite" begin=".5s"><mpath href="#tp-aws"/></animateMotion>
+          <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin=".5s"/>
+        </circle>
+        <circle r="6" class="dot-gcp" opacity="0">
+          <animateMotion dur="3.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#tp-gcp"/></animateMotion>
+          <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="1.6s"/>
+        </circle>
+        <circle r="6" class="dot-azure" opacity="0">
+          <animateMotion dur="3.4s" repeatCount="indefinite" begin="2.7s"><mpath href="#tp-azure"/></animateMotion>
+          <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="2.7s"/>
+        </circle>
+        <path id="tp-aws"   d="M 310,450 C 450,330 660,360 800,455" fill="none" stroke="none"/>
+        <path id="tp-gcp"   d="M 800,175 C 800,290 800,370 800,445" fill="none" stroke="none"/>
+        <path id="tp-azure" d="M 1285,450 C 1140,330 940,360 808,455" fill="none" stroke="none"/>
+      </svg>
+    </div>
+  </div>
+
+</body>
+</html>
