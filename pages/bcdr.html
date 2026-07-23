@@ -13,6 +13,8 @@
       display: flex;
       width: 100%;
       height: 100%;
+      flex: 1;
+      min-height: 0;
     }
 
     /* ── Left: feature list ───────────────────────────────── */
@@ -92,7 +94,7 @@
 
     /* World map — zoomed to North America */
     .bcdr-right::before {
-      content: '';
+      content: ''; 
       position: absolute;
       inset: 0;
       background-image: url(../Images/Americas\ Map\ Transparent.png);
@@ -130,20 +132,6 @@
       width: 100%;
       height: 100%;
     }
-    .bcdr-pin-logo {
-      position: relative;
-      z-index: 1;
-      width: 24px;
-      height: 24px;
-      background-size: 70%;
-      background-repeat: no-repeat;
-      background-position: center;
-      margin-top: -6px; /* shift up within pin body */
-    }
-    .bcdr-pin-logo-aws   { background-image: url(../icons/cloud_aws.png); }
-    .bcdr-pin-logo-gcp   { background-image: url(../icons/cloud_gcp.png); }
-    .bcdr-pin-logo-azure { background-image: url(../icons/cloud_azure.png); }
-
     .bcdr-pin-label {
       display: flex;
       flex-direction: column;
@@ -162,11 +150,6 @@
       letter-spacing: .2px;
     }
 
-    /* Pin positions */
-    .bcdr-pin-aws   { left: 20%; top: 32%; }
-    .bcdr-pin-gcp   { left: 38%; top: 35%; }
-    .bcdr-pin-azure { left: 56%; top: 32%; }
-
     /* Connecting arc between pins */
     .bcdr-arcs-svg {
       position: absolute;
@@ -181,8 +164,6 @@
     /* Client Applications block */
     .bcdr-client-block {
       position: absolute;
-      bottom: 14%;
-      left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
@@ -191,8 +172,8 @@
       z-index: 10;
     }
     .bcdr-client-card {
-      background: rgba(8, 22, 48, 0.88);
-      border: 1px solid rgba(41,181,232,.3);
+      background: rgba(255, 255, 255, 1);
+      border: 3px solid rgba(41,181,232,.3);
       border-radius: 10px;
       padding: 12px 20px;
       display: flex;
@@ -228,17 +209,19 @@
       pointer-events: none;
       z-index: 4;
     }
+    .bcdr-flow-group { transition: opacity 0.5s ease; }
   </style>
 </head>
 <body>
   <script src="../bg.js"></script>
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
-      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <a href="./snowgrid.html" class="btn-back">&#8592; Back</a>
       <span class="nav-label">Business Continuity &amp; Disaster Recovery</span>
     </div>
     <div class="slide-canvas with-nav">
-      <div class="bcdr-layout">
+      <div class="sf-slide">
+      <div class="bcdr-layout content-wrap">
 
         <!-- ════════ Left: feature list ════════ -->
         <div class="bcdr-left">
@@ -292,11 +275,6 @@
               <div class="bcdr-feature-body">Protect Snowflake data, metadata, and account information with one comprehensive platform.</div>
             </div>
           </div>
-
-          <!-- Footer -->
-          <div style="margin-top:18px;font-size:var(--fs-h6);color:rgba(255,255,255,.2);">
-            &copy; 2026 Snowflake Inc. All Rights Reserved
-          </div>
         </div>
 
         <!-- ════════ Right: map diagram ════════ -->
@@ -308,7 +286,6 @@
               <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#FF9900" fill-opacity="0.9" stroke="#FF9900" stroke-width="1.5"/>
               </svg>
-              <div class="bcdr-pin-logo bcdr-pin-logo-aws"></div>
             </div>
             <div class="bcdr-pin-label">
               <span class="bcdr-pin-provider" style="color:#FF9900;">AWS</span>
@@ -322,7 +299,6 @@
               <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#EB3474" fill-opacity="0.9" stroke="#EB3474" stroke-width="1.5"/>
               </svg>
-              <div class="bcdr-pin-logo bcdr-pin-logo-gcp"></div>
             </div>
             <div class="bcdr-pin-label">
               <span class="bcdr-pin-provider" style="color:#EB3474;">GCP</span>
@@ -336,11 +312,22 @@
               <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#0078D4" fill-opacity="0.9" stroke="#0078D4" stroke-width="1.5"/>
               </svg>
-              <div class="bcdr-pin-logo bcdr-pin-logo-azure"></div>
             </div>
             <div class="bcdr-pin-label">
               <span class="bcdr-pin-provider" style="color:#0078D4;">Azure</span>
               <span class="bcdr-pin-region">Virginia</span>
+            </div>
+          </div>
+
+          <!-- Client Applications block -->
+          <div class="bcdr-client-block">
+            <div class="bcdr-client-card">
+              <!-- Monitor / dashboard icon -->
+              <span class="sf-img sf-icon-data-apps-hl" style="width:36px;height:36px;"></span>
+              <div class="bcdr-client-label">Client Applications</div>
+            </div>
+            <div class="bcdr-client-caption">
+              <strong>Client redirect</strong> redirects apps to the cloud region of your choice.
             </div>
           </div>
 
@@ -351,33 +338,158 @@
                 <path d="M0,0 L0,4 L4,2 z" fill="#29B5E8" opacity="0.6"/>
               </marker>
             </defs>
-            <!-- AWS ↔ GCP arc -->
-            <path d="M20,37 Q29,28 38,38" fill="none" stroke="#29B5E8" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="2 2"/>
-            <!-- GCP ↔ Azure arc -->
-            <path d="M38,38 Q47,28 56,37" fill="none" stroke="#29B5E8" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="2 2"/>
-            <!-- AWS ↔ Azure long arc -->
-            <path d="M20,37 Q38,20 56,37" fill="none" stroke="#29B5E8" stroke-width="0.25" stroke-opacity="0.2" stroke-dasharray="3 3"/>
           </svg>
 
-          <!-- Client Applications block -->
-          <div class="bcdr-client-block">
-            <div class="bcdr-client-card">
-              <!-- Monitor / dashboard icon -->
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <path d="M8 21h8M12 17v4"/>
-                <polyline points="6 8 9 11 12 8 15 11 18 8"/>
-              </svg>
-              <div class="bcdr-client-label">Client Applications</div>
-            </div>
-            <div class="bcdr-client-caption">
-              <strong>Client redirect</strong> redirects apps to the cloud region of your choice.
-            </div>
-          </div>
-
         </div><!-- /bcdr-right -->
-      </div>
+      </div><!-- /bcdr-layout -->
+      </div><!-- /sf-slide -->
     </div>
   </div>
+  <script>
+    // ── POSITION CONFIG — edit these to reposition elements ───────────────────
+    // Values are CSS strings (%, px, etc.) relative to .bcdr-right
+    const PIN_POSITIONS = {
+      aws:   { left: '32%', top: '38%' },
+      gcp:   { left: '48%', top: '37%' },
+      azure: { left: '58%', top: '39%' },
+    };
+    // Client block: left is the center point (transform handles the offset)
+    const CLIENT_POS = { left: '32%', bottom: '24%' };
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function renderFlowLine(d, suffix) {
+      var arcs = document.getElementById('bcdr-arcs');
+      if (!arcs) return;
+      var NS = 'http://www.w3.org/2000/svg';
+
+      // Remove any existing group for this suffix
+      var old = arcs.querySelector('#bcdr-fl-group-' + suffix);
+      if (old) old.remove();
+
+      // Wrap everything in a <g> so we can fade the whole line at once
+      var g = document.createElementNS(NS, 'g');
+      g.setAttribute('id', 'bcdr-fl-group-' + suffix);
+      g.setAttribute('class', 'bcdr-flow-group');
+      g.style.opacity = '0';
+
+      var ln = document.createElementNS(NS, 'path');
+      ln.setAttribute('d', d);
+      ln.setAttribute('fill', 'none');
+      ln.setAttribute('stroke', '#29B5E8');
+      ln.setAttribute('stroke-width', '0.4');
+      ln.setAttribute('stroke-opacity', '0.45');
+      g.appendChild(ln);
+
+      var pathId = 'bcdr-fl-path-' + suffix;
+      var mp = document.createElementNS(NS, 'path');
+      mp.setAttribute('id', pathId);
+      mp.setAttribute('d', d);
+      mp.setAttribute('fill', 'none'); mp.setAttribute('stroke', 'none');
+      g.appendChild(mp);
+
+      var dur = 0.9, N = 12;
+      for (var i = 0; i < N; i++) {
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('r', '0.8');
+        dot.setAttribute('fill', '#29B5E8');
+        dot.setAttribute('opacity', '0');
+
+        var begin = ((i / N) * dur).toFixed(2) + 's';
+
+        var am = document.createElementNS(NS, 'animateMotion');
+        am.setAttribute('dur', dur + 's');
+        am.setAttribute('repeatCount', 'indefinite');
+        am.setAttribute('begin', begin);
+        var mpath = document.createElementNS(NS, 'mpath');
+        mpath.setAttribute('href', '#' + pathId);
+        mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#' + pathId);
+        am.appendChild(mpath);
+
+        var ao = document.createElementNS(NS, 'animate');
+        ao.setAttribute('attributeName', 'opacity');
+        ao.setAttribute('values', '0;1;1;0');
+        ao.setAttribute('keyTimes', '0;0.1;0.85;1');
+        ao.setAttribute('dur', dur + 's');
+        ao.setAttribute('repeatCount', 'indefinite');
+        ao.setAttribute('begin', begin);
+
+        dot.appendChild(am); dot.appendChild(ao);
+        g.appendChild(dot);
+      }
+
+      arcs.appendChild(g);
+      // Double rAF ensures the opacity:0 is painted before we transition to 1
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { g.style.opacity = '1'; });
+      });
+    }
+
+    function renderClientToAwsLine() {
+      function pct(str) { return parseFloat(str) || 0; }
+      var ax = pct(PIN_POSITIONS.aws.left);
+      var ay = pct(PIN_POSITIONS.aws.top) + 8;
+      var bx = pct(CLIENT_POS.left);
+      var by = CLIENT_POS.bottom ? 100 - pct(CLIENT_POS.bottom) - 15 : pct(CLIENT_POS.top);
+      // Straight line
+      renderFlowLine('M' + bx + ',' + by + ' L' + ax + ',' + ay, 'aws');
+    }
+
+    function renderClientToAzureLine() {
+      function pct(str) { return parseFloat(str) || 0; }
+      // Right-middle of client block
+      var bx = pct(CLIENT_POS.left) + 8;
+      var by = CLIENT_POS.bottom ? 100 - pct(CLIENT_POS.bottom) - 8 : pct(CLIENT_POS.top) + 7;
+      var ax = pct(PIN_POSITIONS.azure.left);
+      var ay = pct(PIN_POSITIONS.azure.top) + 8;
+      // Cubic bezier: exits right (cp1 at azure-x, client-y), arrives from below (cp2 at azure-x, midway)
+      var d = 'M' + bx + ',' + by
+            + ' C' + ax + ',' + by
+            + ' ' + ax + ',' + (ay + 14).toFixed(1)
+            + ' ' + ax + ',' + ay;
+      renderFlowLine(d, 'azure');
+    }
+
+    function clearFlowLine(suffix, callback) {
+      var arcs = document.getElementById('bcdr-arcs');
+      var g = arcs && arcs.querySelector('#bcdr-fl-group-' + suffix);
+      if (!g) { if (callback) callback(); return; }
+      g.style.opacity = '0';
+      setTimeout(function() {
+        if (g.parentNode) g.parentNode.removeChild(g);
+        if (callback) callback();
+      }, 500);
+    }
+
+    function startSequence() {
+      renderClientToAwsLine();
+      setTimeout(function() {
+        clearFlowLine('aws', function() {
+          renderClientToAzureLine();
+          setTimeout(function() {
+            clearFlowLine('azure', function() {
+              startSequence();
+            });
+          }, 6000);
+        });
+      }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      Object.entries(PIN_POSITIONS).forEach(function ([key, pos]) {
+        var el = document.querySelector('.bcdr-pin-' + key);
+        if (!el) return;
+        el.style.left   = pos.left;
+        el.style.top    = pos.top || '';
+        el.style.bottom = pos.bottom || '';
+      });
+      var client = document.querySelector('.bcdr-client-block');
+      if (client) {
+        client.style.left   = CLIENT_POS.left   || '';
+        client.style.bottom = CLIENT_POS.bottom || '';
+        client.style.top    = CLIENT_POS.top    || '';
+      }
+      startSequence();
+    });
+  </script>
 </body>
 </html>

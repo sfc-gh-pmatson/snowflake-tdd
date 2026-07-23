@@ -12,8 +12,13 @@
     .sg-layout {
       display: flex;
       width: 100%;
-      height: 100%;
+      flex: 1;
+      min-height: 0;
     }
+
+    /* Centered slide heading (matches other pages) */
+    #module .s6-header { font-size: var(--fs-h1) !important; font-weight: 800 !important; text-align: center; }
+    #module .s6-sub    { text-align: center; font-size: var(--fs-h3); }
 
     /* ── Globe pane ──────────────────────────────────────── */
     .sg-globe-pane {
@@ -24,15 +29,15 @@
       border-right: 1px solid rgba(41,181,232,.12);
     }
 
-    /* Inner map area — fixed 1000×400px, centered in the globe pane.
+    /* Inner map area — this was 400px tall in pillars so adjusting for that here
        Dots and background image both live here so percentages are consistent. */
     .sg-globe-map {
       position: absolute;
       left: 0;
       right: 0;
       top: 50%;
-      aspect-ratio: 10 / 4;
-      transform: translateY(-50%);
+      aspect-ratio: 12 / 5;
+      transform: translateY(-60%);
       z-index: 1;
       pointer-events: none;
     }
@@ -51,27 +56,6 @@
     }
 
     /* Title overlay */
-    .sg-globe-title {
-      position: absolute;
-      top: 14px;
-      left: 20px;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .sg-title-eyebrow {
-      font-size: var(--fs-h6);
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: rgba(41,181,232,.65);
-    }
-    .sg-title-main {
-      font-size: var(--fs-h2);
-      font-weight: 800;
-      color: #fff;
-    }
 
     /* ── Clickable cloud provider nodes ─────────────────── */
     .sg-cloud-node {
@@ -155,17 +139,14 @@
     /* Region dots on the map */
     .sg-dot {
       position: absolute;
-      width: clamp(12px, 1.6vw, 18px);
-      height: clamp(12px, 1.6vw, 18px);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 18px;
+      transform: translate(-50%, -100%);
       z-index: 5;
       pointer-events: none;
       transition: opacity .3s;
     }
-    .sg-dot-aws   { background: var(--aws-c); }
-    .sg-dot-gcp   { background: var(--gcp-c); }
-    .sg-dot-azure { background: var(--azure-c); }
+    .sg-dot svg { width: 100%; height: 100%; display: block; }
     .sg-dot.dimmed { opacity: 0.15; }
 
     /* ── Legend boxes (matching pillars) ──────────────────── */
@@ -390,16 +371,31 @@
       <span class="nav-label">Snowgrid — Cross-Cloud Multi-Region</span>
     </div>
     <div class="slide-canvas with-nav">
-      <div class="sg-layout">
+      <div id="module" class="sf-slide">
+
+        <!-- Shared header block -->
+        <div class="s6-top">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="sf-logo">
+              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
+                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
+                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
+                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
+                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
+                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
+              </svg>
+              Snowflake
+            </div>
+            <span class="slide-tag tag-blue">Snowgrid</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px">Global Cloud Infrastructure</div>
+          <div class="s6-sub">Snowflake runs natively across AWS, Azure, and Google Cloud in 50+ regions worldwide.</div>
+        </div>
+
+        <div class="sg-layout">
 
         <!-- ════════ Globe pane ════════ -->
         <div class="sg-globe-pane" id="sg-globe">
-
-          <!-- Title -->
-          <div class="sg-globe-title">
-            <div class="sg-title-eyebrow">Snowflake Snowgrid</div>
-            <div class="sg-title-main">Global Cloud Infrastructure</div>
-          </div>
 
           <!-- AWS node -->
           <div class="sg-cloud-node sg-cloud-node-aws" onclick="selectCloud('aws')">
@@ -452,6 +448,7 @@
               </svg>
             </div>
           </a>
+          <div class="globe-legend-box right-side">
             <div class="globe-legend-label">Across Storage Formats</div>
             <div class="globe-legend-icons">
               <span class="sf-img sf-icon-server"  style="width:32px;height:32px;"></span>
@@ -480,7 +477,8 @@
           <div class="sg-panel-footer" id="sg-panel-footer"></div>
         </div>
 
-      </div>
+        </div><!-- /sg-layout -->
+      </div><!-- /sf-slide -->
     </div>
   </div>
 
@@ -723,17 +721,21 @@
       globe.appendChild(svg);
     }
 
+    const CLOUD_COLORS = { aws: '#FF9900', gcp: '#EB3474', azure: '#0078D4' };
+
     function renderCloudDots() {
       const mapArea = document.getElementById('sg-globe-map');
       mapArea.querySelectorAll('.sg-dot').forEach(function(d) { d.remove(); });
       Object.entries(CLOUD_DOTS).forEach(function([cloud, positions]) {
+        var color = CLOUD_COLORS[cloud];
         positions.forEach(function([x, y]) {
-          const dot = document.createElement('div');
-          dot.className = 'sg-dot sg-dot-' + cloud;
-          dot.dataset.cloud = cloud;
-          dot.style.left = x + '%';
-          dot.style.top  = y + '%';
-          mapArea.appendChild(dot);
+          var pin = document.createElement('div');
+          pin.className = 'sg-dot sg-dot-' + cloud;
+          pin.dataset.cloud = cloud;
+          pin.style.left = x + '%';
+          pin.style.top  = y + '%';
+          pin.innerHTML = '<svg viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="' + color + '" fill-opacity="0.85"/></svg>';
+          mapArea.appendChild(pin);
         });
       });
       renderCloudArrows();

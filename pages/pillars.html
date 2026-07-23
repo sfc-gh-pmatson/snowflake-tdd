@@ -8,6 +8,49 @@
   <style>
     body { background: transparent; margin: 0; overflow: hidden; }
 
+    /* ── Pillars slide (#s6) base — page-specific ───────────── */
+    #s6 { background: linear-gradient(160deg,rgba(7,22,40,.93) 0%,rgba(11,28,53,.93) 100%); }
+    .pillar-col {
+      border-radius:12px; padding:18px 16px;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      text-align:center;
+    }
+    .pillar-icon { width: 50%; height: auto; display: block; }
+    .pillar-col.easy-col,
+    .pillar-col.conn-col,
+    .pillar-col.trust-col  { background: #fff; border: 3px solid var(--sf-blue); }
+    .pillar-col-head { display:flex; align-items:center; gap:10px; }
+    .pillar-col-name { font-size: var(--fs-h2); font-weight:800; }
+    .pillar-col-name.easy,
+    .pillar-col-name.conn,
+    .pillar-col-name.trust { color: var(--sf-ink); }
+    .pillar-col-desc { font-size: var(--fs-h5); color: var(--sf-ink); opacity: .72; line-height:1.6; }
+    #s6 .s6-footer { padding:8px 22px 10px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    #s6 .s6-footer span { font-size: var(--fs-h6); color:rgba(255,255,255,.35); }
+
+    /* ── Cross-cloud globe nodes — page-specific ────────────── */
+    .cloud-node {
+      position:absolute; display:flex; flex-direction:column; align-items:center; gap:5px;
+      transform:translate(-50%, -50%);
+    }
+    .cloud-node-aws   { left:19.4%; top:50%; }
+    .cloud-node-gcp   { left:50%;   top:19.4%; }
+    .cloud-node-azure { left:80.3%; top:50%; }
+    /* Pillar globe panel — left-side vertical stack */
+    .conn-globe-body .cloud-node-aws   { left:5%; top:35%; }
+    .conn-globe-body .cloud-node-azure { left:5%; top:50%; }
+    .conn-globe-body .cloud-node-gcp   { left:5%; top:65%; }
+    .cloud-logo {
+      width:clamp(32px,4vw,48px); height:clamp(32px,4vw,48px);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
+      border:2px solid;
+    }
+    .cloud-logo-aws   { background-image:url('../icons/cloud_aws.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--aws-c);   border-color:var(--aws-c); }
+    .cloud-logo-gcp   { background-image:url('../icons/cloud_gcp.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--gcp-c);   border-color:var(--gcp-c); }
+    .cloud-logo-azure { background-image:url('../icons/cloud_azure.png'); background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--azure-c); border-color:var(--azure-c); }
+    .cloud-name { font-size: var(--fs-h6); font-weight:700; color:rgba(255,255,255,.65); text-align:center; letter-spacing:.5px; }
+
     /* Centered, larger heading */
     #s6 .s6-header {
       font-size: var(--fs-h1) !important;
@@ -36,12 +79,9 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 12px;
-      padding: 10px 20px 8px;
+      padding-top: 10px;
+      padding-bottom: 8px;
       flex-shrink: 0;
-      max-width: 1000px;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
     }
     .pillar-col {
       cursor: pointer;
@@ -77,17 +117,13 @@
       overflow: hidden;
       opacity: 0;
       transition: opacity 0.35s ease;
-      padding: 0 20px;
       min-height: 0;
-      max-width: 1000px;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
     }
     #s6.pillar-open .s6-detail {
       opacity: 1;
       overflow-y: auto;
-      padding: 4px 20px 10px;
+      padding-top: 4px;
+      padding-bottom: 10px;
     }
 
     /* Pillar panels */
@@ -203,16 +239,11 @@
     /* Cloud region dots */
     .cloud-dot {
       position: absolute;
-      width: clamp(16px, 2vw, 24px); height: clamp(16px, 2vw, 24px);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.58rem; font-weight: 800; color: #fff;
-      transform: translate(-50%, -50%);
+      width: 12px; height: 16px;
+      transform: translate(-50%, -100%);
       z-index: 5; pointer-events: none;
     }
-    .cloud-dot-aws   { background: var(--aws-c); }
-    .cloud-dot-gcp   { background: var(--gcp-c); }
-    .cloud-dot-azure { background: var(--azure-c); }
+    .cloud-dot svg { width: 100%; height: 100%; display: block; }
 
     /* Connected view toggle */
     .conn-cards-view { display: flex; flex-direction: column; gap: 8px; }
@@ -250,7 +281,7 @@
         </div>
 
         <div class="s6-body">
-          <div class="s6-cols">
+          <div class="s6-cols content-wrap">
             <!-- Easy -->
             <div class="pillar-col easy-col" onclick="togglePillar('easy')">
               <img src="../sf-icons/Snowflake_ICON_Easy_Consolidate.svg" class="pillar-icon" alt="Easy">
@@ -272,7 +303,7 @@
           </div>
 
           <!-- Detail panels -->
-          <div class="s6-detail" id="pillar-detail">
+          <div class="s6-detail content-wrap" id="pillar-detail">
             <!-- Easy panel -->
             <div class="pillar-panel easy-panel" id="panel-easy">
               <div class="feat-card">
@@ -586,19 +617,21 @@
       body.appendChild(svg);
     }
 
+    const CLOUD_COLORS = { aws: '#FF9900', gcp: '#EB3474', azure: '#0078D4' };
+
     function renderCloudDots() {
       const body = document.querySelector('.conn-globe-body');
       if (!body) return;
-      // Remove any previously rendered dots (safe to call multiple times)
       body.querySelectorAll('.cloud-dot').forEach(d => d.remove());
       Object.entries(CLOUD_DOTS).forEach(([cloud, positions]) => {
-        positions.forEach(([x, y], i) => {
-          const dot = document.createElement('div');
-          dot.className = `cloud-dot cloud-dot-${cloud}`;
-          dot.style.left = x + '%';
-          dot.style.top  = y + '%';
-          dot.textContent = '';
-          body.appendChild(dot);
+        const color = CLOUD_COLORS[cloud];
+        positions.forEach(([x, y]) => {
+          const pin = document.createElement('div');
+          pin.className = `cloud-dot cloud-dot-${cloud}`;
+          pin.style.left = x + '%';
+          pin.style.top  = y + '%';
+          pin.innerHTML = `<svg viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="${color}" fill-opacity="0.85"/></svg>`;
+          body.appendChild(pin);
         });
       });
       renderCloudArrows();
