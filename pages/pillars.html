@@ -6,17 +6,147 @@
   <title>Core Pillars: Easy · Connected · Trusted — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: var(--sf-navy); margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* Centered, larger heading */
+    #s6 .s6-header {
+      font-size: var(--fs-h1) !important;
+      font-weight: 800 !important;
+      text-align: center;
+    }
+    #s6 .s6-sub { text-align: center; font-size: var(--fs-h3)}
+
+    /* Body wrapper — grid-based expand for reliable height fill */
+    .s6-body {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 0fr;
+      align-content: center;
+      overflow: hidden;
+      transition: grid-template-rows 0.42s cubic-bezier(0.4,0,0.2,1);
+    }
+    #s6.pillar-open .s6-body {
+      grid-template-rows: auto 1fr;
+      align-content: start;
+    }
+
+    /* Pillar columns — compact by default */
+    #s6 .s6-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      padding: 10px 20px 8px;
+      flex-shrink: 0;
+      max-width: 1000px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .pillar-col {
+      cursor: pointer;
+      transition: padding 0.3s ease, border-color 0.22s, transform 0.15s, background 0.22s, color 0.22s;
+      border-radius: 12px;
+      padding: 8px 12px;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .pillar-col:hover { transform: translateY(-2px); }
+    .pillar-col.active {
+      background: var(--sf-blue) !important;
+      border-color: var(--sf-blue);
+      box-shadow: none;
+      padding: 4px 6px;
+      height: 300px;
+    }
+    .pillar-col.active .pillar-col-name { color: white !important; }
+    .pillar-col.active .pillar-icon { filter: brightness(0) invert(1); }
+    /* All pillar icons use sf-blue */
+    .pillar-col .icon-circle { background: rgba(41,181,232,.12) !important; color: var(--sf-blue) !important; }
+
+    /* Compact boxes once open */
+    #s6.pillar-open .pillar-col { gap: 4px; }
+    #s6.pillar-open .pillar-col-name { font-size: var(--fs-h2); }
+    #s6.pillar-open .icon-circle { width: 28px !important; height: 28px !important; }
+    #s6.pillar-open .icon-circle svg { width: 14px !important; height: 14px !important; }
+
+    /* Detail panel */
+    .s6-detail {
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      padding: 0 20px;
+      min-height: 0;
+      max-width: 1000px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #s6.pillar-open .s6-detail {
+      opacity: 1;
+      overflow-y: auto;
+      padding: 4px 20px 10px;
+    }
+
+    /* Pillar panels */
+    .pillar-panel { display: none; }
+    .pillar-panel.active { display: grid; gap: 8px; }
+    .pillar-panel.easy-panel  { grid-template-columns: 1fr; }
+    .pillar-panel.conn-panel  { grid-template-columns: 1fr; }
+    .pillar-panel.trust-panel { grid-template-columns: 1fr; }
+
+    /* Globe embedded in Connected panel */
+    .conn-globe-wrap {
+      flex: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--sf-border);
+      background: linear-gradient(160deg,rgba(5,13,26,.93) 0%,rgba(8,22,48,.93) 100%);
+      display: flex;
+      flex-direction: column;
+    }
+    .conn-globe-title {
+      padding: 8px 16px;
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: #e8f6fc;
+      border-bottom: 1px solid rgba(41,181,232,.09);
+      flex-shrink: 0;
+    }
+    .conn-globe-body {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+    }
+
+    /* Connected view toggle */
+    .conn-cards-view { display: flex; flex-direction: column; gap: 8px; }
+    .conn-globe-view  { display: none; flex: 1; }
+    #panel-conn.globe-view .conn-cards-view { display: none; }
+    #panel-conn.globe-view .conn-globe-view  { display: flex; flex-direction: column; }
+
+    .conn-globe-toggle {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; border-radius: 100px;
+      background: rgba(147,51,234,.12); border: 1px solid rgba(147,51,234,.35);
+      color: #c084fc; font-size: var(--fs-h6); font-weight: 700;
+      cursor: pointer; transition: background .2s, border-color .2s;
+      align-self: flex-start;
+    }
+    .conn-globe-toggle:hover { background: rgba(147,51,234,.22); border-color: #c084fc; }
+    #panel-conn.globe-view .conn-globe-toggle { background: rgba(147,51,234,.22); border-color: #c084fc; }
   </style>
 </head>
 <body>
-  <div style="position:relative;width:100%;height:100%">
+  <script src="../bg.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
       <span class="nav-label">Core Pillars: Easy · Connected · Trusted</span>
     </div>
     <div class="slide-canvas with-nav">
-      <!-- Native render of Slide 6 -->
       <div id="s6" class="sf-slide">
         <div class="s6-top">
           <div style="display:flex;align-items:center;justify-content:space-between">
@@ -35,64 +165,264 @@
           <div class="s6-header" style="margin-top:6px">The Easy, Connected and Trusted Data Foundation to Accelerate Enterprise-Ready Data &amp; AI</div>
           <div class="s6-sub">Accelerated Time to Data &amp; AI Innovation</div>
         </div>
-        <div class="s6-cols">
-          <!-- Easy -->
-          <div class="pillar-col easy-col">
-            <div class="pillar-col-head">
-              <div class="icon-circle ic-blue" style="width:36px;height:36px">
-                <svg width="18" height="18" viewBox="0 0 43.58 52.45" fill="currentColor">
-                  <path d="M43.06,17.29L22.69.33c-.53-.44-1.29-.44-1.81,0L.51,17.29c-.32.27-.51.67-.51,1.09v25.49c0,.78.63,1.42,1.42,1.42h6.11v.99c0,4.01,7.35,6.17,14.26,6.17s14.26-2.16,14.26-6.17v-.99h6.11c.78,0,1.42-.63,1.42-1.42v-25.49c0-.42-.19-.82-.51-1.09ZM33.8,43.87v2.41c0,1.59-4.68,3.91-12.01,3.91s-12.01-2.32-12.01-3.91v-17.08c2.71,1.79,7.46,2.72,12.01,2.72s9.3-.93,12.01-2.72v14.67ZM9.78,25.75c0-1.59,4.68-3.91,12.01-3.91s12.01,2.32,12.01,3.91-4.68,3.92-12.01,3.92-12.01-2.33-12.01-3.92ZM40.74,42.45h-4.69v-16.7c0-4.01-7.35-6.18-14.26-6.18s-14.26,2.17-14.26,6.18v16.7H2.83v-23.41L21.79,3.26l18.95,15.78v23.41Z"/>
-                  <path d="M27.82,35.67h-1.3c-.2-.83-.95-1.44-1.84-1.44s-1.63.62-1.84,1.44h-7.09c-.25,0-.45.2-.45.45s.2.45.45.45h7.09c.2.83.95,1.45,1.84,1.45s1.63-.62,1.84-1.45h1.3c.25,0,.45-.2.45-.45s-.2-.45-.45-.45Z"/>
-                  <path d="M27.82,40.1h-6.74c-.15-.9-.93-1.58-1.86-1.58s-1.71.69-1.86,1.58h-1.6c-.25,0-.45.2-.45.45s.2.45.45.45h1.67c.25.76.95,1.31,1.79,1.31s1.55-.55,1.79-1.31h6.81c.25,0,.45-.2.45-.45s-.2-.45-.45-.45Z"/>
-                  <path d="M27.82,44.53h-4.19c-.2-.83-.95-1.45-1.84-1.45s-1.63.62-1.84,1.45h-4.19c-.25,0-.45.2-.45.45s.2.45.45.45h4.19c.2.83.95,1.44,1.84,1.44s1.63-.62,1.84-1.44h4.2c.25,0,.45-.2.45-.45s-.2-.45-.45-.45Z"/>
-                </svg>
-              </div>
+
+        <div class="s6-body">
+          <div class="s6-cols">
+            <!-- Easy -->
+            <div class="pillar-col easy-col" onclick="togglePillar('easy')">
+              <img src="../sf-icons/Snowflake_ICON_Easy_Consolidate.svg" class="pillar-icon" alt="Easy">
               <div class="pillar-col-name easy">Easy</div>
+              <div class="pillar-col-desc">Save time and money with a single fully managed platform for all workloads that is scalable, self-improving and has built-in FinOps for optimal cost efficiency.</div>
             </div>
-            <div class="pillar-col-desc">Save time and money with a single fully managed platform for all workloads that is scalable, self-improving and has built-in FinOps for optimal cost efficiency.</div>
-          </div>
-          <!-- Connected -->
-          <div class="pillar-col conn-col">
-            <div class="pillar-col-head">
-              <div class="icon-circle ic-purple" style="width:36px;height:36px">
-                <svg width="18" height="18" viewBox="0 0 64 64" fill="currentColor">
-                  <path fill-rule="evenodd" d="M53.67,44.62c-.2.4-.59.69-.99.78-.4.09-.9,0-1.28-.2-.79-.49-1.1-1.48-.59-2.28.29-.49.9-.78,1.49-.78s.59,0,.79.2c.79.49,1.1,1.48.59,2.28ZM31.93,57.16c-.9,0-1.69-.78-1.69-1.68s.79-1.68,1.69-1.68,1.69.78,1.69,1.68-.79,1.68-1.69,1.68ZM11.16,45.42c-.4-.09-.79-.4-.99-.78-.2-.4-.29-.78-.2-1.28.09-.4.4-.78.79-.98.29-.2.59-.2.9-.2.59,0,1.19.29,1.49.78.2.4.29.78.2,1.28-.09.4-.4.78-.79.98-.4.2-.9.29-1.28.2h-.11ZM31.93,7.2c.9,0,1.69.78,1.69,1.68s-.79,1.68-1.69,1.68-1.69-.78-1.69-1.68.79-1.68,1.69-1.68ZM53.67,19.75c.5.78.2,1.88-.59,2.28-.4.2-.79.29-1.28.2-.4-.09-.79-.4-.99-.78-.5-.78-.2-1.88.59-2.28.79-.49,1.78-.2,2.29.58h-.02ZM31.93,36.72c-2.48,0-4.57-2.08-4.57-4.54s2.09-4.54,4.57-4.54,4.57,2.08,4.57,4.54-2.09,4.54-4.57,4.54ZM35.69,53.7c-.5-.98-1.39-1.77-2.48-2.17v-12.43c1.69-.29,3.08-1.19,4.16-2.46l10.82,6.22c-.29,1.19,0,2.37.59,3.26-3.38,4.05-7.94,6.62-13.12,7.49ZM15.03,46.2c.29-.4.5-.78.59-1.28.2-.78.2-1.48,0-2.17l10.73-6.13c1.1,1.28,2.59,2.28,4.37,2.57v12.43c-1.1.29-1.98,1.09-2.48,2.17-5.17-.89-9.74-3.56-13.12-7.49ZM28.15,10.67c.5,1.09,1.39,1.77,2.48,2.17v12.43c-1.69.29-3.08,1.18-4.16,2.37l-10.82-6.22c.09-.58.09-1.28,0-1.97-.09-.49-.29-.89-.59-1.28,3.38-4.05,7.94-6.62,13.12-7.49ZM48.81,18.16c-.59.89-.9,1.97-.7,3.06l-10.93,6.22c-.99-1.09-2.38-1.97-3.98-2.17v-12.43c1.1-.4,1.98-1.09,2.48-2.17,5.17.89,9.74,3.56,13.12,7.49ZM14.24,40.57c-.4-.4-.99-.69-1.6-.78-.5-.09-.9-.2-1.39-.09-.9-2.37-1.39-4.94-1.39-7.49s.5-5.14,1.39-7.49h.29c.4,0,.7,0,1.1-.09.7-.2,1.28-.49,1.78-.98l10.82,6.22c-.29.78-.4,1.59-.4,2.46s.09,1.48.4,2.17l-10.93,6.22ZM49.39,40.77l-10.82-6.22c.29-.69.4-1.48.4-2.37s-.2-1.77-.5-2.57l10.73-6.13c.5.49,1.19.89,1.89,1.09.4.09.7.09,1.1.09s.2,0,.29,0c.9,2.37,1.39,4.94,1.39,7.49s-.5,5.14-1.39,7.49z"/>
-                  <path fill-rule="evenodd" d="M46.02,27.24c-1.19,0-2.09.98-2.09,2.08s.99,2.08,2.09,2.08,2.09-.98,2.09-2.08-.99-2.08-2.09-2.08ZM46.02,32.67c-1.19,0-2.09.98-2.09,2.08s.99,2.08,2.09,2.08,2.09-.98,2.09-2.08-.99-2.08-2.09-2.08ZM17.82,32.67c-1.19,0-2.09.98-2.09,2.08s.99,2.08,2.09,2.08,2.09-.98,2.09-2.08-.99-2.08-2.09-2.08ZM17.82,27.24c-1.19,0-2.09.98-2.09,2.08s.99,2.08,2.09,2.08,2.09-.98,2.09-2.08-.99-2.08-2.09-2.08Z"/>
-                </svg>
-              </div>
+            <!-- Connected -->
+            <div class="pillar-col conn-col" onclick="togglePillar('conn')">
+              <img src="../sf-icons/Snowflake_ICON_Connected.svg" class="pillar-icon" alt="Connected">
               <div class="pillar-col-name conn">Connected</div>
+              <div class="pillar-col-desc">Accelerate decision-making and unlock new opportunities with an open architecture that provides direct access to the most complete ecosystem of AI-ready data, apps and agentic products.</div>
             </div>
-            <div class="pillar-col-desc">Accelerate decision-making and unlock new opportunities with an open architecture that provides direct access to the most complete ecosystem of AI-ready data, apps and agentic products.</div>
-          </div>
-          <!-- Trusted -->
-          <div class="pillar-col trust-col">
-            <div class="pillar-col-head">
-              <div class="icon-circle ic-green" style="width:36px;height:36px">
-                <svg width="18" height="18" viewBox="0 0 64 64" fill="currentColor">
-                  <defs><clipPath id="tclip"><rect x="10.6" y="4.18" width="42.79" height="55.64" rx="6.96" ry="6.96"/></clipPath></defs>
-                  <g clip-path="url(#tclip)">
-                    <path fill-rule="evenodd" d="M21.84,41.47l-3.91,11.59,3.8-1.6c.17-.08.36-.12.55-.12.47,0,.93.25,1.19.66l2.08,3.5,3.82-11.39c-.74.19-1.55.35-2.38.35-.53,0-1.08-.06-1.64-.23-1.61-.52-2.68-1.74-3.53-2.78ZM42.29,41.26h-.02c-.87,1.1-1.98,2.45-3.7,2.99-.55.17-1.08.25-1.61.25-.74,0-1.44-.12-2.12-.29l3.8,11.3,2.1-3.5c.25-.41.72-.66,1.19-.66.19,0,.36.04.55.1l3.8,1.62-3.99-11.8ZM26.98,8.43c-.11,0-.21,0-.32.04-.49.15-1.06.87-1.64,1.58-.59.73-1.25,1.53-2.12,2.16-.87.62-1.87,1-2.78,1.31-.85.31-1.72.64-2.02,1.02-.28.37-.32,1.33-.36,2.18-.04.93-.11,1.99-.42,2.99-.32.97-.91,1.85-1.42,2.59-.51.77-1.04,1.53-1.04,2.05s.53,1.31,1.04,2.05c.53.77,1.1,1.62,1.42,2.59.32,1.02.38,2.07.42,2.99.04.85.08,1.8.36,2.18.3.39,1.17.73,2.02,1.02.89.31,1.89.71,2.78,1.31.87.62,1.53,1.43,2.12,2.16.57.71,1.17,1.45,1.64,1.58.08.02.17.04.28.04.49,0,1.23-.19,1.89-.37.93-.25,2-.52,3.1-.52s2.17.27,3.12.52c.66.19,1.4.37,1.89.37.11,0,.21,0,.3-.04.49-.15,1.06-.87,1.64-1.58.59-.73,1.25-1.53,2.12-2.16.87-.62,1.87-1,2.78-1.31.85-.31,1.74-.62,2.04-1.02.28-.37.32-1.33.36-2.18.04-.93.09-1.99.42-2.99.32-.97.91-1.85,1.42-2.59.51-.77,1.04-1.53,1.04-2.05s-.53-1.31-1.04-2.05c-.53-.75-1.1-1.62-1.42-2.59-.34-1-.38-2.07-.42-2.99-.04-.85-.08-1.8-.36-2.18-.3-.37-1.19-.73-2.04-1.02-.89-.31-1.89-.71-2.78-1.31-.87-.62-1.55-1.43-2.12-2.16-.57-.71-1.17-1.43-1.66-1.58-.08-.02-.19-.04-.3-.04-.49,0-1.21.19-1.87.37-.93.25-2,.52-3.1.52s-2.17-.27-3.1-.52c-.66-.19-1.38-.37-1.87-.37Z"/>
-                    <path fill-rule="evenodd" d="M38.7,18.45l-.17.12-8.84,7.88-.13.08-.38.04-.17-.12-3.97-3.01-.21-.12-.38.04-.17.17-1.34,1.66-.08.17.04.37.13.15,5.27,4.29.3.21.64.21h.64l.64-.25.25-.21,10.17-9.15.13-.17v-.41l-.13-.17-1.68-1.66-.17-.12h-.38z"/>
-                  </g>
-                </svg>
-              </div>
+            <!-- Trusted -->
+            <div class="pillar-col trust-col" onclick="togglePillar('trust')">
+              <img src="../sf-icons/Snowflake_ICON_Trusted.svg" class="pillar-icon" alt="Trusted">
               <div class="pillar-col-name trust">Trusted</div>
+              <div class="pillar-col-desc">Protect your assets and brand reputation by reducing risks with enterprise grade security, governance, observability and business continuity/disaster recovery across regions and clouds.</div>
             </div>
-            <div class="pillar-col-desc">Protect your assets and brand reputation by reducing risks with enterprise grade security, governance, observability and business continuity/disaster recovery across regions and clouds.</div>
+          </div>
+
+          <!-- Detail panels -->
+          <div class="s6-detail" id="pillar-detail">
+            <!-- Easy panel -->
+            <div class="pillar-panel easy-panel" id="panel-easy">
+              <div class="feat-card">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                  </div>
+                  <div class="feat-title">Manageability at Scale</div>
+                </div>
+                <div class="feat-body">Efficiently manage all associated accounts across an organization at scale with a unified management plane.</div>
+              </div>
+              <div class="feat-card">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+                  </div>
+                  <div class="feat-title">Fully Managed, Single Product</div>
+                </div>
+                <div class="feat-body">One simple product for all data and AI — analytical, hybrid, and transactional workloads — with no manual tuning, maintenance, or downtime for upgrades.</div>
+              </div>
+              <div class="feat-card">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4.5 13 11 13 11 22 19.5 11 13 11 13 2"/></svg>
+                  </div>
+                  <div class="feat-title">High Performance, Extensible Compute</div>
+                </div>
+                <div class="feat-body">Regular automatic performance improvements for 2x faster warehouses. Extend to any workload with Snowpark Container Services.</div>
+              </div>
+              <div class="feat-card">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                  </div>
+                  <div class="feat-title">Unified FinOps</div>
+                </div>
+                <div class="feat-body">Gain visibility, control, and optimization of Snowflake spend in one Cost Management interface or through SQL.</div>
+              </div>
+              <div class="feat-card">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  </div>
+                  <div class="feat-title">Powerful Scalability</div>
+                </div>
+                <div class="feat-body">Effortlessly scale up or down compute resources with leading user concurrency — scale UP for performance, OUT for concurrency, ACROSS for workload isolation.</div>
+              </div>
+            </div>
+
+            <!-- Connected panel -->
+            <div class="pillar-panel conn-panel" id="panel-conn">
+              <!-- Cards view (default) -->
+              <div class="conn-cards-view">
+                <div class="feat-card conn">
+                  <div class="feat-card-head">
+                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    </div>
+                    <div class="feat-title">Ultimate Cross-Cloud Openness &amp; Interoperability</div>
+                  </div>
+                  <div class="feat-body">Access and process structured, semi-structured, unstructured or open data seamlessly across regions and clouds. Snowflake continuously leads open-source contributions to Apache Iceberg™, Apache Polaris™ (incubating), Apache NiFi™ and the Open Semantic Interchange — enhancing interoperability without vendor lock-in.</div>
+                </div>
+                <div class="feat-card conn">
+                  <div class="feat-card-head">
+                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                    </div>
+                    <div class="feat-title">Secure Internal and External Collaboration</div>
+                  </div>
+                  <div class="feat-body">Remove organizational and technical silos by easily finding, accessing, and procuring data, apps, and AI products from inside and outside your organization — through the Snowflake Marketplace and Internal Marketplace.</div>
+                </div>
+                <div class="feat-card conn">
+                  <div class="feat-card-head">
+                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+                    </div>
+                    <div class="feat-title">Seamless Cross-Cloud Data Sharing</div>
+                  </div>
+                  <div class="feat-body">Instantly and securely exchange live data, apps, and agentic products with partners, suppliers, and teams across regions and clouds — without complex, costly data movement.</div>
+                </div>
+              </div>
+
+              <!-- Globe view (hidden by default) -->
+              <div class="conn-globe-view">
+                <div class="conn-globe-wrap">
+                  <div class="conn-globe-title">Data is Valuable — We Help Maximize Its Insights</div>
+                  <div class="conn-globe-body">
+                    <div class="cloud-node cloud-node-aws">
+                      <div class="cloud-logo cloud-logo-aws">AWS</div>
+                      <div class="cloud-name">Amazon Web Services</div>
+                    </div>
+                    <div class="cloud-node cloud-node-gcp">
+                      <div class="cloud-logo cloud-logo-gcp">GCP</div>
+                      <div class="cloud-name">Google Cloud Platform</div>
+                    </div>
+                    <div class="cloud-node cloud-node-azure">
+                      <div class="cloud-logo cloud-logo-azure">Azure</div>
+                      <div class="cloud-name">Microsoft Azure</div>
+                    </div>
+                    <div class="sf-center-node">
+                      <div class="sf-center-logo">
+                        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" stroke="#29B5E8" stroke-width="2.6" stroke-linecap="round">
+                          <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
+                          <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
+                          <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
+                          <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
+                          <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
+                        </svg>
+                      </div>
+                      <div class="sf-center-name">Snowflake</div>
+                    </div>
+                    <div class="axis-labels">
+                      <div class="axis-label al-top">Across Regions</div>
+                      <div class="axis-label al-bottom">Across Data Types</div>
+                      <div class="axis-label al-left">Across Storage Formats</div>
+                      <div class="axis-label al-right">Across Clouds</div>
+                    </div>
+                    <svg class="arrows-overlay" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                      <defs>
+                        <marker id="arr-aws2"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#FF9900"/></marker>
+                        <marker id="arr-gcp2"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4285F4"/></marker>
+                        <marker id="arr-azure2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0089D6"/></marker>
+                      </defs>
+                      <path class="flow-path flow-aws"   d="M 310,450 C 450,330 660,360 800,455" marker-end="url(#arr-aws2)"/>
+                      <path class="flow-path flow-gcp"   d="M 800,175 C 800,290 800,370 800,445" marker-end="url(#arr-gcp2)"/>
+                      <path class="flow-path flow-azure" d="M 1285,450 C 1140,330 940,360 808,455" marker-end="url(#arr-azure2)"/>
+                      <circle class="sf-pulse-ring" cx="800" cy="455" r="18"/>
+                      <circle r="6" class="dot-aws" opacity="0">
+                        <animateMotion dur="3.4s" repeatCount="indefinite" begin=".5s"><mpath href="#tp2-aws"/></animateMotion>
+                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin=".5s"/>
+                      </circle>
+                      <circle r="6" class="dot-gcp" opacity="0">
+                        <animateMotion dur="3.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#tp2-gcp"/></animateMotion>
+                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="1.6s"/>
+                      </circle>
+                      <circle r="6" class="dot-azure" opacity="0">
+                        <animateMotion dur="3.4s" repeatCount="indefinite" begin="2.7s"><mpath href="#tp2-azure"/></animateMotion>
+                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="2.7s"/>
+                      </circle>
+                      <path id="tp2-aws"   d="M 310,450 C 450,330 660,360 800,455" fill="none" stroke="none"/>
+                      <path id="tp2-gcp"   d="M 800,175 C 800,290 800,370 800,445" fill="none" stroke="none"/>
+                      <path id="tp2-azure" d="M 1285,450 C 1140,330 940,360 808,455" fill="none" stroke="none"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Globe toggle button (always visible) -->
+              <button class="conn-globe-toggle" onclick="toggleConnView()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                <span class="conn-toggle-label">Explore Cross-Cloud</span>
+              </button>
+            </div>
+
+            <!-- Trusted panel -->
+            <div class="pillar-panel trust-panel" id="panel-trust">
+              <div class="feat-card trust">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-green" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                  </div>
+                  <div class="feat-title">Built-in Snowflake Horizon Catalog</div>
+                </div>
+                <div class="feat-body">The universal AI Catalog that provides context and governance for AI over all data. Works across native Snowflake objects, open table formats (Iceberg, Delta) readable/writable by any engine, and relational databases (SQL Server, Postgres).</div>
+              </div>
+              <div class="feat-card trust">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-green" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                  </div>
+                  <div class="feat-title">Built-in Observability</div>
+                </div>
+                <div class="feat-body">Demystify AI, accelerate troubleshooting for apps and pipelines, and optimize infrastructure through comprehensive visibility across your entire data and AI estate.</div>
+              </div>
+              <div class="feat-card trust">
+                <div class="feat-card-head">
+                  <div class="icon-circle ic-green" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/><polyline points="9 12 11 14 15 10"/></svg>
+                  </div>
+                  <div class="feat-title">Built-in Business Continuity / Disaster Recovery</div>
+                </div>
+                <div class="feat-body">Safeguard mission-critical accounts and datasets with seamless replication and synchronization of objects between regions and clouds — maintaining uptime with near-zero RTO.</div>
+              </div>
+            </div>
           </div>
         </div>
+
         <div class="s6-footer">
           <span>© 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
       </div>
     </div>
-    <!-- Pillar drill-down buttons -->
-    <div class="pillar-actions">
-      <button class="pillar-btn p-easy"      href="../pages/easy.html">Easy →</button>
-      <a class="pillar-btn p-connected" href="../pages/connected.html">Connected →</a>
-      <button class="pillar-btn p-trusted"   href="../pages/trusted.html">Trusted →</button>
-    </div>
   </div>
 
+  <script>
+    function toggleConnView() {
+      var panel = document.getElementById('panel-conn');
+      var label = panel.querySelector('.conn-toggle-label');
+      if (panel.classList.toggle('globe-view')) {
+        label.textContent = '← Back to Features';
+      } else {
+        label.textContent = 'Explore Cross-Cloud';
+      }
+    }
+
+    var active = null;
+
+    function togglePillar(key) {
+      var s6 = document.getElementById('s6');
+      var cols = document.querySelectorAll('.pillar-col');
+      var panels = document.querySelectorAll('.pillar-panel');
+
+      if (active === key) {
+        // Collapse
+        s6.classList.remove('pillar-open');
+        cols.forEach(function(c) { c.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        active = null;
+      } else {
+        // Open new panel
+        s6.classList.add('pillar-open');
+        cols.forEach(function(c) { c.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+
+        // Activate clicked col
+        var colMap = { easy: 0, conn: 1, trust: 2 };
+        cols[colMap[key]].classList.add('active');
+
+        // Activate panel
+        document.getElementById('panel-' + key).classList.add('active');
+        active = key;
+      }
+    }
+  </script>
 </body>
 </html>

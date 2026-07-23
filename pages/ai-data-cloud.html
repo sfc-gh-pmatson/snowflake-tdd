@@ -6,11 +6,55 @@
   <title>The AI Data Cloud — Agentic Foundation — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: var(--sf-navy); margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* Layout */
+    #s13 .s13-grid {
+      flex:1; display:grid; grid-template-columns:repeat(4,1fr);
+      grid-auto-rows: auto;
+      align-content: center;
+      gap:12px;
+      max-width: 1000px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 10px 0 12px;
+    }
+
+    /* Centered, larger heading — matches pillars */
+    #s13 .s13-title {
+      font-size: var(--fs-h1) !important;
+      font-weight: 800 !important;
+      text-align: center;
+      color: #fff;
+    }
+    #s13 .s13-eyebrow { text-align: center; }
+    #s13 .s13-title-block { align-items: center; }
+
+    /* White cards with sf-blue border — matches pillar cards */
+    .ai-card-1,
+    .ai-card-2,
+    .ai-card-3,
+    .ai-card-4 {
+      background: #fff !important;
+      border: 3px solid var(--sf-blue) !important;
+    }
+    .ai-card-1 .ai-card-title,
+    .ai-card-2 .ai-card-title,
+    .ai-card-3 .ai-card-title,
+    .ai-card-4 .ai-card-title { color: var(--sf-ink) !important; }
+    .ai-card-body { color: var(--sf-ink) !important; opacity: .72; }
+
+    /* All icons sf-blue */
+    .ai-card .icon-circle {
+      background: rgba(41,181,232,.12) !important;
+      color: var(--sf-blue) !important;
+    }
   </style>
 </head>
 <body>
-  <div style="position:relative;width:100%;height:100%">
+  <script src="../bg.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
       <span class="nav-label">The AI Data Cloud — Agentic Foundation</span>

@@ -15,10 +15,19 @@
       --trust-c:       #22C55E;
       --ai-c:          #F59E0B;
       color-scheme: dark;
+
+      /* ── Type scale ────────────────────────────────────── */
+      --fs-h6: 0.72rem;   /*  ~12px — nav chrome, eyebrows, tags, captions  */
+      --fs-h5: 0.82rem;   /*  ~13px — body text, descriptions               */
+      --fs-h4: 0.95rem;   /*  ~15px — card titles, button text               */
+      --fs-h3: 1.15rem;   /*  ~18px — slide subheadings                      */
+      --fs-h2: 1.35rem;   /*  ~22px — slide main headings                    */
+      --fs-h1: 1.75rem;   /*  ~28px — large display headings                 */
     }
+    html { font-size: clamp(13px, 1.3vw, 16px); }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: var(--sf-navy);
+      background: radial-gradient(ellipse 90% 85% at 50% 50%, #0b1a35 0%, var(--sf-navy) 70%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       height: 100vh; overflow: hidden;
       color: #fff;
@@ -44,14 +53,14 @@
     }
     .btn-back, .btn-home {
       padding: 5px 14px; border-radius: 100px;
-      font-size: .78rem; font-weight: 600;
+      font-size: var(--fs-h6); font-weight: 600;
       cursor: pointer; border: none; transition: all .17s; letter-spacing: .3px;
     }
     .btn-back { background: rgba(41,181,232,.1); border: 1px solid rgba(41,181,232,.3); color: var(--sf-blue); }
     .btn-back:hover { background: rgba(41,181,232,.22); border-color: var(--sf-blue); }
     .btn-home { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.6); }
     .btn-home:hover { background: rgba(255,255,255,.1); color: #fff; }
-    .nav-label { font-size: .78rem; font-weight: 500; color: rgba(255,255,255,.45); letter-spacing: .4px; }
+    .nav-label { font-size: var(--fs-h6); font-weight: 500; color: rgba(255,255,255,.45); letter-spacing: .4px; }
 
     /* ── SLIDE CANVAS ───────────────────────────────────────── */
     .slide-canvas {
@@ -71,7 +80,7 @@
     /* ── SNOWFLAKE BRAND ELEMENTS ──────────────────────────── */
     .sf-logo {
       display: flex; align-items: center; gap: 8px;
-      font-size: .82rem; font-weight: 700; letter-spacing: .5px;
+      font-size: var(--fs-h5); font-weight: 700; letter-spacing: .5px;
       color: rgba(255,255,255,.7); flex-shrink: 0;
     }
     .sf-logo svg { flex-shrink: 0; }
@@ -79,7 +88,7 @@
     .slide-tag {
       display: inline-flex; align-items: center;
       padding: 3px 12px; border-radius: 100px;
-      font-size: .72rem; font-weight: 700; letter-spacing: 1px;
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase;
     }
     .tag-blue   { background: rgba(41,181,232,.15); color: var(--sf-blue); border: 1px solid rgba(41,181,232,.3); }
@@ -99,18 +108,18 @@
 
     /* ── FEATURE CARDS ──────────────────────────────────────── */
     .feat-card {
-      background: var(--sf-card);
-      border: 1px solid var(--sf-border);
+      background: var(--sf-border);
+      border: 1px solid var(--sf-blue);
       border-radius: 10px; padding: 16px;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex; flex-direction: row; gap: 8px;
       transition: border-color .2s, transform .15s;
     }
     .feat-card:hover { border-color: rgba(41,181,232,.38); transform: translateY(-2px); }
     .feat-card.conn:hover  { border-color: rgba(147,51,234,.45); }
     .feat-card.trust:hover { border-color: rgba(34,197,94,.45); }
     .feat-card-head { display: flex; align-items: center; gap: 10px; }
-    .feat-title { font-size: clamp(.82rem,1.1vw,1rem); font-weight: 700; color: #e8f4fd; }
-    .feat-body  { font-size: clamp(.72rem,.9vw,.85rem); color: rgba(255,255,255,.62); line-height: 1.55; }
+    .feat-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; }
+    .feat-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.62); line-height: 1.55; }
 
     /* ── PILLAR BUTTONS (on Pillars page) ───────────────────── */
     .pillar-actions {
@@ -119,7 +128,7 @@
     }
     .pillar-btn {
       padding: 9px 24px; border-radius: 100px;
-      font-size: .88rem; font-weight: 700;
+      font-size: var(--fs-h4); font-weight: 700;
       cursor: pointer; border: none; letter-spacing: .35px;
       transition: transform .17s, box-shadow .17s;
     }
@@ -155,7 +164,7 @@
       100% { transform:scale(1.5); opacity:0; }
     }
     .globe-hint {
-      font-size:.7rem; color: rgba(192,132,252,.85); font-weight:600;
+      font-size: var(--fs-h6); color: rgba(192,132,252,.85); font-weight:600;
       white-space:nowrap; background:rgba(5,13,26,.8);
       padding:3px 10px; border-radius:100px;
       border:1px solid rgba(147,51,234,.28);
@@ -204,7 +213,7 @@
     .cta-pillars {
       background: linear-gradient(135deg,#29B5E8 0%,#0059a3 100%);
       color:#fff; padding:11px 30px; border-radius:100px;
-      cursor:pointer; font-size:.9rem; font-weight:700; letter-spacing:.4px;
+      cursor:pointer; font-size: var(--fs-h4); font-weight:700; letter-spacing:.4px;
       border:none; margin-bottom:20px;
       box-shadow: 0 0 28px rgba(41,181,232,.42), 0 3px 10px rgba(0,0,0,.5);
       transition: box-shadow .22s, transform .15s;
@@ -223,7 +232,7 @@
 
     .cta-ai-cloud {
       display:flex; align-items:center; gap:8px; margin-top:18px;
-      color:var(--sf-blue); font-size:.95rem; font-weight:600;
+      color:var(--sf-blue); font-size: var(--fs-h4); font-weight:600;
       cursor:pointer; letter-spacing:.5px;
       border-bottom:1px solid transparent; padding-bottom:1px;
       transition: color .2s, border-color .2s;
@@ -244,12 +253,12 @@
       padding:4px 16px 6px; background:#fff;
       display:flex; flex-direction:column; align-items:center; gap:4px;
     }
-    .arch-l1-label { font-size:11px; font-weight:700; color:#29B5E8; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; text-align:center; }
+    .arch-l1-label { font-size: var(--fs-h6); font-weight:700; color:#29B5E8; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; text-align:center; }
     .arch-l1-items { display:flex; align-items:center; width:100%; justify-content:center; gap:0; }
-    .eco-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; position:relative; }
+    .eco-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; position:relative; width:120px; }
     .eco-item img { width:40px; height:40px; object-fit:contain; }
-    .eco-item span { font-size:11px; color:#071525; white-space:nowrap; font-weight:600; }
-    .eco-dash { flex:1; max-width:88px; min-width:32px; border-top:3px dashed #29B5E8; margin:0 4px; }
+    .eco-item span { font-size: var(--fs-h6); color:#071525; white-space:nowrap; font-weight:600; }
+    .eco-dash { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
 
     /* Platform container */
     .arch-platform {
@@ -261,7 +270,7 @@
     /* L2 — Header */
     .arch-l2 {
       padding:8px 24px; background:#fff;
-      font-size:clamp(16px,1.8vw,20px); font-weight:800; color:#0E2A5C;
+      font-size: var(--fs-h2); font-weight:800; color:#0E2A5C;
       letter-spacing:.2px; text-align:center;
       flex-shrink:0;
     }
@@ -273,7 +282,7 @@
       border:4px solid #29B5E8; border-radius:6px; padding:8px 4px; background:#fff;
     }
     .product-box img { width:40px; height:40px; object-fit:contain; }
-    .product-box span { font-size:11px; color:#071525; font-weight:700; text-align:center; line-height:1.2; }
+    .product-box span { font-size: var(--fs-h6); color:#071525; font-weight:700; text-align:center; line-height:1.2; }
 
     /* L4 — Horizon Catalog */
     .arch-l4 {
@@ -283,8 +292,8 @@
     }
     .arch-l4 img { width:60px; height:60px; object-fit:contain; flex-shrink:0; }
     .arch-l4-text { display:flex; flex-direction:column; gap:2px; }
-    .arch-l4-title { font-size:14px; font-weight:800; color:#071525; }
-    .arch-l4-sub { font-size:11px; color:rgba(7,21,37,.58); line-height:1.35; }
+    .arch-l4-title { font-size: var(--fs-h5); font-weight:800; color:#071525; }
+    .arch-l4-sub { font-size: var(--fs-h6); color:rgba(7,21,37,.58); line-height:1.35; }
 
     /* L5 — Languages */
     .arch-l5 {
@@ -293,7 +302,7 @@
     }
     .lang-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 2px; flex-shrink:0; position:relative; }
     .lang-item img { width:40px; height:40px; object-fit:contain; }
-    .lang-item span { font-size:11px; color:#071525; white-space:nowrap; font-weight:600; }
+    .lang-item span { font-size: var(--fs-h6); color:#071525; white-space:nowrap; font-weight:600; }
     .lang-sep { flex:1; height:40px; display:flex; justify-content:center; }
     .lang-sep::after { content:''; width:3px; background:rgba(41,181,232,.35); border-radius:3px; }
     /* layer 6 icons should appear white on blue bg */
@@ -304,12 +313,12 @@
     .arch-patterns { display:flex; padding:8px 10px 4px; gap:6px; }
     .arch-pattern { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 8px; position:relative; }
     .arch-pattern img { width:40px; height:40px; object-fit:contain; }
-    .arch-pattern span { font-size:12px; color:#fff; font-weight:700; white-space:nowrap; }
+    .arch-pattern span { font-size: var(--fs-h6); color:#fff; font-weight:700; white-space:nowrap; }
     .arch-brace { padding:0 10px; line-height:0; overflow:visible; }
     .arch-storage { display:flex; padding:4px 10px 8px; gap:4px; }
     .storage-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 2px; position:relative; }
     .storage-item img { width:40px; height:40px; object-fit:contain; }
-    .storage-item span { font-size:10px; color:rgba(255,255,255,.92); font-weight:600; text-align:center; line-height:1.2; }
+    .storage-item span { font-size: var(--fs-h6); color:rgba(255,255,255,.92); font-weight:600; text-align:center; line-height:1.2; }
 
     /* L7 — Cross-Cloud */
     .arch-l7 {
@@ -320,102 +329,67 @@
     .l7-tab {
       position:absolute; top:-14px; left:50%; transform:translateX(-50%);
       background:#050d1a; border:2px solid #29B5E8; border-bottom:none;
-      color:#fff; font-size:11px; font-weight:700; letter-spacing:.5px;
+      color:#fff; font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
       padding:3px 12px; border-radius:3px 3px 0 0; white-space:nowrap;
     }
     .l7-clouds {
       display:flex; align-items:center; justify-content:center;
       gap:0; padding:14px 10px 8px;
     }
-    .cloud-item-lg { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; padding:0 6px; position:relative; }
+    .cloud-item-lg { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; padding:0 10px; position:relative; width:120px; }
     .cloud-item-lg img { width:40px; height:40px; object-fit:contain; }
-    .cloud-item-lg span { font-size:11px; color:#fff; font-weight:600; white-space:nowrap; }
-    .cloud-dash-lg { flex:1; max-width:36px; min-width:10px; border-top:1.5px dashed #29B5E8; margin:0 3px; margin-bottom:8px; }
+    .cloud-item-lg span { font-size: var(--fs-h6); color:#fff; font-weight:600; white-space:nowrap; }
+    .cloud-dash-lg { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
     .arch-footer { padding:2px 8px; font-size:5px; color:rgba(255,255,255,.22); text-align:right; flex-shrink:0; }
     /* Temporary icon marker */
     .temp-tag {
       position:absolute; top:2px; right:2px; z-index:10;
       background:#F59E0B; color:#fff;
-      font-size:7px; font-weight:800; line-height:1;
+      font-size: var(--fs-h6); font-weight:800; line-height:1;
       padding:1px 4px; border-radius:3px;
       letter-spacing:.3px; text-transform:uppercase;
       pointer-events:none;
+      opacity:0; transition:opacity .15s;
     }
+    :hover > .temp-tag,
+    .l7-tab:hover .temp-tag { opacity:1; }
 
     /* ─────────────────────────────────────────────────────── */
     /* SLIDE 6 — Easy, Connected, Trusted                      */
     /* ─────────────────────────────────────────────────────── */
-    #s6 { background: linear-gradient(160deg,#071628 0%,#0b1c35 100%); }
+    #s6 { background: linear-gradient(160deg,rgba(7,22,40,.93) 0%,rgba(11,28,53,.93) 100%); }
     #s6 .s6-top {
       padding: 14px 24px 10px;
       display:flex; flex-direction:column; gap:4px;
       border-bottom:1px solid rgba(41,181,232,.09);
     }
-    #s6 .s6-header { font-size:clamp(.75rem,1.2vw,1.1rem); font-weight:700; color:#fff; }
-    #s6 .s6-sub    { font-size:clamp(.62rem,.85vw,.78rem); color:rgba(255,255,255,.45); }
+    #s6 .s6-header { font-size: var(--fs-h3); font-weight:700; color:#fff; }
+    #s6 .s6-sub    { font-size: var(--fs-h6); color:rgba(255,255,255,.45); }
     #s6 .s6-cols {
       flex:1; display:grid; grid-template-columns:1fr 1fr 1fr;
       gap:14px; padding:14px 20px 10px;
     }
     .pillar-col {
       border-radius:12px; padding:18px 16px;
-      display:flex; flex-direction:column; gap:12px;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      text-align:center;
     }
-    .pillar-col.easy-col   { background:linear-gradient(145deg,rgba(41,181,232,.1) 0%,rgba(41,181,232,.04) 100%); border:1px solid rgba(41,181,232,.2); }
-    .pillar-col.conn-col   { background:linear-gradient(145deg,rgba(147,51,234,.1) 0%,rgba(147,51,234,.04) 100%); border:1px solid rgba(147,51,234,.22); }
-    .pillar-col.trust-col  { background:linear-gradient(145deg,rgba(34,197,94,.1) 0%,rgba(34,197,94,.04) 100%); border:1px solid rgba(34,197,94,.22); }
+    .pillar-icon { width: 50%; height: auto; display: block; }
+    .pillar-col.easy-col,
+    .pillar-col.conn-col,
+    .pillar-col.trust-col  { background: #fff; border: 3px solid var(--sf-blue); }
     .pillar-col-head { display:flex; align-items:center; gap:10px; }
-    .pillar-col-name { font-size:clamp(.95rem,1.5vw,1.3rem); font-weight:800; }
-    .pillar-col-name.easy  { color:var(--easy-c); }
-    .pillar-col-name.conn  { color:#c084fc; }
-    .pillar-col-name.trust { color:#4ade80; }
-    .pillar-col-desc { font-size:clamp(.65rem,.85vw,.8rem); color:rgba(255,255,255,.58); line-height:1.6; }
+    .pillar-col-name { font-size: var(--fs-h2); font-weight:800; }
+    .pillar-col-name.easy,
+    .pillar-col-name.conn,
+    .pillar-col-name.trust { color: var(--sf-ink); }
+    .pillar-col-desc { font-size: var(--fs-h5); color: var(--sf-ink); opacity: .72; line-height:1.6; }
     #s6 .s6-footer { padding:8px 22px 10px; display:flex; align-items:center; justify-content:center; gap:8px; }
-    #s6 .s6-footer span { font-size:clamp(.6rem,.75vw,.72rem); color:rgba(255,255,255,.35); }
+    #s6 .s6-footer span { font-size: var(--fs-h6); color:rgba(255,255,255,.35); }
 
     /* ─────────────────────────────────────────────────────── */
-    /* SLIDE 7 — Easy Detail                                   */
+    /* SLIDE 9 — Cross-Cloud Globe (positioning classes)        */
     /* ─────────────────────────────────────────────────────── */
-    #s7 { background:linear-gradient(160deg,#061420 0%,#091c32 100%); }
-    #s7 .slide-header {
-      padding:14px 24px 10px;
-      border-bottom:1px solid rgba(41,181,232,.1);
-    }
-    #s7 .slide-header .sh-label { font-size:clamp(.58rem,.72vw,.68rem); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:rgba(41,181,232,.7); margin-bottom:4px; }
-    #s7 .slide-header h2 { font-size:clamp(.85rem,1.4vw,1.2rem); font-weight:700; color:#f0f8ff; line-height:1.3; }
-    #s7 .slide-header h2 em { font-style:normal; color:var(--sf-blue); }
-    #s7 .cards-grid {
-      flex:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr;
-      gap:10px; padding:10px 18px 12px;
-    }
-    #s7 .cards-grid .feat-card:nth-child(4) { grid-column:1/2; }
-    #s7 .cards-grid .feat-card:nth-child(5) { grid-column:2/3; }
-
-    /* ─────────────────────────────────────────────────────── */
-    /* SLIDE 8 — Connected Detail                              */
-    /* ─────────────────────────────────────────────────────── */
-    #s8 { background:linear-gradient(160deg,#0a0618 0%,#110926 100%); }
-    #s8 .slide-header { padding:14px 24px 10px; border-bottom:1px solid rgba(147,51,234,.12); }
-    #s8 .slide-header .sh-label { font-size:clamp(.58rem,.72vw,.68rem); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:rgba(147,51,234,.75); margin-bottom:4px; }
-    #s8 .slide-header h2 { font-size:clamp(.85rem,1.4vw,1.2rem); font-weight:700; color:#f5f0ff; line-height:1.3; }
-    #s8 .slide-header h2 em { font-style:normal; color:#c084fc; }
-    #s8 .cards-grid {
-      flex:1; display:grid; grid-template-columns:1fr; grid-auto-rows:1fr;
-      gap:10px; padding:10px 18px 12px;
-    }
-    #s8 .feat-card { border-color:rgba(147,51,234,.18); }
-    #s8 .feat-card .feat-title { color:#ede8ff; }
-
-    /* ─────────────────────────────────────────────────────── */
-    /* SLIDE 9 — Cross-Cloud Globe                             */
-    /* ─────────────────────────────────────────────────────── */
-    #s9 { background:linear-gradient(160deg,#050d1a 0%,#081630 100%); }
-    #s9 .s9-header { padding:14px 24px 8px; border-bottom:1px solid rgba(41,181,232,.09); }
-    #s9 .s9-title { font-size:clamp(.85rem,1.4vw,1.2rem); font-weight:700; color:#e8f6fc; }
-    #s9 .s9-body {
-      flex:1; position:relative; display:flex; align-items:center; justify-content:center;
-    }
-    /* Cloud nodes — absolutely positioned to match SVG overlay coords (based on viewBox 0 0 1600 900) */
     .cloud-node {
       position:absolute; display:flex; flex-direction:column; align-items:center; gap:5px;
       transform:translate(-50%, -50%);
@@ -426,13 +400,13 @@
     .cloud-logo {
       width:clamp(44px,6vw,72px); height:clamp(44px,6vw,72px);
       border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-size:clamp(.62rem,.8vw,.78rem); font-weight:700; letter-spacing:.5px;
+      font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
       border:2px solid;
     }
     .cloud-logo-aws   { background:rgba(255,153,0,.1);  border-color:rgba(255,153,0,.5);  color:#FF9900; }
     .cloud-logo-gcp   { background:rgba(66,133,244,.1); border-color:rgba(66,133,244,.5); color:#4285F4; }
     .cloud-logo-azure { background:rgba(0,137,214,.1);  border-color:rgba(0,137,214,.5);  color:#0089D6; }
-    .cloud-name { font-size:clamp(.58rem,.72vw,.7rem); font-weight:700; color:rgba(255,255,255,.65); text-align:center; letter-spacing:.5px; }
+    .cloud-name { font-size: var(--fs-h6); font-weight:700; color:rgba(255,255,255,.65); text-align:center; letter-spacing:.5px; }
 
     /* Central Snowflake node */
     .sf-center-node {
@@ -444,7 +418,7 @@
       border-radius:50%; display:flex; align-items:center; justify-content:center;
       background:rgba(41,181,232,.12); border:2px solid rgba(41,181,232,.5);
     }
-    .sf-center-name { font-size:clamp(.58rem,.75vw,.72rem); font-weight:700; color:var(--sf-blue); letter-spacing:.5px; }
+    .sf-center-name { font-size: var(--fs-h6); font-weight:700; color:var(--sf-blue); letter-spacing:.5px; }
 
     /* Four axis labels */
     .axis-labels {
@@ -454,7 +428,7 @@
     .axis-label {
       position:absolute; background:var(--sf-card2);
       border:1px solid var(--sf-border); border-radius:6px;
-      padding:4px 10px; font-size:clamp(.55rem,.68vw,.66rem); font-weight:700;
+      padding:4px 10px; font-size: var(--fs-h6); font-weight:700;
       color:rgba(255,255,255,.75); letter-spacing:.4px; text-align:center;
       white-space:nowrap;
     }
@@ -464,37 +438,18 @@
     .al-right  { right:2%; top:50%; transform:translateY(-50%); writing-mode:vertical-lr; text-orientation:mixed; transform:translateY(-50%) rotate(180deg); }
 
     /* ─────────────────────────────────────────────────────── */
-    /* SLIDE 10 — Trusted Detail                               */
-    /* ─────────────────────────────────────────────────────── */
-    #s10 { background:linear-gradient(160deg,#041208 0%,#071e12 100%); }
-    #s10 .slide-header { padding:14px 24px 10px; border-bottom:1px solid rgba(34,197,94,.12); }
-    #s10 .slide-header .sh-label { font-size:clamp(.58rem,.72vw,.68rem); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:rgba(34,197,94,.75); margin-bottom:4px; }
-    #s10 .slide-header h2 { font-size:clamp(.85rem,1.4vw,1.2rem); font-weight:700; color:#f0fff4; line-height:1.3; }
-    #s10 .slide-header h2 em { font-style:normal; color:#4ade80; }
-    #s10 .cards-grid {
-      flex:1; display:grid; grid-template-columns:1fr; grid-auto-rows:1fr;
-      gap:10px; padding:10px 18px 12px;
-    }
-    #s10 .feat-card { border-color:rgba(34,197,94,.16); }
-    #s10 .feat-card .feat-title { color:#e8fff0; }
-
-    /* ─────────────────────────────────────────────────────── */
     /* SLIDE 13 — AI Data Cloud                                */
     /* ─────────────────────────────────────────────────────── */
-    #s13 { background:linear-gradient(145deg,#04091a 0%,#080d20 60%,#041015 100%); }
+    #s13 { background:linear-gradient(145deg,rgba(4,9,26,.93) 0%,rgba(8,13,32,.90) 60%,rgba(4,16,21,.93) 100%); }
     #s13 .s13-top {
       display:flex; align-items:center; justify-content:space-between;
       padding:12px 22px 8px;
       border-bottom:1px solid rgba(41,181,232,.09);
     }
     #s13 .s13-title-block { display:flex; flex-direction:column; gap:3px; }
-    #s13 .s13-eyebrow { font-size:clamp(.58rem,.72vw,.68rem); font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(41,181,232,.65); }
-    #s13 .s13-title { font-size:clamp(.88rem,1.45vw,1.25rem); font-weight:800; color:#fff; }
-    #s13 .s13-grid {
-      flex:1; display:grid; grid-template-columns:1fr 1fr;
-      grid-template-rows:1fr 1fr;
-      gap:12px; padding:10px 18px 12px;
-    }
+    #s13 .s13-eyebrow { font-size: var(--fs-h6); font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(41,181,232,.65); }
+    #s13 .s13-title { font-size: var(--fs-h3); font-weight:800; color:#fff; }
+    /* s13-grid layout defined in ai-data-cloud.html */
     .ai-card {
       border-radius:12px; padding:16px;
       display:flex; flex-direction:column; gap:10px;
@@ -510,12 +465,12 @@
     .ai-card-3:hover { border-color:rgba(245,158,11,.45); }
     .ai-card-4:hover { border-color:rgba(34,197,94,.45); }
     .ai-card-head { display:flex; align-items:center; gap:10px; }
-    .ai-card-title { font-size:clamp(.82rem,1.1vw,.98rem); font-weight:700; }
+    .ai-card-title { font-size: var(--fs-h4); font-weight:700; }
     .ai-card-1 .ai-card-title { color:var(--sf-blue); }
     .ai-card-2 .ai-card-title { color:#c084fc; }
     .ai-card-3 .ai-card-title { color:#fbbf24; }
     .ai-card-4 .ai-card-title { color:#4ade80; }
-    .ai-card-body { font-size:clamp(.68rem,.88vw,.82rem); color:rgba(255,255,255,.58); line-height:1.55; }
+    .ai-card-body { font-size: var(--fs-h5); color:rgba(255,255,255,.58); line-height:1.55; }
 
     /* ── MISC ───────────────────────────────────────────────── */
     ::-webkit-scrollbar { width:5px; }
@@ -524,7 +479,7 @@
 
 /* ── Navigation link wrappers ────────────────────────────── */
 a.product-box, a.lang-item, a.storage-item, a.eco-item,
-a.arch-pattern, a.cloud-item-lg {
+a.arch-pattern, a.cloud-item-lg, a.arch-l4 {
   text-decoration: none;
   cursor: pointer;
   transition: transform .18s, box-shadow .18s;
@@ -532,5 +487,19 @@ a.arch-pattern, a.cloud-item-lg {
 a.product-box:hover { transform:translateY(-2px); box-shadow:0 4px 18px rgba(41,181,232,.4); }
 a.lang-item:hover, a.eco-item:hover { transform:translateY(-2px); }
 a.arch-pattern:hover { transform:translateY(-2px); filter:brightness(1.15); }
+a.arch-l4:hover { transform:translateY(-2px); }
+
+/* In-Progress tag */
+.in-progress-tag {
+  position:absolute; top:2px; left:2px; z-index:10;
+  background:#3B82F6; color:#fff;
+  font-size: var(--fs-h6); font-weight:800; line-height:1;
+  padding:1px 4px; border-radius:3px;
+  letter-spacing:.3px; text-transform:uppercase;
+  pointer-events:none; white-space:nowrap;
+  opacity:0; transition:opacity .15s;
+}
+:hover > .in-progress-tag,
+.l7-tab:hover .in-progress-tag { opacity:1; }
 a.storage-item:hover { transform:translateY(-2px); filter:brightness(1.15); }
 a.cloud-item-lg:hover { transform:translateY(-2px); }
