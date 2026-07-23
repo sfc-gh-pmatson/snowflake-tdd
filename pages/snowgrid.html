@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowgrid — Cross-Cloud Multi-Region — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ───────────────────────────────── */
+    .sg-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Globe pane ──────────────────────────────────────── */
+    .sg-globe-pane {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(8,22,48,.97) 100%);
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+
+    /* Inner map area — fixed 1000×400px, centered in the globe pane.
+       Dots and background image both live here so percentages are consistent. */
+    .sg-globe-map {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      aspect-ratio: 10 / 4;
+      transform: translateY(-50%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .sg-globe-map::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url(../Images/Vector\ Map\ World\ -\ Transparent.png);
+      background-size: auto 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: invert(1);
+      opacity: 0.11;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Title overlay */
+    .sg-globe-title {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sg-title-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.65);
+    }
+    .sg-title-main {
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* ── Clickable cloud provider nodes ─────────────────── */
+    .sg-cloud-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      cursor: pointer;
+    }
+    .sg-cloud-node-aws   { left: 5%; top: 35%; }
+    .sg-cloud-node-azure { left: 5%; top: 50%; }
+    .sg-cloud-node-gcp   { left: 5%; top: 65%; }
+
+    .sg-cloud-logo-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sg-cloud-logo {
+      width: clamp(42px, 5vw, 62px);
+      height: clamp(42px, 5vw, 62px);
+      border-radius: 50%;
+      background-size: 65%;
+      background-repeat: no-repeat;
+      background-position: center;
+      border: 2.5px solid;
+      transition: transform .2s, box-shadow .2s;
+      position: relative;
+      z-index: 1;
+    }
+    .sg-cloud-node:hover .sg-cloud-logo { transform: scale(1.1); }
+    .sg-cloud-logo-aws   { background-color: var(--aws-c);   border-color: var(--aws-c);   background-image: url(../icons/cloud_aws.png); }
+    .sg-cloud-logo-azure { background-color: var(--azure-c); border-color: var(--azure-c); background-image: url(../icons/cloud_azure.png); }
+    .sg-cloud-logo-gcp   { background-color: var(--gcp-c);   border-color: var(--gcp-c);   background-image: url(../icons/cloud_gcp.png); }
+
+    .sg-pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sg-cloud-name {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(255,255,255,.65);
+      letter-spacing: .5px;
+      white-space: nowrap;
+      transition: color .2s;
+    }
+    .sg-cloud-count-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,.35);
+      letter-spacing: .3px;
+    }
+
+    /* Active cloud node states */
+    .sg-cloud-node.active-aws  .sg-cloud-logo { transform: scale(1.15); box-shadow: 0 0 22px 4px var(--aws-c);   border-width: 3px; }
+    .sg-cloud-node.active-gcp  .sg-cloud-logo { transform: scale(1.15); box-shadow: 0 0 22px 4px var(--gcp-c);   border-width: 3px; }
+    .sg-cloud-node.active-azure .sg-cloud-logo { transform: scale(1.15); box-shadow: 0 0 22px 4px var(--azure-c); border-width: 3px; }
+    .sg-cloud-node.active-aws  .sg-cloud-name,
+    .sg-cloud-node.active-gcp  .sg-cloud-name,
+    .sg-cloud-node.active-azure .sg-cloud-name { color: #fff; }
+
+    .sg-cloud-node.active-aws   .sg-pulse-ring { border-color: var(--aws-c);   opacity: 1; animation: sg-pulse 1.8s ease-out infinite; }
+    .sg-cloud-node.active-gcp   .sg-pulse-ring { border-color: var(--gcp-c);   opacity: 1; animation: sg-pulse 1.8s ease-out infinite; }
+    .sg-cloud-node.active-azure .sg-pulse-ring { border-color: var(--azure-c); opacity: 1; animation: sg-pulse 1.8s ease-out infinite; }
+    @keyframes sg-pulse {
+      0%   { transform: scale(1);   opacity: .8; }
+      100% { transform: scale(1.7); opacity: 0;  }
+    }
+
+    /* Region dots on the map */
+    .sg-dot {
+      position: absolute;
+      width: clamp(12px, 1.6vw, 18px);
+      height: clamp(12px, 1.6vw, 18px);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .sg-dot-aws   { background: var(--aws-c); }
+    .sg-dot-gcp   { background: var(--gcp-c); }
+    .sg-dot-azure { background: var(--azure-c); }
+    .sg-dot.dimmed { opacity: 0.15; }
+
+    /* ── Legend boxes (matching pillars) ──────────────────── */
+    .globe-legend-box {
+      position: absolute;
+      bottom: 10%;
+      left: 3%;
+      width: 20%;
+      background: rgba(8, 22, 48, 0.82);
+      border: 1px solid rgba(41,181,232,.3);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 8px;
+      z-index: 6;
+      pointer-events: none;
+      text-decoration: none;
+    }
+    a.globe-legend-box {
+      pointer-events: all;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    a.globe-legend-box:hover {
+      border-color: rgba(41,181,232,.7);
+      background: rgba(8, 22, 48, 0.95);
+    }
+    .globe-legend-box.right-side  { left: auto; right: 3%; }
+    .globe-legend-box.center-side  { left: 50%; transform: translateX(-50%); }
+    .globe-legend-box.center-side .globe-legend-label { white-space: normal; text-align: center; line-height: 1.35; }
+    .globe-legend-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(41,181,232,.85);
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .globe-legend-icons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .globe-legend-icons .sf-img {
+      width: 32px;
+      height: 32px;
+      filter: brightness(0) invert(1);
+      opacity: .8;
+    }
+
+    /* ── Click hint at bottom ──────────────────────────────── */
+    .sg-hint {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.32);
+      letter-spacing: .4px;
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    /* ── Right panel ──────────────────────────────────────── */
+    .sg-panel {
+      width: 370px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(6, 16, 36, .98);
+    }
+
+    .sg-panel-header {
+      padding: 15px 18px 12px;
+      border-bottom: 1px solid rgba(41,181,232,.1);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sg-panel-cloud-name {
+      font-size: var(--fs-h3);
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sg-panel-cloud-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background .25s;
+    }
+    .sg-panel-region-count {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.35);
+    }
+
+    /* Empty state */
+    .sg-panel-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .sg-panel-empty-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sg-panel-empty-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: rgba(255,255,255,.5);
+    }
+    .sg-panel-empty-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.28);
+      line-height: 1.55;
+      max-width: 240px;
+    }
+
+    /* Region list */
+    .sg-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0 4px;
+      display: none;
+    }
+    .sg-panel-body.visible { display: block; }
+
+    .sg-region-group { margin-bottom: 4px; }
+
+    .sg-region-group-label {
+      padding: 7px 18px 4px;
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(41,181,232,.6);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .sg-region-group-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(41,181,232,.14);
+    }
+    .sg-region-group-label.gov-label { color: rgba(245,158,11,.65); }
+    .sg-region-group-label.gov-label::after { background: rgba(245,158,11,.18); }
+
+    .sg-region-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 18px;
+      transition: background .15s;
+    }
+    .sg-region-item:hover { background: rgba(41,181,232,.055); }
+    .sg-region-item.gov-item:hover { background: rgba(245,158,11,.05); }
+
+    .sg-region-item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .sg-region-item-id {
+      font-size: var(--fs-h6);
+      font-weight: 600;
+      color: rgba(255,255,255,.42);
+      letter-spacing: .2px;
+      flex-shrink: 0;
+      width: 148px;
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', ui-monospace, monospace;
+      font-size: 0.68rem;
+    }
+    .sg-region-item-name {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.7);
+      line-height: 1.35;
+    }
+    .sg-region-item.gov-item .sg-region-item-id   { color: rgba(245,158,11,.5); }
+    .sg-region-item.gov-item .sg-region-item-name { color: rgba(255,255,255,.52); }
+
+    /* Panel footer / footnote */
+    .sg-panel-footer {
+      padding: 8px 18px 10px;
+      font-size: 10px;
+      color: rgba(255,255,255,.22);
+      border-top: 1px solid rgba(41,181,232,.07);
+      flex-shrink: 0;
+      line-height: 1.5;
+      display: none;
+    }
+    .sg-panel-footer.visible { display: block; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowgrid — Cross-Cloud Multi-Region</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div class="sg-layout">
+
+        <!-- ════════ Globe pane ════════ -->
+        <div class="sg-globe-pane" id="sg-globe">
+
+          <!-- Title -->
+          <div class="sg-globe-title">
+            <div class="sg-title-eyebrow">Snowflake Snowgrid</div>
+            <div class="sg-title-main">Global Cloud Infrastructure</div>
+          </div>
+
+          <!-- AWS node -->
+          <div class="sg-cloud-node sg-cloud-node-aws" onclick="selectCloud('aws')">
+            <div class="sg-cloud-logo-wrap">
+              <div class="sg-cloud-logo sg-cloud-logo-aws"></div>
+              <div class="sg-pulse-ring"></div>
+            </div>
+            <span class="sg-cloud-name">AWS</span>
+            <span class="sg-cloud-count-badge">26 regions</span>
+          </div>
+
+          <!-- Azure node -->
+          <div class="sg-cloud-node sg-cloud-node-azure" onclick="selectCloud('azure')">
+            <div class="sg-cloud-logo-wrap">
+              <div class="sg-cloud-logo sg-cloud-logo-azure"></div>
+              <div class="sg-pulse-ring"></div>
+            </div>
+            <span class="sg-cloud-name">Azure</span>
+            <span class="sg-cloud-count-badge">19 regions</span>
+          </div>
+
+          <!-- GCP node -->
+          <div class="sg-cloud-node sg-cloud-node-gcp" onclick="selectCloud('gcp')">
+            <div class="sg-cloud-logo-wrap">
+              <div class="sg-cloud-logo sg-cloud-logo-gcp"></div>
+              <div class="sg-pulse-ring"></div>
+            </div>
+            <span class="sg-cloud-name">Google Cloud</span>
+            <span class="sg-cloud-count-badge">7 regions</span>
+          </div>
+
+          <!-- Inner map area: world map bg + dots + arrows (pointer-events off) -->
+          <div class="sg-globe-map" id="sg-globe-map"></div>
+
+          <!-- Legend boxes -->
+          <div class="globe-legend-box">
+            <div class="globe-legend-label">Across Data Types</div>
+            <div class="globe-legend-icons">
+              <span class="sf-img sf-icon-structured"   style="width:32px;height:32px;"></span>
+              <span class="sf-img sf-icon-semi-struct"  style="width:32px;height:32px;"></span>
+              <span class="sf-img sf-icon-unstructured" style="width:32px;height:32px;"></span>
+            </div>
+          </div>
+          <a href="bcdr.html" class="globe-legend-box center-side">
+            <div class="globe-legend-label">BC &amp; DR</div>
+            <div class="globe-legend-icons">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
+                <polyline points="9 12 11 14 15 10"/>
+              </svg>
+            </div>
+          </a>
+            <div class="globe-legend-label">Across Storage Formats</div>
+            <div class="globe-legend-icons">
+              <span class="sf-img sf-icon-server"  style="width:32px;height:32px;"></span>
+              <span class="sf-img sf-icon-cloud"   style="width:32px;height:32px;"></span>
+              <span class="sf-img sf-icon-iceberg" style="width:32px;height:32px;"></span>
+            </div>
+          </div>
+
+          <div class="sg-hint">Click a cloud provider to explore supported regions</div>
+        </div>
+
+        <!-- ════════ Region panel ════════ -->
+        <div class="sg-panel">
+          <div class="sg-panel-header">
+            <div class="sg-panel-cloud-name">
+              <div class="sg-panel-cloud-dot" id="sg-panel-dot"></div>
+              <span id="sg-panel-title-text">Select a Cloud Provider</span>
+            </div>
+            <div class="sg-panel-region-count" id="sg-panel-count"></div>
+          </div>
+
+          <!-- Region list (populated by JS) -->
+          <div class="sg-panel-body visible" id="sg-panel-body"></div>
+
+          <!-- Footnotes -->
+          <div class="sg-panel-footer" id="sg-panel-footer"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Region data ────────────────────────────────────────────────────────
+    const REGIONS = {
+      aws: {
+        name: 'Amazon Web Services',
+        color: '#FF9900',
+        groups: [
+          { label: 'Americas', regions: [
+            { id: 'us-west-2',    name: 'US West (Oregon)' },
+            { id: 'us-east-1',    name: 'US East (N. Virginia)' },
+            { id: 'us-east-2',    name: 'US East (Ohio)' },
+            { id: 'ca-central-1', name: 'Canada (Central)' },
+            { id: 'sa-east-1',    name: 'South America (São Paulo)' },
+          ]},
+          { label: 'Europe / Middle East / Africa', regions: [
+            { id: 'eu-west-1',    name: 'EU (Ireland)' },
+            { id: 'eu-west-2',    name: 'Europe (London)' },
+            { id: 'eu-west-3',    name: 'EU (Paris)' },
+            { id: 'eu-central-1', name: 'EU (Frankfurt)' },
+            { id: 'eu-central-2', name: 'EU (Zurich)' },
+            { id: 'eu-north-1',   name: 'EU (Stockholm)' },
+            { id: 'me-central-1', name: 'Middle East (UAE)' },
+            { id: 'af-south-1',   name: 'Africa (Cape Town)' },
+          ]},
+          { label: 'Asia Pacific', regions: [
+            { id: 'ap-northeast-1', name: 'Asia Pacific (Tokyo)' },
+            { id: 'ap-northeast-2', name: 'Asia Pacific (Seoul)' },
+            { id: 'ap-northeast-3', name: 'Asia Pacific (Osaka)' },
+            { id: 'ap-south-1',     name: 'Asia Pacific (Mumbai)' },
+            { id: 'ap-southeast-1', name: 'Asia Pacific (Singapore)' },
+            { id: 'ap-southeast-2', name: 'Asia Pacific (Sydney)' },
+            { id: 'ap-southeast-3', name: 'Asia Pacific (Jakarta)' },
+            { id: 'ap-southeast-5', name: 'Asia Pacific (Malaysia)' },
+            { id: 'ap-southeast-6', name: 'Asia Pacific (New Zealand)' },
+            { id: 'ap-southeast-7', name: 'Asia Pacific (Thailand)' },
+            { id: 'cn-northwest-1', name: 'China (Ningxia) †' },
+          ]},
+          { label: 'US Government (SnowGov)', gov: true, regions: [
+            { id: 'us-gov-east-1', name: 'US Gov East 1 — FedRAMP High' },
+            { id: 'us-gov-west-1', name: 'US Gov West 1 — FedRAMP High / DoW IL5' },
+          ]},
+        ],
+        footnote: '† China (Ningxia) is operated by Digital China Cloud Technology (DCC) under a separate agreement at snowflakecomputing.cn. SnowGov regions require Business Critical Edition and are restricted to US Government Customers and Contractors.',
+      },
+
+      gcp: {
+        name: 'Google Cloud Platform',
+        color: '#EB3474',
+        groups: [
+          { label: 'Americas', regions: [
+            { id: 'us-central1', name: 'US Central1 (Iowa)' },
+            { id: 'us-east4',    name: 'US East4 (N. Virginia)' },
+          ]},
+          { label: 'Europe / Middle East', regions: [
+            { id: 'europe-west2', name: 'Europe West2 (London)' },
+            { id: 'europe-west3', name: 'Europe West3 (Frankfurt)' },
+            { id: 'europe-west4', name: 'Europe West4 (Netherlands)' },
+            { id: 'me-central2',  name: 'Middle East Central2 (Dammam)' },
+          ]},
+          { label: 'Asia Pacific', regions: [
+            { id: 'australia-southeast2', name: 'Australia Southeast 2 (Melbourne)' },
+          ]},
+        ],
+        footnote: null,
+      },
+
+      azure: {
+        name: 'Microsoft Azure',
+        color: '#0078D4',
+        groups: [
+          { label: 'Americas', regions: [
+            { id: 'canadacentral',  name: 'Canada Central (Toronto)' },
+            { id: 'centralus',      name: 'Central US (Iowa)' },
+            { id: 'eastus',         name: 'East US (Virginia)' },
+            { id: 'eastus2',        name: 'East US 2 (Virginia)' },
+            { id: 'mexicocentral',  name: 'Mexico Central (Querétaro)' },
+            { id: 'southcentralus', name: 'South Central US (Texas)' },
+            { id: 'westus2',        name: 'West US 2 (Washington)' },
+          ]},
+          { label: 'Europe / Middle East / Africa', regions: [
+            { id: 'northeurope',      name: 'North Europe (Ireland)' },
+            { id: 'westeurope',       name: 'West Europe (Netherlands)' },
+            { id: 'uksouth',          name: 'UK South (London)' },
+            { id: 'switzerlandnorth', name: 'Switzerland North (Zurich)' },
+            { id: 'swedencentral',    name: 'Sweden Central (Gävle)' },
+            { id: 'uaenorth',         name: 'UAE North (Dubai)' },
+          ]},
+          { label: 'Asia Pacific', regions: [
+            { id: 'australiaeast', name: 'Australia East (New South Wales)' },
+            { id: 'centralindia',  name: 'Central India (Pune)' },
+            { id: 'japaneast',     name: 'Japan East (Tokyo)' },
+            { id: 'koreacentral',  name: 'Korea Central (Seoul)' },
+            { id: 'southeastasia', name: 'Southeast Asia (Singapore)' },
+          ]},
+          { label: 'US Government (SnowGov)', gov: true, regions: [
+            { id: 'usgovvirginia', name: 'US Gov Virginia — FedRAMP High' },
+          ]},
+        ],
+        footnote: 'SnowGov regions require Business Critical Edition and are restricted to US Government Customers and Contractors.',
+      },
+    };
+
+    // ── Cloud region dots (left%, top% within globe pane) ──────────────────
+    const CLOUD_DOTS = {
+      aws: [
+        [27, 42],  // US
+        [61, 50],  // India
+        [48, 33],  // EU
+        [76, 43],  // Japan
+        [78, 72],  // Australia
+        [40, 69],  // Brazil
+        [52, 79],  // South Africa
+      ],
+      azure: [
+        [29, 46],  // US 1
+        [34, 41],  // US 2
+        [76, 74],  // Australia
+        [65, 52],  // AP Southeast
+        [73, 41],  // AP East
+        [51, 38],  // EU 1
+      ],
+      gcp: [
+        [32, 44],  // US
+        [50, 43],  // EU 1
+        [53, 38],  // EU 2
+        [74, 78],  // Australia
+        [58, 52],  // UAE
+      ],
+    };
+
+    // ── Animated connection arrows ──────────────────────────────────────────
+    const CLOUD_ARROWS = [
+      ['aws6',   'aws7',   'down'],
+      ['aws7',   'gcp4',   'down'],
+      ['gcp2',   'gcp5',   'down'],
+      ['aws7',   'aws2',   'down'],
+      ['gcp1',   'gcp2',   'down'],
+      ['aws1',   'aws6',   'down'],
+      ['aws1',   'azure2', 'up'  ],
+      ['aws1',   'gcp1',   'up'  ],
+      ['azure1', 'gcp5',   'down'],
+      ['azure2', 'aws3',   'up'  ],
+      ['aws3',   'azure5', 'up'  ],
+      ['aws6',   'gcp2',   'up'  ],
+      ['gcp2',   'aws2',   'up'  ],
+      ['gcp3',   'azure4', 'up'  ],
+      ['gcp3',   'aws4',   'down'],
+      ['azure4', 'aws4',   'up'  ],
+      ['azure4', 'aws5',   'up'  ],
+      ['aws2',   'azure3', 'down'],
+      ['aws6',   'gcp5',   'down'],
+      ['gcp1',   'aws3',   'down'],
+      ['aws5',   'aws4',   'down'],
+      ['aws3',   'gcp2',   'down'],
+      ['azure5', 'azure3', 'down'],
+    ];
+
+    function renderCloudArrows() {
+      const globe = document.getElementById('sg-globe-map');
+      const existing = globe.querySelector('.sg-arrows-svg');
+      if (existing) existing.remove();
+
+      function dotPos(key) {
+        const cloud = key.replace(/\d+$/, '');
+        const idx = parseInt(key.match(/\d+$/)[0], 10) - 1;
+        const pos = CLOUD_DOTS[cloud][idx];
+        return { x: pos[0], y: pos[1] };
+      }
+
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'sg-arrows-svg');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible;';
+
+      const defs = document.createElementNS(NS, 'defs');
+      svg.appendChild(defs);
+
+      const W = globe.offsetWidth || 600, H = globe.offsetHeight || 400;  // H ≈ 400 (fixed)
+      const rx = (2 * 100 / W).toFixed(3);
+      const ry = (2 * 100 / H).toFixed(3);
+
+      CLOUD_ARROWS.forEach(function([fromKey, toKey, arcDir], pathIndex) {
+        const a = dotPos(fromKey), b = dotPos(toKey);
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 3) return;
+
+        const sign = arcDir === 'down' ? 1 : -1;
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const offset = dist * 0.25;
+        const cx = mx + sign * (-dy / dist) * offset;
+        const cy = my + sign * (dx / dist) * offset;
+
+        const pathId = 'sgp-' + fromKey + '-' + toKey;
+        const pathD  = 'M' + a.x + ',' + a.y + ' Q' + cx + ',' + cy + ' ' + b.x + ',' + b.y;
+
+        const line = document.createElementNS(NS, 'path');
+        line.setAttribute('id', pathId);
+        line.setAttribute('d', pathD);
+        line.setAttribute('fill', 'none');
+        line.setAttribute('stroke', '#29B5E8');
+        line.setAttribute('stroke-width', '0.25');
+        line.setAttribute('stroke-opacity', '0.2');
+        svg.appendChild(line);
+
+        const dot = document.createElementNS(NS, 'ellipse');
+        dot.setAttribute('rx', rx);
+        dot.setAttribute('ry', ry);
+        dot.setAttribute('fill', '#29B5E8');
+        dot.setAttribute('opacity', '0');
+
+        const dur   = (0.9 + dist * 0.03).toFixed(1) + 's';
+        const begin = ((pathIndex * 0.65) % 5).toFixed(2) + 's';
+
+        const animMotion = document.createElementNS(NS, 'animateMotion');
+        animMotion.setAttribute('dur', dur);
+        animMotion.setAttribute('repeatCount', 'indefinite');
+        animMotion.setAttribute('begin', begin);
+        const mpath = document.createElementNS(NS, 'mpath');
+        mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + pathId);
+        animMotion.appendChild(mpath);
+
+        const animOpacity = document.createElementNS(NS, 'animate');
+        animOpacity.setAttribute('attributeName', 'opacity');
+        animOpacity.setAttribute('values', '0;0;0.85;0.85;0');
+        animOpacity.setAttribute('dur', dur);
+        animOpacity.setAttribute('repeatCount', 'indefinite');
+        animOpacity.setAttribute('begin', begin);
+
+        dot.appendChild(animMotion);
+        dot.appendChild(animOpacity);
+        svg.appendChild(dot);
+      });
+
+      globe.appendChild(svg);
+    }
+
+    function renderCloudDots() {
+      const mapArea = document.getElementById('sg-globe-map');
+      mapArea.querySelectorAll('.sg-dot').forEach(function(d) { d.remove(); });
+      Object.entries(CLOUD_DOTS).forEach(function([cloud, positions]) {
+        positions.forEach(function([x, y]) {
+          const dot = document.createElement('div');
+          dot.className = 'sg-dot sg-dot-' + cloud;
+          dot.dataset.cloud = cloud;
+          dot.style.left = x + '%';
+          dot.style.top  = y + '%';
+          mapArea.appendChild(dot);
+        });
+      });
+      renderCloudArrows();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() { renderCloudDots(); renderPanelAll(); });
+
+    // ── Cloud provider selection ────────────────────────────────────────────
+    var activeCloud = null;
+
+    function selectCloud(key) {
+      const globe = document.getElementById('sg-globe');
+
+      if (activeCloud === key) {
+        // Deselect
+        activeCloud = null;
+        globe.querySelectorAll('.sg-cloud-node').forEach(function(n) {
+          n.classList.remove('active-aws', 'active-gcp', 'active-azure');
+        });
+        document.getElementById('sg-globe-map').querySelectorAll('.sg-dot').forEach(function(d) { d.classList.remove('dimmed'); });
+        renderPanelAll();
+        return;
+      }
+
+      activeCloud = key;
+
+      // Update node active classes
+      globe.querySelectorAll('.sg-cloud-node').forEach(function(n) {
+        n.classList.remove('active-aws', 'active-gcp', 'active-azure');
+      });
+      var node = globe.querySelector('.sg-cloud-node-' + key);
+      if (node) node.classList.add('active-' + key);
+
+      // Dim dots for other clouds
+      document.getElementById('sg-globe-map').querySelectorAll('.sg-dot').forEach(function(d) {
+        d.classList.toggle('dimmed', d.dataset.cloud !== key);
+      });
+
+      renderPanelContent(key);
+    }
+
+    function renderPanelAll() {
+      document.getElementById('sg-panel-title-text').textContent = 'All Cloud Regions';
+      document.getElementById('sg-panel-dot').style.background = 'transparent';
+      var total = ['aws','azure','gcp'].reduce(function(s, k) {
+        return s + REGIONS[k].groups.reduce(function(s2, g) { return s2 + g.regions.length; }, 0);
+      }, 0);
+      document.getElementById('sg-panel-count').textContent = total + ' regions across 3 providers';
+
+      var body = document.getElementById('sg-panel-body');
+      body.innerHTML = '';
+
+      ['aws', 'azure', 'gcp'].forEach(function(key) {
+        var data = REGIONS[key];
+
+        // Provider header
+        var providerHeader = document.createElement('div');
+        providerHeader.style.cssText = 'padding:10px 18px 4px;font-size:var(--fs-h5);font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(41,181,232,.08);margin-top:4px;';
+        var providerDot = document.createElement('div');
+        providerDot.style.cssText = 'width:10px;height:10px;border-radius:50%;flex-shrink:0;background:' + data.color + ';';
+        var providerName = document.createElement('span');
+        providerName.textContent = data.name;
+        providerHeader.appendChild(providerDot);
+        providerHeader.appendChild(providerName);
+        body.appendChild(providerHeader);
+
+        data.groups.forEach(function(group) {
+          var groupEl = document.createElement('div');
+          groupEl.className = 'sg-region-group';
+          var labelEl = document.createElement('div');
+          labelEl.className = 'sg-region-group-label' + (group.gov ? ' gov-label' : '');
+          labelEl.textContent = group.label;
+          groupEl.appendChild(labelEl);
+          group.regions.forEach(function(region) {
+            var item = document.createElement('div');
+            item.className = 'sg-region-item' + (group.gov ? ' gov-item' : '');
+            var dotEl = document.createElement('div');
+            dotEl.className = 'sg-region-item-dot';
+            dotEl.style.background = group.gov ? 'rgba(245,158,11,.75)' : data.color;
+            var idEl = document.createElement('span');
+            idEl.className = 'sg-region-item-id';
+            idEl.textContent = region.id;
+            var nameEl = document.createElement('span');
+            nameEl.className = 'sg-region-item-name';
+            nameEl.textContent = region.name;
+            item.appendChild(dotEl); item.appendChild(idEl); item.appendChild(nameEl);
+            groupEl.appendChild(item);
+          });
+          body.appendChild(groupEl);
+        });
+      });
+
+      body.classList.add('visible');
+      document.getElementById('sg-panel-footer').classList.remove('visible');
+    }
+
+    function renderPanelContent(key) {
+      var data = REGIONS[key];
+
+      // Header
+      document.getElementById('sg-panel-title-text').textContent = data.name;
+      document.getElementById('sg-panel-dot').style.background = data.color;
+      var total = data.groups.reduce(function(s, g) { return s + g.regions.length; }, 0);
+      document.getElementById('sg-panel-count').textContent = total + ' supported regions';
+
+      // Build region list
+      var body = document.getElementById('sg-panel-body');
+      body.innerHTML = '';
+
+      data.groups.forEach(function(group) {
+        var groupEl = document.createElement('div');
+        groupEl.className = 'sg-region-group';
+
+        var labelEl = document.createElement('div');
+        labelEl.className = 'sg-region-group-label' + (group.gov ? ' gov-label' : '');
+        labelEl.textContent = group.label;
+        groupEl.appendChild(labelEl);
+
+        group.regions.forEach(function(region) {
+          var item = document.createElement('div');
+          item.className = 'sg-region-item' + (group.gov ? ' gov-item' : '');
+
+          var dotEl = document.createElement('div');
+          dotEl.className = 'sg-region-item-dot';
+          dotEl.style.background = group.gov ? 'rgba(245,158,11,.75)' : data.color;
+
+          var idEl = document.createElement('span');
+          idEl.className = 'sg-region-item-id';
+          idEl.textContent = region.id;
+
+          var nameEl = document.createElement('span');
+          nameEl.className = 'sg-region-item-name';
+          nameEl.textContent = region.name;
+
+          item.appendChild(dotEl);
+          item.appendChild(idEl);
+          item.appendChild(nameEl);
+          groupEl.appendChild(item);
+        });
+
+        body.appendChild(groupEl);
+      });
+
+      body.classList.add('visible');
+
+      // Footer footnote
+      var footerEl = document.getElementById('sg-panel-footer');
+      if (data.footnote) {
+        footerEl.textContent = data.footnote;
+        footerEl.classList.add('visible');
+      } else {
+        footerEl.classList.remove('visible');
+      }
+    }
+  </script>
+</body>
+</html>

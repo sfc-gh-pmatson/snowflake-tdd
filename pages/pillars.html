@@ -118,8 +118,101 @@
     .conn-globe-body {
       position: relative;
       flex: 1;
-      min-height: 200px;
+      min-height: 400px;
     }
+    .conn-globe-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url(../Images/Vector\ Map\ World\ -\ Transparent.png);
+      background-size: auto 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: invert(1);
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Pillar panel feat-card: split head (1/3) | body (2/3) */
+    .pillar-panel .feat-card {
+      padding: 0;
+      gap: 0;
+      overflow: hidden;
+      align-items: stretch;
+    }
+    .pillar-panel .feat-card-head {
+      flex: 1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 14px 12px;
+      gap: 10px;
+    }
+    .pillar-panel .feat-body {
+      flex: 2;
+      background: #fff;
+      color: #071525;
+      border-radius: 6px;
+      margin: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      line-height: 1.55;
+    }
+
+    /* Data-type legend box */
+    .globe-legend-box {
+      position: absolute;
+      left: 3%; top: 80%;
+      width: 20%; height: 15%;
+      background: rgba(8, 22, 48, 0.82);
+      border: 1px solid rgba(41,181,232,.3);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 8px;
+      z-index: 6;
+    }
+    .globe-legend-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(41,181,232,.85);
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .globe-legend-icons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .globe-legend-icons .sf-img {
+      width: 22px;
+      height: 22px;
+      filter: brightness(0) invert(1);
+      opacity: .8;
+    }
+
+    .globe-legend-box.right-side { left: auto; right: 3%; }
+
+    /* Cloud region dots */
+    .cloud-dot {
+      position: absolute;
+      width: clamp(16px, 2vw, 24px); height: clamp(16px, 2vw, 24px);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.58rem; font-weight: 800; color: #fff;
+      transform: translate(-50%, -50%);
+      z-index: 5; pointer-events: none;
+    }
+    .cloud-dot-aws   { background: var(--aws-c); }
+    .cloud-dot-gcp   { background: var(--gcp-c); }
+    .cloud-dot-azure { background: var(--azure-c); }
 
     /* Connected view toggle */
     .conn-cards-view { display: flex; flex-direction: column; gap: 8px; }
@@ -150,16 +243,6 @@
       <div id="s6" class="sf-slide">
         <div class="s6-top">
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="sf-logo">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
-                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
-                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
-                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
-                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
-                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
-              </svg>
-              Snowflake
-            </div>
             <span class="slide-tag tag-blue">Platform Differentiation</span>
           </div>
           <div class="s6-header" style="margin-top:6px">The Easy, Connected and Trusted Data Foundation to Accelerate Enterprise-Ready Data &amp; AI</div>
@@ -275,64 +358,34 @@
               <!-- Globe view (hidden by default) -->
               <div class="conn-globe-view">
                 <div class="conn-globe-wrap">
-                  <div class="conn-globe-title">Data is Valuable — We Help Maximize Its Insights</div>
+
                   <div class="conn-globe-body">
                     <div class="cloud-node cloud-node-aws">
-                      <div class="cloud-logo cloud-logo-aws">AWS</div>
-                      <div class="cloud-name">Amazon Web Services</div>
+                      <div class="cloud-logo cloud-logo-aws"></div>
                     </div>
                     <div class="cloud-node cloud-node-gcp">
-                      <div class="cloud-logo cloud-logo-gcp">GCP</div>
-                      <div class="cloud-name">Google Cloud Platform</div>
+                      <div class="cloud-logo cloud-logo-gcp"></div>
                     </div>
                     <div class="cloud-node cloud-node-azure">
-                      <div class="cloud-logo cloud-logo-azure">Azure</div>
-                      <div class="cloud-name">Microsoft Azure</div>
+                      <div class="cloud-logo cloud-logo-azure"></div>
                     </div>
-                    <div class="sf-center-node">
-                      <div class="sf-center-logo">
-                        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" stroke="#29B5E8" stroke-width="2.6" stroke-linecap="round">
-                          <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
-                          <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
-                          <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
-                          <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
-                          <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
-                        </svg>
+                    <!-- Storage Formats legend box -->
+                    <div class="globe-legend-box right-side">
+                      <div class="globe-legend-label">Across Storage Formats</div>
+                      <div class="globe-legend-icons">
+                        <span class="sf-img sf-icon-server"></span>
+                        <span class="sf-img sf-icon-cloud"></span>
+                        <span class="sf-img sf-icon-iceberg"></span>
                       </div>
-                      <div class="sf-center-name">Snowflake</div>
                     </div>
-                    <div class="axis-labels">
-                      <div class="axis-label al-top">Across Regions</div>
-                      <div class="axis-label al-bottom">Across Data Types</div>
-                      <div class="axis-label al-left">Across Storage Formats</div>
-                      <div class="axis-label al-right">Across Clouds</div>
+                    <div class="globe-legend-box">
+                      <div class="globe-legend-label">Across Data Types</div>
+                      <div class="globe-legend-icons">
+                        <span class="sf-img sf-icon-structured"></span>
+                        <span class="sf-img sf-icon-semi-struct"></span>
+                        <span class="sf-img sf-icon-unstructured"></span>
+                      </div>
                     </div>
-                    <svg class="arrows-overlay" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <marker id="arr-aws2"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#FF9900"/></marker>
-                        <marker id="arr-gcp2"   markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4285F4"/></marker>
-                        <marker id="arr-azure2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0089D6"/></marker>
-                      </defs>
-                      <path class="flow-path flow-aws"   d="M 310,450 C 450,330 660,360 800,455" marker-end="url(#arr-aws2)"/>
-                      <path class="flow-path flow-gcp"   d="M 800,175 C 800,290 800,370 800,445" marker-end="url(#arr-gcp2)"/>
-                      <path class="flow-path flow-azure" d="M 1285,450 C 1140,330 940,360 808,455" marker-end="url(#arr-azure2)"/>
-                      <circle class="sf-pulse-ring" cx="800" cy="455" r="18"/>
-                      <circle r="6" class="dot-aws" opacity="0">
-                        <animateMotion dur="3.4s" repeatCount="indefinite" begin=".5s"><mpath href="#tp2-aws"/></animateMotion>
-                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin=".5s"/>
-                      </circle>
-                      <circle r="6" class="dot-gcp" opacity="0">
-                        <animateMotion dur="3.4s" repeatCount="indefinite" begin="1.6s"><mpath href="#tp2-gcp"/></animateMotion>
-                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="1.6s"/>
-                      </circle>
-                      <circle r="6" class="dot-azure" opacity="0">
-                        <animateMotion dur="3.4s" repeatCount="indefinite" begin="2.7s"><mpath href="#tp2-azure"/></animateMotion>
-                        <animate attributeName="opacity" values="0;0;.9;.9;0" dur="3.4s" repeatCount="indefinite" begin="2.7s"/>
-                      </circle>
-                      <path id="tp2-aws"   d="M 310,450 C 450,330 660,360 800,455" fill="none" stroke="none"/>
-                      <path id="tp2-gcp"   d="M 800,175 C 800,290 800,370 800,445" fill="none" stroke="none"/>
-                      <path id="tp2-azure" d="M 1285,450 C 1140,330 940,360 808,455" fill="none" stroke="none"/>
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -383,6 +436,175 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // ── CLOUD REGION DOTS ──────────────────────────────────────────────
+    // Edit these arrays to reposition dots. Values are [left%, top%]
+    // within the .conn-globe-body container (0,0 = top-left corner).
+    const CLOUD_DOTS = {
+      aws:   [
+        [27, 42],  // 1 — US 
+        [61, 50],  // 2 — India
+        [48, 33],  // 3 — EU 
+        [76, 43],  // 4 — Japan
+        [78, 72],  // 5 — Australia
+        [40, 69],  // 6 — Brazil
+        [52, 79],  // 7 — South Africa
+      ],
+      azure: [
+        [29, 46],  // 1 — US 1
+        [34, 41],  // 2 — US 2
+        [76, 74],  // 3 — Australia
+        [65, 52],  // 4 — AP Southeast
+        [73, 41],  // 5 — AP East
+        [51, 38],  // 6 — EU 1
+      ],
+      gcp:   [
+        [32, 44],  // 1 — US 
+        [50, 43],  // 2 — EU 1
+        [53, 38],  // 3 — EU 2
+        [74, 78],  // 4 - Australia
+        [58, 52],  // 5 — UAE
+      ],
+    };
+
+    // ── CLOUD ARROWS ───────────────────────────────────────────────────────
+    // Each entry: ['from', 'to', 'up'|'down']
+    // 'up' = arc bows above the line, 'down' = arc bows below.
+    const CLOUD_ARROWS = [
+      ['aws6',   'aws7',   'down'],
+      ['aws7',   'gcp4',   'down'],
+      ['gcp2',   'gcp5',   'down'],
+      ['aws7',   'aws2',   'down'],
+      ['gcp1',   'gcp2',   'down'],
+      ['aws1',   'aws6',   'down'],
+      ['aws1',   'azure2', 'up'  ],
+      ['aws1',   'gcp1',   'up'  ],
+      ['azure1', 'gcp5',   'down'],
+      ['azure2', 'aws3',   'up'  ],
+      ['aws3',   'azure5',   'up'  ],
+      ['aws6',   'gcp2',   'up'  ],
+      ['gcp2',   'aws2',   'up'  ],
+      ['gcp3',   'azure4', 'up'],
+      ['gcp3',   'aws4',   'down'],
+      ['azure4', 'aws4',   'up'  ],
+      ['azure4', 'aws5',   'up'],
+      ['aws2',   'azure3', 'down'],
+      ['aws6', 'gcp5', 'down'],
+      ['gcp1', 'aws3', 'down'],
+      ['aws5', 'aws4', 'down'],
+      ['aws3', 'gcp2', 'down'],
+      ['azure5', 'azure3', 'down'],
+    ];
+
+    function renderCloudArrows() {
+      const body = document.querySelector('.conn-globe-body');
+      if (!body) return;
+      const existing = body.querySelector('.cloud-arrows-svg');
+      if (existing) existing.remove();
+
+      // Resolve 'aws1' → {x, y} using CLOUD_DOTS (1-based index)
+      function dotPos(key) {
+        const cloud = key.replace(/\d+$/, '');
+        const idx   = parseInt(key.match(/\d+$/)[0], 10) - 1;
+        const pos   = CLOUD_DOTS[cloud][idx];
+        return { x: pos[0], y: pos[1] };
+      }
+
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'cloud-arrows-svg');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible;';
+
+      const defs = document.createElementNS(NS, 'defs');
+      svg.appendChild(defs);
+
+      // Compute ellipse radii to compensate for non-square SVG stretch
+      // 1 SVG unit in x = W/100 px, in y = H/100 px; target apparent radius = 4px
+      const W = body.offsetWidth || 600, H = body.offsetHeight || 300;
+      const rx = (2 * 100 / W).toFixed(3);
+      const ry = (2 * 100 / H).toFixed(3);
+
+      CLOUD_ARROWS.forEach(([fromKey, toKey, arcDir = 'up'], pathIndex) => {
+        const a = dotPos(fromKey), b = dotPos(toKey);
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 3) return;
+
+        // sign: 'up' bows above the line, 'down' bows below
+        const sign = arcDir === 'down' ? 1 : -1;
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const offset = dist * 0.25;
+        const cx = mx + sign * (-dy / dist) * offset;
+        const cy = my + sign * ( dx / dist) * offset;
+
+        const pathId = `cp-${fromKey}-${toKey}`;
+        const pathD  = `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`;
+
+        // Static line
+        const line = document.createElementNS(NS, 'path');
+        line.setAttribute('id', pathId);
+        line.setAttribute('d', pathD);
+        line.setAttribute('fill', 'none');
+        line.setAttribute('stroke', '#29B5E8');
+        line.setAttribute('stroke-width', '0.25');
+        line.setAttribute('stroke-opacity', '0.2');
+        svg.appendChild(line);
+
+        // Animated travelling dot — ellipse sized to appear circular
+        const dot = document.createElementNS(NS, 'ellipse');
+        dot.setAttribute('rx', rx);
+        dot.setAttribute('ry', ry);
+        dot.setAttribute('fill', '#29B5E8');
+        dot.setAttribute('opacity', '0');
+
+        const dur   = (0.9 + dist * 0.03).toFixed(1) + 's';
+        const begin = ((pathIndex * 0.65) % 5).toFixed(2) + 's';
+
+        const animMotion = document.createElementNS(NS, 'animateMotion');
+        animMotion.setAttribute('dur', dur);
+        animMotion.setAttribute('repeatCount', 'indefinite');
+        animMotion.setAttribute('begin', begin);
+        const mpath = document.createElementNS(NS, 'mpath');
+        mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + pathId);
+        animMotion.appendChild(mpath);
+
+        const animOpacity = document.createElementNS(NS, 'animate');
+        animOpacity.setAttribute('attributeName', 'opacity');
+        animOpacity.setAttribute('values', '0;0;0.85;0.85;0');
+        animOpacity.setAttribute('dur', dur);
+        animOpacity.setAttribute('repeatCount', 'indefinite');
+        animOpacity.setAttribute('begin', begin);
+
+        dot.appendChild(animMotion);
+        dot.appendChild(animOpacity);
+        svg.appendChild(dot);
+      });
+
+      body.appendChild(svg);
+    }
+
+    function renderCloudDots() {
+      const body = document.querySelector('.conn-globe-body');
+      if (!body) return;
+      // Remove any previously rendered dots (safe to call multiple times)
+      body.querySelectorAll('.cloud-dot').forEach(d => d.remove());
+      Object.entries(CLOUD_DOTS).forEach(([cloud, positions]) => {
+        positions.forEach(([x, y], i) => {
+          const dot = document.createElement('div');
+          dot.className = `cloud-dot cloud-dot-${cloud}`;
+          dot.style.left = x + '%';
+          dot.style.top  = y + '%';
+          dot.textContent = '';
+          body.appendChild(dot);
+        });
+      });
+      renderCloudArrows();
+    }
+    document.addEventListener('DOMContentLoaded', renderCloudDots);
+  </script>
 
   <script>
     function toggleConnView() {

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Business Continuity &amp; Disaster Recovery — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ────────────────────────────────── */
+    .bcdr-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Left: feature list ───────────────────────────────── */
+    .bcdr-left {
+      width: 46%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 36px 20px 32px;
+      gap: 0;
+      border-right: 1px solid rgba(41,181,232,.1);
+    }
+
+    .bcdr-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.65);
+      margin-bottom: 6px;
+    }
+    .bcdr-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .bcdr-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 24px;
+    }
+
+    /* Feature rows */
+    .bcdr-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid rgba(41,181,232,.08);
+    }
+    .bcdr-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.08); }
+    .bcdr-feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(41,181,232,.1);
+      border: 1px solid rgba(41,181,232,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .bcdr-feature-text { flex: 1; }
+    .bcdr-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f4fd;
+      margin-bottom: 4px;
+    }
+    .bcdr-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.55);
+      line-height: 1.55;
+    }
+
+    /* ── Right: map diagram ───────────────────────────────── */
+    .bcdr-right {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(8,22,48,.97) 100%);
+    }
+
+    /* World map — zoomed to North America */
+    .bcdr-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url(../Images/Americas\ Map\ Transparent.png);
+      background-size: auto 90%;
+      background-position: center 40%;
+      background-repeat: no-repeat;
+      filter: invert(1);
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Cloud location pins */
+    .bcdr-pin {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transform: translateX(-50%);
+      z-index: 10;
+      cursor: default;
+    }
+    .bcdr-pin-marker {
+      position: relative;
+      width: 48px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bcdr-pin-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .bcdr-pin-logo {
+      position: relative;
+      z-index: 1;
+      width: 24px;
+      height: 24px;
+      background-size: 70%;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-top: -6px; /* shift up within pin body */
+    }
+    .bcdr-pin-logo-aws   { background-image: url(../icons/cloud_aws.png); }
+    .bcdr-pin-logo-gcp   { background-image: url(../icons/cloud_gcp.png); }
+    .bcdr-pin-logo-azure { background-image: url(../icons/cloud_azure.png); }
+
+    .bcdr-pin-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+    .bcdr-pin-provider {
+      font-size: var(--fs-h6);
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: .4px;
+    }
+    .bcdr-pin-region {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,.5);
+      letter-spacing: .2px;
+    }
+
+    /* Pin positions */
+    .bcdr-pin-aws   { left: 20%; top: 32%; }
+    .bcdr-pin-gcp   { left: 38%; top: 35%; }
+    .bcdr-pin-azure { left: 56%; top: 32%; }
+
+    /* Connecting arc between pins */
+    .bcdr-arcs-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      overflow: visible;
+    }
+
+    /* Client Applications block */
+    .bcdr-client-block {
+      position: absolute;
+      bottom: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .bcdr-client-card {
+      background: rgba(8, 22, 48, 0.88);
+      border: 1px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 160px;
+    }
+    .bcdr-client-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(41,181,232,.85);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .bcdr-client-caption {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.38);
+      text-align: center;
+      line-height: 1.45;
+      max-width: 280px;
+    }
+    .bcdr-client-caption strong {
+      color: rgba(255,255,255,.6);
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    /* Replication arrows from client to pins */
+    .bcdr-repl-line {
+      position: absolute;
+      pointer-events: none;
+      z-index: 4;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Business Continuity &amp; Disaster Recovery</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div class="bcdr-layout">
+
+        <!-- ════════ Left: feature list ════════ -->
+        <div class="bcdr-left">
+          <div class="bcdr-eyebrow">Trusted — Snowflake Platform</div>
+          <div class="bcdr-title">Business Continuity &amp;<br>Disaster Recovery</div>
+          <div class="bcdr-sub">Fast-track your business resilience with Snowflake</div>
+
+          <!-- Feature 1 -->
+          <div class="bcdr-feature">
+            <div class="bcdr-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2v6h-6"/>
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+                <path d="M3 22v-6h6"/>
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+              </svg>
+            </div>
+            <div class="bcdr-feature-text">
+              <div class="bcdr-feature-title">Get going in a few clicks</div>
+              <div class="bcdr-feature-body">Eliminate setup complexity and manage your operations with an easy-to-use interface.</div>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="bcdr-feature">
+            <div class="bcdr-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="6" rx="8" ry="3"/>
+                <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+                <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
+                <path d="M8 15l-2 2 2 2"/><path d="M6 17a5 5 0 0 0 10 0"/>
+              </svg>
+            </div>
+            <div class="bcdr-feature-text">
+              <div class="bcdr-feature-title">Achieve near-zero downtime</div>
+              <div class="bcdr-feature-body">Trim Recovery Time Objectives (RTO) to less than a minute and automate key recovery processes.</div>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="bcdr-feature">
+            <div class="bcdr-feature-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="11" width="14" height="11" rx="2"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                <circle cx="12" cy="17" r="1.2" fill="#29B5E8"/>
+              </svg>
+            </div>
+            <div class="bcdr-feature-text">
+              <div class="bcdr-feature-title">Safeguard your entire data estate</div>
+              <div class="bcdr-feature-body">Protect Snowflake data, metadata, and account information with one comprehensive platform.</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="margin-top:18px;font-size:var(--fs-h6);color:rgba(255,255,255,.2);">
+            &copy; 2026 Snowflake Inc. All Rights Reserved
+          </div>
+        </div>
+
+        <!-- ════════ Right: map diagram ════════ -->
+        <div class="bcdr-right" id="bcdr-map">
+
+          <!-- AWS Pin -->
+          <div class="bcdr-pin bcdr-pin-aws">
+            <div class="bcdr-pin-marker">
+              <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#FF9900" fill-opacity="0.9" stroke="#FF9900" stroke-width="1.5"/>
+              </svg>
+              <div class="bcdr-pin-logo bcdr-pin-logo-aws"></div>
+            </div>
+            <div class="bcdr-pin-label">
+              <span class="bcdr-pin-provider" style="color:#FF9900;">AWS</span>
+              <span class="bcdr-pin-region">Oregon</span>
+            </div>
+          </div>
+
+          <!-- GCP Pin -->
+          <div class="bcdr-pin bcdr-pin-gcp">
+            <div class="bcdr-pin-marker">
+              <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#EB3474" fill-opacity="0.9" stroke="#EB3474" stroke-width="1.5"/>
+              </svg>
+              <div class="bcdr-pin-logo bcdr-pin-logo-gcp"></div>
+            </div>
+            <div class="bcdr-pin-label">
+              <span class="bcdr-pin-provider" style="color:#EB3474;">GCP</span>
+              <span class="bcdr-pin-region">Iowa</span>
+            </div>
+          </div>
+
+          <!-- Azure Pin -->
+          <div class="bcdr-pin bcdr-pin-azure">
+            <div class="bcdr-pin-marker">
+              <svg class="bcdr-pin-svg" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 2C13.5 2 5 10.5 5 21c0 13.5 19 37 19 37S43 34.5 43 21C43 10.5 34.5 2 24 2z" fill="#0078D4" fill-opacity="0.9" stroke="#0078D4" stroke-width="1.5"/>
+              </svg>
+              <div class="bcdr-pin-logo bcdr-pin-logo-azure"></div>
+            </div>
+            <div class="bcdr-pin-label">
+              <span class="bcdr-pin-provider" style="color:#0078D4;">Azure</span>
+              <span class="bcdr-pin-region">Virginia</span>
+            </div>
+          </div>
+
+          <!-- Connecting arcs between pins -->
+          <svg class="bcdr-arcs-svg" id="bcdr-arcs" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <marker id="bcdr-arrow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                <path d="M0,0 L0,4 L4,2 z" fill="#29B5E8" opacity="0.6"/>
+              </marker>
+            </defs>
+            <!-- AWS ↔ GCP arc -->
+            <path d="M20,37 Q29,28 38,38" fill="none" stroke="#29B5E8" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="2 2"/>
+            <!-- GCP ↔ Azure arc -->
+            <path d="M38,38 Q47,28 56,37" fill="none" stroke="#29B5E8" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="2 2"/>
+            <!-- AWS ↔ Azure long arc -->
+            <path d="M20,37 Q38,20 56,37" fill="none" stroke="#29B5E8" stroke-width="0.25" stroke-opacity="0.2" stroke-dasharray="3 3"/>
+          </svg>
+
+          <!-- Client Applications block -->
+          <div class="bcdr-client-block">
+            <div class="bcdr-client-card">
+              <!-- Monitor / dashboard icon -->
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+                <polyline points="6 8 9 11 12 8 15 11 18 8"/>
+              </svg>
+              <div class="bcdr-client-label">Client Applications</div>
+            </div>
+            <div class="bcdr-client-caption">
+              <strong>Client redirect</strong> redirects apps to the cloud region of your choice.
+            </div>
+          </div>
+
+        </div><!-- /bcdr-right -->
+      </div>
+    </div>
+  </div>
+</body>
+</html>

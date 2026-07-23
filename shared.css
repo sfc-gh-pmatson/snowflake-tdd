@@ -14,6 +14,9 @@
       --conn-c:        #9333EA;
       --trust-c:       #22C55E;
       --ai-c:          #F59E0B;
+      --aws-c:         #FF9900;
+      --azure-c:       #0078D4;
+      --gcp-c:         #EB3474;
       color-scheme: dark;
 
       /* ── Type scale ────────────────────────────────────── */
@@ -49,7 +52,8 @@
       position: absolute; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; gap: 10px;
       padding: 9px 18px;
-      background: linear-gradient(to bottom, rgba(5,13,26,.92) 60%, transparent);
+      background: rgba(5,13,26,.92);
+      border-bottom: 1px solid rgba(41,181,232,.15);
     }
     .btn-back, .btn-home {
       padding: 5px 14px; border-radius: 100px;
@@ -185,17 +189,17 @@
       stroke-dasharray:600; stroke-dashoffset:600;
       fill:none; stroke-width:2.5; stroke-linecap:round;
     }
-    .flow-aws   { stroke:#FF9900; animation: draw-path 3.4s ease-in-out infinite 0s; }
-    .flow-gcp   { stroke:#4285F4; animation: draw-path 3.4s ease-in-out infinite 1.1s; }
-    .flow-azure { stroke:#0089D6; animation: draw-path 3.4s ease-in-out infinite 2.2s; }
+    .flow-aws   { stroke:var(--aws-c); animation: draw-path 3.4s ease-in-out infinite 0s; }
+    .flow-gcp   { stroke:var(--gcp-c); animation: draw-path 3.4s ease-in-out infinite 1.1s; }
+    .flow-azure { stroke:var(--azure-c); animation: draw-path 3.4s ease-in-out infinite 2.2s; }
     @keyframes sf-pulse-anim {
       0%,100% { r:16; opacity:.7; }
       50%      { r:32; opacity:0; }
     }
     .sf-pulse-ring { fill:none; stroke:#29B5E8; stroke-width:2; animation:sf-pulse-anim 2.2s ease-out infinite; }
-    .dot-aws   { fill:#FF9900; }
-    .dot-gcp   { fill:#4285F4; }
-    .dot-azure { fill:#0089D6; }
+    .dot-aws   { fill:var(--aws-c); }
+    .dot-gcp   { fill:var(--gcp-c); }
+    .dot-azure { fill:var(--azure-c); }
 
     /* ── HOME PAGE ──────────────────────────────────────────── */
     #home {
@@ -256,7 +260,7 @@
     .arch-l1-label { font-size: var(--fs-h6); font-weight:700; color:#29B5E8; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; text-align:center; }
     .arch-l1-items { display:flex; align-items:center; width:100%; justify-content:center; gap:0; }
     .eco-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; position:relative; width:120px; }
-    .eco-item img { width:40px; height:40px; object-fit:contain; }
+    .eco-item img, .eco-item .sf-img { width:40px; height:40px; object-fit:contain; }
     .eco-item span { font-size: var(--fs-h6); color:#071525; white-space:nowrap; font-weight:600; }
     .eco-dash { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
 
@@ -281,7 +285,7 @@
       flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
       border:4px solid #29B5E8; border-radius:6px; padding:8px 4px; background:#fff;
     }
-    .product-box img { width:40px; height:40px; object-fit:contain; }
+    .product-box img, .product-box .sf-img { width:40px; height:40px; object-fit:contain; }
     .product-box span { font-size: var(--fs-h6); color:#071525; font-weight:700; text-align:center; line-height:1.2; }
 
     /* L4 — Horizon Catalog */
@@ -290,7 +294,7 @@
       padding:8px 24px; background:#fff;
       border-bottom:1px solid rgba(41,181,232,.15); flex-shrink:0;
     }
-    .arch-l4 img { width:60px; height:60px; object-fit:contain; flex-shrink:0; }
+    .arch-l4 img, .arch-l4 .sf-img { width:60px; height:60px; object-fit:contain; flex-shrink:0; }
     .arch-l4-text { display:flex; flex-direction:column; gap:2px; }
     .arch-l4-title { font-size: var(--fs-h5); font-weight:800; color:#071525; }
     .arch-l4-sub { font-size: var(--fs-h6); color:rgba(7,21,37,.58); line-height:1.35; }
@@ -301,7 +305,7 @@
       background:rgba(41,181,232,.07); border-bottom:1px solid rgba(41,181,232,.15); flex-shrink:0;
     }
     .lang-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 2px; flex-shrink:0; position:relative; }
-    .lang-item img { width:40px; height:40px; object-fit:contain; }
+    .lang-item img, .lang-item .sf-img { width:40px; height:40px; object-fit:contain; }
     .lang-item span { font-size: var(--fs-h6); color:#071525; white-space:nowrap; font-weight:600; }
     .lang-sep { flex:1; height:40px; display:flex; justify-content:center; }
     .lang-sep::after { content:''; width:3px; background:rgba(41,181,232,.35); border-radius:3px; }
@@ -312,12 +316,12 @@
     .arch-l6 { display:flex; flex-direction:column; gap:0; background:#29B5E8; flex-shrink:0; padding-bottom:12px; }
     .arch-patterns { display:flex; padding:8px 10px 4px; gap:6px; }
     .arch-pattern { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 8px; position:relative; }
-    .arch-pattern img { width:40px; height:40px; object-fit:contain; }
+    .arch-pattern img, .arch-pattern .sf-img { width:40px; height:40px; object-fit:contain; }
     .arch-pattern span { font-size: var(--fs-h6); color:#fff; font-weight:700; white-space:nowrap; }
     .arch-brace { padding:0 10px; line-height:0; overflow:visible; }
     .arch-storage { display:flex; padding:4px 10px 8px; gap:4px; }
     .storage-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 2px; position:relative; }
-    .storage-item img { width:40px; height:40px; object-fit:contain; }
+    .storage-item img, .storage-item .sf-img { width:40px; height:40px; object-fit:contain; }
     .storage-item span { font-size: var(--fs-h6); color:rgba(255,255,255,.92); font-weight:600; text-align:center; line-height:1.2; }
 
     /* L7 — Cross-Cloud */
@@ -337,7 +341,7 @@
       gap:0; padding:14px 10px 8px;
     }
     .cloud-item-lg { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; padding:0 10px; position:relative; width:120px; }
-    .cloud-item-lg img { width:40px; height:40px; object-fit:contain; }
+    .cloud-item-lg img, .cloud-item-lg .sf-img { width:40px; height:40px; object-fit:contain; }
     .cloud-item-lg span { font-size: var(--fs-h6); color:#fff; font-weight:600; white-space:nowrap; }
     .cloud-dash-lg { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
     .arch-footer { padding:2px 8px; font-size:5px; color:rgba(255,255,255,.22); text-align:right; flex-shrink:0; }
@@ -358,13 +362,13 @@
     /* SLIDE 6 — Easy, Connected, Trusted                      */
     /* ─────────────────────────────────────────────────────── */
     #s6 { background: linear-gradient(160deg,rgba(7,22,40,.93) 0%,rgba(11,28,53,.93) 100%); }
-    #s6 .s6-top {
+    .s6-top {
       padding: 14px 24px 10px;
       display:flex; flex-direction:column; gap:4px;
       border-bottom:1px solid rgba(41,181,232,.09);
     }
-    #s6 .s6-header { font-size: var(--fs-h3); font-weight:700; color:#fff; }
-    #s6 .s6-sub    { font-size: var(--fs-h6); color:rgba(255,255,255,.45); }
+    .s6-header { font-size: var(--fs-h3); font-weight:700; color:#fff; }
+    .s6-sub    { font-size: var(--fs-h6); color:rgba(255,255,255,.45); }
     #s6 .s6-cols {
       flex:1; display:grid; grid-template-columns:1fr 1fr 1fr;
       gap:14px; padding:14px 20px 10px;
@@ -397,15 +401,20 @@
     .cloud-node-aws   { left:19.4%; top:50%; }
     .cloud-node-gcp   { left:50%;   top:19.4%; }
     .cloud-node-azure { left:80.3%; top:50%; }
+
+    /* Pillar globe panel — left-side vertical stack */
+    .conn-globe-body .cloud-node-aws   { left:5%; top:35%; }
+    .conn-globe-body .cloud-node-azure { left:5%; top:50%; }
+    .conn-globe-body .cloud-node-gcp   { left:5%; top:65%; }
     .cloud-logo {
-      width:clamp(44px,6vw,72px); height:clamp(44px,6vw,72px);
+      width:clamp(32px,4vw,48px); height:clamp(32px,4vw,48px);
       border-radius:50%; display:flex; align-items:center; justify-content:center;
       font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
       border:2px solid;
     }
-    .cloud-logo-aws   { background:rgba(255,153,0,.1);  border-color:rgba(255,153,0,.5);  color:#FF9900; }
-    .cloud-logo-gcp   { background:rgba(66,133,244,.1); border-color:rgba(66,133,244,.5); color:#4285F4; }
-    .cloud-logo-azure { background:rgba(0,137,214,.1);  border-color:rgba(0,137,214,.5);  color:#0089D6; }
+    .cloud-logo-aws   { background-image:url('icons/cloud_aws.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--aws-c);   border-color:var(--aws-c); }
+    .cloud-logo-gcp   { background-image:url('icons/cloud_gcp.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--gcp-c);   border-color:var(--gcp-c); }
+    .cloud-logo-azure { background-image:url('icons/cloud_azure.png'); background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--azure-c); border-color:var(--azure-c); }
     .cloud-name { font-size: var(--fs-h6); font-weight:700; color:rgba(255,255,255,.65); text-align:center; letter-spacing:.5px; }
 
     /* Central Snowflake node */
@@ -441,14 +450,7 @@
     /* SLIDE 13 — AI Data Cloud                                */
     /* ─────────────────────────────────────────────────────── */
     #s13 { background:linear-gradient(145deg,rgba(4,9,26,.93) 0%,rgba(8,13,32,.90) 60%,rgba(4,16,21,.93) 100%); }
-    #s13 .s13-top {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 22px 8px;
-      border-bottom:1px solid rgba(41,181,232,.09);
-    }
-    #s13 .s13-title-block { display:flex; flex-direction:column; gap:3px; }
-    #s13 .s13-eyebrow { font-size: var(--fs-h6); font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(41,181,232,.65); }
-    #s13 .s13-title { font-size: var(--fs-h3); font-weight:800; color:#fff; }
+    /* s13 top section now uses shared .s6-top/.s6-header/.s6-sub classes */
     /* s13-grid layout defined in ai-data-cloud.html */
     .ai-card {
       border-radius:12px; padding:16px;
@@ -503,3 +505,57 @@ a.arch-l4:hover { transform:translateY(-2px); }
 .l7-tab:hover .in-progress-tag { opacity:1; }
 a.storage-item:hover { transform:translateY(-2px); filter:brightness(1.15); }
 a.cloud-item-lg:hover { transform:translateY(-2px); }
+
+/* ══════════════════════════════════════════════════════════
+   IMAGE REGISTRY — single source of truth for all image paths.
+   Paths are relative to shared.css (project root).
+   To swap an image, update only this section.
+   ════════════════════════════════════════════════════════ */
+
+/* Base class — add alongside every image class below */
+.sf-img {
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* ── Cloud provider logos ───────────────────────────────── */
+.img-cloud-aws   { background-image: url('icons/cloud_aws.png'); }
+.img-cloud-azure { background-image: url('icons/cloud_azure.png'); }
+.img-cloud-gcp   { background-image: url('icons/cloud_gcp.png'); }
+.img-cloud-pg    { background-image: url('icons/db_postgresql.png'); }
+
+/* ── Snowflake icons ────────────────────────────────────── */
+.sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
+.sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Make_Each_Other_Best.svg'); }
+.sf-icon-marketplace  { background-image: url('sf-icons/Snowflake_ICON_Marketplace.svg'); }
+.sf-icon-data-eng     { background-image: url('sf-icons/Snowflake_ICON_Data_Engineering.svg'); }
+.sf-icon-analytics    { background-image: url('sf-icons/Snowflake_ICON_Analytics.svg'); }
+.sf-icon-transactions { background-image: url('sf-icons/Snowflake_ICON_Transactions.svg'); }
+.sf-icon-ai           { background-image: url('sf-icons/Snowflake_ICON_AI_Star_Triple.svg'); }
+.sf-icon-apps-collab  { background-image: url('sf-icons/Snowflake_ICON_Application_Collaboration.svg'); }
+.sf-icon-horizon      { background-image: url('sf-icons/Snowflake_ICON_Horizon.svg'); }
+.sf-icon-sql          { background-image: url('sf-icons/Snowflake_ICON_SQL.svg'); }
+.sf-icon-js           { background-image: url('sf-icons/Snowflake_ICON_Javascript.svg'); }
+.sf-icon-snowpark     { background-image: url('sf-icons/Snowflake_ICON_Snowpark.svg'); }
+.sf-icon-spark        { background-image: url('sf-icons/Snowflake_ICON_Spark_Connect.svg'); }
+.sf-icon-spcs         { background-image: url('sf-icons/Snowflake_ICON_Snowpark_Containers.svg'); }
+.sf-icon-cpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Hardware_Semiconductors.svg'); }
+.sf-icon-gpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Fin_Tech.svg'); }
+.sf-icon-data-mesh    { background-image: url('sf-icons/Snowflake_ICON_Public_Data_Exchange.svg'); }
+.sf-icon-lakehouse    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_lake_Highlight.svg'); }
+.sf-icon-warehouse    { background-image: url('sf-icons/Snowflake_ICON_Warehouse_Data.svg'); }
+.sf-icon-unstructured { background-image: url('sf-icons/Snowflake_ICON_Unstructured_Data.svg'); }
+.sf-icon-semi-struct  { background-image: url('sf-icons/Snowflake_ICON_Semi_Structured_Data.svg'); }
+.sf-icon-structured   { background-image: url('sf-icons/Snowflake_ICON_Structured_Data.svg'); }
+.sf-icon-iceberg      { background-image: url('sf-icons/Snowflake_ICON_Iceberg_Tables.svg'); }
+.sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_RA_Snowflake_Database.svg'); }
+.sf-icon-hybrid       { background-image: url('sf-icons/Snowflake_ICON_Hybrid_Tables.svg'); }
+.sf-icon-server       { background-image: url('sf-icons/Snowflake_ICON_Server.svg'); }
+.sf-icon-cloud        { background-image: url('sf-icons/Snowflake_ICON_Cloud.svg'); }
+.sf-icon-servers      { background-image: url('sf-icons/Snowflake_ICON_Servers.svg'); }
+.sf-icon-platform     { background-image: url('sf-icons/Snowflake_ICON_Platform.svg'); }
+.sf-icon-third-party  { background-image: url('sf-icons/Snowflake_ICON_3rd_Party_App_2.svg'); }
+.sf-icon-data-apps    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications.svg'); }
+.sf-icon-security-gov { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
