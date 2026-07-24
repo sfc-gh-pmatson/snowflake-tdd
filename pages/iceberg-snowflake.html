@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Iceberg on Snowflake — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ────────────────────────────────── */
+    .isf-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: features ───────────────────────────────────── */
+    .isf-left {
+      width: 46%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 32px 20px 28px;
+      gap: 0;
+      border-right: 1px solid rgba(41,181,232,.1);
+    }
+
+    .isf-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.65);
+      margin-bottom: 6px;
+    }
+    .isf-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .isf-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .isf-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(41,181,232,.08);
+    }
+    .isf-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.08); }
+    .isf-feature-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(41,181,232,.1);
+      border: 1px solid rgba(41,181,232,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .isf-feature-text { flex: 1; }
+    .isf-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f0fd;
+      margin-bottom: 4px;
+    }
+    .isf-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.55;
+    }
+
+    /* ── Right: architecture diagram ──────────────────────── */
+    .isf-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 28px;
+      gap: 10px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(8,22,48,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle radial glow */
+    .isf-right::before {
+      content: '';
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .isf-diagram { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 360px; position: relative; z-index: 1; }
+
+    .isf-diagram-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      text-align: center;
+    }
+
+    /* Engine cards (external writers) */
+    .isf-engine-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .isf-engine-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 6px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .isf-engine-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .isf-engine-name {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(255,255,255,.62);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Connector row */
+    .isf-connector {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 0;
+    }
+    .isf-connector-line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(41,181,232,.35), rgba(41,181,232,.35), transparent);
+    }
+    .isf-connector-pill {
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.12);
+      border: 1px solid rgba(41,181,232,.3);
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: #29B5E8;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+
+    /* Central Snowflake / Iceberg box */
+    .isf-sf-box {
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(41,181,232,.08);
+      border: 1.5px solid rgba(41,181,232,.3);
+    }
+    .isf-sf-box-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .isf-sf-box-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f6fc;
+    }
+    .isf-sf-box-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.42);
+      line-height: 1.4;
+    }
+    .isf-benefit-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .isf-benefit-chip {
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.1);
+      border: 1px solid rgba(41,181,232,.22);
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.58);
+      font-weight: 600;
+    }
+
+    /* Storage layer */
+    .isf-storage-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .isf-storage-box-text { flex: 1; }
+    .isf-storage-box-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 3px;
+    }
+    .isf-storage-chips {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .isf-storage-chip {
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 0.63rem;
+      color: rgba(255,255,255,.38);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-iceberg-create',
+      code:  true,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_iceberg_tables/',
+      blog:  'https://www.snowflake.com/en/blog/iceberg-tables-generally-available/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./iceberg.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Iceberg on Snowflake</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div class="sf-slide">
+        <div class="isf-layout content-wrap">
+
+          <!-- ════════ Left: features ════════ -->
+          <div class="isf-left">
+            <div class="isf-eyebrow">Connected — Snowflake-Managed Iceberg</div>
+            <div class="isf-title">Iceberg on<br>Snowflake</div>
+            <div class="isf-sub">Create Iceberg-format tables managed by Snowflake. Any engine reads and writes them. Full platform performance applies.</div>
+
+            <!-- Feature 1 -->
+            <div class="isf-feature">
+              <div class="isf-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 4.5 13 11 13 11 22 19.5 11 13 11 13 2"/>
+                </svg>
+              </div>
+              <div class="isf-feature-text">
+                <div class="isf-feature-title">Full Snowflake Query Performance</div>
+                <div class="isf-feature-body">Automatic clustering, result caching, partition pruning, and query compilation work at full speed on Iceberg tables — no special configuration needed.</div>
+              </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="isf-feature">
+              <div class="isf-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                </svg>
+              </div>
+              <div class="isf-feature-text">
+                <div class="isf-feature-title">Write from Any Engine</div>
+                <div class="isf-feature-body">Spark, Flink, Trino, and Dremio can write directly via the Snowflake Iceberg REST catalog — same table, multiple engines, Snowflake manages the metadata and compaction.</div>
+              </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="isf-feature">
+              <div class="isf-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div class="isf-feature-text">
+                <div class="isf-feature-title">Enterprise Security &amp; Governance</div>
+                <div class="isf-feature-body">Dynamic data masking, row-level security, Time Travel, Fail-safe, and Snowflake Horizon classification all apply to Iceberg tables — just like any Snowflake native table.</div>
+              </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="isf-feature">
+              <div class="isf-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+              </div>
+              <div class="isf-feature-text">
+                <div class="isf-feature-title">No ETL &mdash; One Copy of Data</div>
+                <div class="isf-feature-body">Your data lives in a single Iceberg-format file set in cloud object storage. Snowflake reads it natively — no duplication, no pipelines, no sync overhead.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ Right: architecture diagram ════════ -->
+          <div class="isf-right">
+            <div class="isf-diagram">
+              <div class="isf-diagram-label">External Write Engines</div>
+
+              <!-- Engine cards -->
+              <div class="isf-engine-row">
+                <div class="isf-engine-card">
+                  <div class="isf-engine-icon" style="background:#FF3621;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <div class="isf-engine-name">Apache Spark&#x2122;</div>
+                </div>
+                <div class="isf-engine-card">
+                  <div class="isf-engine-icon" style="background:rgba(41,181,232,.25);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                  </div>
+                  <div class="isf-engine-name">Apache Flink&#x2122;</div>
+                </div>
+                <div class="isf-engine-card">
+                  <div class="isf-engine-icon" style="background:rgba(255,255,255,.08);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                  </div>
+                  <div class="isf-engine-name">Trino</div>
+                </div>
+                <div class="isf-engine-card">
+                  <div class="isf-engine-icon" style="background:rgba(255,255,255,.08);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </div>
+                  <div class="isf-engine-name">Dremio</div>
+                </div>
+              </div>
+
+              <!-- Connector -->
+              <div class="isf-connector">
+                <div class="isf-connector-line"></div>
+                <div class="isf-connector-pill">Iceberg REST Catalog</div>
+                <div class="isf-connector-line"></div>
+              </div>
+
+              <!-- Snowflake Iceberg table box -->
+              <div class="isf-sf-box">
+                <div class="isf-sf-box-top">
+                  <span class="sf-img sf-icon-iceberg" style="width:40px;height:40px;flex-shrink:0;"></span>
+                  <div>
+                    <div class="isf-sf-box-title">Snowflake-Managed Iceberg Table</div>
+                    <div class="isf-sf-box-sub">Snowflake manages metadata, compaction, and the REST catalog endpoint</div>
+                  </div>
+                </div>
+                <div class="isf-benefit-row">
+                  <div class="isf-benefit-chip">Auto-clustering</div>
+                  <div class="isf-benefit-chip">Result cache</div>
+                  <div class="isf-benefit-chip">Time Travel</div>
+                  <div class="isf-benefit-chip">Masking policies</div>
+                  <div class="isf-benefit-chip">Row access</div>
+                  <div class="isf-benefit-chip">Cortex AI</div>
+                </div>
+              </div>
+
+              <!-- Connector to storage -->
+              <div style="display:flex;align-items:center;justify-content:center;padding: 0 16px;">
+                <div style="width:2px;height:18px;background:linear-gradient(180deg,rgba(41,181,232,.3),rgba(41,181,232,.07));"></div>
+              </div>
+
+              <!-- Storage layer -->
+              <div class="isf-storage-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="8" width="20" height="14" rx="1"/><path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                <div class="isf-storage-box-text">
+                  <div class="isf-storage-box-title">Cloud Object Storage (Customer-Owned)</div>
+                  <div class="isf-storage-chips">
+                    <div class="isf-storage-chip">Amazon S3</div>
+                    <div class="isf-storage-chip">Azure ADLS</div>
+                    <div class="isf-storage-chip">Google GCS</div>
+                    <div class="isf-storage-chip">Parquet + Iceberg Metadata</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal content -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Step 1: Create an external volume pointing to your cloud storage</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">EXTERNAL VOLUME</span> <span class="code-id">my_iceberg_vol</span>
+  <span class="code-fn">STORAGE_LOCATIONS</span> <span class="code-punc">= (</span>
+    <span class="code-punc">(</span>
+      <span class="code-fn">NAME</span>                  <span class="code-punc">=</span> <span class="code-str">'us-west-2-s3'</span>
+      <span class="code-fn">STORAGE_PROVIDER</span>      <span class="code-punc">=</span> <span class="code-str">'S3'</span>
+      <span class="code-fn">STORAGE_BASE_URL</span>      <span class="code-punc">=</span> <span class="code-str">'s3://my-bucket/iceberg/'</span>
+      <span class="code-fn">STORAGE_AWS_ROLE_ARN</span>  <span class="code-punc">=</span> <span class="code-str">'arn:aws:iam::123456:role/my-sf-role'</span>
+    <span class="code-punc">)</span>
+  <span class="code-punc">);</span>
+
+<span class="code-comment">-- Step 2: Create a Snowflake-managed Iceberg table</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">ICEBERG TABLE</span> <span class="code-id">my_db.my_schema.events</span> <span class="code-punc">(</span>
+  <span class="code-id">event_id</span>   <span class="code-fn">BIGINT</span>
+<span class="code-punc">,</span> <span class="code-id">event_ts</span>   <span class="code-fn">TIMESTAMP_NTZ</span>
+<span class="code-punc">,</span> <span class="code-id">user_id</span>    <span class="code-fn">STRING</span>
+<span class="code-punc">,</span> <span class="code-id">payload</span>    <span class="code-fn">VARIANT</span>
+<span class="code-punc">)</span>
+  <span class="code-fn">CATALOG</span>         <span class="code-punc">=</span> <span class="code-str">'SNOWFLAKE'</span>
+  <span class="code-fn">EXTERNAL_VOLUME</span> <span class="code-punc">=</span> <span class="code-str">'my_iceberg_vol'</span>
+  <span class="code-fn">BASE_LOCATION</span>   <span class="code-punc">=</span> <span class="code-str">'events/'</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- External engines connect via the Snowflake REST catalog endpoint
+-- e.g. for Spark:
+-- spark.sql.catalog.snowflake = org.apache.iceberg.spark.SparkCatalog
+-- spark.sql.catalog.snowflake.catalog-impl = ...SnowflakeCatalog
+-- spark.sql.catalog.snowflake.uri = https://&lt;account&gt;.snowflakecomputing.com/polaris/api/catalog</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>External Volume</h4>
+      <p>An <code>EXTERNAL VOLUME</code> tells Snowflake where in cloud object storage to write Iceberg data files. Snowflake assumes an IAM role (AWS), service principal (Azure), or service account (GCP) to access that location.</p>
+      <h4>Snowflake-Managed Iceberg Table</h4>
+      <p>Setting <code>CATALOG = 'SNOWFLAKE'</code> means Snowflake owns and manages the Iceberg metadata. This enables Time Travel, Fail-safe, automatic compaction, and full query optimization.</p>
+      <h4>External Engine Access</h4>
+      <p>Configure Spark (or another engine) to use Snowflake's Polaris-compatible REST catalog endpoint. External engines read and write the same Parquet/Iceberg files — Snowflake coordinates concurrent access.</p>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Catalog-Linked Iceberg — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ────────────────────────────────── */
+    .cl-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: features ───────────────────────────────────── */
+    .cl-left {
+      width: 46%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 32px 20px 28px;
+      gap: 0;
+      border-right: 1px solid rgba(147,51,234,.1);
+    }
+
+    .cl-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(192,132,252,.65);
+      margin-bottom: 6px;
+    }
+    .cl-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .cl-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .cl-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(147,51,234,.08);
+    }
+    .cl-feature:last-child { border-bottom: 1px solid rgba(147,51,234,.08); }
+    .cl-feature-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(147,51,234,.1);
+      border: 1px solid rgba(147,51,234,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .cl-feature-text { flex: 1; }
+    .cl-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f0fd;
+      margin-bottom: 4px;
+    }
+    .cl-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.55;
+    }
+
+    /* ── Right: catalog diagram ───────────────────────────── */
+    .cl-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 28px;
+      gap: 12px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle glow */
+    .cl-right::before {
+      content: '';
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(147,51,234,.1) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* Catalog source cards */
+    .cl-diagram { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 340px; position: relative; z-index: 1; }
+
+    .cl-diagram-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(192,132,252,.55);
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    /* External catalog source cards */
+    .cl-catalog-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .cl-catalog-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .cl-catalog-card-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+    .cl-catalog-card-name {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: rgba(255,255,255,.65);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .cl-catalog-card-sub {
+      font-size: 0.63rem;
+      color: rgba(255,255,255,.32);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* Center arrow connector */
+    .cl-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+    }
+    .cl-connector-line {
+      height: 2px;
+      flex: 1;
+      background: linear-gradient(90deg, transparent, rgba(147,51,234,.4), rgba(147,51,234,.4), transparent);
+    }
+    .cl-connector-pill {
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(147,51,234,.15);
+      border: 1px solid rgba(147,51,234,.35);
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      color: #c084fc;
+      letter-spacing: .6px;
+      white-space: nowrap;
+    }
+
+    /* Snowflake target box */
+    .cl-sf-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(41,181,232,.08);
+      border: 1.5px solid rgba(41,181,232,.3);
+    }
+    .cl-sf-box-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+    .cl-sf-box-text { flex: 1; }
+    .cl-sf-box-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f6fc;
+      margin-bottom: 3px;
+    }
+    .cl-sf-box-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.45);
+      line-height: 1.45;
+    }
+
+    /* Benefit chips below SF box */
+    .cl-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .cl-chip {
+      padding: 4px 11px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.55);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/catalog-linked-database',
+      code:  true,
+      guide: null,
+      blog:  'https://www.snowflake.com/en/blog/catalog-linked-databases/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./iceberg.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Catalog-Linked Iceberg</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div class="sf-slide">
+        <div class="cl-layout content-wrap">
+
+          <!-- ════════ Left: features ════════ -->
+          <div class="cl-left">
+            <div class="cl-eyebrow">Connected — Open Interoperability</div>
+            <div class="cl-title">Catalog-Linked<br>Iceberg Databases</div>
+            <div class="cl-sub">Connect any Iceberg catalog to Snowflake. No ETL. No copies. One governance layer.</div>
+
+            <!-- Feature 1 -->
+            <div class="cl-feature">
+              <div class="cl-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                  <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                </svg>
+              </div>
+              <div class="cl-feature-text">
+                <div class="cl-feature-title">Zero-Copy, In-Place Access</div>
+                <div class="cl-feature-body">Mount Unity Catalog, AWS Glue, or Apache Polaris as a Snowflake database. Tables are auto-discovered and synced — data never leaves the external storage location.</div>
+              </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="cl-feature">
+              <div class="cl-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 2v6h-6"/>
+                  <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+                  <path d="M3 22v-6h6"/>
+                  <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+                </svg>
+              </div>
+              <div class="cl-feature-text">
+                <div class="cl-feature-title">Auto-Discover &amp; Stay Fresh</div>
+                <div class="cl-feature-body">New tables added to the external catalog surface automatically in Snowflake. Metadata sync keeps partition statistics current so query planning stays optimal.</div>
+              </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="cl-feature">
+              <div class="cl-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div class="cl-feature-text">
+                <div class="cl-feature-title">Horizon Governance Applies</div>
+                <div class="cl-feature-body">Masking policies, row access policies, and data classification from Snowflake Horizon extend to all catalog-linked tables — consistent governance regardless of where data lives.</div>
+              </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="cl-feature">
+              <div class="cl-feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <path d="M8 21h8M12 17v4"/>
+                </svg>
+              </div>
+              <div class="cl-feature-text">
+                <div class="cl-feature-title">Full SQL on External Tables</div>
+                <div class="cl-feature-body">Run any Snowflake SQL — joins, aggregations, window functions, Cortex AI — directly against catalog-linked Iceberg tables, just like any native Snowflake table.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ Right: diagram ════════ -->
+          <div class="cl-right">
+            <div class="cl-diagram">
+              <div class="cl-diagram-label">External Iceberg Catalogs</div>
+
+              <!-- Catalog source cards -->
+              <div class="cl-catalog-row">
+                <!-- Unity Catalog / Databricks -->
+                <div class="cl-catalog-card">
+                  <div class="cl-catalog-card-logo" style="background:#FF3621;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <div class="cl-catalog-card-name">Unity Catalog</div>
+                  <div class="cl-catalog-card-sub">Databricks</div>
+                </div>
+                <!-- AWS Glue -->
+                <div class="cl-catalog-card">
+                  <div class="cl-catalog-card-logo" style="background:#FF9900;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" fill="none"/></svg>
+                  </div>
+                  <div class="cl-catalog-card-name">AWS Glue</div>
+                  <div class="cl-catalog-card-sub">Amazon</div>
+                </div>
+                <!-- Apache Polaris -->
+                <div class="cl-catalog-card">
+                  <div class="cl-catalog-card-logo" style="background:rgba(147,51,234,.5);border:1px solid rgba(192,132,252,.4);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 22 20 2 20"/></svg>
+                  </div>
+                  <div class="cl-catalog-card-name">Apache Polaris&#x2122;</div>
+                  <div class="cl-catalog-card-sub">Open Source</div>
+                </div>
+                <!-- Other REST -->
+                <div class="cl-catalog-card">
+                  <div class="cl-catalog-card-logo" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                  </div>
+                  <div class="cl-catalog-card-name">Any REST</div>
+                  <div class="cl-catalog-card-sub">Iceberg Catalog</div>
+                </div>
+              </div>
+
+              <!-- Connector arrow -->
+              <div class="cl-connector" style="padding: 4px 16px;">
+                <div class="cl-connector-line"></div>
+                <div class="cl-connector-pill">Catalog Integration</div>
+                <div class="cl-connector-line"></div>
+              </div>
+
+              <!-- Snowflake box -->
+              <div class="cl-sf-box">
+                <span class="sf-img sf-icon-horizon" style="width:44px;height:44px;"></span>
+                <div class="cl-sf-box-text">
+                  <div class="cl-sf-box-title">Snowflake Catalog-Linked Database</div>
+                  <div class="cl-sf-box-sub">Auto-synced schemas &amp; tables — full SQL, Horizon governance, Cortex AI</div>
+                </div>
+              </div>
+
+              <!-- Connector down to storage -->
+              <div class="cl-connector" style="padding: 0 16px;">
+                <div style="width:2px;height:18px;background:linear-gradient(180deg,rgba(147,51,234,.35),rgba(147,51,234,.08));margin:0 auto;"></div>
+              </div>
+
+              <!-- Storage layer chips -->
+              <div style="text-align:center;">
+                <div class="cl-diagram-label" style="margin-bottom:8px;">Data Stays in Cloud Object Storage</div>
+                <div class="cl-chips">
+                  <div class="cl-chip">Amazon S3</div>
+                  <div class="cl-chip">Azure ADLS</div>
+                  <div class="cl-chip">Google GCS</div>
+                  <div class="cl-chip">Parquet + Iceberg Metadata</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal content -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Step 1: Create a catalog integration pointing to your external catalog</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">CATALOG INTEGRATION</span> <span class="code-id">my_unity_catalog</span>
+  <span class="code-fn">CATALOG_SOURCE</span> <span class="code-punc">=</span> <span class="code-str">ICEBERG_REST</span>
+  <span class="code-fn">TABLE_FORMAT</span>   <span class="code-punc">=</span> <span class="code-str">ICEBERG</span>
+  <span class="code-fn">CATALOG_NAMESPACE</span> <span class="code-punc">=</span> <span class="code-str">'main'</span>
+  <span class="code-fn">REST_CONFIG</span> <span class="code-punc">=</span> <span class="code-punc">(</span>
+    <span class="code-fn">CATALOG_URI</span>      <span class="code-punc">=</span> <span class="code-str">'https://&lt;unity-catalog-endpoint&gt;'</span>
+    <span class="code-fn">WAREHOUSE</span>        <span class="code-punc">=</span> <span class="code-str">'&lt;databricks-warehouse-id&gt;'</span>
+  <span class="code-punc">)</span>
+  <span class="code-fn">REST_AUTHENTICATION</span> <span class="code-punc">=</span> <span class="code-punc">(</span>
+    <span class="code-fn">TYPE</span> <span class="code-punc">=</span> <span class="code-str">OAUTH</span>
+    <span class="code-fn">OAUTH_TOKEN_URI</span>    <span class="code-punc">=</span> <span class="code-str">'https://&lt;token-endpoint&gt;/oidc/v1/token'</span>
+    <span class="code-fn">OAUTH_CLIENT_ID</span>    <span class="code-punc">=</span> <span class="code-str">'&lt;client-id&gt;'</span>
+    <span class="code-fn">OAUTH_CLIENT_SECRET</span> <span class="code-punc">=</span> <span class="code-str">'&lt;client-secret&gt;'</span>
+  <span class="code-punc">)</span>
+  <span class="code-fn">ENABLED</span> <span class="code-punc">=</span> <span class="code-kw">TRUE</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Step 2: Create the catalog-linked database</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">DATABASE</span> <span class="code-id">my_unity_db</span>
+  <span class="code-kw">FROM</span> <span class="code-fn">CATALOG INTEGRATION</span> <span class="code-id">my_unity_catalog</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Step 3: Query Iceberg tables directly — no ETL needed</span>
+<span class="code-kw">SELECT</span> <span class="code-punc">*</span>
+<span class="code-kw">FROM</span> <span class="code-id">my_unity_db.main.customer_events</span>
+<span class="code-kw">LIMIT</span> <span class="code-num">100</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Catalog Integration</h4>
+      <p>A <code>CATALOG INTEGRATION</code> tells Snowflake how to authenticate and connect to an external Iceberg catalog that implements the REST catalog spec (e.g., Unity Catalog, Polaris, AWS Glue).</p>
+      <h4>Catalog-Linked Database</h4>
+      <p><code>CREATE DATABASE ... FROM CATALOG INTEGRATION</code> mounts the external catalog as a native Snowflake database. Tables are auto-discovered — no manual <code>CREATE EXTERNAL TABLE</code> statements needed.</p>
+      <h4>Zero-Copy Querying</h4>
+      <p>Snowflake reads Parquet files directly from the original cloud object storage. Data never moves. Snowflake Horizon governance (masking, row access, RBAC) applies to every query.</p>
+    </div>
+  </div>
+
+</body>
+</html>
