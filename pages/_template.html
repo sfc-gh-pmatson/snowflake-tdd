@@ -6,49 +6,127 @@
   <title>MODULE_NAME — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    /* Page-specific overrides go here */
-    body { background: var(--sf-navy); margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
-    .module-body {
-      padding: 60px 24px 32px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    /* Page-specific styles go here (keep shared styles in shared.css) */
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* Center the slide heading (matches other pages) */
+    #module .s6-header { font-size: var(--fs-h1) !important; font-weight: 800 !important; text-align: center; }
+    #module .s6-sub    { text-align: center; font-size: var(--fs-h3); }
   </style>
 </head>
 <body>
-  <!-- Shared nav bar — always at top -->
-  <div class="nav-bar" style="position:fixed;top:0;left:0;right:0;z-index:100;">
-    <a href="../index.html" class="btn-back">← Platform Overview</a>
-    <span class="nav-label">MODULE_NAME</span>
-  </div>
+  <script src="../bg.js"></script>
 
-  <div class="module-body">
-    <!--
-      Build your module content here using shared.css components:
+  <!--
+    RESOURCE BAR — remove this block if you don't need it on this page.
+    Set each key to a URL string to show the button, or null to hide it.
+    code: true opens the on-page code modal (content is in #code-modal-content below).
+  -->
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,   // e.g. 'https://docs.snowflake.com/en/...'
+      code:  null,   // set to true to enable the code modal
+      guide: null,   // e.g. 'https://quickstarts.snowflake.com/guide/...'
+      blog:  null,   // e.g. 'https://www.snowflake.com/blog/...'
+    };
+  </script>
+  <script src="../resources.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">MODULE_NAME</span>
+      <!--
+        NAV TAGS — add any combination; omit the div entirely if not needed.
+        Availability: nav-tag-ga (Generally Available), nav-tag-pp (Public Preview), nav-tag-priv (Private Preview)
+        Edition:      nav-tag-ent (Enterprise), nav-tag-bc (Business Critical)
+      -->
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+        <!-- <span class="nav-tag nav-tag-ent">Enterprise</span> -->
+      </div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
 
-      Slide-style sections:
-        <div class="sf-slide"> ... </div>
-
-      Feature cards:
-        <div class="feat-card">
-          <div class="feat-card-head">
-            <div class="icon-circle ic-blue" style="width:40px;height:40px">
-              <img src="../sf-icons/Snowflake_ICON_XYZ.svg" alt="">
+        <!-- Shared header block: eyebrow logo/tag row + title + subtitle -->
+        <div class="s6-top">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="sf-logo">
+              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
+                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
+                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
+                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
+                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
+                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
+              </svg>
+              Snowflake
             </div>
-            <div class="feat-title">Card Title</div>
+            <span class="slide-tag tag-blue">TAG_LABEL</span>
           </div>
-          <div class="feat-body">Description text.</div>
+          <div class="s6-header" style="margin-top:6px">MODULE_NAME</div>
+          <div class="s6-sub">Subtitle or overview sentence.</div>
         </div>
 
-      Section headers:
-        <h2 style="color:#fff;font-size:1.5rem;margin:0 0 16px;">Section Title</h2>
-    -->
+        <!--
+          Build your module content below using shared.css components.
 
-    <h2 style="color:#fff;font-size:1.8rem;font-weight:800;margin:0 0 8px;text-align:center;">MODULE_NAME</h2>
-    <p style="color:rgba(255,255,255,.6);margin:0 0 32px;text-align:center;">Subtitle or overview sentence.</p>
+          Feature card (icons use the .sf-img registry, not <img>):
+            <div class="feat-card">
+              <div class="feat-card-head">
+                <div class="icon-circle ic-blue" style="width:40px;height:40px">
+                  <span class="sf-img sf-icon-analytics" style="width:24px;height:24px;"></span>
+                </div>
+                <div class="feat-title">Card Title</div>
+              </div>
+              <div class="feat-body">Description text.</div>
+            </div>
 
-    <!-- Add your feature cards, diagrams, slides here -->
+          Tag variants: tag-blue, tag-purple, tag-green, tag-amber
+          Icon-circle variants: ic-blue, ic-purple, ic-green, ic-amber
+        -->
 
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
+          <!-- Add your feature cards, diagrams, or layout here -->
+        </div>
+
+        <!-- Resource bar — populated by resources.js (keep as last child of .sf-slide) -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
   </div>
+
+  <!--
+    CODE MODAL CONTENT — only needed when RESOURCE_CONFIG.code = true.
+    Delete this block if not using the Code button.
+
+    Structure:
+      .code-modal-code  (left 2/3) — use .code-block + syntax span classes
+      .code-modal-explain (right 1/3) — plain text on white background
+
+    Syntax span classes (maps to --code-* tokens in :root):
+      .code-kw      — keywords      (SELECT, FROM, WHERE)
+      .code-fn      — functions     (SUM, DATEADD, COUNT)
+      .code-id      — identifiers   (column names, table names)
+      .code-str     — string values
+      .code-num     — numbers
+      .code-punc    — punctuation   (commas, parens, operators)
+      .code-comment — comments      (-- comment text)
+  -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-kw">SELECT</span>
+  <span class="code-id">column_name</span>
+<span class="code-kw">FROM</span> <span class="code-id">database.schema.table</span>
+<span class="code-kw">WHERE</span> <span class="code-id">condition</span> <span class="code-punc">=</span> <span class="code-str">'value'</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>What this does</h4>
+      <p>Explain the query here. This panel has a white background and uses --sf-ink for text color.</p>
+    </div>
+  </div>
+
 </body>
 </html>

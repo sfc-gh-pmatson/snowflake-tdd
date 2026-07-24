@@ -28,6 +28,14 @@
       --gcp-c:         #EB3474;
       color-scheme: dark;
 
+      /* ── Code coloring ─────────────────────────────────── */
+      --code-bg:        #1d252f;
+      --code-base:      #02a0f9;
+      --code-hl-green:  #35ae91;
+      --code-hl-pink:   #ef87b8;
+      --code-downlight: #666;
+      --code-punc:      #ff9f36;
+
       /* ── Layout ─────────────────────────────────────────── */
       --content-width: min(1000px, 96vw);  /* max content column width */
       --content-pad:   0 20px;             /* standard horizontal padding */
@@ -68,6 +76,32 @@
     .btn-home { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.6); }
     .btn-home:hover { background: rgba(255,255,255,.1); color: #fff; }
     .nav-label { font-size: var(--fs-h6); font-weight: 500; color: rgba(255,255,255,.45); letter-spacing: .4px; }
+
+    /* ── NAV TAGS (availability / edition) ─────────────────── */
+    /* Add <div class="nav-tags"> as the last child of .nav-bar  */
+    /* to display colored pills in the top-right corner.         */
+    .nav-tags {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .nav-tag {
+      display: inline-flex; align-items: center;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: var(--fs-h6); font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase;
+      color: #fff; white-space: nowrap;
+    }
+    /* Availability */
+    .nav-tag-ga      { background: var(--trust-c); }       /* Generally Available */
+    .nav-tag-pp      { background: var(--ai-c); }           /* Public Preview */
+    .nav-tag-priv    { background: var(--gcp-c); }          /* Private Preview */
+    /* Edition */
+    .nav-tag-ent     { background: var(--code-hl-green); }  /* Enterprise */
+    .nav-tag-bc      { background: var(--code-hl-pink); }   /* Business Critical */
 
     /* ── SLIDE CANVAS ───────────────────────────────────────── */
     .slide-canvas {
@@ -153,6 +187,166 @@
       width: 100%;
     }
 
+    /* ── CODE SYNTAX ─────────────────────────────────────── */
+    /* Wrap code tokens in <span class="code-*"> for syntax coloring.
+       Update the --code-* tokens in :root to recolor all pages at once. */
+    .code-kw      { color: var(--code-hl-pink);              }  /* keywords (SELECT, FROM, WHERE) */
+    .code-fn      { color: var(--code-base);                 }  /* function names */
+    .code-id      { color: var(--code-hl-green);             }  /* identifiers, columns, tables */
+    .code-str     { color: var(--code-hl-green);             }  /* string literals */
+    .code-num     { color: var(--code-punc);                 }  /* numeric values */
+    .code-punc    { color: var(--code-punc);                 }  /* commas, parens, operators */
+    .code-comment { color: var(--code-downlight); font-style: italic; }  /* -- comments */
+
+    .code-block {
+      background: var(--code-bg);
+      color: rgba(255,255,255,.85);
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h6);
+      line-height: 1.75;
+      padding: 18px 20px;
+      margin: 0;
+      overflow-x: auto;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    /* ── RESOURCE BAR ───────────────────────────────────────── */
+    /* Wrap .resource-bar in <div class="resource-trigger"> as the     */
+    /* last child of .sf-slide. The bar fades in when the cursor      */
+    /* enters the bottom 80px of the slide.                           */
+    .resource-trigger {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 80px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 14px;
+      z-index: 100;
+    }
+    .resource-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 18px;
+      border-radius: 100px;
+      background: rgba(5,13,26,.88);
+      border: 1px solid rgba(41,181,232,.2);
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: none;
+    }
+    .resource-trigger:hover .resource-bar {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .resource-btn {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 0;
+    }
+    .resource-btn .rb-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.22);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s, border-color .18s, transform .15s;
+    }
+    .resource-btn .rb-icon {
+      width: 20px; height: 20px;
+      filter: brightness(0) invert(1);
+      opacity: .65;
+      transition: opacity .18s;
+    }
+    .resource-btn .rb-label { display: none; }
+    .resource-btn:hover .rb-circle {
+      background: rgba(41,181,232,.18);
+      border-color: var(--sf-blue);
+      transform: translateY(-2px);
+    }
+    .resource-btn:hover .rb-icon { opacity: 1; }
+
+    /* ── CODE MODAL ─────────────────────────────────────────── */
+    .code-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.72);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 800;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .code-modal-overlay.open {
+      opacity: 1; pointer-events: all;
+    }
+    .code-modal {
+      width: var(--content-width);
+      max-height: 80vh;
+      display: flex; flex-direction: column;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,.75);
+      border: 1px solid rgba(41,181,232,.22);
+      transform: translateY(12px);
+      transition: transform .3s ease;
+    }
+    .code-modal-overlay.open .code-modal { transform: translateY(0); }
+    .code-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--code-bg);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      flex-shrink: 0;
+    }
+    .code-modal-title {
+      font-size: var(--fs-h5); font-weight: 700;
+      color: rgba(255,255,255,.7); letter-spacing: .3px;
+    }
+    .code-modal-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.55);
+      font-size: 1rem; line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .code-modal-close:hover { background: rgba(255,255,255,.18); color: #fff; }
+    .code-modal-body {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .code-modal-code { overflow-y: auto; background: var(--code-bg); }
+    .code-modal-explain {
+      overflow-y: auto;
+      background: #fff;
+      color: var(--sf-ink);
+      padding: 20px;
+      font-size: var(--fs-h5);
+      line-height: 1.65;
+      border-left: 1px solid rgba(0,0,0,.08);
+    }
+    .code-modal-explain h4 {
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-ink); margin-bottom: 8px;
+    }
+    .code-modal-explain p { margin-bottom: 10px; }
+    .code-modal-explain p:last-child { margin-bottom: 0; }
+
     /* ── MISC ───────────────────────────────────────────────── */
     ::-webkit-scrollbar { width:5px; }
     ::-webkit-scrollbar-track { background:var(--sf-navy); }
@@ -212,3 +406,9 @@
 .sf-icon-data-apps    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications.svg'); }
 .sf-icon-data-apps-hl { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications_Highlight.svg'); }
 .sf-icon-security-gov { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
+
+/* ── Resource bar icons ─────────────────────────────── */
+.sf-icon-resource-docs  { background-image: url('sf-icons/Snowflake_ICON_Documentation.svg'); }
+.sf-icon-resource-code  { background-image: url('sf-icons/Snowflake_ICON_Code.svg'); }
+.sf-icon-resource-guide { background-image: url('sf-icons/Snowflake_ICON_Case_Study.svg'); }
+.sf-icon-resource-blog  { background-image: url('sf-icons/Snowflake_ICON_Blog.svg'); }

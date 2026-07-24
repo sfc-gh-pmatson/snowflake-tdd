@@ -6,28 +6,45 @@
   <title>Coming Soon — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+    /* Page-specific styles go here (keep shared styles in shared.css) */
+    body { background: transparent; margin: 0; overflow: hidden; }
+
     .cs-body {
+      flex: 1;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      height: calc(100vh - 48px);
-      gap: 16px; color: rgba(255,255,255,.6);
+      gap: 14px; padding: 20px;
     }
-    .cs-icon { font-size: 3rem; opacity: .4; }
-    .cs-title { font-size: 1.4rem; font-weight: 700; color: rgba(255,255,255,.8); }
-    .cs-sub { font-size: .9rem; }
+    .cs-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(41,181,232,.1); border: 1px solid rgba(41,181,232,.25);
+    }
+    .cs-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; }
+    .cs-sub { font-size: var(--fs-h4); color: rgba(255,255,255,.5); }
   </style>
 </head>
 <body>
   <script src="../bg.js"></script>
-  <div class="nav-bar" style="position:fixed;top:0;left:0;right:0;z-index:100;">
-    <a href="../index.html" class="btn-back">← Platform Overview</a>
-    <span class="nav-label">Module Under Construction</span>
-  </div>
-  <div class="cs-body">
-    <div class="cs-icon">⚙</div>
-    <div class="cs-title">Coming Soon</div>
-    <div class="cs-sub">This module is under construction.</div>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Module Under Construction</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="cs-body">
+          <div class="cs-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <div class="cs-title">Coming Soon</div>
+          <div class="cs-sub">This module is under construction.</div>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

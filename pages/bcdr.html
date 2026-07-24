@@ -214,10 +214,23 @@
 </head>
 <body>
   <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/replication-intro',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/cross-cloud-business-continuity/',
+      blog:  'https://www.snowflake.com/en/blog/hd-supply-achieves-business-continuity/',
+    };
+  </script>
+  <script src="../resources.js"></script>
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./snowgrid.html" class="btn-back">&#8592; Back</a>
       <span class="nav-label">Business Continuity &amp; Disaster Recovery</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+        <span class="nav-tag nav-tag-bc">Business Critical</span>
+      </div>
     </div>
     <div class="slide-canvas with-nav">
       <div class="sf-slide">
@@ -342,6 +355,12 @@
 
         </div><!-- /bcdr-right -->
       </div><!-- /bcdr-layout -->
+
+        <!-- Resource bar — populated by resources.js -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
       </div><!-- /sf-slide -->
     </div>
   </div>
@@ -491,5 +510,36 @@
       startSequence();
     });
   </script>
+
+  <!-- Code modal content — moved into modal by resources.js -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-fn">CREATE FAILOVER GROUP</span> <span class="code-id">MY_FAILOVER_GROUP</span>
+
+  <span class="code-comment">-- What to replicate</span>
+  <span class="code-fn">OBJECT_TYPES</span> <span class="code-punc">=</span> <span class="code-kw">ALL</span>
+  <span class="code-comment">-- ( USERS, ROLES, WAREHOUSES, RESOURCE MONITORS,</span>
+  <span class="code-comment">--   DATABASES, NETWORK POLICIES, INTEGRATIONS, SHARES )</span>
+
+  <span class="code-fn">ALLOWED_DATABASES</span> <span class="code-punc">=</span> <span class="code-kw">ALL</span>
+  <span class="code-comment">-- (</span> <span class="code-id">DB1, DB2, ... </span> <span class="code-comment">)</span>
+
+  <span class="code-comment">-- Where to replicate it</span>
+  <span class="code-fn">ALLOWED_ACCOUNTS</span> <span class="code-punc">=</span> <span class="code-kw">ORG_NAME.TARGET_ACCOUNT_NAME</span>
+
+  <span class="code-comment">-- When to replicate</span>
+  <span class="code-fn">REPLICATION_SCHEDULE</span> <span class="code-punc">=</span> <span class="code-kw">'10 MIN'</span>
+<span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>What to replicate</h4>
+      <p><code>OBJECT_TYPES = ALL</code> replicates users, roles, warehouses, resource monitors, databases, network policies, integrations, and shares. You can scope this to specific object types if needed.</p>
+      <h4>Where to replicate it</h4>
+      <p><code>ALLOWED_ACCOUNTS</code> specifies the target account or list of target accounts to which replication and failover of specified objects from the source account is enabled.</p>
+      <h4>When to replicate</h4>
+      <p><code>REPLICATION_SCHEDULE = '10 MIN'</code> keeps the secondary in sync every 10 minutes, giving you a Recovery Point Objective (RPO) of &lt;10 minutes with near-zero RTO on failover. Can also use CRON.</p>
+    </div>
+  </div>
+
 </body>
 </html>
