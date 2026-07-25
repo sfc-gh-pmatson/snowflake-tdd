@@ -26,7 +26,7 @@
       justify-content: center;
       padding: 20px 32px 20px 28px;
       gap: 0;
-      border-right: 1px solid rgba(147,51,234,.12);
+      border-right: 1px solid rgba(41,181,232,.12);
     }
 
     .iceberg-eyebrow {
@@ -34,7 +34,7 @@
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      color: rgba(192,132,252,.7);
+      color: rgba(41,181,232,.7);
       margin-bottom: 6px;
     }
     .iceberg-title {
@@ -57,15 +57,15 @@
       align-items: flex-start;
       gap: 14px;
       padding: 12px 0;
-      border-top: 1px solid rgba(147,51,234,.09);
+      border-top: 1px solid rgba(41,181,232,.09);
     }
-    .iceberg-feature:last-child { border-bottom: 1px solid rgba(147,51,234,.09); }
+    .iceberg-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
     .iceberg-feature-icon {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(147,51,234,.1);
-      border: 1px solid rgba(147,51,234,.28);
+      background: var(--sf-blue);
+      border: 1px solid var(--sf-blue);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -105,7 +105,7 @@
       width: 400px;
       height: 400px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(147,51,234,.08) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(41,181,232,.08) 0%, transparent 70%);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -117,7 +117,7 @@
       font-weight: 700;
       letter-spacing: 1.4px;
       text-transform: uppercase;
-      color: rgba(192,132,252,.55);
+      color: rgba(41,181,232,.55);
       margin-bottom: 4px;
       position: relative;
     }
@@ -129,16 +129,16 @@
       gap: 18px;
       padding: 18px 20px;
       border-radius: 12px;
-      background: rgba(147,51,234,.07);
-      border: 1px solid rgba(147,51,234,.24);
+      background: #fff;
+      border: 3px solid var(--sf-blue);
       text-decoration: none;
       cursor: pointer;
       transition: background .2s, border-color .2s, transform .18s;
       position: relative;
     }
     .iceberg-module-card:hover {
-      background: rgba(147,51,234,.16);
-      border-color: rgba(192,132,252,.5);
+      background: rgba(41,181,232,.06);
+      border-color: var(--sf-blue);
       transform: translateX(5px);
     }
 
@@ -146,8 +146,8 @@
       width: 48px;
       height: 48px;
       border-radius: 10px;
-      background: rgba(147,51,234,.15);
-      border: 1px solid rgba(147,51,234,.3);
+      background: var(--sf-blue);
+      border: 1px solid var(--sf-blue);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -158,23 +158,23 @@
     .iceberg-module-card-title {
       font-size: var(--fs-h4);
       font-weight: 700;
-      color: #e8ecff;
+      color: #071525;
       margin-bottom: 4px;
     }
     .iceberg-module-card-desc {
       font-size: var(--fs-h5);
-      color: rgba(255,255,255,.45);
+      color: rgba(7,21,37,.58);
       line-height: 1.45;
     }
 
     .iceberg-module-card-arrow {
       font-size: 20px;
-      color: rgba(192,132,252,.5);
+      color: var(--sf-blue);
       flex-shrink: 0;
       transition: color .2s, transform .18s;
     }
     .iceberg-module-card:hover .iceberg-module-card-arrow {
-      color: #c084fc;
+      color: var(--sf-blue);
       transform: translateX(3px);
     }
   </style>
@@ -204,18 +204,8 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="sf-logo">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
-                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
-                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
-                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
-                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
-                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
-              </svg>
-              Snowflake
-            </div>
-            <span class="slide-tag tag-purple">Connected — Open Formats</span>
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Connected — Open Formats</span>
           </div>
           <div class="s6-header" style="margin-top:6px;text-align:center;">Apache Iceberg&#x2122; on Snowflake</div>
           <div class="s6-sub" style="text-align:center;">Open interoperability. Enterprise performance. Zero copies.</div>
@@ -232,9 +222,7 @@
             <!-- Feature 1 -->
             <div class="iceberg-feature">
               <div class="iceberg-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                </svg>
+                <span class="sf-img sf-icon-data-apps" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-feature-text">
                 <div class="iceberg-feature-title">Open by Design</div>
@@ -245,10 +233,7 @@
             <!-- Feature 2 -->
             <div class="iceberg-feature">
               <div class="iceberg-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="5" y="11" width="14" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                  <circle cx="12" cy="17" r="1.2" fill="#c084fc"/>
-                </svg>
+                <span class="sf-img sf-icon-horizon" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-feature-text">
                 <div class="iceberg-feature-title">Horizon Governance on All Tables</div>
@@ -259,9 +244,7 @@
             <!-- Feature 3 -->
             <div class="iceberg-feature">
               <div class="iceberg-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="13 2 4.5 13 11 13 11 22 19.5 11 13 11 13 2"/>
-                </svg>
+                <span class="sf-img sf-icon-speed-2" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-feature-text">
                 <div class="iceberg-feature-title">Full Query Performance</div>
@@ -272,9 +255,7 @@
             <!-- Feature 4 -->
             <div class="iceberg-feature">
               <div class="iceberg-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
-                </svg>
+                <span class="sf-img sf-icon-be-excellent" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-feature-text">
                 <div class="iceberg-feature-title">Snowflake Leads Iceberg Ecosystem</div>
@@ -290,11 +271,7 @@
             <!-- Card 1: Catalog-Linked -->
             <a href="./iceberg-catalog-linked.html" class="iceberg-module-card">
               <div class="iceberg-module-card-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2"/>
-                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                  <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
-                </svg>
+                <span class="sf-img sf-icon-connected" style="width:28px;height:28px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-module-card-text">
                 <div class="iceberg-module-card-title">Catalog-Linked Iceberg</div>
@@ -306,7 +283,7 @@
             <!-- Card 2: Iceberg on Snowflake -->
             <a href="./iceberg-snowflake.html" class="iceberg-module-card">
               <div class="iceberg-module-card-icon">
-                <span class="sf-img sf-icon-iceberg" style="width:28px;height:28px;filter:brightness(0) saturate(100%) invert(64%) sepia(60%) saturate(600%) hue-rotate(230deg) brightness(105%);"></span>
+                <span class="sf-img sf-icon-iceberg" style="width:28px;height:28px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-module-card-text">
                 <div class="iceberg-module-card-title">Iceberg on Snowflake</div>
@@ -318,9 +295,7 @@
             <!-- Card 3: Iceberg v3 -->
             <a href="./iceberg-v3.html" class="iceberg-module-card">
               <div class="iceberg-module-card-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
+                <span class="sf-img sf-icon-launch" style="width:28px;height:28px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="iceberg-module-card-text">
                 <div class="iceberg-module-card-title">Iceberg v3 Advantages</div>

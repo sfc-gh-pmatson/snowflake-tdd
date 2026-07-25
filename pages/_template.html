@@ -9,9 +9,8 @@
     /* Page-specific styles go here (keep shared styles in shared.css) */
     body { background: transparent; margin: 0; overflow: hidden; }
 
-    /* Center the slide heading (matches other pages) */
-    #module .s6-header { font-size: var(--fs-h1) !important; font-weight: 800 !important; text-align: center; }
-    #module .s6-sub    { text-align: center; font-size: var(--fs-h3); }
+    /* s6-header uses --fs-h1 / s6-sub uses --fs-h3 by default (shared.css).
+       Add text-align:center here if this page needs centered headers. */
   </style>
 </head>
 <body>
@@ -50,17 +49,7 @@
 
         <!-- Shared header block: eyebrow logo/tag row + title + subtitle -->
         <div class="s6-top">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="sf-logo">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
-                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
-                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
-                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
-                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
-                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
-              </svg>
-              Snowflake
-            </div>
+          <div class="s6-top-row">
             <span class="slide-tag tag-blue">TAG_LABEL</span>
           </div>
           <div class="s6-header" style="margin-top:6px">MODULE_NAME</div>
@@ -81,8 +70,8 @@
               <div class="feat-body">Description text.</div>
             </div>
 
-          Tag variants: tag-blue, tag-purple, tag-green, tag-amber
-          Icon-circle variants: ic-blue, ic-purple, ic-green, ic-amber
+          Tag variants: tag-blue, tag-amber, tag-green (tag-purple deprecated — use tag-blue)
+          Icon-circle variants: ic-blue, ic-amber (ic-purple, ic-green deprecated — use ic-blue)
         -->
 
         <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">

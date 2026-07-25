@@ -41,8 +41,8 @@
       gap: 4px;
       padding: 14px 22px;
       border-radius: 12px;
-      background: rgba(147,51,234,.1);
-      border: 1px solid rgba(147,51,234,.3);
+      background: var(--sf-blue);
+      border: 3px solid var(--sf-blue);
       flex-shrink: 0;
     }
     .v3-intro-badge-label {
@@ -50,16 +50,16 @@
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
-      color: rgba(192,132,252,.65);
+      color: var(--sf-ink);
     }
     .v3-intro-badge-value {
       font-size: var(--fs-h2);
       font-weight: 800;
-      color: #c084fc;
+      color: #fff;
     }
     .v3-intro-badge-sub {
       font-size: var(--fs-h6);
-      color: rgba(255,255,255,.38);
+      color: var(--sf-ink);
       white-space: nowrap;
     }
 
@@ -78,14 +78,14 @@
       gap: 10px;
       padding: 16px 16px 14px;
       border-radius: 12px;
-      background: rgba(147,51,234,.05);
-      border: 1px solid rgba(147,51,234,.2);
+      background: #fff;
+      border: 3px solid var(--sf-blue);
       transition: border-color .2s, background .2s;
       overflow: hidden;
     }
     .v3-card:hover {
-      border-color: rgba(192,132,252,.4);
-      background: rgba(147,51,234,.1);
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.06);
     }
 
     .v3-card-head {
@@ -97,8 +97,8 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: rgba(147,51,234,.15);
-      border: 1px solid rgba(147,51,234,.28);
+      background: var(--sf-blue);
+      border: 1px solid var(--sf-blue);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -107,12 +107,11 @@
     .v3-card-title {
       font-size: var(--fs-h4);
       font-weight: 700;
-      color: #e8e0ff;
-      line-height: 1.2;
+      color: #071525;
     }
     .v3-card-body {
       font-size: var(--fs-h5);
-      color: rgba(255,255,255,.5);
+      color: rgba(7,21,37,.58);
       line-height: 1.6;
       flex: 1;
     }
@@ -126,7 +125,7 @@
       text-transform: uppercase;
       align-self: flex-start;
     }
-    .v3-tag-new     { background: rgba(147,51,234,.18); color: #c084fc; border: 1px solid rgba(147,51,234,.35); }
+    .v3-tag-new     { background: rgba(41,181,232,.18); color: #29B5E8; border: 1px solid rgba(41,181,232,.35); }
     .v3-tag-perf    { background: rgba(41,181,232,.12); color: #29B5E8; border: 1px solid rgba(41,181,232,.28); }
     .v3-tag-schema  { background: rgba(245,158,11,.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,.25); }
 
@@ -137,17 +136,17 @@
       gap: 16px;
       padding: 10px 18px;
       border-radius: 10px;
-      background: rgba(41,181,232,.06);
-      border: 1px solid rgba(41,181,232,.18);
+      background: var(--sf-blue);
+      border: 3px solid var(--sf-blue);
       flex-shrink: 0;
     }
     .v3-footer-bar-text {
       font-size: var(--fs-h5);
-      color: rgba(255,255,255,.5);
+      color: var(--sf-ink);
       line-height: 1.45;
     }
     .v3-footer-bar-text strong {
-      color: rgba(255,255,255,.75);
+      color: var(--sf-ink);
       font-weight: 700;
     }
   </style>
@@ -156,10 +155,10 @@
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
-      docs:  'https://docs.snowflake.com/en/user-guide/tables-iceberg-configure-iceberg-v3',
-      code:  null,
-      guide: null,
-      blog:  'https://www.snowflake.com/en/blog/iceberg-v3/',
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-iceberg-v3-specification-support',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/iceberg-v3-tables-comprehensive-guide/',
+      blog:  'https://www.snowflake.com/en/blog/engineering/snowflake-iceberg-v3-variant-performance/',
     };
   </script>
   <script src="../resources.js"></script>
@@ -177,18 +176,8 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="sf-logo">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round">
-                <line x1="20" y1="3" x2="20" y2="37"/><line x1="3.3" y1="11.5" x2="36.7" y2="28.5"/><line x1="36.7" y1="11.5" x2="3.3" y2="28.5"/>
-                <line x1="13" y1="6.2" x2="20" y2="13"/><line x1="27" y1="6.2" x2="20" y2="13"/>
-                <line x1="13" y1="33.8" x2="20" y2="27"/><line x1="27" y1="33.8" x2="20" y2="27"/>
-                <line x1="5.5" y1="18" x2="11" y2="18"/><line x1="5.5" y1="22" x2="11" y2="22"/>
-                <line x1="35" y1="18" x2="29" y2="18"/><line x1="35" y1="22" x2="29" y2="22"/>
-              </svg>
-              Snowflake
-            </div>
-            <span class="slide-tag tag-purple">Connected — Open Spec Leadership</span>
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Connected — Open Spec Leadership</span>
           </div>
           <div class="s6-header" style="margin-top:6px;text-align:center;">Apache Iceberg&#x2122; v3 — What's New</div>
           <div class="s6-sub" style="text-align:center;">The next-generation spec, co-authored by Snowflake, available in Snowflake today.</div>
@@ -212,103 +201,83 @@
           <!-- Feature grid -->
           <div class="v3-grid">
 
-            <!-- Card 1: Variant / structured type -->
+            <!-- Card 1: Variant Support -->
             <div class="v3-card">
               <div class="v3-card-head">
                 <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="8" y1="13" x2="16" y2="13"/>
-                    <line x1="8" y1="17" x2="12" y2="17"/>
-                  </svg>
+                  <span class="sf-img sf-icon-metadata" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="v3-card-title">Variant &amp; Structured Type</div>
+                <div class="v3-card-title">Variant Support</div>
               </div>
-              <div class="v3-card-body">Store semi-structured JSON natively in an Iceberg column. Variant type aligns Iceberg with Snowflake's native VARIANT, making it possible to share semi-structured data across engines without serialization tricks.</div>
+              <div class="v3-card-body">Fast, flexible semi-structured data. Store semi-structured JSON natively in an Iceberg column, aligned with Snowflake's native VARIANT type for seamless cross-engine sharing.</div>
               <div class="v3-card-tag v3-tag-new">New Type</div>
             </div>
 
-            <!-- Card 2: Deletion Vectors -->
+            <!-- Card 2: Geospatial -->
             <div class="v3-card">
               <div class="v3-card-head">
                 <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
+                  <span class="sf-img sf-icon-location" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="v3-card-title">Deletion Vectors</div>
+                <div class="v3-card-title">Geospatial</div>
               </div>
-              <div class="v3-card-body">Instead of rewriting entire data files on DELETE or UPDATE, v3 writes a small bitmap sidecar file marking deleted rows. This dramatically reduces write amplification for high-frequency DML workloads.</div>
-              <div class="v3-card-tag v3-tag-perf">Faster Writes</div>
+              <div class="v3-card-body">Geometry and Geography types. Native geospatial type support in the Iceberg spec enables portable spatial data across engines without proprietary extensions.</div>
+              <div class="v3-card-tag v3-tag-new">New Type</div>
             </div>
 
             <!-- Card 3: Row Lineage -->
             <div class="v3-card">
               <div class="v3-card-head">
                 <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3h6l2 6-4 2.5a11 11 0 0 0 5.5 5.5L15 13l6 2v6a2 2 0 0 1-2 2A18 18 0 0 1 1 5a2 2 0 0 1 2-2"/>
-                  </svg>
+                  <span class="sf-img sf-icon-eliminate-delays" style="width:24px;height:24px;filter:brightness(0) invert(1);transform:rotate(90deg);"></span>
                 </div>
-                <div class="v3-card-title">Row Lineage &amp; Provenance</div>
+                <div class="v3-card-title">Row Lineage</div>
               </div>
-              <div class="v3-card-body">Every row carries a unique identifier and commit sequence number. Engines can trace exactly when and where a row was written — enabling detailed audit trails and change data capture without separate CDC pipelines.</div>
+              <div class="v3-card-body">Efficient CDC and incremental processing. Every row carries a unique identifier and commit sequence number for detailed audit trails and change data capture without separate pipelines.</div>
               <div class="v3-card-tag v3-tag-new">New Capability</div>
             </div>
 
-            <!-- Card 4: Default Column Values -->
+            <!-- Card 4: Nanosecond Timestamp -->
             <div class="v3-card">
               <div class="v3-card-head">
                 <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <path d="M9 9h6M9 12h6M9 15h4"/>
-                  </svg>
+                  <span class="sf-img sf-icon-time" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="v3-card-title">Default Column Values</div>
+                <div class="v3-card-title">Nanosecond Timestamp</div>
               </div>
-              <div class="v3-card-body">Schema evolution now supports declaring default values for new columns. Older files that predate the column still return the correct default — no backfill scans, no null-handling workarounds across engines.</div>
+              <div class="v3-card-body">More precise timestamps. v3 extends timestamp precision to nanoseconds, enabling high-frequency event data and time-series workloads that require sub-microsecond resolution.</div>
+              <div class="v3-card-tag v3-tag-schema">Precision</div>
+            </div>
+
+            <!-- Card 5: Deletion Vectors -->
+            <div class="v3-card">
+              <div class="v3-card-head">
+                <div class="v3-card-icon">
+                  <span class="sf-img sf-icon-speed-2" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="v3-card-title">Deletion Vectors</div>
+              </div>
+              <div class="v3-card-body">More efficient row-level deletes – read-only. Instead of rewriting data files on DELETE or UPDATE, v3 writes a small bitmap sidecar marking deleted rows, dramatically reducing write amplification.</div>
+              <div class="v3-card-tag v3-tag-perf">Faster Writes</div>
+            </div>
+
+            <!-- Card 6: Default Values -->
+            <div class="v3-card">
+              <div class="v3-card-head">
+                <div class="v3-card-icon">
+                  <span class="sf-img sf-icon-check" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="v3-card-title">Default Values</div>
+              </div>
+              <div class="v3-card-body">Column-level defaults. Schema evolution now supports default values for new columns — older files return the correct default without backfill scans or null-handling workarounds.</div>
               <div class="v3-card-tag v3-tag-schema">Schema Evolution</div>
-            </div>
-
-            <!-- Card 5: Improved Merge-on-Read -->
-            <div class="v3-card">
-              <div class="v3-card-head">
-                <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                    <polyline points="17 6 23 6 23 12"/>
-                  </svg>
-                </div>
-                <div class="v3-card-title">Improved Merge-on-Read</div>
-              </div>
-              <div class="v3-card-body">v3 formalizes the merge-on-read (MoR) path with deletion vectors as the preferred delete mechanism. Combined with improved read planning, readers like Snowflake apply row-level deletes at query time with minimal overhead.</div>
-              <div class="v3-card-tag v3-tag-perf">Query Performance</div>
-            </div>
-
-            <!-- Card 6: Spec Stability -->
-            <div class="v3-card">
-              <div class="v3-card-head">
-                <div class="v3-card-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
-                    <polyline points="9 12 11 14 15 10"/>
-                  </svg>
-                </div>
-                <div class="v3-card-title">Stable, Backward-Compatible Spec</div>
-              </div>
-              <div class="v3-card-body">v3 tables remain fully readable by v2-compatible engines (v3 is a superset of v2). Existing v2 tables can opt in to v3 features incrementally — no forced migrations or compatibility breaks.</div>
-              <div class="v3-card-tag v3-tag-schema">Compatibility</div>
             </div>
 
           </div>
 
           <!-- Footer leadership bar -->
           <div class="v3-footer-bar">
-            <span class="sf-img sf-icon-iceberg" style="width:32px;height:32px;flex-shrink:0;"></span>
+            <span class="sf-img sf-icon-iceberg" style="width:32px;height:32px;flex-shrink:0;filter:brightness(0) invert(1);"></span>
             <div class="v3-footer-bar-text">
               <strong>Snowflake co-authored Iceberg v3</strong> and is a founding member of Apache Polaris&#x2122; (incubating) — the open-source REST catalog that implements the Iceberg catalog spec and powers multi-engine interoperability without vendor lock-in.
             </div>
@@ -323,6 +292,17 @@
 
       </div>
     </div>
+  </div>
+
+  <div id="code-modal-content" style="display:none;">
+    <div class="code-modal-code"><pre class="code-block"><code><span class="code-kw">CREATE OR REPLACE ICEBERG TABLE</span> <span class="code-id">my_iceberg_v3_table</span> (
+    <span class="code-id">boolean_col</span>  <span class="code-fn">boolean</span>,
+    <span class="code-id">int_col</span>      <span class="code-fn">int</span>,
+    <span class="code-id">long_col</span>     <span class="code-fn">long</span>
+  )
+  <span class="code-kw">CATALOG</span>=<span class="code-str">'my_catalog_integration'</span>
+  <span class="code-kw">ICEBERG_VERSION</span>=<span class="code-num">3</span>;</code></pre></div>
+    <div class="code-modal-explain">Create an Iceberg v3 table by setting <code>ICEBERG_VERSION=3</code>. The <code>CATALOG</code> parameter points to an existing catalog integration. v3 unlocks Variant, Geospatial, Row Lineage, Deletion Vectors, Nanosecond Timestamps, and Default Values.</div>
   </div>
 
 </body>

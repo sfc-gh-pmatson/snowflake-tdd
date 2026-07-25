@@ -55,7 +55,7 @@
     .home-stack { position:relative; z-index:10; display:flex; flex-direction:column; align-items:center; gap:0; }
 
     .cta-pillars {
-      background: linear-gradient(135deg,#29B5E8 0%,#0059a3 100%);
+      background: linear-gradient(135deg,var(--sf-blue) 0%,var(--sf-blue-dark) 100%);
       color:#fff; padding:11px 30px; border-radius:100px;
       cursor:pointer; font-size: var(--fs-h4); font-weight:700; letter-spacing:.4px;
       border:none; margin-bottom:20px;
@@ -93,16 +93,16 @@
     /* L1 — Ecosystem */
     .arch-l1 {
       flex-shrink:0; margin:10px 10px 0;
-      border:3px solid #29B5E8; border-radius:8px;
+      border:3px solid var(--sf-blue); border-radius:8px;
       padding:4px 16px 6px; background:#fff;
       display:flex; flex-direction:column; align-items:center; gap:4px;
     }
-    .arch-l1-label { font-size: var(--fs-h6); font-weight:700; color:#29B5E8; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; text-align:center; }
+    .arch-l1-label { font-size: var(--fs-h6); font-weight:700; color:var(--sf-blue); letter-spacing:1px; text-transform:uppercase; white-space:nowrap; text-align:center; }
     .arch-l1-items { display:flex; align-items:center; width:100%; justify-content:center; gap:0; }
     .eco-item { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; position:relative; width:120px; }
     .eco-item img, .eco-item .sf-img { width:40px; height:40px; object-fit:contain; }
     .eco-item span { font-size: var(--fs-h6); color:#071525; white-space:nowrap; font-weight:600; }
-    .eco-dash { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
+    .eco-dash { flex:1; max-width:128px; min-width:64px; border-top:1px dashed var(--sf-blue); margin:0 4px; }
 
     /* Platform container */
     .arch-platform {
@@ -123,7 +123,7 @@
     .arch-l3 { display:flex; gap:6px; padding:8px 10px; background:#fff; border-bottom:1px solid rgba(41,181,232,.15); flex-shrink:0; }
     .product-box {
       flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
-      border:4px solid #29B5E8; border-radius:6px; padding:8px 4px; background:#fff;
+      border:4px solid var(--sf-blue); border-radius:6px; padding:8px 4px; background:#fff;
     }
     .product-box img, .product-box .sf-img { width:40px; height:40px; object-fit:contain; }
     .product-box span { font-size: var(--fs-h6); color:#071525; font-weight:700; text-align:center; line-height:1.2; }
@@ -153,7 +153,7 @@
     .arch-icon-w { filter: brightness(0) invert(1); }
 
     /* L6 — Architecture (sf-blue) */
-    .arch-l6 { display:flex; flex-direction:column; gap:0; background:#29B5E8; flex-shrink:0; padding-bottom:12px; }
+    .arch-l6 { display:flex; flex-direction:column; gap:0; background:var(--sf-blue); flex-shrink:0; padding-bottom:12px; }
     .arch-patterns { display:flex; padding:8px 10px 4px; gap:6px; }
     .arch-pattern { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 8px; position:relative; }
     .arch-pattern img, .arch-pattern .sf-img { width:40px; height:40px; object-fit:contain; }
@@ -167,12 +167,12 @@
     /* L7 — Cross-Cloud */
     .arch-l7 {
       flex-shrink:0; display:flex; flex-direction:column;
-      background:#050d1a; border:2.5px solid #29B5E8;
+      background:var(--sf-navy); border:2.5px solid var(--sf-blue);
       border-top:none; position:relative;
     }
     .l7-tab {
       position:absolute; top:-14px; left:50%; transform:translateX(-50%);
-      background:#050d1a; border:2px solid #29B5E8; border-bottom:none;
+      background:var(--sf-navy); border:2px solid var(--sf-blue); border-bottom:none;
       color:#fff; font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
       padding:3px 12px; border-radius:3px 3px 0 0; white-space:nowrap;
     }
@@ -183,7 +183,7 @@
     .cloud-item-lg { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; padding:0 10px; position:relative; width:120px; }
     .cloud-item-lg img, .cloud-item-lg .sf-img { width:40px; height:40px; object-fit:contain; }
     .cloud-item-lg span { font-size: var(--fs-h6); color:#fff; font-weight:600; white-space:nowrap; }
-    .cloud-dash-lg { flex:1; max-width:128px; min-width:64px; border-top:1px dashed #29B5E8; margin:0 4px; }
+    .cloud-dash-lg { flex:1; max-width:128px; min-width:64px; border-top:1px dashed var(--sf-blue); margin:0 4px; }
     .arch-footer { padding:2px 8px; font-size:5px; color:rgba(255,255,255,.22); text-align:right; flex-shrink:0; }
     /* Temporary icon marker */
     .temp-tag {
@@ -255,7 +255,6 @@
             <a href="./pages/coming-soon.html" class="eco-item">
               <span class="sf-img sf-icon-partners"></span>
               <span>Partners</span>
-              <span class="temp-tag">Temp</span>
             <span class="in-progress-tag">In-Progress</span>
             </a>
             <div class="eco-dash"></div>
@@ -324,13 +323,11 @@
             <a href="./pages/coming-soon.html" class="lang-item">
               <span class="sf-img sf-icon-js"></span>
               <span>Java/Scala</span>
-              <span class="temp-tag">Temp</span>
             <span class="in-progress-tag">In-Progress</span>
             </a>
             <a href="./pages/coming-soon.html" class="lang-item">
-              <span class="sf-img sf-icon-snowpark"></span>
+              <span class="sf-img sf-icon-python"></span>
               <span>Python</span>
-              <span class="temp-tag">Temp</span>
             <span class="in-progress-tag">In-Progress</span>
             </a>
             <a href="./pages/coming-soon.html" class="lang-item">
@@ -352,7 +349,6 @@
             <a href="./pages/coming-soon.html" class="lang-item">
               <span class="sf-img sf-icon-gpu"></span>
               <span>GPU</span>
-              <span class="temp-tag">Temp</span>
             <span class="in-progress-tag">In-Progress</span>
             </a>
           </div>
@@ -364,13 +360,11 @@
               <a href="./pages/coming-soon.html" class="arch-pattern">
                 <span class="sf-img sf-icon-data-mesh arch-icon-w"></span>
                 <span>Data Mesh</span>
-                <span class="temp-tag">Temp</span>
               <span class="in-progress-tag">In-Progress</span>
             </a>
               <a href="./pages/coming-soon.html" class="arch-pattern">
                 <span class="sf-img sf-icon-lakehouse arch-icon-w"></span>
                 <span>Data Lakehouse</span>
-                <span class="temp-tag">Temp</span>
               <span class="in-progress-tag">In-Progress</span>
             </a>
               <a href="./pages/coming-soon.html" class="arch-pattern">
@@ -418,7 +412,6 @@
               <a href="./pages/coming-soon.html" class="storage-item">
                 <span class="sf-img sf-icon-sf-tables arch-icon-w"></span>
                 <span>Snowflake Tables</span>
-                <span class="temp-tag">Temp</span>
               <span class="in-progress-tag">In-Progress</span>
             </a>
               <a href="./pages/coming-soon.html" class="storage-item">
@@ -429,7 +422,6 @@
               <a href="./pages/coming-soon.html" class="storage-item">
                 <span class="sf-img img-cloud-pg arch-icon-w"></span>
                 <span>Snowflake Postgres</span>
-                <span class="temp-tag">Temp</span>
               <span class="in-progress-tag">In-Progress</span>
             </a>
             </div>
@@ -441,20 +433,14 @@
             <div class="l7-clouds">
               <a href="./pages/snowgrid.html" class="cloud-item-lg">
                 <span class="sf-img img-cloud-aws"></span>
-                <span>AWS</span>
-                <span class="temp-tag">Temp</span>
               </a>
               <div class="cloud-dash-lg"></div>
               <a href="./pages/snowgrid.html" class="cloud-item-lg">
-                <span class="sf-img img-cloud-azure"></span>
-                <span>Microsoft Azure</span>
-                <span class="temp-tag">Temp</span>
+                <span class="sf-img img-cloud-azure" style="width:120px;height:40px;"></span>
               </a>
               <div class="cloud-dash-lg"></div>
               <a href="./pages/snowgrid.html" class="cloud-item-lg">
-                <span class="sf-img img-cloud-gcp"></span>
-                <span>Google Cloud</span>
-                <span class="temp-tag">Temp</span>
+                <span class="sf-img img-cloud-gcp" style="width:120px;height:40px;"></span>
               </a>
             </div>
             <div class="arch-footer">&copy; 2026 Snowflake Inc. All Rights Reserved</div>

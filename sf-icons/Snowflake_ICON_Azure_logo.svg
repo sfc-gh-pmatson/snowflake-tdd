@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+ width="64" height="64" viewBox="56.00 57.00 274.00 273.00"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,386.000000) scale(0.100000,-0.100000)"
+fill="#ffffff" stroke="none">
+<path d="M600 2625 l0 -625 630 0 630 0 0 625 0 625 -630 0 -630 0 0 -625z"/>
+<path d="M2000 2625 l0 -625 630 0 630 0 0 625 0 625 -630 0 -630 0 0 -625z"/>
+<path d="M600 1230 l0 -630 630 0 630 0 0 630 0 630 -630 0 -630 0 0 -630z"/>
+<path d="M2000 1230 l0 -630 630 0 630 0 0 630 0 630 -630 0 -630 0 0 -630z"/>
+</g>
+</svg>

@@ -46,18 +46,13 @@
       font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
       border:2px solid;
     }
-    .cloud-logo-aws   { background-image:url('../icons/cloud_aws.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--aws-c);   border-color:var(--aws-c); }
-    .cloud-logo-gcp   { background-image:url('../icons/cloud_gcp.png');   background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--gcp-c);   border-color:var(--gcp-c); }
-    .cloud-logo-azure { background-image:url('../icons/cloud_azure.png'); background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--azure-c); border-color:var(--azure-c); }
+    .cloud-logo-aws   { background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--aws-c);   border-color:var(--aws-c); }
+    .cloud-logo-gcp   { background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--gcp-c);   border-color:var(--gcp-c); }
+    .cloud-logo-azure { background-size:65%; background-repeat:no-repeat; background-position:center; background-color:var(--azure-c); border-color:var(--azure-c); }
     .cloud-name { font-size: var(--fs-h6); font-weight:700; color:rgba(255,255,255,.65); text-align:center; letter-spacing:.5px; }
 
-    /* Centered, larger heading */
-    #s6 .s6-header {
-      font-size: var(--fs-h1) !important;
-      font-weight: 800 !important;
-      text-align: center;
-    }
-    #s6 .s6-sub { text-align: center; font-size: var(--fs-h3)}
+    #s6 .s6-header { text-align: center; }
+    #s6 .s6-sub    { text-align: center; }
 
     /* Body wrapper — grid-based expand for reliable height fill */
     .s6-body {
@@ -165,7 +160,7 @@
       background-position: center;
       background-repeat: no-repeat;
       filter: invert(1);
-      opacity: 0.1;
+      opacity: 0.25;
       pointer-events: none;
       z-index: 0;
     }
@@ -254,13 +249,13 @@
     .conn-globe-toggle {
       display: flex; align-items: center; gap: 8px;
       padding: 7px 14px; border-radius: 100px;
-      background: rgba(147,51,234,.12); border: 1px solid rgba(147,51,234,.35);
-      color: #c084fc; font-size: var(--fs-h6); font-weight: 700;
+      background: rgba(41,181,232,.12); border: 1px solid rgba(41,181,232,.35);
+      color: #29B5E8; font-size: var(--fs-h6); font-weight: 700;
       cursor: pointer; transition: background .2s, border-color .2s;
       align-self: flex-start;
     }
-    .conn-globe-toggle:hover { background: rgba(147,51,234,.22); border-color: #c084fc; }
-    #panel-conn.globe-view .conn-globe-toggle { background: rgba(147,51,234,.22); border-color: #c084fc; }
+    .conn-globe-toggle:hover { background: rgba(41,181,232,.22); border-color: #29B5E8; }
+    #panel-conn.globe-view .conn-globe-toggle { background: rgba(41,181,232,.22); border-color: #29B5E8; }
   </style>
 </head>
 <body>
@@ -273,7 +268,7 @@
     <div class="slide-canvas with-nav">
       <div id="s6" class="sf-slide">
         <div class="s6-top">
-          <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="s6-top-row">
             <span class="slide-tag tag-blue">Platform Differentiation</span>
           </div>
           <div class="s6-header" style="margin-top:6px">The Easy, Connected and Trusted Data Foundation to Accelerate Enterprise-Ready Data &amp; AI</div>
@@ -359,8 +354,8 @@
               <div class="conn-cards-view">
                 <div class="feat-card conn">
                   <div class="feat-card-head">
-                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                    <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
                     </div>
                     <div class="feat-title">Ultimate Cross-Cloud Openness &amp; Interoperability</div>
                   </div>
@@ -368,8 +363,8 @@
                 </div>
                 <div class="feat-card conn">
                   <div class="feat-card-head">
-                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                    <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                     </div>
                     <div class="feat-title">Secure Internal and External Collaboration</div>
                   </div>
@@ -377,8 +372,8 @@
                 </div>
                 <div class="feat-card conn">
                   <div class="feat-card-head">
-                    <div class="icon-circle ic-purple" style="width:30px;height:30px">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+                    <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
                     </div>
                     <div class="feat-title">Seamless Cross-Cloud Data Sharing</div>
                   </div>
@@ -392,13 +387,13 @@
 
                   <div class="conn-globe-body">
                     <div class="cloud-node cloud-node-aws">
-                      <div class="cloud-logo cloud-logo-aws"></div>
+                      <div class="cloud-logo cloud-logo-aws img-cloud-aws"></div>
                     </div>
                     <div class="cloud-node cloud-node-gcp">
-                      <div class="cloud-logo cloud-logo-gcp"></div>
+                      <div class="cloud-logo cloud-logo-gcp sf-icon-gcp-logo"></div>
                     </div>
                     <div class="cloud-node cloud-node-azure">
-                      <div class="cloud-logo cloud-logo-azure"></div>
+                      <div class="cloud-logo cloud-logo-azure sf-icon-azure-logo"></div>
                     </div>
                     <!-- Storage Formats legend box -->
                     <div class="globe-legend-box right-side">
@@ -432,8 +427,8 @@
             <div class="pillar-panel trust-panel" id="panel-trust">
               <div class="feat-card trust">
                 <div class="feat-card-head">
-                  <div class="icon-circle ic-green" style="width:30px;height:30px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
                   </div>
                   <div class="feat-title">Built-in Snowflake Horizon Catalog</div>
                 </div>
@@ -441,8 +436,8 @@
               </div>
               <div class="feat-card trust">
                 <div class="feat-card-head">
-                  <div class="icon-circle ic-green" style="width:30px;height:30px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                   </div>
                   <div class="feat-title">Built-in Observability</div>
                 </div>
@@ -450,8 +445,8 @@
               </div>
               <div class="feat-card trust">
                 <div class="feat-card-head">
-                  <div class="icon-circle ic-green" style="width:30px;height:30px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/><polyline points="9 12 11 14 15 10"/></svg>
+                  <div class="icon-circle ic-blue" style="width:30px;height:30px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/><polyline points="9 12 11 14 15 10"/></svg>
                   </div>
                   <div class="feat-title">Built-in Business Continuity / Disaster Recovery</div>
                 </div>

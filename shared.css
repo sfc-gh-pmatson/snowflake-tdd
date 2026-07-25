@@ -19,10 +19,10 @@
       --sf-card2:      #0e2244;
       --sf-border:     rgba(41,181,232,0.16);
       --sf-light:      #70D9F5;
-      --easy-c:        #29B5E8;
-      --conn-c:        #9333EA;
-      --trust-c:       #22C55E;
-      --ai-c:          #F59E0B;
+      --easy-c:        #29B5E8;   /* Easy pillar — same as sf-blue */
+      --conn-c:        #29B5E8;   /* Connected pillar — sf-blue */
+      --trust-c:       #22C55E;   /* Used for nav-tag-ga (GA green) */
+      --ai-c:          #F59E0B;   /* AI / amber */
       --aws-c:         #FF9900;
       --azure-c:       #0078D4;
       --gcp-c:         #EB3474;
@@ -119,23 +119,16 @@
     }
 
     /* ── SNOWFLAKE BRAND ELEMENTS ──────────────────────────── */
-    .sf-logo {
-      display: flex; align-items: center; gap: 8px;
-      font-size: var(--fs-h5); font-weight: 700; letter-spacing: .5px;
-      color: rgba(255,255,255,.7); flex-shrink: 0;
-    }
-    .sf-logo svg { flex-shrink: 0; }
-
     .slide-tag {
       display: inline-flex; align-items: center;
       padding: 3px 12px; border-radius: 100px;
       font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase;
     }
-    .tag-blue   { background: rgba(41,181,232,.15); color: var(--sf-blue); border: 1px solid rgba(41,181,232,.3); }
-    .tag-purple { background: rgba(147,51,234,.15);  color: #c084fc;        border: 1px solid rgba(147,51,234,.3); }
-    .tag-green  { background: rgba(34,197,94,.15);   color: #4ade80;        border: 1px solid rgba(34,197,94,.3); }
-    .tag-amber  { background: rgba(245,158,11,.15);  color: #fbbf24;        border: 1px solid rgba(245,158,11,.3); }
+    .tag-blue   { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
+    .tag-purple { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
+    .tag-green  { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
+    .tag-amber  { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
 
     /* ── ICON CIRCLES ───────────────────────────────────────── */
     .icon-circle {
@@ -143,9 +136,6 @@
       flex-shrink: 0;
     }
     .ic-blue   { background: rgba(41,181,232,.15);  color: var(--sf-blue); }
-    .ic-purple { background: rgba(147,51,234,.15);  color: #c084fc; }
-    .ic-green  { background: rgba(34,197,94,.15);   color: #4ade80; }
-    .ic-amber  { background: rgba(245,158,11,.15);  color: #fbbf24; }
 
     /* ── FEATURE CARDS ──────────────────────────────────────── */
     .feat-card {
@@ -156,8 +146,6 @@
       transition: border-color .2s, transform .15s;
     }
     .feat-card:hover { border-color: rgba(41,181,232,.38); transform: translateY(-2px); }
-    .feat-card.conn:hover  { border-color: rgba(147,51,234,.45); }
-    .feat-card.trust:hover { border-color: rgba(34,197,94,.45); }
     .feat-card-head { display: flex; align-items: center; gap: 10px; }
     .feat-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; }
     .feat-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.62); line-height: 1.55; }
@@ -166,10 +154,25 @@
     .s6-top {
       padding: 14px 24px 10px;
       display:flex; flex-direction:column; gap:4px;
-      border-bottom:1px solid rgba(41,181,232,.09);
+      background: #fff;
+      border-bottom:1px solid rgba(41,181,232,.15);
     }
-    .s6-header { font-size: var(--fs-h3); font-weight:700; color:#fff; }
-    .s6-sub    { font-size: var(--fs-h6); color:rgba(255,255,255,.45); }
+    .s6-header { font-size: var(--fs-h1); font-weight:800; color:var(--sf-blue); }
+    .s6-sub    { font-size: var(--fs-h3); color:var(--sf-ink); opacity:.72; }
+    /* Wordmark row layout helpers — add to .s6-top for logo+text+tag rows */
+    .s6-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 115px;
+      background-image: url('sf-icons/Snowflake_ICON_Wordmark.svg');
+      background-size: auto 24px;
+      background-repeat: no-repeat;
+      background-position: left center;
+      min-height: 24px;
+    }
+    .s6-top-wordmark { flex-shrink:0; height:28px; width:auto; }
+    .s6-top-text { flex:1; display:flex; flex-direction:column; gap:2px; }
 
     /* ── LAYOUT UTILITIES ──────────────────────────────────── */
     /* Constrained content column — centers content up to --content-width */
@@ -367,14 +370,14 @@
 }
 
 /* ── Cloud provider logos ───────────────────────────────── */
-.img-cloud-aws   { background-image: url('icons/cloud_aws.png'); }
-.img-cloud-azure { background-image: url('icons/cloud_azure.png'); }
-.img-cloud-gcp   { background-image: url('icons/cloud_gcp.png'); }
-.img-cloud-pg    { background-image: url('icons/db_postgresql.png'); }
+.img-cloud-aws   { background-image: url('sf-icons/Snowflake_ICON_AWS.svg'); }
+.img-cloud-azure { background-image: url('sf-icons/Snowflake_ICON_Azure.svg'); }
+.img-cloud-gcp   { background-image: url('sf-icons/Snowflake_ICON_GCP.svg'); }
+.img-cloud-pg    { background-image: url('sf-icons/Snowflake_ICON_Postgres.svg'); }
 
 /* ── Snowflake icons ────────────────────────────────────── */
 .sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
-.sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Make_Each_Other_Best.svg'); }
+.sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Handshake.svg'); }
 .sf-icon-marketplace  { background-image: url('sf-icons/Snowflake_ICON_Marketplace.svg'); }
 .sf-icon-data-eng     { background-image: url('sf-icons/Snowflake_ICON_Data_Engineering.svg'); }
 .sf-icon-analytics    { background-image: url('sf-icons/Snowflake_ICON_Analytics.svg'); }
@@ -383,20 +386,21 @@
 .sf-icon-apps-collab  { background-image: url('sf-icons/Snowflake_ICON_Application_Collaboration.svg'); }
 .sf-icon-horizon      { background-image: url('sf-icons/Snowflake_ICON_Horizon.svg'); }
 .sf-icon-sql          { background-image: url('sf-icons/Snowflake_ICON_SQL.svg'); }
-.sf-icon-js           { background-image: url('sf-icons/Snowflake_ICON_Javascript.svg'); }
+.sf-icon-js           { background-image: url('sf-icons/Snowflake_ICON_JavaScala.svg'); }
 .sf-icon-snowpark     { background-image: url('sf-icons/Snowflake_ICON_Snowpark.svg'); }
+.sf-icon-python       { background-image: url('sf-icons/Snowflake_ICON_Python.svg'); }
 .sf-icon-spark        { background-image: url('sf-icons/Snowflake_ICON_Spark_Connect.svg'); }
 .sf-icon-spcs         { background-image: url('sf-icons/Snowflake_ICON_Snowpark_Containers.svg'); }
 .sf-icon-cpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Hardware_Semiconductors.svg'); }
-.sf-icon-gpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Fin_Tech.svg'); }
-.sf-icon-data-mesh    { background-image: url('sf-icons/Snowflake_ICON_Public_Data_Exchange.svg'); }
-.sf-icon-lakehouse    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_lake_Highlight.svg'); }
+.sf-icon-gpu          { background-image: url('sf-icons/Snowflake_ICON_GPU.svg'); }
+.sf-icon-data-mesh    { background-image: url('sf-icons/Snowflake_ICON_DataMesh.svg'); }
+.sf-icon-lakehouse    { background-image: url('sf-icons/Snowflake_ICON_Lakehouse.svg'); }
 .sf-icon-warehouse    { background-image: url('sf-icons/Snowflake_ICON_Warehouse_Data.svg'); }
 .sf-icon-unstructured { background-image: url('sf-icons/Snowflake_ICON_Unstructured_Data.svg'); }
 .sf-icon-semi-struct  { background-image: url('sf-icons/Snowflake_ICON_Semi_Structured_Data.svg'); }
 .sf-icon-structured   { background-image: url('sf-icons/Snowflake_ICON_Structured_Data.svg'); }
 .sf-icon-iceberg      { background-image: url('sf-icons/Snowflake_ICON_Iceberg_Tables.svg'); }
-.sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_RA_Snowflake_Database.svg'); }
+.sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_Snowflake_Storage.svg'); }
 .sf-icon-hybrid       { background-image: url('sf-icons/Snowflake_ICON_Hybrid_Tables.svg'); }
 .sf-icon-server       { background-image: url('sf-icons/Snowflake_ICON_Server.svg'); }
 .sf-icon-cloud        { background-image: url('sf-icons/Snowflake_ICON_Cloud.svg'); }
@@ -405,7 +409,18 @@
 .sf-icon-third-party  { background-image: url('sf-icons/Snowflake_ICON_3rd_Party_App_2.svg'); }
 .sf-icon-data-apps    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications.svg'); }
 .sf-icon-data-apps-hl { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications_Highlight.svg'); }
-.sf-icon-security-gov { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
+.sf-icon-security-gov    { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
+.sf-icon-speed-2         { background-image: url('sf-icons/Snowflake_ICON_Speed_2.svg'); }
+.sf-icon-be-excellent    { background-image: url('sf-icons/Snowflake_ICON_Be_Excellent.svg'); }
+.sf-icon-connected       { background-image: url('sf-icons/Snowflake_ICON_Connected.svg'); }
+.sf-icon-launch          { background-image: url('sf-icons/Snowflake_ICON_Launch.svg'); }
+.sf-icon-eliminate-delays { background-image: url('sf-icons/Snowflake_ICON_Eliminate_Delays.svg'); }
+.sf-icon-metadata        { background-image: url('sf-icons/Snowflake_ICON_Metadata.svg'); }
+.sf-icon-location        { background-image: url('sf-icons/Snowflake_ICON_Location.svg'); }
+.sf-icon-time            { background-image: url('sf-icons/Snowflake_ICON_Time.svg'); }
+.sf-icon-check           { background-image: url('sf-icons/Snowflake_ICON_Check.svg'); }
+.sf-icon-azure-logo   { background-image: url('sf-icons/Snowflake_ICON_Azure_logo.svg'); }
+.sf-icon-gcp-logo     { background-image: url('sf-icons/Snowflake_ICON_GCP_logo.svg'); }
 
 /* ── Resource bar icons ─────────────────────────────── */
 .sf-icon-resource-docs  { background-image: url('sf-icons/Snowflake_ICON_Documentation.svg'); }
