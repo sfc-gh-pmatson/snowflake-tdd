@@ -55,6 +55,17 @@ Interactive TDD/
 --sf-light:      #70D9F5;   /* Light blue highlight */
 --code-bg:       #1d252f;
 
+/* Partner / external brand colors */
+--aws-c:         #FF9900;
+--azure-c:       #0078D4;
+--gcp-c:         #EB3474;
+--databricks-c:  #FF3621;   /* Apache Spark / Databricks red */
+--spark-c:       #e25a1c;   /* Apache Spark orange */
+--flink-c:       #e6526f;   /* Apache Flink red */
+--polaris-c:     #007880;   /* Apache Polaris teal */
+--trino-c:       #DD00A1;   /* Trino magenta */
+--dremio-c:      #006d6f;   /* Dremio teal */
+
 /* Type scale */
 --fs-h6: 0.72rem;  /* ~12px — tags, captions, eyebrows */
 --fs-h5: 0.82rem;  /* ~13px — body text */
@@ -167,10 +178,25 @@ All render as white text on semi-transparent white background (readable on sf-bl
 | `sf-icon-check` | Snowflake_ICON_Check.svg |
 | `sf-icon-azure-logo` | Snowflake_ICON_Azure_logo.svg |
 | `sf-icon-gcp-logo` | Snowflake_ICON_GCP_logo.svg |
-| `img-cloud-aws` | Snowflake_ICON_AWS.svg |
-| `img-cloud-azure` | Snowflake_ICON_Azure.svg |
-| `img-cloud-gcp` | Snowflake_ICON_GCP.svg |
-| `img-cloud-pg` | Snowflake_ICON_Postgres.svg |
+
+### External Logo Class Registry
+These live in `other-icons/` and use brand colors defined as CSS variables.
+
+| Class | File (other-icons/) | Brand color var |
+|---|---|---|
+| `img-ext-aws` | AWS_logo.svg | `--aws-c: #FF9900` |
+| `img-ext-azure` | Azure_logo.svg | `--azure-c: #0078D4` |
+| `img-ext-gcp` | GCP_logo.svg | `--gcp-c: #EB3474` |
+| `img-ext-pg` | *(sf-icons/Snowflake_ICON_Postgres.svg)* | — |
+| `img-ext-databricks` | Databricks_logo.svg | `--databricks-c: #FF3621` |
+| `img-ext-spark` | apache_spark_logo.svg | `--spark-c: #e25a1c` |
+| `img-ext-spark-mark` | apache_spark.svg | — mark only, use in small icon circles |
+| `img-ext-flink` | Flink_logo.png | `--flink-c: #c679d4` |
+| `img-ext-flink-mark` | Flink.png | — mark only, use in small icon circles |
+| `img-ext-dremio` | dremio_logo.png | `--dremio-c: #006d6f` |
+| `img-ext-polaris` | apache_polaris_logo.svg | `--polaris-c: #007880` |
+| `img-ext-trino` | trino_logo.svg | `--trino-c: #DD00A1` |
+| `img-ext-trino` | trino_logo.svg | `#DD00A1` (Trino magenta) |
 | `sf-icon-resource-docs` | Snowflake_ICON_Documentation.svg |
 | `sf-icon-resource-code` | Snowflake_ICON_Code.svg |
 | `sf-icon-resource-guide` | Snowflake_ICON_Case_Study.svg |

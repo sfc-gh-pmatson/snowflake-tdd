@@ -35,3 +35,23 @@ Replicate Postgres tables directly into Snowflake as native Snowflake tables (no
 - CDC-based replication mechanics
 - Monitoring mirror status and lag
 - Comparison with pg_lake: when to use each approach
+
+---
+
+## External Icons (TEMP Placeholders)
+
+The following icons in the iceberg diagram pages are marked **TEMP** — they use generic sf-icons or custom inline SVGs as stand-ins. Replace when proper icons are sourced.
+
+| Page | Card / Context | Current placeholder | Desired icon |
+|---|---|---|---|
+| `iceberg-catalog-linked.html` | Unity Catalog (Databricks) | `sf-icon-spark` on `#FF3621` | Official Databricks / Unity Catalog logo |
+| `iceberg-catalog-linked.html` | AWS Glue | `img-cloud-aws` on `#FF9900` | Official AWS Glue icon |
+| `iceberg-catalog-linked.html` | Apache Polaris™ | `sf-icon-connected` (TEMP) | Official Apache Polaris / Iceberg logo |
+| `iceberg-snowflake.html` | Apache Flink™ | Custom inline terminal SVG | Official Apache Flink logo |
+| `iceberg-snowflake.html` | Trino | Custom inline grid SVG | Official Trino logo |
+| `iceberg-snowflake.html` | Dremio | Custom inline globe SVG | Official Dremio logo |
+
+**Notes:**
+- Third-party logos require brand approval before use in customer-facing materials.
+- For Apache Polaris, an official SVG may be available from the Apache Polaris GitHub repo.
+- The "Any REST" card on `iceberg-catalog-linked.html` uses `sf-icon-connected` as a permanent generic icon — no replacement needed.

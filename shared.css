@@ -26,6 +26,12 @@
       --aws-c:         #FF9900;
       --azure-c:       #0078D4;
       --gcp-c:         #EB3474;
+      --spark-c:       #e25a1c;   /* Apache Spark orange */
+      --flink-c:       #c679d4;   /* Apache Flink purple */
+      --databricks-c:  #FF3621;   /* Databricks red */
+      --polaris-c:     #007880;   /* Apache Polaris teal */
+      --trino-c:       #DD00A1;
+      --dremio-c:      #006d6f; 
       color-scheme: dark;
 
       /* ── Code coloring ─────────────────────────────────── */
@@ -369,11 +375,19 @@
   background-position: center;
 }
 
-/* ── Cloud provider logos ───────────────────────────────── */
-.img-cloud-aws   { background-image: url('sf-icons/Snowflake_ICON_AWS.svg'); }
-.img-cloud-azure { background-image: url('sf-icons/Snowflake_ICON_Azure.svg'); }
-.img-cloud-gcp   { background-image: url('sf-icons/Snowflake_ICON_GCP.svg'); }
-.img-cloud-pg    { background-image: url('sf-icons/Snowflake_ICON_Postgres.svg'); }
+/* ── External logos ─────────────────────────────────────── */
+.img-ext-aws        { background-image: url('other-icons/AWS_logo.svg'); }
+.img-ext-azure      { background-image: url('other-icons/Azure_logo.svg'); }
+.img-ext-gcp        { background-image: url('other-icons/GCP_logo.svg'); }
+.img-ext-pg         { background-image: url('sf-icons/Snowflake_ICON_Postgres.svg'); }
+.img-ext-databricks { background-image: url('other-icons/Databricks_logo.svg'); }
+.img-ext-polaris    { background-image: url('other-icons/apache_polaris_logo.svg'); }
+.img-ext-trino      { background-image: url('other-icons/trino_logo.svg'); }
+.img-ext-spark      { background-image: url('other-icons/apache_spark_logo.svg'); }
+.img-ext-spark-mark { background-image: url('other-icons/apache_spark.svg'); }   /* mark only — use in small icon circles */
+.img-ext-flink      { background-image: url('other-icons/Flink_logo.png'); }
+.img-ext-flink-mark { background-image: url('other-icons/Flink.png'); }          /* mark only — use in small icon circles */
+.img-ext-dremio     { background-image: url('other-icons/dremio_logo.png'); }
 
 /* ── Snowflake icons ────────────────────────────────────── */
 .sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
@@ -419,11 +433,38 @@
 .sf-icon-location        { background-image: url('sf-icons/Snowflake_ICON_Location.svg'); }
 .sf-icon-time            { background-image: url('sf-icons/Snowflake_ICON_Time.svg'); }
 .sf-icon-check           { background-image: url('sf-icons/Snowflake_ICON_Check.svg'); }
-.sf-icon-azure-logo   { background-image: url('sf-icons/Snowflake_ICON_Azure_logo.svg'); }
-.sf-icon-gcp-logo     { background-image: url('sf-icons/Snowflake_ICON_GCP_logo.svg'); }
+.sf-icon-azure-logo   { background-image: url('other-icons/Azure_logo.svg'); }
+.sf-icon-gcp-logo     { background-image: url('other-icons/GCP_logo.svg'); }
 
 /* ── Resource bar icons ─────────────────────────────── */
 .sf-icon-resource-docs  { background-image: url('sf-icons/Snowflake_ICON_Documentation.svg'); }
 .sf-icon-resource-code  { background-image: url('sf-icons/Snowflake_ICON_Code.svg'); }
 .sf-icon-resource-guide { background-image: url('sf-icons/Snowflake_ICON_Case_Study.svg'); }
 .sf-icon-resource-blog  { background-image: url('sf-icons/Snowflake_ICON_Blog.svg'); }
+
+/* ── SHARED DIAGRAM COMPONENTS ──────────────────────────── */
+/* Reusable across diagram pages (iceberg-catalog-linked, iceberg-snowflake, etc.) */
+.diagram-label, .cl-diagram-label {
+  font-size: var(--fs-h6);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(41,181,232,.55);
+  text-align: center;
+  margin-bottom: 2px;
+}
+.cl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.cl-chip {
+  padding: 4px 11px;
+  border-radius: 100px;
+  background: rgba(41,181,232,.08);
+  border: 1px solid rgba(41,181,232,.2);
+  font-size: var(--fs-h6);
+  color: rgba(255,255,255,.55);
+  font-weight: 600;
+}

@@ -63,8 +63,8 @@
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      background: rgba(41,181,232,.1);
-      border: 1px solid rgba(41,181,232,.25);
+      background: var(--sf-blue);
+      border: 1px solid var(--sf-blue);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -137,8 +137,7 @@
       gap: 5px;
       padding: 10px 6px;
       border-radius: 10px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
+      background: #fff;
     }
     .isf-engine-icon {
       width: 32px;
@@ -151,7 +150,7 @@
     .isf-engine-name {
       font-size: var(--fs-h6);
       font-weight: 700;
-      color: rgba(255,255,255,.62);
+      color: var(--sf-ink);
       text-align: center;
       white-space: nowrap;
     }
@@ -171,43 +170,43 @@
     .isf-connector-pill {
       padding: 4px 14px;
       border-radius: 100px;
-      background: rgba(41,181,232,.12);
-      border: 1px solid rgba(41,181,232,.3);
+      background:var(--sf-blue);
       font-size: var(--fs-h6);
       font-weight: 700;
-      color: #29B5E8;
+      color: #fff;
       letter-spacing: .5px;
       white-space: nowrap;
     }
 
     /* Central Snowflake / Iceberg box */
     .isf-sf-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
       padding: 14px 18px;
       border-radius: 12px;
-      background: rgba(41,181,232,.08);
-      border: 1.5px solid rgba(41,181,232,.3);
+      background: #fff;
+      border: 3px solid var(--sf-blue);
+      text-align: center;
     }
-    .isf-sf-box-top {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
+    .isf-sf-box-text {}
     .isf-sf-box-title {
       font-size: var(--fs-h4);
       font-weight: 700;
-      color: #e8f6fc;
+      color: var(--sf-ink);
+      margin-bottom: 3px;
     }
     .isf-sf-box-sub {
       font-size: var(--fs-h6);
-      color: rgba(255,255,255,.42);
+      color: rgba(7,21,37,.55);
       line-height: 1.4;
+      margin-bottom: 6px;
     }
     .isf-benefit-row {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-top: 6px;
     }
     .isf-benefit-chip {
       padding: 3px 10px;
@@ -215,41 +214,13 @@
       background: rgba(41,181,232,.1);
       border: 1px solid rgba(41,181,232,.22);
       font-size: var(--fs-h6);
-      color: rgba(255,255,255,.58);
+      color: rgba(7,21,37,.65);
       font-weight: 600;
     }
 
     /* Storage layer */
-    .isf-storage-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.1);
-    }
-    .isf-storage-box-text { flex: 1; }
-    .isf-storage-box-title {
-      font-size: var(--fs-h5);
-      font-weight: 700;
-      color: rgba(255,255,255,.55);
-      margin-bottom: 3px;
-    }
-    .isf-storage-chips {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .isf-storage-chip {
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      font-size: 0.63rem;
-      color: rgba(255,255,255,.38);
-      font-weight: 600;
-    }
+    /* Removed: isf-storage-box / isf-storage-chip styles — now using shared cl-chips / cl-chip from shared.css */
+
   </style>
 </head>
 <body>
@@ -259,7 +230,7 @@
       docs:  'https://docs.snowflake.com/en/user-guide/tables-iceberg-create',
       code:  true,
       guide: 'https://quickstarts.snowflake.com/guide/getting_started_iceberg_tables/',
-      blog:  'https://www.snowflake.com/en/blog/iceberg-tables-generally-available/',
+      blog:  'https://www.snowflake.com/en/blog/storage-iceberg-tables-now-generally-available/',
     };
   </script>
   <script src="../resources.js"></script>
@@ -273,21 +244,29 @@
       </div>
     </div>
     <div class="slide-canvas with-nav">
-      <div class="sf-slide">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Connected — Snowflake-Managed Iceberg</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Iceberg on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;">Open format. Snowflake performance. Any engine reads and writes. No ETL.</div>
+        </div>
+
         <div class="isf-layout content-wrap">
 
           <!-- ════════ Left: features ════════ -->
           <div class="isf-left">
-            <div class="isf-eyebrow">Connected — Snowflake-Managed Iceberg</div>
-            <div class="isf-title">Iceberg on<br>Snowflake</div>
-            <div class="isf-sub">Create Iceberg-format tables managed by Snowflake. Any engine reads and writes them. Full platform performance applies.</div>
+            <div class="isf-eyebrow">Snowflake — Managed Iceberg</div>
+            <div class="isf-title">Open Format,<br>Full Performance</div>
+            <div class="isf-sub">Snowflake manages the metadata, compaction, and catalog endpoint so every query runs at full speed on your own storage.</div>
 
             <!-- Feature 1 -->
             <div class="isf-feature">
               <div class="isf-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="13 2 4.5 13 11 13 11 22 19.5 11 13 11 13 2"/>
-                </svg>
+                <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
                 <div class="isf-feature-title">Full Snowflake Query Performance</div>
@@ -298,9 +277,7 @@
             <!-- Feature 2 -->
             <div class="isf-feature">
               <div class="isf-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                </svg>
+                <span class="sf-img sf-icon-connected" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
                 <div class="isf-feature-title">Write from Any Engine</div>
@@ -311,10 +288,7 @@
             <!-- Feature 3 -->
             <div class="isf-feature">
               <div class="isf-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
-                  <polyline points="9 12 11 14 15 10"/>
-                </svg>
+                <span class="sf-img sf-icon-security-gov" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
                 <div class="isf-feature-title">Enterprise Security &amp; Governance</div>
@@ -325,10 +299,7 @@
             <!-- Feature 4 -->
             <div class="isf-feature">
               <div class="isf-feature-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23"/>
-                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                </svg>
+                <span class="sf-img sf-icon-lakehouse" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
                 <div class="isf-feature-title">No ETL &mdash; One Copy of Data</div>
@@ -344,27 +315,27 @@
 
               <!-- Engine cards -->
               <div class="isf-engine-row">
-                <div class="isf-engine-card">
-                  <div class="isf-engine-icon" style="background:#FF3621;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <div class="isf-engine-card" style="border:3px solid var(--spark-c);">
+                  <div class="isf-engine-icon" style="background:var(--spark-c);">
+                    <span class="sf-img img-ext-spark" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
                   </div>
                   <div class="isf-engine-name">Apache Spark&#x2122;</div>
                 </div>
-                <div class="isf-engine-card">
-                  <div class="isf-engine-icon" style="background:rgba(41,181,232,.25);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#29B5E8" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                <div class="isf-engine-card" style="border:3px solid var(--flink-c);">
+                  <div class="isf-engine-icon" style="background:var(--flink-c);">
+                    <span class="sf-img img-ext-flink" style="width:22px;height:22px;"></span>
                   </div>
                   <div class="isf-engine-name">Apache Flink&#x2122;</div>
                 </div>
-                <div class="isf-engine-card">
-                  <div class="isf-engine-icon" style="background:rgba(255,255,255,.08);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                <div class="isf-engine-card" style="border:3px solid var(--trino-c);">
+                  <div class="isf-engine-icon" style="background:var(--trino-c);">
+                    <span class="sf-img img-ext-trino" style="width:22px;height:22px;"></span>
                   </div>
                   <div class="isf-engine-name">Trino</div>
                 </div>
-                <div class="isf-engine-card">
-                  <div class="isf-engine-icon" style="background:rgba(255,255,255,.08);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <div class="isf-engine-card" style="border:3px solid var(--dremio-c);">
+                  <div class="isf-engine-icon" style="background:var(--dremio-c);">
+                    <span class="sf-img img-ext-dremio" style="width:22px;height:22px;"></span>
                   </div>
                   <div class="isf-engine-name">Dremio</div>
                 </div>
@@ -379,20 +350,18 @@
 
               <!-- Snowflake Iceberg table box -->
               <div class="isf-sf-box">
-                <div class="isf-sf-box-top">
-                  <span class="sf-img sf-icon-iceberg" style="width:40px;height:40px;flex-shrink:0;"></span>
-                  <div>
-                    <div class="isf-sf-box-title">Snowflake-Managed Iceberg Table</div>
-                    <div class="isf-sf-box-sub">Snowflake manages metadata, compaction, and the REST catalog endpoint</div>
+                <span class="sf-img sf-icon-iceberg" style="width:44px;height:44px;flex-shrink:0;"></span>
+                <div class="isf-sf-box-text">
+                  <div class="isf-sf-box-title">Snowflake-Managed Iceberg Table</div>
+                  <div class="isf-sf-box-sub">Snowflake manages metadata, compaction, and the REST catalog endpoint</div>
+                  <div class="isf-benefit-row">
+                    <div class="isf-benefit-chip">Auto-clustering</div>
+                    <div class="isf-benefit-chip">Result cache</div>
+                    <div class="isf-benefit-chip">Time Travel</div>
+                    <div class="isf-benefit-chip">Masking policies</div>
+                    <div class="isf-benefit-chip">Row access</div>
+                    <div class="isf-benefit-chip">Cortex AI</div>
                   </div>
-                </div>
-                <div class="isf-benefit-row">
-                  <div class="isf-benefit-chip">Auto-clustering</div>
-                  <div class="isf-benefit-chip">Result cache</div>
-                  <div class="isf-benefit-chip">Time Travel</div>
-                  <div class="isf-benefit-chip">Masking policies</div>
-                  <div class="isf-benefit-chip">Row access</div>
-                  <div class="isf-benefit-chip">Cortex AI</div>
                 </div>
               </div>
 
@@ -402,16 +371,13 @@
               </div>
 
               <!-- Storage layer -->
-              <div class="isf-storage-box">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="8" width="20" height="14" rx="1"/><path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-                <div class="isf-storage-box-text">
-                  <div class="isf-storage-box-title">Cloud Object Storage (Customer-Owned)</div>
-                  <div class="isf-storage-chips">
-                    <div class="isf-storage-chip">Amazon S3</div>
-                    <div class="isf-storage-chip">Azure ADLS</div>
-                    <div class="isf-storage-chip">Google GCS</div>
-                    <div class="isf-storage-chip">Parquet + Iceberg Metadata</div>
-                  </div>
+              <div style="text-align:center;">
+                <div class="cl-diagram-label" style="margin-bottom:8px;">Cloud Object Storage (Customer-Owned)</div>
+                <div class="cl-chips">
+                  <div class="cl-chip" style="background:var(--aws-c);color:#fff;">Amazon S3</div>
+                  <div class="cl-chip" style="background:var(--azure-c);color:#fff;">Azure ADLS</div>
+                  <div class="cl-chip" style="background:var(--gcp-c);color:#fff;">Google GCS</div>
+                  <div class="cl-chip" style="background:var(--sf-blue);color:#fff;">Parquet + Iceberg Metadata</div>
                 </div>
               </div>
             </div>
