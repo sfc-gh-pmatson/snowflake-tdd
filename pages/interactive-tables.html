@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Interactive Tables &amp; Warehouses — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Header: dark instead of shared white ──────────────────────── */
+    .s6-top { background: transparent; }
+    .s6-sub { color: rgba(255,255,255,.7); }
+
+    /* ── Page-local icon classes (SVGs already in sf-icons/) ───────── */
+    .it-ic-concurrency { background-image: url('../sf-icons/Snowflake_ICON_Concurrency.svg'); }
+    .it-ic-pricing     { background-image: url('../sf-icons/Snowflake_ICON_Pricing.svg'); }
+    .it-ic-kafka       { background-image: url('../sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
+    .it-ic-pipe        { background-image: url('../sf-icons/Snowflake_ICON_RA_Pipe.svg'); }
+    .it-ic-table       { background-image: url('../sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
+
+    /* ── Stacked layout: benefits on top, flow below ───────────────── */
+    .it-layout {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Top: benefits ─────────────────────────────────────────────── */
+    .it-top {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 30px;
+      border-bottom: 1px solid rgba(41,181,232,.12);
+    }
+    .it-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 4px;
+    }
+    .it-title {
+      font-size: var(--fs-h3);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .it-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .it-feature {
+      flex: 1 1 210px;
+      min-width: 200px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 4px 0;
+    }
+    .it-feature-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      border: 1px solid var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .it-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f4fd;
+      margin-bottom: 2px;
+    }
+    .it-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.45;
+    }
+
+    /* ── Right: how it works ───────────────────────────────────────── */
+    .it-right {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      padding: 22px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .it-right::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.08) 0%, transparent 70%);
+      top: 50%; left: 60%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .it-right-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      position: relative;
+    }
+
+    /* Definition cards */
+    .it-defs { display: flex; gap: 14px; position: relative; }
+    .it-def {
+      flex: 1;
+      background: #050d1a;
+      border: 2px solid var(--sf-blue);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .it-def-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .it-def-icon {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .it-def-title { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
+    .it-def-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.6); line-height: 1.5; }
+
+    /* Flow diagram */
+    .it-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      position: relative;
+    }
+    .it-sources { display: flex; flex-direction: column; gap: 11px; }
+    .it-group {
+      position: relative;
+    }
+    .it-group-row { display: flex; align-items: center; gap: 6px; }
+
+    .it-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: 84px;
+      padding: 9px 5px;
+      border-radius: 10px;
+      background: rgba(41,181,232,.06);
+      border: 1px solid rgba(41,181,232,.28);
+      text-align: center;
+    }
+    .it-node-title { font-size: 11px; font-weight: 700; color: #e8f4fd; line-height: 1.2; }
+    .it-node-sub   { font-size: 9px; color: rgba(255,255,255,.45); line-height: 1.2; }
+
+    .it-arrow { color: var(--sf-blue); font-size: 16px; flex-shrink: 0; line-height: 1; }
+
+    /* Target boxes */
+    .it-target {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 112px;
+      flex-shrink: 0;
+      padding: 15px 8px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .it-target.tbl {
+      background: linear-gradient(160deg, #35c9d6, #29B5E8);
+      color: #fff;
+    }
+    .it-target.wh {
+      background: var(--sf-blue);
+      color: #fff;
+      position: relative;
+    }
+    .it-target-title { font-size: var(--fs-h5); font-weight: 800; }
+    .it-target-inner {
+      margin-top: 4px;
+      width: 100%;
+      padding: 7px 4px;
+      border: 1px dashed rgba(255,255,255,.75);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,   // add Interactive Tables docs URL when available
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Interactive Tables &amp; Warehouses</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Interactive Analytics</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Interactive Tables &amp; Warehouses</div>
+          <div class="s6-sub" style="text-align:center;">Expanding analytics with speed and concurrency — real-time ingestion, sub-second queries.</div>
+        </div>
+
+        <div class="it-layout content-wrap">
+
+          <!-- ════════ Top: benefits ════════ -->
+          <div class="it-top">
+            <div class="it-top-head">
+              <div class="it-eyebrow">Expanding Analytics</div>
+              <div class="it-title">Speed &amp; Concurrency for Interactive Analytics</div>
+            </div>
+            <div class="it-features">
+            <div class="it-feature">
+              <div class="it-feature-icon">
+                <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="it-feature-title">Real-Time Decision Making</div>
+                <div class="it-feature-body">Act on data the moment it lands — no waiting on batch cycles.</div>
+              </div>
+            </div>
+
+            <div class="it-feature">
+              <div class="it-feature-icon">
+                <span class="sf-img sf-icon-eliminate-delays" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="it-feature-title">Sub-Second Latency</div>
+                <div class="it-feature-body">Always-on compute and pre-warmed caches serve queries in under a second.</div>
+              </div>
+            </div>
+
+            <div class="it-feature">
+              <div class="it-feature-icon">
+                <span class="sf-img it-ic-concurrency" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="it-feature-title">High Concurrency at Scale</div>
+                <div class="it-feature-body">Serve many simultaneous users and applications without contention.</div>
+              </div>
+            </div>
+
+            <div class="it-feature">
+              <div class="it-feature-icon">
+                <span class="sf-img it-ic-pricing" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="it-feature-title">Price-for-Performance</div>
+                <div class="it-feature-body">Right-sized, always-on compute delivers low latency cost-efficiently.</div>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <!-- ════════ How it works ════════ -->
+          <div class="it-right">
+            <div class="it-right-label">How It Works</div>
+
+            <!-- Definitions -->
+            <div class="it-defs">
+              <div class="it-def">
+                <div class="it-def-head">
+                  <div class="it-def-icon">
+                    <span class="sf-img it-ic-table" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="it-def-title">Interactive Table</div>
+                </div>
+                <div class="it-def-body">A new table type optimized for real-time streaming ingestion and querying of data.</div>
+              </div>
+              <div class="it-def">
+                <div class="it-def-head">
+                  <div class="it-def-icon">
+                    <span class="sf-img sf-icon-warehouse" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="it-def-title">Interactive Warehouse</div>
+                </div>
+                <div class="it-def-body">A new warehouse designed to be always on, serving low-latency queries with pre-warmed caches.</div>
+              </div>
+            </div>
+
+            <!-- Ingestion flow -->
+            <div class="it-flow">
+              <div class="it-sources">
+                <div class="it-group ga">
+                  <div class="it-group-row">
+                    <div class="it-node">
+                      <span class="sf-img sf-icon-lakehouse" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <div class="it-node-title">Data Lakes</div>
+                      <div class="it-node-sub">Snowflake, S3, Iceberg, Delta</div>
+                    </div>
+                    <span class="it-arrow">&#8594;</span>
+                    <div class="it-node">
+                      <span class="sf-img sf-icon-sf-tables" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <div class="it-node-title">Batch Ingestion</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="it-group prpr">
+                  <div class="it-group-row">
+                    <div class="it-node">
+                      <span class="sf-img it-ic-kafka" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <div class="it-node-title">Streaming Sources</div>
+                      <div class="it-node-sub">e.g. Kafka</div>
+                    </div>
+                    <span class="it-arrow">&#8594;</span>
+                    <div class="it-node">
+                      <span class="sf-img it-ic-pipe" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <div class="it-node-title">Snowpipe</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <span class="it-arrow">&#8594;</span>
+
+              <div class="it-target tbl">
+                <span class="sf-img it-ic-table" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+                <div class="it-target-title">Interactive Table</div>
+              </div>
+
+              <span class="it-arrow">&#8594;</span>
+
+              <div class="it-target wh">
+                <span class="sf-img sf-icon-warehouse" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+                <div class="it-target-title">Interactive Warehouse</div>
+                <div class="it-target-inner">Interactive Table</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
