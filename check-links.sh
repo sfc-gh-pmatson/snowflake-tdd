@@ -4,7 +4,7 @@
 # Run manually:  bash check-links.sh
 # Installed as:  .git/hooks/pre-commit (auto-runs on every commit)
 
-REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 HTML_FILES=("$REPO_ROOT"/pages/*.html "$REPO_ROOT"/index.html)
 
 failures=()
