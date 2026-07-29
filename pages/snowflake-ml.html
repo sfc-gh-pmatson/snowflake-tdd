@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake ML — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ──────────────────────────────────── */
+    .ml-layout {
+      display: flex;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: intro + nav cards ────────────────────────────── */
+    .ml-left {
+      width: 44%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 24px 20px 28px;
+      gap: 12px;
+      border-right: 1px solid rgba(41,181,232,.1);
+    }
+
+    .ml-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.65);
+    }
+    .ml-title {
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+    }
+    .ml-sub {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.55;
+    }
+
+    .ml-nav-card {
+      background: #fff;
+      border: 2px solid var(--sf-blue);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-decoration: none;
+      transition: border-color .18s, transform .15s;
+    }
+    .ml-nav-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(41,181,232,.25); }
+    .ml-nav-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ml-nav-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); margin-bottom: 3px; }
+    .ml-nav-sub   { font-size: var(--fs-h6); color: rgba(7,21,37,.52); line-height: 1.35; }
+
+    /* ── Right: ML lifecycle diagram ────────────────────────── */
+    .ml-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 20px;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ml-right::before {
+      content: '';
+      position: absolute;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .ml-diagram { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 380px; position: relative; z-index: 1; }
+
+    .ml-diagram-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      text-align: center;
+    }
+
+    /* Lifecycle stages */
+    .ml-stages {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+    }
+    .ml-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 6px;
+      border-radius: 10px;
+      background: rgba(41,181,232,.06);
+      border: 1px solid rgba(41,181,232,.2);
+      text-align: center;
+      position: relative;
+    }
+    .ml-stage + .ml-stage { margin-left: 4px; }
+    .ml-stage-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ml-stage-title { font-size: 10px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .ml-stage-sub   { font-size: 9px; color: rgba(255,255,255,.48); line-height: 1.25; }
+
+    /* Infra layer */
+    .ml-infra {
+      display: flex;
+      gap: 6px;
+    }
+    .ml-infra-box {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.15);
+      text-align: center;
+    }
+    .ml-infra-label { font-size: var(--fs-h6); font-weight: 700; color: rgba(41,181,232,.6); margin-bottom: 2px; }
+    .ml-infra-chips { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+    .ml-infra-chip {
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.1);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 9px;
+      color: rgba(255,255,255,.55);
+      font-weight: 600;
+    }
+
+    /* IO row */
+    .ml-io {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .ml-io-box {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .ml-io-in  { background: rgba(41,181,232,.07); border: 1px solid rgba(41,181,232,.2); }
+    .ml-io-out { background: rgba(41,181,232,.07); border: 1px solid rgba(41,181,232,.2); }
+    .ml-io-label { font-size: var(--fs-h6); font-weight: 700; color: rgba(41,181,232,.6); margin-bottom: 2px; }
+    .ml-io-chips { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+    .ml-io-chip  {
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.1);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 9px;
+      color: rgba(255,255,255,.55);
+      font-weight: 600;
+    }
+    .ml-io-arrow { font-size: 18px; color: rgba(41,181,232,.5); flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/guides-overview-ml-powered-functions',
+      code:  null,
+      guide: null,
+      blog:  'https://www.snowflake.com/en/blog/scalable-model-development-production-snowflake-ml/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake ML</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">ML Features</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake ML</div>
+          <div class="s6-sub" style="text-align:center;">Comprehensive, Flexible, Integrated — the full ML lifecycle, on Snowflake compute, with no data movement.</div>
+        </div>
+
+        <div class="ml-layout content-wrap">
+
+          <!-- ════════ Left: intro + nav ════════ -->
+          <div class="ml-left">
+            <div>
+              <div class="ml-eyebrow">Snowflake ML</div>
+              <div class="ml-title">Agentic ML tooling drives 10× productivity for data scientists and MLEs</div>
+            </div>
+            <div class="ml-sub">Build, train, deploy, and monitor models entirely within Snowflake — no data egress, no separate orchestration stack, full Horizon governance on features and models.</div>
+
+            <a href="./coming-soon.html" class="ml-nav-card">
+              <div class="ml-nav-icon">
+                <span class="sf-img sf-icon-analytics" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="ml-nav-title">In-SQL ML Functions</div>
+                <div class="ml-nav-sub">Forecasting · Anomaly Detection · Classification · Regression — no Python required</div>
+              </div>
+            </a>
+
+            <a href="./coming-soon.html" class="ml-nav-card">
+              <div class="ml-nav-icon">
+                <span class="sf-img sf-icon-data-eng" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="ml-nav-title">MLOps</div>
+                <div class="ml-nav-sub">Model Registry · Feature Store · ML Jobs · BYOM · Experiment Tracking</div>
+              </div>
+            </a>
+          </div>
+
+          <!-- ════════ Right: ML lifecycle diagram ════════ -->
+          <div class="ml-right">
+            <div class="ml-diagram">
+              <div class="ml-diagram-label">ML Lifecycle</div>
+
+              <!-- IO row -->
+              <div class="ml-io">
+                <div class="ml-io-box ml-io-in">
+                  <div class="ml-io-label">Data In</div>
+                  <div class="ml-io-chips">
+                    <div class="ml-io-chip">Batch</div>
+                    <div class="ml-io-chip">Streams</div>
+                  </div>
+                </div>
+                <div class="ml-io-arrow">&#8594;</div>
+
+                <!-- Stages -->
+                <div class="ml-stages">
+                  <div class="ml-stage">
+                    <div class="ml-stage-icon">
+                      <span class="sf-img sf-icon-snowpark" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="ml-stage-title">Develop &amp; Iterate</div>
+                    <div class="ml-stage-sub">Notebooks · ML APIs · Experiments</div>
+                  </div>
+                  <div class="ml-stage">
+                    <div class="ml-stage-icon">
+                      <span class="sf-img sf-icon-time" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="ml-stage-title">Orchestrate</div>
+                    <div class="ml-stage-sub">ML Jobs · Automation</div>
+                  </div>
+                  <div class="ml-stage">
+                    <div class="ml-stage-icon">
+                      <span class="sf-img sf-icon-horizon" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="ml-stage-title">Manage</div>
+                    <div class="ml-stage-sub">Model Registry · Feature Store</div>
+                  </div>
+                  <div class="ml-stage">
+                    <div class="ml-stage-icon">
+                      <span class="sf-img sf-icon-launch" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="ml-stage-title">Deploy &amp; Serve</div>
+                    <div class="ml-stage-sub">Model · Feature Serving</div>
+                  </div>
+                  <div class="ml-stage">
+                    <div class="ml-stage-icon">
+                      <span class="sf-img sf-icon-check" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="ml-stage-title">Monitor</div>
+                    <div class="ml-stage-sub">Observability · Explainability</div>
+                  </div>
+                </div>
+
+                <div class="ml-io-arrow">&#8594;</div>
+                <div class="ml-io-box ml-io-out">
+                  <div class="ml-io-label">Outputs</div>
+                  <div class="ml-io-chips">
+                    <div class="ml-io-chip">Any Model</div>
+                    <div class="ml-io-chip">APIs</div>
+                    <div class="ml-io-chip">Apps</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Infra -->
+              <div class="ml-infra">
+                <div class="ml-infra-box">
+                  <div class="ml-infra-label">Compute</div>
+                  <div class="ml-infra-chips">
+                    <div class="ml-infra-chip">Container Runtime</div>
+                    <div class="ml-infra-chip">ML-Optimized Warehouse</div>
+                    <div class="ml-infra-chip">GPU</div>
+                    <div class="ml-infra-chip">CPU</div>
+                  </div>
+                </div>
+                <div class="ml-infra-box">
+                  <div class="ml-infra-label">Packages</div>
+                  <div class="ml-infra-chips">
+                    <div class="ml-infra-chip">scikit-learn</div>
+                    <div class="ml-infra-chip">PyTorch</div>
+                    <div class="ml-infra-chip">XGBoost</div>
+                    <div class="ml-infra-chip">+ pip install more</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

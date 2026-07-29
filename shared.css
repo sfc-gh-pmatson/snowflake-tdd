@@ -390,6 +390,16 @@
 .img-ext-flink-mark { background-image: url('other-icons/Flink.png'); }          /* mark only — use in small icon circles */
 .img-ext-dremio     { background-image: url('other-icons/dremio_logo.png'); }
 
+/* ── AI model provider logos ────────────────────────── */
+.img-ext-openai         { background-image: url('other-icons/openai_logo.svg'); }
+.img-ext-anthropic      { background-image: url('other-icons/anthropic_logo.svg'); }
+.img-ext-google-gemini  { background-image: url('other-icons/google_gemini_logo.svg'); }
+.img-ext-meta           { background-image: url('other-icons/meta_logo.svg'); }
+.img-ext-mistral        { background-image: url('other-icons/mistral_logo.svg'); }
+.img-ext-deepseek       { background-image: url('other-icons/deepseek_logo.svg'); }
+.img-ext-grok           { background-image: url('other-icons/grok_logo.png'); }
+.img-ext-snowflake-ai   { background-image: url('other-icons/snowflake_logo.svg'); }
+
 /* ── Snowflake icons ────────────────────────────────────── */
 .sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
 .sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Handshake.svg'); }
