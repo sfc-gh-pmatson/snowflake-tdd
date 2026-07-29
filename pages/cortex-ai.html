@@ -72,7 +72,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: var(--fs-h6);
+      font-size: var(--fs-h5);
       font-weight: 800;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -109,7 +109,7 @@
       cursor: pointer;
     }
     .cai-block--apps:hover { box-shadow: 0 4px 14px rgba(0,0,0,.18); transform: translateY(-1px); }
-    .cai-block--apps .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
+    .cai-block--apps .cai-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
 
     /* ── Layer 2: APIS (sf-light) ───────────────────────────── */
     .cai-layer--apis {
@@ -131,7 +131,7 @@
       cursor: pointer;
     }
     .cai-block--apis:hover { box-shadow: 0 4px 14px rgba(41,181,232,.25); transform: translateY(-1px); }
-    .cai-block--apis .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
+    .cai-block--apis .cai-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
 
     /* ── Layer 3: CONTEXT (sf-card) ─────────────────────────── */
     .cai-layer--context {
@@ -156,7 +156,7 @@
       cursor: pointer;
     }
     .cai-block--context:hover { box-shadow: 0 4px 14px rgba(41,181,232,.25); transform: translateY(-1px); }
-    .cai-block--context .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
+    .cai-block--context .cai-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
     .cai-context-sub-row { display: flex; gap: 6px; }
     .cai-context-sub-row .cai-block--context { flex: 1; }
 
@@ -190,7 +190,7 @@
       flex-shrink: 0;
     }
     .cai-model-name {
-      font-size: 9px;
+      font-size: var(--fs-h6);
       font-weight: 600;
       color: rgba(7,21,37,.52);
       letter-spacing: .4px;
@@ -255,13 +255,10 @@
     .cai-model-item--eol { opacity: .45; }
     .cai-model-badge {
       padding: 1px 6px; border-radius: 4px;
-      font-size: 8px; font-weight: 700; letter-spacing: .3px;
+      font-size: 9px; font-weight: 700; letter-spacing: .3px;
       text-transform: uppercase; flex-shrink: 0;
     }
-    .badge-ga     { background: var(--trust-c); color: #fff; }
-    .badge-prev   { background: var(--ai-c); color: #fff; }
-    .badge-eol    { background: #94a3b8; color: #fff; }
-    .badge-legacy { background: #c4a000; color: #fff; }
+    /* badge colors live in shared.css */
     .cai-panel-empty {
       font-size: var(--fs-h5); color: rgba(7,21,37,.45);
       text-align: center; padding: 20px 0; line-height: 1.55;
@@ -430,7 +427,7 @@
               </div>
               <div class="cai-model" data-provider="snowflake">
                 <div class="cai-model-icon" style="background:var(--sf-blue);">
-                  <span class="sf-img img-ext-snowflake-ai" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                  <span class="sf-img sf-icon-snowflake" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
                 </div>
                 <span class="cai-model-name">Snowflake</span>
               </div>
@@ -561,7 +558,7 @@
         ]
       },
       snowflake: {
-        name: 'Snowflake', bg: 'var(--sf-blue)', logoClass: 'img-ext-snowflake-ai',
+        name: 'Snowflake', bg: 'var(--sf-blue)', logoClass: 'sf-icon-snowflake',
         logoW: '20px', logoH: '20px',
         models: [
           { name: 'arctic-extract', status: 'GA' },

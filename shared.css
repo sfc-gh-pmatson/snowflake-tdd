@@ -65,6 +65,115 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* ══════════════════════════════════════════════════════════
+      IMAGE REGISTRY — single source of truth for all image paths.
+      Paths are relative to shared.css (project root).
+      To swap an image, update only this section.
+      ════════════════════════════════════════════════════════ */
+
+    /* Base class — add alongside every image class below */
+    .sf-img {
+      display: inline-block;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    /* ── External logos ─────────────────────────────────────── */
+    .img-ext-azure-logo   { background-image: url('other-icons/Azure_logo.svg'); }
+    .img-ext-gcp-logo     { background-image: url('other-icons/GCP_logo.svg'); }
+    .img-ext-aws        { background-image: url('other-icons/AWS_logo.svg'); }
+    .img-ext-azure      { background-image: url('other-icons/Azure_logo.svg'); }
+    .img-ext-gcp        { background-image: url('other-icons/GCP_logo.svg'); }
+    .img-ext-pg         { background-image: url('sf-icons/Snowflake_ICON_Postgres.svg'); }
+    .img-ext-databricks { background-image: url('other-icons/Databricks_logo.svg'); }
+    .img-ext-polaris    { background-image: url('other-icons/apache_polaris_logo.svg'); }
+    .img-ext-trino      { background-image: url('other-icons/trino_logo.svg'); }
+    .img-ext-spark      { background-image: url('other-icons/apache_spark_logo.svg'); }
+    .img-ext-spark-mark { background-image: url('other-icons/apache_spark.svg'); }   /* mark only — use in small icon circles */
+    .img-ext-flink      { background-image: url('other-icons/Flink_logo.png'); }
+    .img-ext-flink-mark { background-image: url('other-icons/Flink.png'); }          /* mark only — use in small icon circles */
+    .img-ext-dremio     { background-image: url('other-icons/dremio_logo.png'); }
+    /* ── External IDE logos ────────────────────────────────── */
+    .img-ext-vscode   { background-image: url('other-icons/vscode_logo.svg'); }
+    .img-ext-jupyter  { background-image: url('other-icons/Jupyter_logo.svg'); }
+    .img-ext-cursor   { background-image: url('other-icons/Cursor_logo_dark.png'); }
+    /* ── ML Framework logos ────────────────────────────────── */
+    .img-ext-pytorch  { background-image: url('other-icons/Pytorch_logo.png'); }
+    .img-ext-sklearn  { background-image: url('other-icons/scikitlearn_logo.svg'); }
+    .img-ext-ray      { background-image: url('other-icons/ray_logo.svg'); }
+    .img-ext-lightgbm { background-image: url('other-icons/LightGBM.svg'); }
+    .img-ext-xgboost  { background-image: url('other-icons/xgboost_logo.png'); }
+    /* ── AI model provider logos ────────────────────────── */
+    .img-ext-openai         { background-image: url('other-icons/openai_logo.svg'); }
+    .img-ext-anthropic      { background-image: url('other-icons/anthropic_logo.svg'); }
+    .img-ext-google-gemini  { background-image: url('other-icons/google_gemini_logo.svg'); }
+    .img-ext-meta           { background-image: url('other-icons/meta_logo.svg'); }
+    .img-ext-mistral        { background-image: url('other-icons/mistral_logo.svg'); }
+    .img-ext-deepseek       { background-image: url('other-icons/deepseek_logo.svg'); }
+    .img-ext-grok           { background-image: url('other-icons/grok_logo.png'); }
+
+    /* ── Snowflake icons ────────────────────────────────────── */
+    .sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
+    .sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Handshake.svg'); }
+    .sf-icon-marketplace  { background-image: url('sf-icons/Snowflake_ICON_Marketplace.svg'); }
+    .sf-icon-data-eng     { background-image: url('sf-icons/Snowflake_ICON_Data_Engineering.svg'); } /* also used for Snowpipe Streaming */
+    .sf-icon-analytics    { background-image: url('sf-icons/Snowflake_ICON_Analytics.svg'); }
+    .sf-icon-transactions { background-image: url('sf-icons/Snowflake_ICON_Transactions.svg'); }
+    .sf-icon-ai           { background-image: url('sf-icons/Snowflake_ICON_AI_Star_Triple.svg'); }
+    .sf-icon-apps-collab  { background-image: url('sf-icons/Snowflake_ICON_Application_Collaboration.svg'); }
+    .sf-icon-horizon      { background-image: url('sf-icons/Snowflake_ICON_Horizon.svg'); }
+    .sf-icon-sql          { background-image: url('sf-icons/Snowflake_ICON_SQL.svg'); }
+    .sf-icon-js           { background-image: url('sf-icons/Snowflake_ICON_JavaScala.svg'); }
+    .sf-icon-snowpark     { background-image: url('sf-icons/Snowflake_ICON_Snowpark.svg'); }
+    .sf-icon-python       { background-image: url('sf-icons/Snowflake_ICON_Python.svg'); }
+    .sf-icon-spark        { background-image: url('sf-icons/Snowflake_ICON_Spark_Connect.svg'); }
+    .sf-icon-spcs         { background-image: url('sf-icons/Snowflake_ICON_Snowpark_Containers.svg'); }
+    .sf-icon-cpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Hardware_Semiconductors.svg'); }
+    .sf-icon-gpu          { background-image: url('sf-icons/Snowflake_ICON_GPU.svg'); }
+    .sf-icon-data-mesh    { background-image: url('sf-icons/Snowflake_ICON_DataMesh.svg'); }
+    .sf-icon-lakehouse    { background-image: url('sf-icons/Snowflake_ICON_Lakehouse.svg'); }
+    .sf-icon-warehouse    { background-image: url('sf-icons/Snowflake_ICON_Warehouse_Data.svg'); }
+    .sf-icon-unstructured { background-image: url('sf-icons/Snowflake_ICON_Unstructured_Data.svg'); }
+    .sf-icon-semi-struct  { background-image: url('sf-icons/Snowflake_ICON_Semi_Structured_Data.svg'); }
+    .sf-icon-structured   { background-image: url('sf-icons/Snowflake_ICON_Structured_Data.svg'); }
+    .sf-icon-iceberg      { background-image: url('sf-icons/Snowflake_ICON_Iceberg_Tables.svg'); }
+    .sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_Snowflake_Storage.svg'); }
+    .sf-icon-hybrid       { background-image: url('sf-icons/Snowflake_ICON_Hybrid_Tables.svg'); }
+    .sf-icon-server       { background-image: url('sf-icons/Snowflake_ICON_Server.svg'); }
+    .sf-icon-cloud        { background-image: url('sf-icons/Snowflake_ICON_Cloud.svg'); }
+    .sf-icon-servers      { background-image: url('sf-icons/Snowflake_ICON_Servers.svg'); }
+    .sf-icon-platform     { background-image: url('sf-icons/Snowflake_ICON_Platform.svg'); }
+    .sf-icon-third-party  { background-image: url('sf-icons/Snowflake_ICON_3rd_Party_App_2.svg'); }
+    .sf-icon-data-apps    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications.svg'); }
+    .sf-icon-data-apps-hl { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications_Highlight.svg'); }
+    .sf-icon-security-gov    { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
+    .sf-icon-speed-2         { background-image: url('sf-icons/Snowflake_ICON_Speed_2.svg'); }
+    .sf-icon-be-excellent    { background-image: url('sf-icons/Snowflake_ICON_Be_Excellent.svg'); }
+    .sf-icon-connected       { background-image: url('sf-icons/Snowflake_ICON_Connected.svg'); }
+    .sf-icon-launch          { background-image: url('sf-icons/Snowflake_ICON_Launch.svg'); }
+    .sf-icon-eliminate-delays { background-image: url('sf-icons/Snowflake_ICON_Eliminate_Delays.svg'); }
+    .sf-icon-metadata        { background-image: url('sf-icons/Snowflake_ICON_Metadata.svg'); }
+    .sf-icon-location        { background-image: url('sf-icons/Snowflake_ICON_Location.svg'); }
+    .sf-icon-time            { background-image: url('sf-icons/Snowflake_ICON_Time.svg'); }
+    .sf-icon-check           { background-image: url('sf-icons/Snowflake_ICON_Check.svg'); }
+    .sf-icon-snowflake   { background-image: url('sf-icons/Snowflake_ICON_Logo.svg'); }
+    /* ── Resource bar icons ─────────────────────────────── */
+    .sf-icon-resource-docs  { background-image: url('sf-icons/Snowflake_ICON_Documentation.svg'); }
+    .sf-icon-resource-code  { background-image: url('sf-icons/Snowflake_ICON_Code.svg'); }
+    .sf-icon-resource-guide { background-image: url('sf-icons/Snowflake_ICON_Case_Study.svg'); }
+    .sf-icon-resource-blog  { background-image: url('sf-icons/Snowflake_ICON_Blog.svg'); }
+    /* ── Interactive Tables / Warehouses icons ─────────── */
+    /* NOTE: sf-icon-interactive-table reuses Dynamic_Tables SVG — backlog item to replace with a dedicated icon */
+    .sf-icon-interactive-table  { background-image: url('sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
+    .sf-icon-concurrency        { background-image: url('sf-icons/Snowflake_ICON_Concurrency.svg'); }
+    .sf-icon-pricing            { background-image: url('sf-icons/Snowflake_ICON_Pricing.svg'); }
+    .sf-icon-kafka              { background-image: url('sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
+    .sf-icon-pipe               { background-image: url('sf-icons/Snowflake_ICON_RA_Pipe.svg'); }
+    /* ── Snowflake page icons ──────────────────────────────── */
+    .sf-icon-on-demand  { background-image: url('sf-icons/Snowflake_ICON_On_Demand.svg'); }
+    .sf-icon-process    { background-image: url('sf-icons/Snowflake_ICON_Process_1.svg'); }
+
     /* ── NAV BAR ────────────────────────────────────────────── */
     .nav-bar {
       position: absolute; top: 0; left: 0; right: 0; z-index: 200;
@@ -362,105 +471,6 @@
     ::-webkit-scrollbar-track { background:var(--sf-navy); }
     ::-webkit-scrollbar-thumb { background:rgba(41,181,232,.35); border-radius:3px; }
 
-/* ══════════════════════════════════════════════════════════
-   IMAGE REGISTRY — single source of truth for all image paths.
-   Paths are relative to shared.css (project root).
-   To swap an image, update only this section.
-   ════════════════════════════════════════════════════════ */
-
-/* Base class — add alongside every image class below */
-.sf-img {
-  display: inline-block;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-/* ── External logos ─────────────────────────────────────── */
-.img-ext-aws        { background-image: url('other-icons/AWS_logo.svg'); }
-.img-ext-azure      { background-image: url('other-icons/Azure_logo.svg'); }
-.img-ext-gcp        { background-image: url('other-icons/GCP_logo.svg'); }
-.img-ext-pg         { background-image: url('sf-icons/Snowflake_ICON_Postgres.svg'); }
-.img-ext-databricks { background-image: url('other-icons/Databricks_logo.svg'); }
-.img-ext-polaris    { background-image: url('other-icons/apache_polaris_logo.svg'); }
-.img-ext-trino      { background-image: url('other-icons/trino_logo.svg'); }
-.img-ext-spark      { background-image: url('other-icons/apache_spark_logo.svg'); }
-.img-ext-spark-mark { background-image: url('other-icons/apache_spark.svg'); }   /* mark only — use in small icon circles */
-.img-ext-flink      { background-image: url('other-icons/Flink_logo.png'); }
-.img-ext-flink-mark { background-image: url('other-icons/Flink.png'); }          /* mark only — use in small icon circles */
-.img-ext-dremio     { background-image: url('other-icons/dremio_logo.png'); }
-
-/* ── AI model provider logos ────────────────────────── */
-.img-ext-openai         { background-image: url('other-icons/openai_logo.svg'); }
-.img-ext-anthropic      { background-image: url('other-icons/anthropic_logo.svg'); }
-.img-ext-google-gemini  { background-image: url('other-icons/google_gemini_logo.svg'); }
-.img-ext-meta           { background-image: url('other-icons/meta_logo.svg'); }
-.img-ext-mistral        { background-image: url('other-icons/mistral_logo.svg'); }
-.img-ext-deepseek       { background-image: url('other-icons/deepseek_logo.svg'); }
-.img-ext-grok           { background-image: url('other-icons/grok_logo.png'); }
-.img-ext-snowflake-ai   { background-image: url('other-icons/snowflake_logo.svg'); }
-
-/* ── Snowflake icons ────────────────────────────────────── */
-.sf-icon-ext-engines  { background-image: url('sf-icons/Snowflake_ICON_Embedded_Analytics.svg'); }
-.sf-icon-partners     { background-image: url('sf-icons/Snowflake_ICON_Handshake.svg'); }
-.sf-icon-marketplace  { background-image: url('sf-icons/Snowflake_ICON_Marketplace.svg'); }
-.sf-icon-data-eng     { background-image: url('sf-icons/Snowflake_ICON_Data_Engineering.svg'); }
-.sf-icon-analytics    { background-image: url('sf-icons/Snowflake_ICON_Analytics.svg'); }
-.sf-icon-transactions { background-image: url('sf-icons/Snowflake_ICON_Transactions.svg'); }
-.sf-icon-ai           { background-image: url('sf-icons/Snowflake_ICON_AI_Star_Triple.svg'); }
-.sf-icon-apps-collab  { background-image: url('sf-icons/Snowflake_ICON_Application_Collaboration.svg'); }
-.sf-icon-horizon      { background-image: url('sf-icons/Snowflake_ICON_Horizon.svg'); }
-.sf-icon-sql          { background-image: url('sf-icons/Snowflake_ICON_SQL.svg'); }
-.sf-icon-js           { background-image: url('sf-icons/Snowflake_ICON_JavaScala.svg'); }
-.sf-icon-snowpark     { background-image: url('sf-icons/Snowflake_ICON_Snowpark.svg'); }
-.sf-icon-python       { background-image: url('sf-icons/Snowflake_ICON_Python.svg'); }
-.sf-icon-spark        { background-image: url('sf-icons/Snowflake_ICON_Spark_Connect.svg'); }
-.sf-icon-spcs         { background-image: url('sf-icons/Snowflake_ICON_Snowpark_Containers.svg'); }
-.sf-icon-cpu          { background-image: url('sf-icons/Snowflake_ICON_Industry_Hardware_Semiconductors.svg'); }
-.sf-icon-gpu          { background-image: url('sf-icons/Snowflake_ICON_GPU.svg'); }
-.sf-icon-data-mesh    { background-image: url('sf-icons/Snowflake_ICON_DataMesh.svg'); }
-.sf-icon-lakehouse    { background-image: url('sf-icons/Snowflake_ICON_Lakehouse.svg'); }
-.sf-icon-warehouse    { background-image: url('sf-icons/Snowflake_ICON_Warehouse_Data.svg'); }
-.sf-icon-unstructured { background-image: url('sf-icons/Snowflake_ICON_Unstructured_Data.svg'); }
-.sf-icon-semi-struct  { background-image: url('sf-icons/Snowflake_ICON_Semi_Structured_Data.svg'); }
-.sf-icon-structured   { background-image: url('sf-icons/Snowflake_ICON_Structured_Data.svg'); }
-.sf-icon-iceberg      { background-image: url('sf-icons/Snowflake_ICON_Iceberg_Tables.svg'); }
-.sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_Snowflake_Storage.svg'); }
-.sf-icon-hybrid       { background-image: url('sf-icons/Snowflake_ICON_Hybrid_Tables.svg'); }
-.sf-icon-server       { background-image: url('sf-icons/Snowflake_ICON_Server.svg'); }
-.sf-icon-cloud        { background-image: url('sf-icons/Snowflake_ICON_Cloud.svg'); }
-.sf-icon-servers      { background-image: url('sf-icons/Snowflake_ICON_Servers.svg'); }
-.sf-icon-platform     { background-image: url('sf-icons/Snowflake_ICON_Platform.svg'); }
-.sf-icon-third-party  { background-image: url('sf-icons/Snowflake_ICON_3rd_Party_App_2.svg'); }
-.sf-icon-data-apps    { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications.svg'); }
-.sf-icon-data-apps-hl { background-image: url('sf-icons/Snowflake_ICON_Workloads_Data_Applications_Highlight.svg'); }
-.sf-icon-security-gov    { background-image: url('sf-icons/Snowflake_ICON_Security_Governance.svg'); }
-.sf-icon-speed-2         { background-image: url('sf-icons/Snowflake_ICON_Speed_2.svg'); }
-.sf-icon-be-excellent    { background-image: url('sf-icons/Snowflake_ICON_Be_Excellent.svg'); }
-.sf-icon-connected       { background-image: url('sf-icons/Snowflake_ICON_Connected.svg'); }
-.sf-icon-launch          { background-image: url('sf-icons/Snowflake_ICON_Launch.svg'); }
-.sf-icon-eliminate-delays { background-image: url('sf-icons/Snowflake_ICON_Eliminate_Delays.svg'); }
-.sf-icon-metadata        { background-image: url('sf-icons/Snowflake_ICON_Metadata.svg'); }
-.sf-icon-location        { background-image: url('sf-icons/Snowflake_ICON_Location.svg'); }
-.sf-icon-time            { background-image: url('sf-icons/Snowflake_ICON_Time.svg'); }
-.sf-icon-check           { background-image: url('sf-icons/Snowflake_ICON_Check.svg'); }
-.sf-icon-azure-logo   { background-image: url('other-icons/Azure_logo.svg'); }
-.sf-icon-gcp-logo     { background-image: url('other-icons/GCP_logo.svg'); }
-
-/* ── Resource bar icons ─────────────────────────────── */
-.sf-icon-resource-docs  { background-image: url('sf-icons/Snowflake_ICON_Documentation.svg'); }
-.sf-icon-resource-code  { background-image: url('sf-icons/Snowflake_ICON_Code.svg'); }
-.sf-icon-resource-guide { background-image: url('sf-icons/Snowflake_ICON_Case_Study.svg'); }
-.sf-icon-resource-blog  { background-image: url('sf-icons/Snowflake_ICON_Blog.svg'); }
-
-/* ── Interactive Tables / Warehouses icons ─────────── */
-/* NOTE: sf-icon-interactive-table reuses Dynamic_Tables SVG — backlog item to replace with a dedicated icon */
-.sf-icon-interactive-table  { background-image: url('sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
-.sf-icon-concurrency        { background-image: url('sf-icons/Snowflake_ICON_Concurrency.svg'); }
-.sf-icon-pricing            { background-image: url('sf-icons/Snowflake_ICON_Pricing.svg'); }
-.sf-icon-kafka              { background-image: url('sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
-.sf-icon-pipe               { background-image: url('sf-icons/Snowflake_ICON_RA_Pipe.svg'); }
-
 /* ── SHARED DIAGRAM COMPONENTS ──────────────────────────── */
 /* Reusable across diagram pages (iceberg-catalog-linked, iceberg-snowflake, etc.) */
 .diagram-label, .cl-diagram-label {
@@ -487,3 +497,9 @@
   color: rgba(255,255,255,.55);
   font-weight: 600;
 }
+
+/* ── Status badges (model provider popup panel) ─────────── */
+.badge-ga     { background: var(--trust-c); color: #fff; }
+.badge-prev   { background: var(--ai-c);    color: #fff; }
+.badge-eol    { background: #94a3b8;        color: #fff; }
+.badge-legacy { background: #c4a000;        color: #fff; }
