@@ -8,6 +8,9 @@
   <style>
     body { background: transparent; margin: 0; overflow: hidden; }
 
+    /* Tighten the shared header for this page */
+    .s6-top { padding: 8px 24px 6px; }
+
     /* ── Page wrapper ───────────────────────────────────────── */
     .cai-page {
       flex: 1;
@@ -15,54 +18,61 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 16px 14px;
+      padding: 6px 16px 12px;
       min-height: 0;
     }
 
-    /* ── Governance band (outside card border) ──────────────── */
-    .cai-gov {
+    /* ── Governance outer wrapper ───────────────────────────── */
+    .cai-gov-wrapper {
       width: 100%;
       max-width: 900px;
+      border: 3px solid var(--sf-blue);
+      border-radius: 10px;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Governance header — top of the wrapper */
+    .cai-gov-header {
+      background: var(--sf-blue);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 6px 16px;
-      background: rgba(34,197,94,.06);
-      border: 1px solid rgba(34,197,94,.3);
-      border-bottom: none;
-      border-radius: 10px 10px 0 0;
-      font-size: var(--fs-h6);
-      font-weight: 700;
-      letter-spacing: 1px;
+      gap: 14px;
+      padding: 8px 16px;
+      font-size: var(--fs-h4);
+      font-weight: 800;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
-      color: rgba(34,197,94,.8);
+      color: #fff;
+      flex-shrink: 0;
     }
-    .cai-gov-sep { color: rgba(34,197,94,.35); }
+    .cai-gov-sep { color: rgba(255,255,255,.4); font-weight: 400; }
 
-    /* ── Main card ──────────────────────────────────────────── */
-    .cai-card {
-      width: 100%;
-      max-width: 900px;
+    /* ── Inner content area (layers float on white inside governance) ── */
+    .cai-gov-inner {
+      background: #fff;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      border: 3px solid var(--sf-blue);
-      border-radius: 0 0 10px 10px;
-      overflow: hidden;
+      gap: 8px;
+      border-radius: 0 0 8px 8px;
     }
 
-    /* ── Layer base ─────────────────────────────────────────── */
-    .cai-layer {
+    /* ── Layer base ─────────────────────────────────────────── */    .cai-layer {
       display: flex;
       align-items: stretch;
+      border-radius: 10px;
+      overflow: hidden;
     }
     .cai-layer-label {
-      width: 52px;
+      width: 64px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: var(--fs-h6);
       font-weight: 800;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -92,19 +102,18 @@
       gap: 10px;
       padding: 10px 14px;
       border-radius: 8px;
-      background: rgba(255,255,255,.15);
-      border: 1px solid rgba(255,255,255,.3);
+      background: #fff;
+      border: 2px solid rgba(255,255,255,.5);
       text-decoration: none;
-      transition: background .17s, transform .15s;
+      transition: box-shadow .17s, transform .15s;
       cursor: pointer;
     }
-    .cai-block--apps:hover { background: rgba(255,255,255,.26); transform: translateY(-1px); }
-    .cai-block--apps .cai-title { font-size: var(--fs-h5); font-weight: 700; color: #fff; }
+    .cai-block--apps:hover { box-shadow: 0 4px 14px rgba(0,0,0,.18); transform: translateY(-1px); }
+    .cai-block--apps .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
 
     /* ── Layer 2: APIS (sf-light) ───────────────────────────── */
     .cai-layer--apis {
       background: var(--sf-light);
-      border-top: 2px solid var(--sf-blue);
     }
     .cai-layer--apis .cai-layer-label { color: rgba(7,21,37,.55); border-right-color: rgba(7,21,37,.12); }
     .cai-block--apis {
@@ -115,21 +124,20 @@
       gap: 10px;
       padding: 10px 14px;
       border-radius: 8px;
-      background: rgba(7,21,37,.08);
-      border: 1px solid rgba(7,21,37,.18);
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.35);
       text-decoration: none;
-      transition: background .17s, transform .15s;
+      transition: box-shadow .17s, transform .15s;
       cursor: pointer;
     }
-    .cai-block--apis:hover { background: rgba(7,21,37,.14); transform: translateY(-1px); }
+    .cai-block--apis:hover { box-shadow: 0 4px 14px rgba(41,181,232,.25); transform: translateY(-1px); }
     .cai-block--apis .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
 
     /* ── Layer 3: CONTEXT (sf-card) ─────────────────────────── */
     .cai-layer--context {
       background: var(--sf-card);
-      border-top: 2px solid var(--sf-blue);
     }
-    .cai-layer--context .cai-layer-label { color: rgba(41,181,232,.6); border-right-color: rgba(41,181,232,.15); }
+    .cai-layer--context .cai-layer-label { color: rgba(41,181,232,.7); border-right-color: rgba(41,181,232,.15); }
     .cai-layer--context .cai-layer-body {
       flex-direction: column;
       align-items: stretch;
@@ -141,32 +149,29 @@
       gap: 10px;
       padding: 9px 14px;
       border-radius: 8px;
-      background: rgba(41,181,232,.07);
-      border: 1px solid rgba(41,181,232,.2);
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
       text-decoration: none;
-      transition: background .17s, transform .15s;
+      transition: box-shadow .17s, transform .15s;
       cursor: pointer;
     }
-    .cai-block--context:hover { background: rgba(41,181,232,.14); transform: translateY(-1px); }
-    .cai-block--context .cai-title { font-size: var(--fs-h5); font-weight: 700; color: #e8f0fd; }
+    .cai-block--context:hover { box-shadow: 0 4px 14px rgba(41,181,232,.25); transform: translateY(-1px); }
+    .cai-block--context .cai-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
     .cai-context-sub-row { display: flex; gap: 6px; }
     .cai-context-sub-row .cai-block--context { flex: 1; }
 
-    /* ── Green divider line ─────────────────────────────────── */
-    .cai-green-line {
-      height: 1px;
-      background: rgba(34,197,94,.4);
-    }
-
     /* ── External models row ────────────────────────────────── */
     .cai-models {
-      background: var(--sf-navy);
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       padding: 10px 14px;
       flex-wrap: wrap;
+      flex-shrink: 0;
     }
     .cai-model {
       display: flex;
@@ -175,16 +180,95 @@
       gap: 4px;
       padding: 6px 10px;
       border-radius: 8px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.15);
+    }
+    .cai-model-icon {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
     .cai-model-name {
       font-size: 9px;
       font-weight: 600;
-      color: rgba(255,255,255,.45);
+      color: rgba(7,21,37,.52);
       letter-spacing: .4px;
       white-space: nowrap;
     }
+
+    /* ── Model provider panel ───────────────────────────────── */
+    .cai-panel {
+      position: fixed;
+      top: 42px;
+      right: -330px;
+      width: 310px;
+      height: calc(100vh - 42px);
+      background: #fff;
+      border-left: 3px solid var(--sf-blue);
+      z-index: 500;
+      transition: right .28s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: -8px 0 32px rgba(0,0,0,.22);
+    }
+    .cai-panel.open { right: 0; }
+
+    .cai-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .cai-panel-logo { width: 28px; height: 28px; border-radius: 6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .cai-panel-title { font-size: var(--fs-h4); font-weight: 700; flex: 1; }
+    .cai-panel-sub { font-size: var(--fs-h6); opacity: .7; margin-top: 1px; }
+    .cai-panel-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 15px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .cai-panel-close:hover { background: rgba(255,255,255,.35); }
+
+    .cai-panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+    .cai-panel-section-label {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: rgba(41,181,232,.6);
+      margin-bottom: 6px; margin-top: 2px;
+    }
+    .cai-model-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px; margin-bottom: 4px;
+      border-radius: 6px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.14);
+      font-size: var(--fs-h6);
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      color: var(--sf-ink);
+    }
+    .cai-model-item--eol { opacity: .45; }
+    .cai-model-badge {
+      padding: 1px 6px; border-radius: 4px;
+      font-size: 8px; font-weight: 700; letter-spacing: .3px;
+      text-transform: uppercase; flex-shrink: 0;
+    }
+    .badge-ga     { background: var(--trust-c); color: #fff; }
+    .badge-prev   { background: var(--ai-c); color: #fff; }
+    .badge-eol    { background: #94a3b8; color: #fff; }
+    .badge-legacy { background: #c4a000; color: #fff; }
+    .cai-panel-empty {
+      font-size: var(--fs-h5); color: rgba(7,21,37,.45);
+      text-align: center; padding: 20px 0; line-height: 1.55;
+    }
+
+    .cai-model[data-provider] { cursor: pointer; }
+    .cai-model[data-provider]:hover { border-color: rgba(41,181,232,.4); background: rgba(41,181,232,.08); }
   </style>
 </head>
 <body>
@@ -216,35 +300,38 @@
           <div class="s6-top-row">
             <span class="slide-tag tag-blue">AI / Cortex AI</span>
           </div>
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake Cortex AI Architecture</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Cortex AI Architecture</div>
           <div class="s6-sub" style="text-align:center;">Easy. Connected. Trusted. AI that operates across your entire business context.</div>
         </div>
 
         <!-- Architecture -->
         <div class="cai-page content-wrap">
 
-          <!-- Governance band (outside card border) -->
-          <div class="cai-gov">
-            <span>Governance</span>
-            <span class="cai-gov-sep">·</span>
-            <span>Policy Control</span>
-            <span class="cai-gov-sep">·</span>
-            <span>Audit &amp; Lineage</span>
-          </div>
+          <!-- Governance wrapper — encloses ALL architecture content -->
+          <div class="cai-gov-wrapper">
 
-          <!-- Main card -->
-          <div class="cai-card">
+            <!-- Governance header strip (outside the inner card) -->
+            <div class="cai-gov-header">
+              <span>Governance</span>
+              <span class="cai-gov-sep">·</span>
+              <span>Policy Control</span>
+              <span class="cai-gov-sep">·</span>
+              <span>Audit &amp; Lineage</span>
+            </div>
+
+            <!-- Inner white area — layers and models float inside -->
+            <div class="cai-gov-inner">
 
             <!-- ── Layer 1: APPS (sf-blue) ── -->
             <div class="cai-layer cai-layer--apps">
               <div class="cai-layer-label">APPS</div>
               <div class="cai-layer-body">
                 <a href="./coming-soon.html" class="cai-block--apps">
-                  <span class="sf-img sf-icon-platform" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0) invert(1);"></span>
+                  <span class="sf-img sf-icon-platform" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Snowflake CoWork</span>
                 </a>
                 <a href="./coming-soon.html" class="cai-block--apps">
-                  <span class="sf-img sf-icon-be-excellent" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0) invert(1);"></span>
+                  <span class="sf-img sf-icon-be-excellent" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Snowflake CoCo</span>
                 </a>
               </div>
@@ -255,15 +342,15 @@
               <div class="cai-layer-label">APIS</div>
               <div class="cai-layer-body">
                 <a href="./coming-soon.html" class="cai-block--apis">
-                  <span class="sf-img sf-icon-connected" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0);"></span>
+                  <span class="sf-img sf-icon-connected" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Cortex Agents</span>
                 </a>
                 <a href="./coming-soon.html" class="cai-block--apis">
-                  <span class="sf-img sf-icon-ai" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0);"></span>
+                  <span class="sf-img sf-icon-ai" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Cortex AI Functions</span>
                 </a>
                 <a href="./snowflake-ml.html" class="cai-block--apis">
-                  <span class="sf-img sf-icon-analytics" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0);"></span>
+                  <span class="sf-img sf-icon-analytics" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Agentic ML</span>
                 </a>
               </div>
@@ -275,67 +362,83 @@
               <div class="cai-layer-body">
                 <!-- Cortex Sense Runtime — full row -->
                 <a href="./coming-soon.html" class="cai-block--context" style="width:100%;">
-                  <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;flex-shrink:0;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                  <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;flex-shrink:0;"></span>
                   <span class="cai-title">Cortex Sense Runtime</span>
                 </a>
                 <!-- Sub-row: 3 components -->
                 <div class="cai-context-sub-row" style="width:100%;">
                   <a href="./coming-soon.html" class="cai-block--context">
-                    <span class="sf-img sf-icon-connected" style="width:20px;height:20px;flex-shrink:0;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                    <span class="sf-img sf-icon-connected" style="width:20px;height:20px;flex-shrink:0;"></span>
                     <span class="cai-title">MCP &amp; Connectors</span>
                   </a>
                   <a href="./coming-soon.html" class="cai-block--context">
-                    <span class="sf-img sf-icon-horizon" style="width:20px;height:20px;flex-shrink:0;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                    <span class="sf-img sf-icon-horizon" style="width:20px;height:20px;flex-shrink:0;"></span>
                     <span class="cai-title">Semantic Views</span>
                   </a>
                   <a href="./coming-soon.html" class="cai-block--context">
-                    <span class="sf-img sf-icon-metadata" style="width:20px;height:20px;flex-shrink:0;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                    <span class="sf-img sf-icon-metadata" style="width:20px;height:20px;flex-shrink:0;"></span>
                     <span class="cai-title">Business Logic</span>
                   </a>
                 </div>
               </div>
             </div>
 
-            <!-- ── Green divider ── -->
-            <div class="cai-green-line"></div>
-
             <!-- ── External models ── -->
             <div class="cai-models">
-              <div class="cai-model">
-                <span class="sf-img img-ext-openai" style="width:32px;height:20px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="openai">
+                <div class="cai-model-icon" style="background:#000;">
+                  <span class="sf-img img-ext-openai" style="width:36px;height:18px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">OpenAI</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-anthropic" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="anthropic">
+                <div class="cai-model-icon" style="background:#D4774F;">
+                  <span class="sf-img img-ext-anthropic" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Anthropic</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-google-gemini" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="gemini">
+                <div class="cai-model-icon" style="background:#4285F4;">
+                  <span class="sf-img img-ext-google-gemini" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Gemini</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-meta" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="meta">
+                <div class="cai-model-icon" style="background:#0082FB;">
+                  <span class="sf-img img-ext-meta" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Meta</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-mistral" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="mistral">
+                <div class="cai-model-icon" style="background:#FF7000;">
+                  <span class="sf-img img-ext-mistral" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Mistral AI</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-deepseek" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="deepseek">
+                <div class="cai-model-icon" style="background:#4D6BFE;">
+                  <span class="sf-img img-ext-deepseek" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">DeepSeek</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-grok" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="grok">
+                <!-- Grok PNG background removed — dark logo shown white on brand bg -->
+                <div class="cai-model-icon" style="background:#1A1A1A;">
+                  <span class="sf-img img-ext-grok" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Grok</span>
               </div>
-              <div class="cai-model">
-                <span class="sf-img img-ext-snowflake-ai" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              <div class="cai-model" data-provider="snowflake">
+                <div class="cai-model-icon" style="background:var(--sf-blue);">
+                  <span class="sf-img img-ext-snowflake-ai" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
                 <span class="cai-model-name">Snowflake</span>
               </div>
-            </div>
+            </div><!-- /cai-models -->
 
-          </div><!-- /cai-card -->
+            </div><!-- /cai-gov-inner -->
+
+          </div><!-- /cai-gov-wrapper -->
         </div><!-- /cai-page -->
 
         <!-- Resource bar -->
@@ -346,6 +449,184 @@
       </div>
     </div>
   </div>
+
+  <!-- Model provider panel -->
+  <div id="cai-panel" class="cai-panel">
+    <div class="cai-panel-header">
+      <div id="panel-logo" class="cai-panel-logo"></div>
+      <div>
+        <div id="panel-title" class="cai-panel-title"></div>
+        <div id="panel-sub" class="cai-panel-sub">Available on Snowflake Cortex AI</div>
+      </div>
+      <button class="cai-panel-close" onclick="closePanel()">&#x2715;</button>
+    </div>
+    <div class="cai-panel-body" id="panel-body"></div>
+  </div>
+
+  <script>
+    // Model lists sourced from Snowflake Service Consumption Table (Table 6a), effective July 24, 2026
+    // Preview = footnote 5 in PDF; GA = no footnote or footnote 19 (promotional pricing)
+    const PROVIDERS = {
+      openai: {
+        name: 'OpenAI', bg: '#000', logoClass: 'img-ext-openai',
+        logoW: '36px', logoH: '18px',
+        models: [
+          { name: 'openai-gpt-5.4-long-context', status: 'GA' },
+          { name: 'openai-gpt-5.4', status: 'GA' },
+          { name: 'openai-gpt-5.2', status: 'GA' },
+          { name: 'openai-gpt-5.1', status: 'GA' },
+          { name: 'openai-gpt-4.1', status: 'GA' },
+          { name: 'openai-gpt-5.6-sol', status: 'Preview' },
+          { name: 'openai-gpt-5.6-terra', status: 'Preview' },
+          { name: 'openai-gpt-5.6-luna', status: 'Preview' },
+          { name: 'openai-gpt-5.5-long-context', status: 'Preview' },
+          { name: 'openai-gpt-5.5', status: 'Preview' },
+          { name: 'openai-gpt-5.4-mini', status: 'Preview' },
+          { name: 'openai-gpt-5.4-nano', status: 'Preview' },
+          { name: 'openai-gpt-5', status: 'GA' },
+          { name: 'openai-gpt-5-mini', status: 'GA' },
+          { name: 'openai-gpt-5-nano', status: 'GA' },
+        ]
+      },
+      anthropic: {
+        name: 'Anthropic', bg: '#D4774F', logoClass: 'img-ext-anthropic',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'claude-sonnet-5', status: 'GA' },
+          { name: 'claude-opus-4-8', status: 'GA' },
+          { name: 'claude-opus-4-7', status: 'GA' },
+          { name: 'claude-opus-4-6', status: 'GA' },
+          { name: 'claude-opus-4-5', status: 'GA' },
+          { name: 'claude-sonnet-4-6', status: 'GA' },
+          { name: 'claude-sonnet-4-5', status: 'GA' },
+          { name: 'claude-haiku-4-5', status: 'GA' },
+          { name: 'claude-opus-5', status: 'Preview' },
+          { name: 'claude-fable-5', status: 'Preview' },
+          { name: 'claude-4-sonnet', status: 'Legacy' },
+        ]
+      },
+      gemini: {
+        name: 'Google Gemini', bg: '#4285F4', logoClass: 'img-ext-google-gemini',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'gemma-4-31b', status: 'GA' },
+          { name: 'gemma-4-26b-a4b', status: 'GA' },
+          { name: 'gemma-4-e2b', status: 'GA' },
+          { name: 'gemini-3.5-flash', status: 'Preview' },
+          { name: 'gemini-3.1-pro-long-context', status: 'Preview' },
+          { name: 'gemini-3.1-pro', status: 'Preview' },
+          { name: 'gemini-3.1-flash-lite', status: 'Preview' },
+          { name: 'gemini-2-5-flash', status: 'Preview' },
+          { name: 'gemini-2-5-flash-lite', status: 'Preview' },
+        ]
+      },
+      meta: {
+        name: 'Meta', bg: '#0082FB', logoClass: 'img-ext-meta',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'llama4-maverick', status: 'GA' },
+          { name: 'llama3.3-70b', status: 'GA' },
+          { name: 'llama3.1-70b', status: 'GA' },
+          { name: 'llama3.1-8b', status: 'GA' },
+          { name: 'llama3-70b', status: 'Legacy' },
+          { name: 'llama3-8b', status: 'Legacy' },
+        ]
+      },
+      mistral: {
+        name: 'Mistral AI', bg: '#FF7000', logoClass: 'img-ext-mistral',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'mistral-large2', status: 'GA' },
+          { name: 'pixtral-large', status: 'GA' },
+          { name: 'mistral-7b', status: 'GA' },
+          { name: 'mixtral-8x7b', status: 'GA' },
+          { name: 'mistral-large3', status: 'Preview' },
+        ]
+      },
+      deepseek: {
+        name: 'DeepSeek', bg: '#4D6BFE', logoClass: 'img-ext-deepseek',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'deepseek-r1', status: 'EOL' },
+        ]
+      },
+      grok: {
+        name: 'Grok', bg: '#1A1A1A', logoClass: 'img-ext-grok',
+        logoW: '24px', logoH: '24px',
+        models: [
+          { name: 'grok-4.20', status: 'Preview' },
+          { name: 'grok-4.20-long-context', status: 'Preview' },
+          { name: 'grok-4.3', status: 'Preview' },
+          { name: 'grok-4.3-long-context', status: 'Preview' },
+        ]
+      },
+      snowflake: {
+        name: 'Snowflake', bg: 'var(--sf-blue)', logoClass: 'img-ext-snowflake-ai',
+        logoW: '20px', logoH: '20px',
+        models: [
+          { name: 'arctic-extract', status: 'GA' },
+          { name: 'snowflake-arctic-embed-l-v2.0', status: 'GA' },
+          { name: 'snowflake-arctic-embed-m-v1.5', status: 'GA' },
+          { name: 'snowflake-arctic-embed-m', status: 'GA' },
+        ]
+      }
+    };
+
+    function showProvider(key) {
+      const p = PROVIDERS[key];
+      if (!p) return;
+
+      const panel = document.getElementById('cai-panel');
+      const logo  = document.getElementById('panel-logo');
+      const title = document.getElementById('panel-title');
+      const body  = document.getElementById('panel-body');
+
+      // Header
+      const headerEl = panel.querySelector('.cai-panel-header');
+      headerEl.style.background = p.bg === 'var(--sf-blue)' ? '#29B5E8' : p.bg;
+      logo.innerHTML = `<span class="sf-img ${p.logoClass}" style="width:${p.logoW};height:${p.logoH};filter:brightness(0) invert(1);"></span>`;
+      title.textContent = p.name;
+
+      // Model list
+      if (p.models.length === 0) {
+        body.innerHTML = '<div class="cai-panel-empty">No models currently available<br>on Snowflake Cortex AI.</div>';
+      } else {
+        const statusMap = { GA: 'badge-ga', Preview: 'badge-prev', EOL: 'badge-eol', Legacy: 'badge-legacy' };
+        const dimmed = new Set(['EOL', 'Legacy']);
+        body.innerHTML = '<div class="cai-panel-section-label">Models on Cortex AI</div>' +
+          p.models.map(m =>
+            `<div class="cai-model-item${dimmed.has(m.status) ? ' cai-model-item--eol' : ''}">
+              <span>${m.name}</span>
+              <span class="cai-model-badge ${statusMap[m.status] || 'badge-prev'}">${m.status}</span>
+            </div>`
+          ).join('');
+      }
+
+      panel.classList.add('open');
+    }
+
+    function closePanel() {
+      document.getElementById('cai-panel').classList.remove('open');
+    }
+
+    // Click on model chips
+    document.querySelectorAll('.cai-model[data-provider]').forEach(el => {
+      el.addEventListener('click', () => showProvider(el.dataset.provider));
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closePanel();
+    });
+
+    // Close on click outside panel (when open)
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('cai-panel');
+      if (panel.classList.contains('open') && !panel.contains(e.target) && !e.target.closest('[data-provider]')) {
+        closePanel();
+      }
+    });
+  </script>
 
 </body>
 </html>
