@@ -1,0 +1,8 @@
+.git
+.DS_Store
+*.md
+Dockerfile
+spec.yml
+deploy.sh
+.dockerignore
+check-links.sh

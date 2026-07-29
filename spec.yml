@@ -1,0 +1,15 @@
+spec:
+  containers:
+    - name: tdd
+      image: /demo/public/images/interactive-tdd:latest
+      resources:
+        requests:
+          memory: 256M
+          cpu: 0.5
+        limits:
+          memory: 512M
+          cpu: 1
+  endpoints:
+    - name: tdd-ui
+      port: 80
+      public: false
