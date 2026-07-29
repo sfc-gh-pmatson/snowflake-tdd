@@ -1,57 +1,33 @@
-# Interactive TDD — Implementation Backlog
-
-Items queued for future modules/pages.
+# Interactive TDD — Backlog
 
 ---
 
-## Postgres PG Lake
+## Module Pages To Build
 
+### Postgres PG Lake
 Expose Postgres-resident Iceberg tables to Snowflake via the pg_lake catalog integration.
 
 - **Docs:** https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-pg_lake
 - **Guide:** https://www.snowflake.com/en/developers/guides/sync-data-from-postgres-to-snowflake-with-iceberg-and-pg-lake/
 
-**Key concepts to cover:**
-- What pg_lake is and how it works (Postgres → Iceberg → Snowflake via catalog integration)
-- Creating a `SNOWFLAKE_POSTGRES` catalog integration
-- Creating a catalog-linked database (CLD) to auto-discover tables
-- Querying pg_lake Iceberg tables from Snowflake
-- Refresh behavior and auto-discovery
+Key concepts: pg_lake overview · `SNOWFLAKE_POSTGRES` catalog integration · catalog-linked database auto-discovery · querying pg_lake Iceberg tables · refresh behavior
 
----
-
-## Postgres Mirroring
-
-Replicate Postgres tables directly into Snowflake as native Snowflake tables (not Iceberg).
+### Postgres Mirroring
+Replicate Postgres tables into Snowflake as native tables (not Iceberg) via CDC.
 
 - **Docs:** https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-data-mirroring
 - **Guide:** https://www.snowflake.com/en/developers/guides/snowflake-postgres-mirror-to-snowflake/1
-- **Launch blog:** https://www.snowflake.com/en/blog/engineering/postgres-to-snowflake-replication-mirroring/
+- **Blog:** https://www.snowflake.com/en/blog/engineering/postgres-to-snowflake-replication-mirroring/
 
-**Key concepts to cover:**
-- How mirroring differs from pg_lake (native tables vs Iceberg)
-- Setting up a Snowflake Postgres instance as the source
-- `CREATE MIRROR` syntax and configuration
-- CDC-based replication mechanics
-- Monitoring mirror status and lag
-- Comparison with pg_lake: when to use each approach
+Key concepts: mirroring vs pg_lake · `CREATE MIRROR` · CDC mechanics · monitoring lag · when to use each
 
 ---
 
-## External Icons (TEMP Placeholders)
+## TEMP Icons — Awaiting Dedicated Assets
 
-The following icons in the iceberg diagram pages are marked **TEMP** — they use generic sf-icons or custom inline SVGs as stand-ins. Replace when proper icons are sourced.
-
-| Page | Card / Context | Current placeholder | Desired icon |
+| Page | Context | Current placeholder | Needed |
 |---|---|---|---|
-| `iceberg-catalog-linked.html` | Unity Catalog (Databricks) | `sf-icon-spark` on `#FF3621` | Official Databricks / Unity Catalog logo |
-| `iceberg-catalog-linked.html` | AWS Glue | `img-cloud-aws` on `#FF9900` | Official AWS Glue icon |
-| `iceberg-catalog-linked.html` | Apache Polaris™ | `sf-icon-connected` (TEMP) | Official Apache Polaris / Iceberg logo |
-| `iceberg-snowflake.html` | Apache Flink™ | Custom inline terminal SVG | Official Apache Flink logo |
-| `iceberg-snowflake.html` | Trino | Custom inline grid SVG | Official Trino logo |
-| `iceberg-snowflake.html` | Dremio | Custom inline globe SVG | Official Dremio logo |
+| `interactive-tables.html` | Interactive Table (def card + flow target) | `sf-icon-interactive-table` (reuses Dynamic Tables SVG) | Official Interactive Tables icon |
+| `interactive-tables.html` | Interactive Warehouse (def card + flow target) | `sf-icon-warehouse` (generic warehouse) | Official Interactive Warehouse icon |
 
-**Notes:**
-- Third-party logos require brand approval before use in customer-facing materials.
-- For Apache Polaris, an official SVG may be available from the Apache Polaris GitHub repo.
-- The "Any REST" card on `iceberg-catalog-linked.html` uses `sf-icon-connected` as a permanent generic icon — no replacement needed.
+**Note:** Third-party logos require brand approval before use in customer-facing materials.

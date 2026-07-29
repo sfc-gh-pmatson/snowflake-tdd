@@ -18,7 +18,8 @@
       --sf-card:       #0c1e3a;
       --sf-card2:      #0e2244;
       --sf-border:     rgba(41,181,232,0.16);
-      --sf-light:      #70D9F5;
+      --sf-light:      #70D9F5;   /* Light blue highlight */
+      --sf-teal:       #72d3dc;   /* Interactive Tables teal / Star Blue */
       --easy-c:        #29B5E8;   /* Easy pillar — same as sf-blue */
       --conn-c:        #29B5E8;   /* Connected pillar — sf-blue */
       --trust-c:       #22C55E;   /* Used for nav-tag-ga (GA green) */
@@ -441,6 +442,14 @@
 .sf-icon-resource-code  { background-image: url('sf-icons/Snowflake_ICON_Code.svg'); }
 .sf-icon-resource-guide { background-image: url('sf-icons/Snowflake_ICON_Case_Study.svg'); }
 .sf-icon-resource-blog  { background-image: url('sf-icons/Snowflake_ICON_Blog.svg'); }
+
+/* ── Interactive Tables / Warehouses icons ─────────── */
+/* NOTE: sf-icon-interactive-table reuses Dynamic_Tables SVG — backlog item to replace with a dedicated icon */
+.sf-icon-interactive-table  { background-image: url('sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
+.sf-icon-concurrency        { background-image: url('sf-icons/Snowflake_ICON_Concurrency.svg'); }
+.sf-icon-pricing            { background-image: url('sf-icons/Snowflake_ICON_Pricing.svg'); }
+.sf-icon-kafka              { background-image: url('sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
+.sf-icon-pipe               { background-image: url('sf-icons/Snowflake_ICON_RA_Pipe.svg'); }
 
 /* ── SHARED DIAGRAM COMPONENTS ──────────────────────────── */
 /* Reusable across diagram pages (iceberg-catalog-linked, iceberg-snowflake, etc.) */

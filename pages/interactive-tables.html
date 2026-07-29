@@ -8,16 +8,7 @@
   <style>
     body { background: transparent; margin: 0; overflow: hidden; }
 
-    /* ── Header: dark instead of shared white ──────────────────────── */
-    .s6-top { background: transparent; }
-    .s6-sub { color: rgba(255,255,255,.7); }
-
-    /* ── Page-local icon classes (SVGs already in sf-icons/) ───────── */
-    .it-ic-concurrency { background-image: url('../sf-icons/Snowflake_ICON_Concurrency.svg'); }
-    .it-ic-pricing     { background-image: url('../sf-icons/Snowflake_ICON_Pricing.svg'); }
-    .it-ic-kafka       { background-image: url('../sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
-    .it-ic-pipe        { background-image: url('../sf-icons/Snowflake_ICON_RA_Pipe.svg'); }
-    .it-ic-table       { background-image: url('../sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
+    /* ── Page-local icon classes — moved to shared.css ───────── */
 
     /* ── Stacked layout: benefits on top, flow below ───────────────── */
     .it-layout {
@@ -79,7 +70,7 @@
     .it-feature-title {
       font-size: var(--fs-h4);
       font-weight: 700;
-      color: #e8f4fd;
+      color: #fff;
       margin-bottom: 2px;
     }
     .it-feature-body {
@@ -94,10 +85,10 @@
       min-width: 0;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 16px;
       padding: 22px 24px;
-      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(5,13,26,.97) 100%);
       position: relative;
       overflow: hidden;
     }
@@ -124,8 +115,8 @@
     .it-defs { display: flex; gap: 14px; position: relative; }
     .it-def {
       flex: 1;
-      background: #050d1a;
-      border: 2px solid var(--sf-blue);
+      background: #fff;
+      border: 3px solid var(--sf-blue);
       border-radius: 12px;
       padding: 14px 16px;
     }
@@ -137,8 +128,8 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .it-def-title { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
-    .it-def-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.6); line-height: 1.5; }
+    .it-def-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); }
+    .it-def-body  { font-size: var(--fs-h5); color: rgba(7,21,37,.58); line-height: 1.5; }
 
     /* Flow diagram */
     .it-flow {
@@ -151,6 +142,10 @@
     .it-sources { display: flex; flex-direction: column; gap: 11px; }
     .it-group {
       position: relative;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--sf-blue-glow);
+      border: 3px solid var(--sf-border);
     }
     .it-group-row { display: flex; align-items: center; gap: 6px; }
 
@@ -163,12 +158,12 @@
       width: 84px;
       padding: 9px 5px;
       border-radius: 10px;
-      background: rgba(41,181,232,.06);
-      border: 1px solid rgba(41,181,232,.28);
+      background: #fff;
+      border: 1px solid var(--sf-blue);
       text-align: center;
     }
-    .it-node-title { font-size: 11px; font-weight: 700; color: #e8f4fd; line-height: 1.2; }
-    .it-node-sub   { font-size: 9px; color: rgba(255,255,255,.45); line-height: 1.2; }
+    .it-node-title { font-size: 11px; font-weight: 700; color:var(--sf-ink); line-height: 1.2; }
+    .it-node-sub   { font-size: 9px; color:var(--sf-ink); line-height: 1.2; }
 
     .it-arrow { color: var(--sf-blue); font-size: 16px; flex-shrink: 0; line-height: 1; }
 
@@ -186,8 +181,8 @@
       text-align: center;
     }
     .it-target.tbl {
-      background: linear-gradient(160deg, #35c9d6, #29B5E8);
-      color: #fff;
+      background: var(--sf-teal);
+      color: var(--sf-ink);
     }
     .it-target.wh {
       background: var(--sf-blue);
@@ -199,11 +194,12 @@
       margin-top: 4px;
       width: 100%;
       padding: 7px 4px;
+      background: var(--sf-teal);
       border: 1px dashed rgba(255,255,255,.75);
       border-radius: 8px;
       font-size: 11px;
       font-weight: 700;
-      color: #fff;
+      color: var(--sf-ink);
     }
   </style>
 </head>
@@ -211,10 +207,10 @@
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
-      docs:  null,   // add Interactive Tables docs URL when available
-      code:  null,
-      guide: null,
-      blog:  null,
+      docs:  'https://docs.snowflake.com/en/user-guide/interactive',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/getting-started-with-interactive-tables/',
+      blog:  'https://www.snowflake.com/en/blog/engineering/Interactive-analytics-tables-warehouses/',
     };
   </script>
   <script src="../resources.js"></script>
@@ -223,6 +219,9 @@
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
       <span class="nav-label">Interactive Tables &amp; Warehouses</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
     </div>
 
     <div class="slide-canvas with-nav">
@@ -268,7 +267,7 @@
 
             <div class="it-feature">
               <div class="it-feature-icon">
-                <span class="sf-img it-ic-concurrency" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+                <span class="sf-img sf-icon-concurrency" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div>
                 <div class="it-feature-title">High Concurrency at Scale</div>
@@ -278,7 +277,7 @@
 
             <div class="it-feature">
               <div class="it-feature-icon">
-                <span class="sf-img it-ic-pricing" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+                <span class="sf-img sf-icon-pricing" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div>
                 <div class="it-feature-title">Price-for-Performance</div>
@@ -297,7 +296,8 @@
               <div class="it-def">
                 <div class="it-def-head">
                   <div class="it-def-icon">
-                    <span class="sf-img it-ic-table" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                    <!-- TEMP: sf-icon-interactive-table reuses Dynamic_Tables SVG -->
+                    <span class="sf-img sf-icon-interactive-table" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
                   </div>
                   <div class="it-def-title">Interactive Table</div>
                 </div>
@@ -306,6 +306,7 @@
               <div class="it-def">
                 <div class="it-def-head">
                   <div class="it-def-icon">
+                    <!-- TEMP: sf-icon-warehouse is a generic warehouse icon -->
                     <span class="sf-img sf-icon-warehouse" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
                   </div>
                   <div class="it-def-title">Interactive Warehouse</div>
@@ -320,13 +321,13 @@
                 <div class="it-group ga">
                   <div class="it-group-row">
                     <div class="it-node">
-                      <span class="sf-img sf-icon-lakehouse" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <span class="sf-img sf-icon-lakehouse" style="width:24px;height:24px;"></span>
                       <div class="it-node-title">Data Lakes</div>
                       <div class="it-node-sub">Snowflake, S3, Iceberg, Delta</div>
                     </div>
                     <span class="it-arrow">&#8594;</span>
                     <div class="it-node">
-                      <span class="sf-img sf-icon-sf-tables" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <span class="sf-img sf-icon-pipe" style="width:24px;height:24px;"></span>
                       <div class="it-node-title">Batch Ingestion</div>
                     </div>
                   </div>
@@ -335,13 +336,13 @@
                 <div class="it-group prpr">
                   <div class="it-group-row">
                     <div class="it-node">
-                      <span class="sf-img it-ic-kafka" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <span class="sf-img sf-icon-kafka" style="width:24px;height:24px;"></span>
                       <div class="it-node-title">Streaming Sources</div>
                       <div class="it-node-sub">e.g. Kafka</div>
                     </div>
                     <span class="it-arrow">&#8594;</span>
                     <div class="it-node">
-                      <span class="sf-img it-ic-pipe" style="width:24px;height:24px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
+                      <span class="sf-img sf-icon-data-eng" style="width:24px;height:24px;"></span>
                       <div class="it-node-title">Snowpipe</div>
                     </div>
                   </div>
@@ -351,13 +352,15 @@
               <span class="it-arrow">&#8594;</span>
 
               <div class="it-target tbl">
-                <span class="sf-img it-ic-table" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+                <!-- TEMP: sf-icon-interactive-table reuses Dynamic_Tables SVG -->
+                <span class="sf-img sf-icon-interactive-table" style="width:26px;height:26px;filter:brightness(0);"></span>
                 <div class="it-target-title">Interactive Table</div>
               </div>
 
               <span class="it-arrow">&#8594;</span>
 
               <div class="it-target wh">
+                <!-- TEMP: sf-icon-warehouse is a generic warehouse icon -->
                 <span class="sf-img sf-icon-warehouse" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
                 <div class="it-target-title">Interactive Warehouse</div>
                 <div class="it-target-inner">Interactive Table</div>
@@ -375,6 +378,49 @@
       </div>
     </div>
   </div>
+
+  <!-- Code modal content -->
+  <div id="code-modal-content" style="display:none">
+  <div class="code-modal-code">
+    <pre class="code-block"><code><span class="code-comment">-- Step 1: Create an Interactive Warehouse (always-on, pre-warmed cache)</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">INTERACTIVE WAREHOUSE</span> <span class="code-id">my_interactive_wh</span>
+  <span class="code-fn">AUTO_SUSPEND</span>  <span class="code-punc">=</span> <span class="code-num">86400</span>   <span class="code-comment">-- min 24 hours; warehouse stays warm</span>
+  <span class="code-fn">AUTO_RESUME</span>   <span class="code-punc">=</span> <span class="code-id">TRUE</span>
+  <span class="code-fn">INITIALLY_SUSPENDED</span> <span class="code-punc">=</span> <span class="code-id">FALSE</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Step 2: Create an Interactive Table (requires CLUSTER BY)</span>
+<span class="code-kw">CREATE</span> <span class="code-kw">OR REPLACE</span> <span class="code-fn">INTERACTIVE TABLE</span> <span class="code-id">my_db.my_schema.events</span> <span class="code-punc">(</span>
+  <span class="code-id">event_id</span>   <span class="code-fn">BIGINT</span>
+<span class="code-punc">,</span> <span class="code-id">event_ts</span>   <span class="code-fn">TIMESTAMP_NTZ</span>
+<span class="code-punc">,</span> <span class="code-id">user_id</span>    <span class="code-fn">STRING</span>
+<span class="code-punc">,</span> <span class="code-id">event_type</span> <span class="code-fn">STRING</span>
+<span class="code-punc">,</span> <span class="code-id">payload</span>    <span class="code-fn">VARIANT</span>
+<span class="code-punc">)</span>
+  <span class="code-fn">CLUSTER BY</span> <span class="code-punc">(</span><span class="code-id">user_id</span><span class="code-punc">,</span> <span class="code-id">event_ts</span><span class="code-punc">)</span>  <span class="code-comment">-- required; choose cols matching your WHERE clauses</span>
+  <span class="code-fn">DATA_RETENTION_TIME_IN_DAYS</span> <span class="code-punc">=</span> <span class="code-num">1</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Step 3: Ingest via Snowpipe Streaming (SDK insertRows)</span>
+<span class="code-comment">-- or load from existing standard table</span>
+<span class="code-kw">INSERT INTO</span> <span class="code-id">events</span>
+  <span class="code-kw">SELECT</span> <span class="code-punc">*</span> <span class="code-kw">FROM</span> <span class="code-id">staging.raw_events</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Step 4: Query using the Interactive Warehouse</span>
+<span class="code-kw">USE WAREHOUSE</span> <span class="code-id">my_interactive_wh</span><span class="code-punc">;</span>
+<span class="code-kw">SELECT</span> <span class="code-id">event_type</span><span class="code-punc">,</span> <span class="code-fn">COUNT</span><span class="code-punc">(*)</span> <span class="code-kw">AS</span> <span class="code-id">cnt</span>
+  <span class="code-kw">FROM</span>   <span class="code-id">events</span>
+  <span class="code-kw">WHERE</span>  <span class="code-id">user_id</span> <span class="code-punc">=</span> <span class="code-str">'u_12345'</span>
+    <span class="code-kw">AND</span>  <span class="code-id">event_ts</span> <span class="code-punc">&gt;=</span> <span class="code-fn">DATEADD</span><span class="code-punc">(</span><span class="code-str">'hour'</span><span class="code-punc">,</span> <span class="code-punc">-</span><span class="code-num">1</span><span class="code-punc">,</span> <span class="code-fn">CURRENT_TIMESTAMP</span><span class="code-punc">())</span>
+  <span class="code-kw">GROUP BY</span> <span class="code-num">1</span><span class="code-punc">;</span></code></pre>
+  </div>
+  <div class="code-modal-explain">
+    <h4>Interactive Warehouse</h4>
+    <p>An always-on warehouse with a pre-warmed cache. The minimum AUTO_SUSPEND is 24 hours — you pay for uptime, but sub-second queries are guaranteed from the first request.</p>
+    <h4>Interactive Table</h4>
+    <p>A new table type that pairs with the Interactive Warehouse. The required <code>CLUSTER BY</code> clause tells Snowflake which columns to index for low-latency lookups — choose columns that appear in your most critical <code>WHERE</code> filters.</p>
+    <h4>Ingestion</h4>
+    <p>Load data via standard <code>INSERT/COPY</code> or stream rows in real time using the Snowpipe Streaming SDK (<code>insertRows</code>). The Interactive Warehouse serves the data immediately after ingestion.</p>
+  </div>
+</div>
 
 </body>
 </html>
