@@ -114,6 +114,20 @@
     .img-ext-collibra     { background-image: url('other-icons/collibra_logo.svg'); }
     .img-ext-wiz          { background-image: url('other-icons/wiz_logo.svg'); }
     .img-ext-securonix    { background-image: url('other-icons/securonix_logo.svg'); }
+    /* ── BI / Analytics partner logos ─────────────────────── */
+    .img-ext-tableau      { background-image: url('other-icons/tableau_logo.png'); }
+    .img-ext-powerbi      { background-image: url('other-icons/powerbi_logo.svg'); }
+    .img-ext-looker       { background-image: url('other-icons/looker_logo.svg'); }
+    .img-ext-grafana      { background-image: url('other-icons/grafana_logo.svg'); }
+    .img-ext-microstrategy { background-image: url('other-icons/microstrategy_logo.svg'); }
+    /* ── ETL / Integration partner logos ──────────────────── */
+    .img-ext-talend       { background-image: url('other-icons/talend_logo.svg'); }
+    .img-ext-boomi        { background-image: url('other-icons/boomi_logo.svg'); }
+    /* ── ML / Data Science partner logos ──────────────────── */
+    .img-ext-alteryx      { background-image: url('other-icons/alteryx_logo.svg'); }
+    .img-ext-dataiku      { background-image: url('other-icons/dataiku_logo.svg'); }
+    /* ── Streaming partner logos ───────────────────────────── */
+    .img-ext-confluent    { background-image: url('other-icons/confluent_logo.svg'); }
     /* ── External IDE logos ────────────────────────────────── */
     .img-ext-vscode   { background-image: url('other-icons/vscode_logo.svg'); }
     .img-ext-jupyter  { background-image: url('other-icons/Jupyter_logo.svg'); }
