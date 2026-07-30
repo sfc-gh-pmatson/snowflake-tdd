@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Streamlit in Snowflake — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page ────────────────────────────────────────────────── */
+    .sis-page {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 0;
+      gap: 0;
+    }
+
+    /* ── Left: pillars ──────────────────────────────────────── */
+    .sis-left {
+      width: 42%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+      gap: 0;
+    }
+    .sis-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 4px;
+    }
+    .sis-title {
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+    .sis-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .sis-pillar {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .sis-pillar:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .sis-pillar-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .sis-pillar-text { flex: 1; }
+    .sis-pillar-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f4fd;
+      margin-bottom: 2px;
+    }
+    .sis-pillar-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.5;
+    }
+
+    /* ── Right: use-case cards + code ──────────────────────── */
+    .sis-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 28px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sis-right::before {
+      content: '';
+      position: absolute;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .sis-right-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      position: relative;
+      z-index: 1;
+    }
+    .sis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .sis-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .15s, transform .13s;
+    }
+    .sis-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .sis-card.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .sis-card-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 4px;
+    }
+    .sis-card-icon {
+      width: 22px; height: 22px;
+      border-radius: 5px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sis-card-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
+    .sis-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.4; }
+
+    /* Code panel (slides up) */
+    .sis-code-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 960px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 44vh;
+      overflow-y: auto;
+    }
+    .sis-code-panel.open { transform: translateX(-50%) translateY(0); }
+    .sis-code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .sis-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .sis-code-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sis-code-close:hover { background: rgba(41,181,232,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/streamlit/about-streamlit',
+      code:  true,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_snowpark_for_python_streamlit/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Streamlit in Snowflake</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Analytics</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Streamlit in Snowflake</div>
+          <div class="s6-sub" style="text-align:center;">Turn data and AI into interactive apps with Python — build, iterate, and share all inside Snowflake.</div>
+        </div>
+
+        <div class="sis-page content-wrap">
+
+          <!-- ════ Left: pillars ════ -->
+          <div class="sis-left">
+            <div class="sis-eyebrow">Snowflake — Streamlit</div>
+            <div class="sis-title">Python Apps.<br>Zero Infrastructure.</div>
+            <div class="sis-sub">Data scientists and developers combine Streamlit's open-source library with Snowflake scale, performance, and security.</div>
+
+            <div class="sis-pillar">
+              <div class="sis-pillar-icon">
+                <span class="sf-img sf-icon-python" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sis-pillar-text">
+                <div class="sis-pillar-title">Build — Python Scripts to Web Apps</div>
+                <div class="sis-pillar-body">Define widgets — filters, charts, sliders, forms, maps — as Python variables. No front-end knowledge required. Native access to Snowflake data and Cortex AI functions from the same script.</div>
+              </div>
+            </div>
+
+            <div class="sis-pillar">
+              <div class="sis-pillar-icon">
+                <span class="sf-img sf-icon-speed-2" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sis-pillar-text">
+                <div class="sis-pillar-title">Iterate — Side-by-Side Editor</div>
+                <div class="sis-pillar-body">Modify code and see changes live in the split editor and preview. Hot-reload keeps iteration fast. Built-in version management tracks every change without leaving Snowsight.</div>
+              </div>
+            </div>
+
+            <div class="sis-pillar">
+              <div class="sis-pillar-icon">
+                <span class="sf-img sf-icon-launch" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sis-pillar-text">
+                <div class="sis-pillar-title">Share — One Click to Production</div>
+                <div class="sis-pillar-body">Deploy on Snowflake's scalable infrastructure, then share via URL. Existing role-based access controls apply automatically — no additional auth layer, no DevOps required.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ════ Right: use-case cards ════ -->
+          <div class="sis-right">
+            <div class="sis-right-label">Click any use case to see the code</div>
+            <div class="sis-grid">
+
+              <div class="sis-card" data-fn="cortex">
+                <div class="sis-card-head">
+                  <div class="sis-card-icon">
+                    <span class="sf-img sf-icon-ai" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="sis-card-title">Cortex AI Chatbot</div>
+                </div>
+                <div class="sis-card-desc">RAG-powered chat assistant over your data using Cortex Search and AI_COMPLETE.</div>
+              </div>
+
+              <div class="sis-card" data-fn="dashboard">
+                <div class="sis-card-head">
+                  <div class="sis-card-icon">
+                    <span class="sf-img sf-icon-analytics" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="sis-card-title">Sales Dashboard</div>
+                </div>
+                <div class="sis-card-desc">Interactive sales analytics with filters, charts, and QoQ trend analysis.</div>
+              </div>
+
+              <div class="sis-card" data-fn="forecast">
+                <div class="sis-card-head">
+                  <div class="sis-card-icon">
+                    <span class="sf-img sf-icon-time" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="sis-card-title">Forecasting App</div>
+                </div>
+                <div class="sis-card-desc">Time-series forecasting and anomaly detection using Snowflake ML Functions.</div>
+              </div>
+
+              <div class="sis-card" data-fn="governance">
+                <div class="sis-card-head">
+                  <div class="sis-card-icon">
+                    <span class="sf-img sf-icon-security-gov" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
+                  </div>
+                  <div class="sis-card-title">Cost &amp; Usage Dashboard</div>
+                </div>
+                <div class="sis-card-desc">Credit consumption insights from ACCOUNT_USAGE with warehouse breakdown.</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal (resource bar) -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-kw">import</span> <span class="code-id">streamlit</span> <span class="code-kw">as</span> <span class="code-id">st</span>
+<span class="code-kw">from</span> <span class="code-id">snowflake.snowpark.context</span> <span class="code-kw">import</span> <span class="code-id">get_active_session</span>
+
+<span class="code-id">session</span> <span class="code-punc">=</span> <span class="code-fn">get_active_session</span><span class="code-punc">()</span>
+
+<span class="code-id">st</span><span class="code-punc">.</span><span class="code-fn">title</span><span class="code-punc">(</span><span class="code-str">"Sales Dashboard"</span><span class="code-punc">)</span>
+<span class="code-id">region</span> <span class="code-punc">=</span> <span class="code-id">st</span><span class="code-punc">.</span><span class="code-fn">selectbox</span><span class="code-punc">(</span><span class="code-str">"Region"</span><span class="code-punc">,</span> <span class="code-punc">[</span><span class="code-str">"Americas"</span><span class="code-punc">,</span> <span class="code-str">"EMEA"</span><span class="code-punc">,</span> <span class="code-str">"APAC"</span><span class="code-punc">])</span>
+
+<span class="code-id">df</span> <span class="code-punc">=</span> <span class="code-id">session</span><span class="code-punc">.</span><span class="code-fn">sql</span><span class="code-punc">(</span><span class="code-str">f"SELECT * FROM sales WHERE region = '{region}'"</span><span class="code-punc">)</span>
+<span class="code-id">st</span><span class="code-punc">.</span><span class="code-fn">line_chart</span><span class="code-punc">(</span><span class="code-id">df</span><span class="code-punc">.</span><span class="code-fn">to_pandas</span><span class="code-punc">(),</span> <span class="code-id">x</span><span class="code-punc">=</span><span class="code-str">"DATE"</span><span class="code-punc">,</span> <span class="code-id">y</span><span class="code-punc">=</span><span class="code-str">"REVENUE"</span><span class="code-punc">)</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Python → App in minutes</h4>
+      <p>Any Python script becomes a web app. <code>get_active_session()</code> gives direct Snowflake access — no connection strings, no credentials, no data copy.</p>
+      <p>Widgets like <code>st.selectbox</code> automatically filter queries. Changes re-run the script instantly.</p>
+    </div>
+  </div>
+
+  <!-- Slide-up code panel -->
+  <div class="sis-code-panel" id="sis-code-panel">
+    <div class="sis-code-header">
+      <span class="sis-code-title" id="sis-code-title"></span>
+      <button class="sis-code-close" onclick="closeCode()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="sis-code-block"></div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const CODE = {
+      cortex: {
+        title: 'Cortex AI Chatbot',
+        code: `${k('import')} ${id('streamlit')} ${k('as')} ${id('st')}
+${k('from')} ${id('snowflake.snowpark.context')} ${k('import')} ${id('get_active_session')}
+${k('from')} ${id('snowflake.cortex')} ${k('import')} ${id('Complete')}${p(',')} ${id('CortexSearchService')}
+
+${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}
+
+${id('st')}${p('.')}${f('title')}${p('(')}${str('"Ask Your Data"')}${p(')')}
+
+${cm('# Initialize search service for RAG context')}
+${id('search_svc')} ${p('=')} ${f('CortexSearchService')}${p('(')}
+    ${id('session')}${p(',')} ${str('"MY_DB.MY_SCHEMA.KNOWLEDGE_BASE"')}
+${p(')')}
+
+${cm('# Chat history')}
+${k('if')} ${str('"messages"')} ${k('not in')} ${id('st')}${p('.')}${id('session_state')}${p(':')}
+    ${id('st')}${p('.')}${id('session_state')}${p('.')}${id('messages')} ${p('=')} ${p('[]')}
+
+${k('for')} ${id('msg')} ${k('in')} ${id('st')}${p('.')}${id('session_state')}${p('.')}${id('messages')}${p(':')}
+    ${k('with')} ${id('st')}${p('.')}${f('chat_message')}${p('(')}${id('msg')}${p('[')}${str('"role"')}${p('])')}${p(':')}
+        ${id('st')}${p('.')}${f('markdown')}${p('(')}${id('msg')}${p('[')}${str('"content"')}${p('])')}
+
+${k('if')} ${id('prompt')} ${p(':=')} ${id('st')}${p('.')}${f('chat_input')}${p('(')}${str('"Ask anything about your data..."')}${p(')')}${p(':')}
+    ${cm('# Retrieve relevant context via Cortex Search')}
+    ${id('results')} ${p('=')} ${id('search_svc')}${p('.')}${f('search')}${p('(')}${id('prompt')}${p(',')} ${id('limit')}${p('=')}${n('3')}${p(')')}
+    ${id('context')} ${p('=')} ${str('" "')}${p('.')}${f('join')}${p('([')}${id('r')}${p('[')}${str('"CONTENT"')}${p(']')} ${k('for')} ${id('r')} ${k('in')} ${id('results')}${p('])')}
+
+    ${cm('# Generate answer with Cortex AI')}
+    ${id('answer')} ${p('=')} ${f('Complete')}${p('(')}
+        ${str('"claude-sonnet-4-5"')}${p(',')}
+        ${str('f"Context: {context}\\n\\nQuestion: {prompt}\\n\\nAnswer:"')}
+    ${p(')')}
+    ${id('st')}${p('.')}${id('session_state')}${p('.')}${id('messages')}${p('.')}${f('append')}${p('({')}${str('"role"')}${p(':')}${str('"assistant"')}${p(',')} ${str('"content"')}${p(':')}${id('answer')}${p('})')}`,
+      },
+      dashboard: {
+        title: 'Sales Dashboard',
+        code: `${k('import')} ${id('streamlit')} ${k('as')} ${id('st')}
+${k('import')} ${id('pandas')} ${k('as')} ${id('pd')}
+${k('import')} ${id('altair')} ${k('as')} ${id('alt')}
+${k('from')} ${id('snowflake.snowpark.context')} ${k('import')} ${id('get_active_session')}
+
+${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}
+
+${id('st')}${p('.')}${f('title')}${p('(')}${str('"Sales Analytics"')}${p(')')}
+
+${cm('# Sidebar filters')}
+${k('with')} ${id('st')}${p('.')}${id('sidebar')}${p(':')}
+    ${id('region')} ${p('=')} ${id('st')}${p('.')}${f('multiselect')}${p('(')}${str('"Region"')}${p(',')} ${p('[')}${str('"Americas"')}${p(',')}${str('"EMEA"')}${p(',')}${str('"APAC"')}${p('],')} ${id('default')}${p('=')}${p('[')}${str('"Americas"')}${p('])')}
+    ${id('year')} ${p('=')} ${id('st')}${p('.')}${f('slider')}${p('(')}${str('"Year"')}${p(',')} ${n('2022')}${p(',')} ${n('2026')}${p(',')} ${n('2026')}${p(')')}
+
+${cm('# Load data direct from Snowflake — no copy, no ETL')}
+${id('df')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str(f"""
+    SELECT quarter, region, SUM(revenue) AS revenue
+    FROM sales
+    WHERE region IN ({','.join([f"'{r}'" for r in region])})
+      AND YEAR(sale_date) = {year}
+    GROUP BY quarter, region
+    ORDER BY quarter
+"""')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
+
+${cm('# Side-by-side KPIs')}
+${id('col1')}${p(',')} ${id('col2')}${p(',')} ${id('col3')} ${p('=')} ${id('st')}${p('.')}${f('columns')}${p('(')}${n('3')}${p(')')}
+${id('col1')}${p('.')}${f('metric')}${p('(')}${str('"Total Revenue"')}${p(',')} ${str('f"${df.revenue.sum():,.0f}"')}${p(')')}
+${id('col2')}${p('.')}${f('metric')}${p('(')}${str('"Best Quarter"')}${p(',')} ${id('df')}${p('.')}${f('nlargest')}${p('(')}${n('1')}${p(',')}${str('"revenue"')}${p(')')}${p('.')}${id('quarter')}${p('.')}${f('values')}${p('[')}${n('0')}${p('])')}
+${id('col3')}${p('.')}${f('metric')}${p('(')}${str('"Regions"')}${p(',')} ${id('df')}${p('.')}${id('region')}${p('.')}${f('nunique')}${p('()')}${p(')')}
+
+${cm('# Grouped bar chart')}
+${id('chart')} ${p('=')} ${id('alt')}${p('.')}${f('Chart')}${p('(')}${id('df')}${p(')')}${p('.')}${f('mark_bar')}${p('()')}${p('.')}${f('encode')}${p('(')}
+    ${id('x')}${p('=')}${str('"quarter"')}${p(',')} ${id('y')}${p('=')}${str('"revenue"')}${p(',')} ${id('color')}${p('=')}${str('"region"')}${p(',')}
+    ${id('tooltip')}${p('=[')}${str('"quarter"')}${p(',')}${str('"region"')}${p(',')}${str('"revenue"')}${p('])')}
+${id('st')}${p('.')}${f('altair_chart')}${p('(')}${id('chart')}${p(',')} ${id('use_container_width')}${p('=')}${k('True')}${p(')')}`,
+      },
+      forecast: {
+        title: 'Forecasting App',
+        code: `${k('import')} ${id('streamlit')} ${k('as')} ${id('st')}
+${k('from')} ${id('snowflake.snowpark.context')} ${k('import')} ${id('get_active_session')}
+${k('from')} ${id('snowflake.ml.modeling.forecast')} ${k('import')} ${id('Forecast')}
+
+${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}
+
+${id('st')}${p('.')}${f('title')}${p('(')}${str('"Demand Forecasting"')}${p(')')}
+
+${id('product')} ${p('=')} ${id('st')}${p('.')}${f('selectbox')}${p('(')}${str('"Product"')}${p(',')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str('"SELECT DISTINCT product FROM sales"')}${p(')')}${p('.')}${f('to_pandas')}${p(')')}${p('[')}${str('"PRODUCT"')}${p('])')}
+${id('periods')} ${p('=')} ${id('st')}${p('.')}${f('slider')}${p('(')}${str('"Forecast days"')}${p(',')} ${n('7')}${p(',')} ${n('90')}${p(',')} ${n('30')}${p(')')}
+
+${k('if')} ${id('st')}${p('.')}${f('button')}${p('(')}${str('"Run Forecast"')}${p(')')}${p(':')}
+    ${k('with')} ${id('st')}${p('.')}${f('spinner')}${p('(')}${str('"Training..."')}${p(')')}${p(':')}
+
+        ${cm('# Train model on Snowflake compute')}
+        ${id('model')} ${p('=')} ${f('Forecast')}${p('(')}
+            ${id('input_data')}${p('=')}${id('session')}${p('.')}${f('sql')}${p('(')}${str('f"SELECT date, qty FROM sales WHERE product=\'{product}\'"')}${p('),')}
+            ${id('timestamp_colname')}${p('=')}${str('"DATE"')}${p(',')}
+            ${id('target_colname')}${p('=')}${str('"QTY"')}
+        ${p(')')}
+
+        ${cm('# Generate forecast')}
+        ${id('fcast')} ${p('=')} ${id('model')}${p('!')}${f('forecast')}${p('(')}${id('forecasting_periods')}${p('=')}${id('periods')}${p(')')}
+
+        ${id('st')}${p('.')}${f('line_chart')}${p('(')}${id('fcast')}${p('.')}${f('to_pandas')}${p('(),')}
+                         ${id('x')}${p('=')}${str('"TS"')}${p(',')} ${id('y')}${p('=[')}${str('"FORECAST"')}${p(',')}${str('"LOWER_BOUND"')}${p(',')}${str('"UPPER_BOUND"')}${p('])')}
+        ${id('st')}${p('.')}${f('success')}${p('(')}${str('f"Forecast complete for {periods} days"')}${p(')')}`,
+      },
+      governance: {
+        title: 'Cost & Usage Dashboard',
+        code: `${k('import')} ${id('streamlit')} ${k('as')} ${id('st')}
+${k('from')} ${id('snowflake.snowpark.context')} ${k('import')} ${id('get_active_session')}
+
+${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}
+
+${id('st')}${p('.')}${f('title')}${p('(')}${str('"Snowflake Cost Intelligence"')}${p(')')}
+
+${id('days')} ${p('=')} ${id('st')}${p('.')}${f('slider')}${p('(')}${str('"Rolling window (days)"')}${p(',')} ${n('7')}${p(',')} ${n('90')}${p(',')} ${n('30')}${p(')')}
+
+${cm('# Query ACCOUNT_USAGE directly — no external connector needed')}
+${id('credits')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str(f"""
+    SELECT warehouse_name,
+           SUM(credits_used) AS total_credits,
+           AVG(credits_used) AS avg_per_query
+    FROM snowflake.account_usage.warehouse_metering_history
+    WHERE start_time >= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
+    GROUP BY warehouse_name
+    ORDER BY total_credits DESC
+"""')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
+
+${cm('# KPI row')}
+${id('c1')}${p(',')} ${id('c2')} ${p('=')} ${id('st')}${p('.')}${f('columns')}${p('(')}${n('2')}${p(')')}
+${id('c1')}${p('.')}${f('metric')}${p('(')}${str('"Total Credits"')}${p(',')} ${str('f"{credits.total_credits.sum():,.1f}"')}${p(')')}
+${id('c2')}${p('.')}${f('metric')}${p('(')}${str('"Warehouses"')}${p(',')} ${id('len')}${p('(')}${id('credits')}${p(')')}${p(')')}
+
+${id('st')}${p('.')}${f('bar_chart')}${p('(')}${id('credits')}${p('.')}${f('set_index')}${p('(')}${str('"WAREHOUSE_NAME"')}${p(')')}${p('[')}${str('"TOTAL_CREDITS"')}${p('])')}
+${id('st')}${p('.')}${f('dataframe')}${p('(')}${id('credits')}${p(',')} ${id('use_container_width')}${p('=')}${k('True')}${p(')')}`,
+      }
+    };
+
+    function showCode(fn) {
+      const data = CODE[fn];
+      if (!data) return;
+      document.getElementById('sis-code-title').textContent = data.title;
+      document.getElementById('sis-code-block').innerHTML = data.code;
+      document.getElementById('sis-code-panel').classList.add('open');
+      document.querySelectorAll('.sis-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closeCode() {
+      document.getElementById('sis-code-panel').classList.remove('open');
+      document.querySelectorAll('.sis-card').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.sis-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showCode(card.dataset.fn));
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCode(); });
+  </script>
+
+</body>
+</html>
