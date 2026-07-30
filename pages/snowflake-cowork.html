@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake CoWork — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page ───────────────────────────────────────────────── */
+    .cw-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 14px 8px;
+      min-height: 0;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    /* ── Architecture banner ────────────────────────────────── */
+    .cw-arch {
+      width: 100%;
+      max-width: 920px;
+      border: 3px solid var(--sf-blue);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      margin-top: 12px;
+    }
+    .cw-arch-header {
+      background: var(--sf-blue);
+      padding: 8px 16px;
+      text-align: center;
+      font-size: var(--fs-h4);
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .cw-arch-inner {
+      background: #fff;
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .cw-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cw-col-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(7,21,37,.4);
+      text-align: center;
+      padding-bottom: 2px;
+      border-bottom: 1.5px solid rgba(41,181,232,.15);
+    }
+    .cw-arch-sep {
+      width: 26px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: rgba(41,181,232,.5);
+      font-weight: 300;
+    }
+    .cw-tile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(41,181,232,.04);
+      border: 1.5px solid rgba(41,181,232,.2);
+    }
+    .cw-tile-icon { width: 18px; height: 18px; flex-shrink: 0; }
+    .cw-tile-text { font-size: var(--fs-h5); font-weight: 600; color: var(--sf-ink); line-height: 1.2; }
+    .cw-tile-sub { font-size: 10px; color: rgba(7,21,37,.45); line-height: 1.2; }
+    .cw-tile--sf { background: var(--sf-blue); border-color: var(--sf-blue); }
+    .cw-tile--sf .cw-tile-text { color: #fff; }
+    .cw-tile--sf .cw-tile-sub { color: rgba(255,255,255,.75); }
+
+    /* ── Stats strip ────────────────────────────────────────── */
+    .cw-stats {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .cw-stat {
+      flex: 1;
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .cw-stat-val {
+      font-size: var(--fs-h3);
+      font-weight: 800;
+      color: var(--sf-blue);
+      line-height: 1;
+    }
+    .cw-stat-label {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.55);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ── Feature grid ───────────────────────────────────────── */
+    .cw-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      width: 100%;
+      max-width: 920px;
+    }
+    .cw-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .cw-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .cw-card.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .cw-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cw-card-icon {
+      width: 26px; height: 26px;
+      border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cw-card-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
+    .cw-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.58); line-height: 1.4; }
+    .cw-card-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+    .cw-chip {
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--sf-blue);
+    }
+    .cw-chip--ga { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.25); color: #15803d; }
+    .cw-chip--preview { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.3); color: #b45309; }
+
+    /* ── CTA button ─────────────────────────────────────────── */
+    .cw-cta-wrap {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cw-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 8px;
+      background: var(--sf-blue-dark);
+      color: #fff;
+      text-decoration: none;
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      transition: background .17s, box-shadow .17s;
+    }
+    .cw-cta-btn:hover {
+      background: var(--sf-blue-mid);
+      box-shadow: 0 4px 14px rgba(0,89,163,.35);
+    }
+
+    /* ── Code / prompt panel ────────────────────────────────── */
+    .cw-code-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 920px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 44vh;
+      overflow-y: auto;
+    }
+    .cw-code-panel.open { transform: translateX(-50%) translateY(0); }
+    .cw-code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .cw-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .cw-code-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cw-code-close:hover { background: rgba(41,181,232,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/aisql',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake CoWork</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake CoWork</div>
+          <div class="s6-sub" style="text-align:center;">One AI workspace. Every context. Any outcome. Work gets done.</div>
+        </div>
+
+        <div class="cw-page content-wrap">
+
+          <!-- Architecture banner -->
+          <div class="cw-arch">
+            <div class="cw-arch-header">Snowflake CoWork</div>
+            <div class="cw-arch-inner">
+
+              <!-- CONTEXT -->
+              <div class="cw-col">
+                <div class="cw-col-label">Bring Your Context</div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-structured cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Company Data</div><div class="cw-tile-sub">Tables, semantic views, metrics</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-metadata cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Docs &amp; Emails</div><div class="cw-tile-sub">SharePoint, Drive, Slack, Teams</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-connected cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">MCP Connectors</div><div class="cw-tile-sub">Salesforce, JIRA, Wikis, Web</div></div>
+                </div>
+              </div>
+
+              <div class="cw-arch-sep">&#8594;</div>
+
+              <!-- AGENT -->
+              <div class="cw-col">
+                <div class="cw-col-label">CoWork Agent</div>
+                <div class="cw-tile cw-tile--sf">
+                  <span class="sf-img sf-icon-be-excellent cw-tile-icon" style="filter:brightness(0) invert(1);"></span>
+                  <div><div class="cw-tile-text">Personal Agent</div><div class="cw-tile-sub">Routes, reasons, remembers</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-ai cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Sub-Agents</div><div class="cw-tile-sub">Sales · Finance · Ops · Product</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-process cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Cortex Sense</div><div class="cw-tile-sub">Enterprise context runtime</div></div>
+                </div>
+              </div>
+
+              <div class="cw-arch-sep">&#8594;</div>
+
+              <!-- WORK -->
+              <div class="cw-col">
+                <div class="cw-col-label">Get Work Done</div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-analytics cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Self-Service Insights</div><div class="cw-tile-sub">Deep research, analytics</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-launch cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Artifacts &amp; Automations</div><div class="cw-tile-sub">Live charts, scheduled briefs</div></div>
+                </div>
+                <div class="cw-tile">
+                  <span class="sf-img sf-icon-apps-collab cw-tile-icon"></span>
+                  <div><div class="cw-tile-text">Share &amp; Collaborate</div><div class="cw-tile-sub">Governed, team-wide</div></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Feature grid -->
+          <div class="cw-grid">
+
+            <div class="cw-card" data-fn="personal">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-be-excellent" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Personal Agent</div>
+              </div>
+              <div class="cw-card-desc">Knows all enterprise data. Routes automatically to the right sub-agent or tool. Remembers previous conversations and learns your preferences. Follows you to mobile and existing tools.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--ga">GA</span>
+                <span class="cw-chip">Auto-Routing</span>
+                <span class="cw-chip">Memory</span>
+                <span class="cw-chip">Mobile</span>
+              </div>
+            </div>
+
+            <div class="cw-card" data-fn="research">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-horizon" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Autonomous Agents</div>
+              </div>
+              <div class="cw-card-desc">Deep Research crosses structured and unstructured data with multi-step reasoning, fully cited. Analytical Search handles quantitative queries over large corpora — everything RAG can't do. +52.2% vs single-agent benchmarks.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--preview">Deep Research: GA Soon</span>
+                <span class="cw-chip cw-chip--preview">Analytical Search: PuPr</span>
+                <span class="cw-chip">Fully Cited</span>
+              </div>
+            </div>
+
+            <div class="cw-card" data-fn="automations">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-time" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Automations</div>
+              </div>
+              <div class="cw-card-desc">Schedule briefings in plain language — set once, delivered automatically. Each notification includes the complete AI analysis: what changed, why it matters, and suggested next steps. One click opens a live CoWork conversation with full context.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--preview">PuPr Soon</span>
+                <span class="cw-chip">RBAC Enforced</span>
+                <span class="cw-chip">Audit Trail</span>
+                <span class="cw-chip">Cost Visibility</span>
+              </div>
+            </div>
+
+            <div class="cw-card" data-fn="artifacts">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Live Artifacts</div>
+              </div>
+              <div class="cw-card-desc">Create and share live charts and tables that auto-refresh from your enterprise data. Save once, share across the org, rerun anytime. Viewers see only what they're entitled to. Teams build on each other's work.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--ga">GA</span>
+                <span class="cw-chip">Auto-Refresh</span>
+                <span class="cw-chip">Governed Sharing</span>
+                <span class="cw-chip">NL Follow-ups</span>
+              </div>
+            </div>
+
+            <div class="cw-card" data-fn="eval">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-security-gov" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Evaluation &amp; Monitoring</div>
+              </div>
+              <div class="cw-card-desc">Goal-Plan-Action metrics, custom LLM judges, and programmatic access for CI/CD pipelines. Trace-level insights with data residing in your account. Comprehensive performance tracking, agentic debugging, and eval dataset generation.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--ga">GA</span>
+                <span class="cw-chip">GPA Metrics</span>
+                <span class="cw-chip">Custom Judges</span>
+                <span class="cw-chip">CI/CD</span>
+                <span class="cw-chip">Trace Insights</span>
+              </div>
+            </div>
+
+            <div class="cw-card" data-fn="deploy">
+              <div class="cw-card-head">
+                <div class="cw-card-icon">
+                  <span class="sf-img sf-icon-launch" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cw-card-title">Deploy Insights Anywhere</div>
+              </div>
+              <div class="cw-card-desc">Cortex Agents with full Plan + Tool Use + Reflection pipeline. Cortex Search for unstructured data (contracts, transcripts, reviews). Cortex Analyst for structured data. Expose via MCP, REST, A2A, or directly in CoWork.</div>
+              <div class="cw-card-chips">
+                <span class="cw-chip cw-chip--ga">GA</span>
+                <span class="cw-chip">MCP</span>
+                <span class="cw-chip">REST / A2A</span>
+                <span class="cw-chip">Skills &amp; Plugins</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- CTA button -->
+          <div class="cw-cta-wrap">
+            <a href="./snowflake-cowork-internal.html" class="cw-cta-btn">
+              <span class="sf-img sf-icon-snowflake" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              How is Snowflake using CoWork?
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt / code panel (slides up on card click) -->
+  <div class="cw-code-panel" id="cw-code-panel">
+    <div class="cw-code-header">
+      <span class="cw-code-title" id="cw-code-title"></span>
+      <button class="cw-code-close" onclick="closePanel()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="cw-code-block"></div>
+  </div>
+
+  <script>
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str= s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      personal: {
+        title: 'Personal Agent',
+        code: `${cm('Example questions you can ask CoWork directly:')}
+
+${str('"What are my top 5 accounts by consumption risk this month?"')}
+${str('"Compare Q2 vs Q3 pipeline for the West region, cite sources."')}
+${str('"Draft a QBR summary for Acme Corp using our latest data."')}
+${str('"Which opportunities have stale MEDDPICC — updated more than 14 days ago?"')}
+
+${cm('CoWork routes each question to the right sub-agent:')}
+${cm('  Sales question  → Sales Agent (Salesforce + A360 + CoWork context)')}
+${cm('  Finance query   → Finance Agent (Snowflake tables + semantic views)')}
+${cm('  Document search → Cortex Search (SharePoint, Drive, wikis)')}
+${cm('  Custom analysis → Python + SQL execution in a managed container')}
+
+${cm('Remembers context across turns:')}
+${str('"Now break that down by segment"')}    ${cm('← no need to re-explain previous question')}
+${str('"Add churn risk score to each row"')}  ${cm('← context from prior analysis preserved')}`
+      },
+      research: {
+        title: 'Autonomous Agents',
+        code: `${cm('Deep Research — multi-source, multi-step, fully cited')}
+
+${str('"Why did EMEA pipeline drop 18% in Q3? Investigate across"')}
+${str('" CRM data, call transcripts, and market reports."')}
+
+${cm('CoWork autonomous agent:')}
+${cm('  Step 1 — Cortex Analyst: query CRM for pipeline changes by sub-region')}
+${cm('  Step 2 — Cortex Search: scan call transcripts for EMEA objections/losses')}
+${cm('  Step 3 — Web search: check macro/market signals for the period')}
+${cm('  Step 4 — Synthesize: cross-reference findings, surface top 3 causes')}
+${cm('  Step 5 — Deliver: structured report with citations to every source')}
+
+${cm('Analytical Search — quantitative queries over unstructured corpora')}
+
+${str('"What % of Q4 contracts include uncapped liability clauses?"')}
+${cm('← scans 1000s of PDFs, returns: "38% of Q4 contracts, up from 21% in Q1"')}
+${cm('   with document-level citations and confidence scores')}
+
+${cm('Benchmark: +52.2% relative improvement vs single-agent systems')}
+${cm('  on CoWork Hybrid Deep Research Benchmark')}`
+      },
+      automations: {
+        title: 'Automations',
+        code: `${cm('Set a briefing in plain language — no forms, no code:')}
+
+${str('"Every Monday at 8 AM, send me a pipeline health brief."')}
+${str('" Include: new deals added, stage changes, at-risk accounts,"')}
+${str('" and any accounts with no activity in 7+ days."')}
+
+${cm('CoWork creates the automation:')}
+${cm('  Schedule: MON 08:00 UTC')}
+${cm('  Runs with your RBAC — sees exactly what you see')}
+${cm('  Generates full AI analysis for each delivery:')}
+${cm('    - What changed since last brief')}
+${cm('    - Why it matters')}
+${cm('    - Suggested next steps')}
+
+${cm('Delivered brief contains live, clickable context:')}
+${cm('  "3 accounts moved to Negotiation — click to open analysis"')}
+${cm('  "2 deals went dark (no activity 14d) — click to investigate"')}
+
+${cm('Each click opens a live CoWork conversation:')}
+${cm('  Full context from the brief is preserved')}
+${cm('  Ask follow-up questions immediately')}
+
+${cm('Governed by default:')}
+${cm('  Per-subscription cost visibility')}
+${cm('  Full audit trail of every delivered brief')}`
+      },
+      artifacts: {
+        title: 'Live Artifacts',
+        code: `${cm('Create a live chart in conversation:')}
+
+${str('"Create a chart: weekly active accounts by region, last 90 days."')}
+${str('" Update automatically every Monday."')}
+
+${cm('CoWork creates a live artifact:')}
+${cm('  - Backed by a saved query against your Snowflake tables')}
+${cm('  - Auto-refreshes on schedule')}
+${cm('  - RBAC enforced: viewers see only their entitled data')}
+
+${cm('Share across the org:')}
+${cm('  Save once → share link → anyone with access sees live data')}
+${cm('  Teams can ask follow-up questions on the same artifact')}
+${cm('  Build on each other\'s work without rebuilding from scratch')}
+
+${cm('Create with CoCo, deploy to CoWork:')}
+${cm('  Build advanced analysis in CoCo (Python + SQL)')}
+${cm('  Publish as a CoWork artifact through RBAC')}
+${cm('  Business users interact via natural language')}
+
+${cm('Talk to your data:')}
+${str('"Drill into the EMEA dip in week 6"')}
+${str('"Show me the same chart but for enterprise accounts only"')}`
+      },
+      eval: {
+        title: 'Evaluation & Monitoring',
+        code: `${cm('Goal-Plan-Action (GPA) Metrics — track agent quality end-to-end')}
+
+${cm('GPA measures three dimensions per interaction:')}
+${cm('  Goal:   Did the agent understand the user\'s intent correctly?')}
+${cm('  Plan:   Did it choose the right tools and reasoning path?')}
+${cm('  Action: Did it produce a correct, complete, governed response?')}
+
+${cm('Custom LLM Judges — define quality criteria for your domain:')}
+${str('judge_config = {')}
+${str('  "name": "sales_brief_quality",')}
+${str('  "criteria": [')}
+${str('    "cites Snowflake CRM data for all revenue figures",')}
+${str('    "includes next-step recommendation",')}
+${str('    "flags incomplete MEDDPICC as a risk"')}
+${str('  ],')}
+${str('  "model": "claude-3-7-sonnet"')}
+${str('}')}
+
+${cm('CI/CD integration:')}
+${cm('  Run eval suite on every agent skill update')}
+${cm('  Block deployment if GPA drops below threshold')}
+${cm('  Programmatic access via Cortex Agents REST API')}
+
+${cm('Monitoring:')}
+${cm('  Trace-level insights: every tool call, every reasoning step')}
+${cm('  Data resides in your account — no external logging')}
+${cm('  Agentic debugging: replay any session to find failure points')}`
+      },
+      deploy: {
+        title: 'Deploy Insights Anywhere',
+        code: `${cm('CoWork insights can be deployed to any surface:')}
+
+${cm('── Cortex Agents REST API ──────────────────────────────')}
+${k('POST')} ${id('/api/v2/cortex/agent:run')}
+${p('{')}
+  ${str('"agent_url"')}: ${str('"https://sfsexxxx.snowflakecomputing.com/api/v2/cortex/agents/sales-agent"')}${p(',')}
+  ${str('"model"')}: ${str('"claude-sonnet-4-5"')}${p(',')}
+  ${str('"messages"')}: ${p('[{')} ${str('"role"')}: ${str('"user"')}${p(',')} ${str('"content"')}: ${str('"Top 5 at-risk accounts this quarter?"')} ${p('}]')}
+${p('}')}
+
+${cm('── MCP Server — connect any AI tool ────────────────────')}
+${cm('Add CoWork as an MCP server to CoCo, Claude, or any MCP client:')}
+${cm('  Tool: snowflake_cowork_query')}
+${cm('  Input: natural language question')}
+${cm('  Auth: inherits caller RBAC')}
+${cm('  Output: grounded answer with source citations')}
+
+${cm('── A2A (Agent-to-Agent) ─────────────────────────────────')}
+${cm('External agents call CoWork sub-agents directly:')}
+${cm('  Sales Agent → Finance Agent → CoWork Orchestrator')}
+${cm('  Each hop governed by Snowflake RBAC')}
+
+${cm('── Deploy to CoWork UI ──────────────────────────────────')}
+${cm('Packaged Agent Profiles: pre-configured skills + tools + settings')}
+${cm('  Roll out to entire teams without individual setup')}
+${cm('  Override per-user with role-based Agent Settings')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('cw-code-title').textContent = data.title;
+      document.getElementById('cw-code-block').innerHTML = data.code;
+      document.getElementById('cw-code-panel').classList.add('open');
+      document.querySelectorAll('.cw-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('cw-code-panel').classList.remove('open');
+      document.querySelectorAll('.cw-card').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.cw-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  </script>
+
+</body>
+</html>

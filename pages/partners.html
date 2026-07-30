@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Partners — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 4px; }
+
+    /* ── Page wrapper ─────────────────────────────────────── */
+    .prt-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 16px 8px;
+      min-height: 0;
+      gap: 10px;
+    }
+
+    /* ── Ecosystem image ──────────────────────────────────── */
+    .prt-ecosystem {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      max-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .prt-ecosystem img {
+      width: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ── Swim lanes ───────────────────────────────────────── */
+    .prt-lanes {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .prt-lane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .prt-lane-hdr {
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: .3px;
+      flex-shrink: 0;
+    }
+    .prt-lane-body {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    /* Lane header colors */
+    .hdr-etl      { background: rgba(251,191,36,.2);  color: #b45309; }
+    .hdr-bi       { background: rgba(99,102,241,.2);  color: #4338ca; }
+    .hdr-orch     { background: rgba(16,185,129,.2);  color: #047857; }
+    .hdr-ml       { background: rgba(239,68,68,.2);   color: #b91c1c; }
+    .hdr-security { background: rgba(168,85,247,.2);  color: #7e22ce; }
+    .hdr-cloud    { background: rgba(41,181,232,.2);  color: #0369a1; }
+
+    /* ── Logo cards ───────────────────────────────────────── */
+    .prt-card {
+      background: #fff;
+      border-radius: 7px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 7px;
+      cursor: default;
+      transition: box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .prt-card:hover {
+      box-shadow: 0 2px 10px rgba(41,181,232,.2);
+    }
+    .prt-logo {
+      width: 36px;
+      height: 22px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    .prt-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(7,21,37,.7);
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://www.snowflake.com/en/why-snowflake/partners/',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Technology Partners</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Ecosystem</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;">An Ever Expanding Partner Ecosystem</div>
+          <div class="s6-sub">1,400+ certified partners across data integration, analytics, AI, security, and more</div>
+        </div>
+
+        <div class="prt-page content-wrap">
+
+          <!-- Ecosystem slide image -->
+          <div class="prt-ecosystem">
+            <img src="../other-icons/partners-ecosystem.png" alt="Snowflake Partner Ecosystem">
+          </div>
+
+          <!-- Swim lanes -->
+          <div class="prt-lanes">
+
+            <!-- ETL / Integration -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-etl">ETL / Integration</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-fivetran prt-logo"></span>
+                  <span class="prt-name">Fivetran</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-dbt prt-logo"></span>
+                  <span class="prt-name">dbt Labs</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-airbyte prt-logo"></span>
+                  <span class="prt-name">Airbyte</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-matillion prt-logo"></span>
+                  <span class="prt-name">Matillion</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-informatica prt-logo"></span>
+                  <span class="prt-name">Informatica</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- BI / Analytics -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-bi">BI / Analytics</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-qlik prt-logo"></span>
+                  <span class="prt-name">Qlik</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-thoughtspot prt-logo"></span>
+                  <span class="prt-name">ThoughtSpot</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-sigma prt-logo"></span>
+                  <span class="prt-name">Sigma</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Orchestration -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-orch">Orchestration</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-airflow prt-logo"></span>
+                  <span class="prt-name">Apache Airflow</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-prefect prt-logo"></span>
+                  <span class="prt-name">Prefect</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-dagster prt-logo"></span>
+                  <span class="prt-name">Dagster</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-dbt prt-logo"></span>
+                  <span class="prt-name">dbt Labs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ML / Data Science -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-ml">ML / Data Science</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-databricks prt-logo"></span>
+                  <span class="prt-name">Databricks</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-nvidia prt-logo"></span>
+                  <span class="prt-name">NVIDIA</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-weightsbiases prt-logo"></span>
+                  <span class="prt-name">Weights &amp; Biases</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-h2oai prt-logo"></span>
+                  <span class="prt-name">H2O.ai</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-montecarlo prt-logo"></span>
+                  <span class="prt-name">Monte Carlo</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security / Governance -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-security">Security</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-alation prt-logo"></span>
+                  <span class="prt-name">Alation</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-collibra prt-logo"></span>
+                  <span class="prt-name">Collibra</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-wiz prt-logo"></span>
+                  <span class="prt-name">Wiz</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-securonix prt-logo"></span>
+                  <span class="prt-name">Securonix</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cloud / Infra -->
+            <div class="prt-lane">
+              <div class="prt-lane-hdr hdr-cloud">Cloud</div>
+              <div class="prt-lane-body">
+                <div class="prt-card">
+                  <span class="sf-img img-ext-aws prt-logo"></span>
+                  <span class="prt-name">AWS</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-azure prt-logo"></span>
+                  <span class="prt-name">Microsoft Azure</span>
+                </div>
+                <div class="prt-card">
+                  <span class="sf-img img-ext-gcp prt-logo"></span>
+                  <span class="prt-name">Google Cloud</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>

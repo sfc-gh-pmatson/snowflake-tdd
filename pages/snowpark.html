@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowpark — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Language badges ─────────────────────────────────── */
+    .sp-langs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sp-lang {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: var(--sf-blue);
+      border: 2px solid var(--sf-blue);
+    }
+    .sp-lang-name {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .sp-lang-ver {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.65);
+    }
+
+    /* ── Architecture flow ───────────────────────────────── */
+    .sp-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sp-flow-node {
+      flex: 1;
+      max-width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 14px;
+      border-radius: 12px;
+      background: var(--sf-blue-dark);
+      border: 2px solid rgba(41,181,232,.3);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s;
+    }
+    .sp-flow-node:hover {
+      border-color: var(--sf-blue);
+      transform: translateY(-2px);
+    }
+    .sp-flow-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+    .sp-flow-label {
+      font-size: var(--fs-h3);
+      font-weight: 800;
+      color: #fff;
+    }
+    .sp-flow-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.7);
+      line-height: 1.4;
+    }
+    .sp-flow-arrow {
+      font-size: 1.4rem;
+      color: var(--sf-blue);
+      opacity: .6;
+      flex-shrink: 0;
+    }
+    .sp-flow-arrow-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .sp-flow-arrow-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      flex-shrink: 0;
+      width: 48px;
+    }
+
+    /* ── Capability cards (2×2 grid) ─────────────────────── */
+    .sp-caps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+    .sp-cap {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      transition: box-shadow .17s, transform .15s, border-color .15s;
+    }
+    .sp-cap:hover {
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-1px);
+      border-color: var(--sf-blue);
+    }
+    .sp-cap-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sp-cap-text {}
+    .sp-cap-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+      margin-bottom: 2px;
+    }
+    .sp-cap-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.55);
+      line-height: 1.45;
+    }
+
+    /* ── Detail panel ────────────────────────────────────── */
+    .sp-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .sp-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .sp-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 680px;
+      max-width: 92vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .sp-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .sp-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
+    .sp-panel-nav { display: flex; gap: 6px; }
+    .sp-panel-nav button {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sp-panel-nav button:hover { background: rgba(255,255,255,.35); }
+    .sp-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sp-panel-close:hover { background: rgba(255,255,255,.35); }
+    .sp-panel-body { display: flex; flex: 1; overflow: hidden; }
+    .sp-panel-code {
+      flex: 3; background: var(--code-bg); padding: 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12.5px; line-height: 1.6; color: var(--code-base); white-space: pre-wrap;
+    }
+    .sp-panel-explain {
+      flex: 2; padding: 18px; overflow-y: auto;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .sp-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .sp-panel-explain p { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/snowpark/index',
+      code:  true,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_snowpark_python/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowpark</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Developer Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowpark</div>
+          <div class="s6-sub" style="text-align:center;">Write Python, Java, or Scala. Your code runs inside Snowflake's engine as SQL — no data movement, full query optimization.</div>
+        </div>
+
+        <!-- Main content -->
+        <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:8px 16px 10px;">
+
+          <!-- Language badges -->
+          <div class="sp-langs">
+            <div class="sp-lang">
+              <span class="sf-img sf-icon-python" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              <span class="sp-lang-name">Python</span>
+              <span class="sp-lang-ver">3.8 – 3.12</span>
+            </div>
+            <div class="sp-lang">
+              <span class="sf-img sf-icon-js" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              <span class="sp-lang-name">Java</span>
+              <span class="sp-lang-ver">11</span>
+            </div>
+            <div class="sp-lang">
+              <span class="sf-img sf-icon-js" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              <span class="sp-lang-name">Scala</span>
+              <span class="sp-lang-ver">2.12</span>
+            </div>
+          </div>
+
+          <!-- Architecture flow -->
+          <div class="sp-flow">
+
+            <div class="sp-flow-node" data-idx="0">
+              <span class="sf-img sf-icon-snowpark sp-flow-icon"></span>
+              <div class="sp-flow-label">Your Code</div>
+              <div class="sp-flow-sub">Local IDE, Notebooks, Snowflake CLI</div>
+            </div>
+
+            <div class="sp-flow-arrow-wrap">
+              <div class="sp-flow-arrow">&#x2192;</div>
+              <div class="sp-flow-arrow-label">API</div>
+            </div>
+
+            <div class="sp-flow-node" data-idx="1">
+              <span class="sf-img sf-icon-data-eng sp-flow-icon"></span>
+              <div class="sp-flow-label">Snowpark API</div>
+              <div class="sp-flow-sub">DataFrame, UDFs, Stored Procs</div>
+            </div>
+
+            <div class="sp-flow-arrow-wrap">
+              <div class="sp-flow-arrow">&#x2192;</div>
+              <div class="sp-flow-arrow-label">Pushdown</div>
+            </div>
+
+            <div class="sp-flow-node" data-idx="2">
+              <span class="sf-img sf-icon-speed-2 sp-flow-icon"></span>
+              <div class="sp-flow-label">Snowflake Engine</div>
+              <div class="sp-flow-sub">Optimized SQL, no data movement</div>
+            </div>
+
+          </div>
+
+          <!-- Capability cards -->
+          <div class="sp-caps" style="max-width:740px;">
+            <div class="sp-cap" data-idx="3">
+              <div class="sp-cap-icon">
+                <span class="sf-img sf-icon-structured" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sp-cap-text">
+                <div class="sp-cap-title">DataFrames</div>
+                <div class="sp-cap-desc">Lazy evaluation and full query pushdown. pandas-compatible with Snowflake performance.</div>
+              </div>
+            </div>
+            <div class="sp-cap" data-idx="4">
+              <div class="sp-cap-icon">
+                <span class="sf-img sf-icon-python" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sp-cap-text">
+                <div class="sp-cap-title">UDFs &amp; UDTFs</div>
+                <div class="sp-cap-desc">Register Python, Java, or Scala functions as SQL-callable UDFs or table-valued UDTFs.</div>
+              </div>
+            </div>
+            <div class="sp-cap" data-idx="5">
+              <div class="sp-cap-icon">
+                <span class="sf-img sf-icon-data-eng" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sp-cap-text">
+                <div class="sp-cap-title">Stored Procedures</div>
+                <div class="sp-cap-desc">Application logic in-database. Transactions, branching, error handling — no external server needed.</div>
+              </div>
+            </div>
+            <div class="sp-cap" data-idx="6">
+              <div class="sp-cap-icon">
+                <span class="sf-img sf-icon-analytics" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="sp-cap-text">
+                <div class="sp-cap-title">Vectorized UDFs</div>
+                <div class="sp-cap-desc">pandas batch execution on Snowflake. High-throughput transformation using your existing pandas code.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Snowpark Python: DataFrame + UDF</span>
+<span class="code-kw">from</span> <span class="code-id">snowflake.snowpark</span> <span class="code-kw">import</span> <span class="code-id">Session</span>
+<span class="code-kw">from</span> <span class="code-id">snowflake.snowpark.functions</span> <span class="code-kw">import</span> <span class="code-id">udf</span><span class="code-punc">,</span> <span class="code-id">col</span>
+
+<span class="code-comment">-- DataFrame: lazy, pushes SQL to Snowflake</span>
+<span class="code-id">df</span> <span class="code-punc">=</span> <span class="code-id">session</span><span class="code-punc">.</span><span class="code-fn">table</span><span class="code-punc">(</span><span class="code-str">"orders"</span><span class="code-punc">)</span>
+<span class="code-id">result</span> <span class="code-punc">=</span> <span class="code-id">df</span><span class="code-punc">.</span><span class="code-fn">filter</span><span class="code-punc">(</span>
+    <span class="code-id">col</span><span class="code-punc">(</span><span class="code-str">"status"</span><span class="code-punc">)</span> <span class="code-punc">==</span> <span class="code-str">"open"</span>
+<span class="code-punc">).</span><span class="code-fn">group_by</span><span class="code-punc">(</span><span class="code-str">"region"</span><span class="code-punc">)</span>
+ <span class="code-punc">.</span><span class="code-fn">agg</span><span class="code-punc">(</span><span class="code-fn">sum</span><span class="code-punc">(</span><span class="code-str">"amount"</span><span class="code-punc">))</span>
+
+<span class="code-comment">-- UDF: Python function callable from SQL</span>
+<span class="code-punc">@</span><span class="code-fn">udf</span><span class="code-punc">(</span><span class="code-id">name</span><span class="code-punc">=</span><span class="code-str">"classify_risk"</span><span class="code-punc">,</span>
+     <span class="code-id">return_type</span><span class="code-punc">=</span><span class="code-fn">StringType</span><span class="code-punc">())</span>
+<span class="code-kw">def</span> <span class="code-fn">classify_risk</span><span class="code-punc">(</span><span class="code-id">score</span><span class="code-punc">:</span> <span class="code-fn">float</span><span class="code-punc">)</span> <span class="code-punc">-></span> <span class="code-fn">str</span><span class="code-punc">:</span>
+    <span class="code-kw">if</span> <span class="code-id">score</span> <span class="code-punc">></span> <span class="code-num">0.8</span><span class="code-punc">:</span> <span class="code-kw">return</span> <span class="code-str">"high"</span>
+    <span class="code-kw">if</span> <span class="code-id">score</span> <span class="code-punc">></span> <span class="code-num">0.5</span><span class="code-punc">:</span> <span class="code-kw">return</span> <span class="code-str">"medium"</span>
+    <span class="code-kw">return</span> <span class="code-str">"low"</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Snowpark Execution Model</h4>
+      <p>The DataFrame is <strong>lazy</strong>: no query runs until you call <code>.collect()</code> or <code>.show()</code>. Snowflake compiles the entire chain into a single optimized SQL query.</p>
+      <p>UDFs are uploaded to Snowflake and run server-side. No data is returned to the client during processing.</p>
+      <p><strong>No data movement.</strong> Your Python logic executes inside Snowflake's compute layer alongside the data.</p>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div id="sp-panel-overlay" class="sp-panel-overlay">
+    <div class="sp-panel">
+      <div class="sp-panel-header">
+        <span id="sp-panel-title" class="sp-panel-title"></span>
+        <div class="sp-panel-nav">
+          <button onclick="navItem(-1)">&#8592;</button>
+          <button onclick="navItem(1)">&#8594;</button>
+        </div>
+        <button class="sp-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="sp-panel-body">
+        <div id="sp-panel-code" class="sp-panel-code"></div>
+        <div id="sp-panel-explain" class="sp-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { name: 'Your Code',
+        code: `${cm('# Run from local IDE, Snowflake Notebooks,')}\n${cm('# or Snowflake CLI — the Session object is')}\n${cm('# your authenticated connection to Snowflake.')}\n\n${k('from')} ${id('snowflake.snowpark')} ${k('import')} ${id('Session')}\n\n${cm('# Connect from local IDE')}\n${id('session')} ${p('=')} ${id('Session')}.${f('builder')}.${f('configs')}${p('(')}{}\n  ${str('"account"')}${p(':')} ${str('"my_account"')}${p(',')}\n  ${str('"user"')}${p(':')} ${str('"my_user"')}${p(',')}\n  ${str('"warehouse"')}${p(':')} ${str('"my_wh'")}\n${p('}).')}\n${f('create')}${p('()')}\n\n${cm('# Or get a session inside Snowflake Notebooks')}\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}`,
+        desc: '<h4>Development Surfaces</h4><p>Write Snowpark code in your local IDE using any editor, in Snowflake Notebooks for interactive development, or via the Snowflake CLI for CI/CD.</p><p>The same code runs everywhere. No special runtime setup required.</p>' },
+
+      { name: 'Snowpark API',
+        code: `${cm('# The API translates your code to SQL')}\n${cm('# Nothing executes until .collect()')}\n\n${k('from')} ${id('snowflake.snowpark.functions')} ${k('import')} ${id('col')}${p(',')} ${id('sum_')}\n\n${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str('"orders"')}${p(')')}\n\n${cm('# These build a query plan, not results:')}\n${id('result')} ${p('=')} ${id('df')}\n  .${f('filter')}${p('(')}${id('col')}${p('(')}${str('"status"')}${p(')')} ${p('==')} ${str('"open"')}${p(')')}\n  .${f('group_by')}${p('(')}${str('"region"')}${p(')')}\n  .${f('agg')}${p('(')}${id('sum_')}${p('(')}${str('"amount"')}${p('))')}\n\n${cm('# THIS triggers execution — one SQL query:')}\n${id('result')}.${f('collect')}${p('()')}`,
+        desc: '<h4>Snowpark API</h4><p>The DataFrame API is <strong>lazy</strong>: chained operations build a query plan, but nothing executes until <code>.collect()</code>, <code>.show()</code>, or <code>.write()</code>.</p><p>Snowflake compiles the entire chain into a single optimized SQL query. You get Snowflake\'s query optimizer on all your Python transformations.</p>' },
+
+      { name: 'Snowflake Engine',
+        code: `${cm('-- What Snowflake actually executes:')}\n${cm('-- (generated from the Python chain above)')}\n\n${k('SELECT')} ${id('region')}${p(',')} ${f('SUM')}${p('(')}${id('amount')}${p(')')}\n${k('FROM')} ${id('orders')}\n${k('WHERE')} ${id('status')} ${p('=')} ${str('"open"')}\n${k('GROUP BY')} ${id('region')}${p(';')}\n\n${cm('-- Full query optimization applies:')}\n${cm('-- - Partition pruning')}\n${cm('-- - Column projection')}\n${cm('-- - Join reordering')}\n${cm('-- - Result cache')}\n${cm('-- - No data movement to client')}`,
+        desc: '<h4>Snowflake Engine</h4><p>Your Python code becomes a single SQL query. Snowflake\'s query optimizer applies all standard optimizations: partition pruning, result cache, predicate pushdown.</p><p><strong>No data movement.</strong> Data stays in Snowflake. Only the final result is returned to the client.</p>' },
+
+      { name: 'DataFrames',
+        code: `${k('from')} ${id('snowflake.snowpark.functions')} ${k('import')} ${id('col')}${p(',')} ${id('when')}${p(',')} ${id('lit')}\n\n${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str('"sales"')}${p(')')}\n\n${cm('# Filter, transform, join — all lazy')}\n${id('enriched')} ${p('=')} ${id('df')}\n  .${f('filter')}${p('(')}${id('col')}${p('(')}${str('"year"')}${p(')')} ${p('==')} ${n('2025')}${p(')')}\n  .${f('with_column')}${p('(')}${str('"tier"')}${p(',')} ${id('when')}${p('(')}\n    ${id('col')}${p('(')}${str('"amount"')}${p(')')} ${p('>')} ${n('10000')}${p(',')} ${id('lit')}${p('(')}${str('"gold"')}${p(')')}\n  ${p(').')}\n  ${f('otherwise')}${p('(')}${id('lit')}${p('(')}${str('"silver"')}${p(')))')}\n\n${id('enriched')}.${f('write')}.${f('save_as_table')}${p('(')}${str('"enriched_sales"')}${p(')')}`,
+        desc: '<h4>DataFrames</h4><p>Snowpark DataFrames behave like pandas or Spark DataFrames but execute as SQL inside Snowflake. Filter, join, aggregate, and transform data using a familiar API.</p><p>Call <code>.to_pandas()</code> to pull results locally when you need them — only the output crosses the wire, not the source data.</p>' },
+
+      { name: 'UDFs & UDTFs',
+        code: `${k('from')} ${id('snowflake.snowpark.functions')} ${k('import')} ${id('udf')}\n${k('from')} ${id('snowflake.snowpark.types')} ${k('import')} ${id('StringType')}${p(',')} ${id('FloatType')}\n\n${cm('# Scalar UDF — called once per row')}\n${p('@')}${f('udf')}${p('(')}${id('name')}${p('=')}${str('"risk_score"')}${p(',')} ${id('return_type')}${p('=')}${f('FloatType')}${p('()')}\n${k('def')} ${f('risk_score')}${p('(')}${id('val')}${p(':')} ${id('str')}${p(')')} ${p('->')} ${id('float')}${p(':')} ${p('...')}\n\n${cm('# UDTF — returns a table of rows')}\n${k('class')} ${f('Tokenize')}${p(':')}\n    ${k('def')} ${f('process')}${p('(')}${id('self')}${p(',')} ${id('text')}${p(':')} ${id('str')}${p(')')}\n        ${k('for')} ${id('w')} ${k('in')} ${id('text')}.${f('split')}${p('()')}${p(':')}\n            ${k('yield')} ${p('(')}${id('w')}${p(',')}\n\n${id('session')}.${f('udtf')}.${f('register')}${p('(')}${f('Tokenize')}${p(',')}\n    ${id('output_schema')}${p('=[')}${p('(')}${str('"word"')}${p(',')} ${f('StringType')}${p('())')}\n${p('])')}`,
+        desc: '<h4>UDFs and UDTFs</h4><p><strong>Scalar UDFs</strong> take one row, return one value — callable from any SQL SELECT or WHERE clause.</p><p><strong>UDTFs</strong> take one row, return a table — used in LATERAL joins to expand rows into sets.</p><p>Write once in Python, Java, or Scala. Deployed to Snowflake and callable by any role with GRANT.</p>' },
+
+      { name: 'Stored Procedures',
+        code: `${k('from')} ${id('snowflake.snowpark')} ${k('import')} ${id('Session')}\n\n${k('def')} ${f('run_etl')}${p('(')}${id('session')}${p(':')} ${id('Session')}${p(',')} ${id('date')}${p(':')} ${id('str')}${p(')')} ${p('->')} ${id('str')}${p(':')}\n    ${cm('# Full Python application logic')}\n    ${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str('"raw_events"')}${p(')')}\n    ${id('clean')} ${p('=')} ${id('df')}.${f('filter')}${p('(')}${id('col')}${p('(')}${str('"date"')}${p(')')} ${p('==')} ${id('date')}${p(')')}\n    ${id('clean')}.${f('write')}.${f('save_as_table')}${p('(')}${str('"clean_events"')}${p(')')}\n    ${k('return')} ${str('"done"')}\n\n${id('session')}.${f('sproc')}.${f('register')}${p('(')}${f('run_etl')}${p(',')} ${id('name')}${p('=')}${str('"run_etl"')}${p(')')}\n\n${cm('-- Call from SQL:')}\n${k('CALL')} ${f('run_etl')}${p('(')}${str("'2025-07-28'")}${p(')')}${p(';')}`,
+        desc: '<h4>Stored Procedures</h4><p>Full application logic inside Snowflake: loops, conditionals, transactions, error handling — all in Python (or Java/Scala). No external orchestration server needed.</p><p>Stored Procs run with the caller\'s rights (RBAC enforced) and can be scheduled via Snowflake Tasks.</p>' },
+
+      { name: 'Vectorized UDFs',
+        code: `${k('from')} ${id('snowflake.snowpark.functions')} ${k('import')} ${id('pandas_udf')}\n${k('import')} ${id('pandas')} ${k('as')} ${id('pd')}\n\n${cm('# pandas_udf: receives a pandas Series,')}\n${cm('# processes entire batches at once')}\n${p('@')}${f('pandas_udf')}${p('(')}${id('max_batch_size')}${p('=')}${n('1000')}${p(')')}\n${k('def')} ${f('normalize')}${p('(')}${id('vals')}${p(':')} ${id('pd')}.${id('Series')}${p(')')} ${p('->')} ${id('pd')}.${id('Series')}${p(':')}\n    ${k('return')} ${p('(')}${id('vals')} ${p('-')} ${id('vals')}.${f('mean')}${p('()')}${p(')')} ${p('/')} ${id('vals')}.${f('std')}${p('()')}\n\n${cm('# Throughput: 10-100x faster than row UDFs')}\n${cm('# for numeric or ML preprocessing workloads')}`,
+        desc: '<h4>Vectorized UDFs (pandas UDFs)</h4><p>Instead of processing one row at a time, pandas UDFs receive a full <code>pd.Series</code> per batch. Dramatically faster for numeric transformations and ML feature engineering.</p><p>Supports GPU compute on Snowpark-Optimized Warehouses for deep learning inference at scale.</p>' },
+    ];
+
+    let currentIdx = 0;
+
+    function showItem(idx) {
+      currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
+      const item = ITEMS[currentIdx];
+      document.getElementById('sp-panel-title').textContent = item.name;
+      document.getElementById('sp-panel-code').innerHTML = item.code;
+      document.getElementById('sp-panel-explain').innerHTML = item.desc;
+      document.getElementById('sp-panel-overlay').classList.add('open');
+    }
+
+    function navItem(dir) { showItem(currentIdx + dir); }
+    function closePanel() { document.getElementById('sp-panel-overlay').classList.remove('open'); }
+
+    document.querySelectorAll('[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+
+    document.addEventListener('keydown', e => {
+      const overlay = document.getElementById('sp-panel-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') closePanel();
+      if (e.key === 'ArrowLeft') navItem(-1);
+      if (e.key === 'ArrowRight') navItem(1);
+    });
+
+    document.getElementById('sp-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Document AI — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Pipeline layout ─────────────────────────────────── */
+    .dai-pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* ── Pipeline stage column ───────────────────────────── */
+    .dai-stages {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 260px;
+      flex-shrink: 0;
+    }
+
+    .dai-stage {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid rgba(41,181,232,.2);
+      background: var(--sf-card);
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+      position: relative;
+    }
+    .dai-stage:hover {
+      border-color: var(--sf-blue);
+      transform: translateX(3px);
+    }
+    .dai-stage.active {
+      border-color: var(--sf-blue);
+      background: var(--sf-blue-dark);
+    }
+    .dai-stage-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .dai-stage-text { flex: 1; }
+    .dai-stage-fn {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-blue);
+      margin-bottom: 2px;
+    }
+    .dai-stage.active .dai-stage-fn { color: var(--sf-light); }
+    .dai-stage-desc {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.5);
+      line-height: 1.35;
+    }
+
+    /* Connector arrow between stages */
+    .dai-connector {
+      display: flex;
+      align-items: center;
+      padding-left: 30px;
+      height: 16px;
+    }
+    .dai-connector-line {
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(41,181,232,.3), rgba(41,181,232,.5));
+      border-radius: 1px;
+    }
+
+    /* Stage-specific badge */
+    .dai-stage-badge {
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .dai-stage-badge--new { background: var(--sf-blue); color: #fff; }
+    .dai-stage-badge--opt { background: rgba(41,181,232,.15); color: rgba(41,181,232,.8); border: 1px solid rgba(41,181,232,.25); }
+
+    /* Terminal nodes (Stage file and structured table) */
+    .dai-terminal {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px dashed rgba(41,181,232,.25);
+      background: transparent;
+    }
+    .dai-terminal-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: .6;
+    }
+    .dai-terminal-label {
+      font-size: var(--fs-h5);
+      font-weight: 600;
+      color: rgba(255,255,255,.5);
+    }
+
+    /* ── Code + explain panel (right) ────────────────────── */
+    .dai-detail {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-left: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(41,181,232,.2);
+    }
+    .dai-detail-header {
+      background: var(--sf-blue);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dai-detail-fn {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h3);
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+    }
+    .dai-detail-hint {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.6);
+    }
+    .dai-detail-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .dai-detail-code {
+      flex: 3;
+      background: var(--code-bg);
+      padding: 16px 18px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--code-base);
+      white-space: pre-wrap;
+    }
+    .dai-detail-explain {
+      flex: 2;
+      padding: 16px 18px;
+      overflow-y: auto;
+      background: #fff;
+      font-size: var(--fs-h5);
+      color: var(--sf-ink);
+      line-height: 1.6;
+    }
+    .dai-detail-explain h4 {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .dai-detail-explain p { margin-bottom: 10px; }
+    .dai-detail-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .dai-detail-explain li { margin-bottom: 4px; }
+
+    /* Empty state */
+    .dai-detail-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--fs-h4);
+      color: rgba(41,181,232,.35);
+      font-style: italic;
+      background: rgba(41,181,232,.02);
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/guides-overview-ai-features',
+      code:  true,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai-functions.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Document AI</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Document AI Pipeline</div>
+          <div class="s6-sub" style="text-align:center;">From raw files to structured, governed data in a single SQL pipeline. Click any stage to explore.</div>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="content-wrap" style="flex:1;display:flex;align-items:center;justify-content:center;padding:8px 16px 12px;">
+          <div class="dai-pipeline">
+
+            <!-- Left: pipeline stages -->
+            <div class="dai-stages">
+
+              <!-- Source -->
+              <div class="dai-terminal">
+                <div class="dai-terminal-icon">
+                  <span class="sf-img sf-icon-unstructured" style="width:24px;height:24px;opacity:.6;"></span>
+                </div>
+                <span class="dai-terminal-label">Stage — PDFs, images, DOCX</span>
+              </div>
+
+              <div class="dai-connector"><div class="dai-connector-line"></div></div>
+
+              <!-- AI_PARSE_DOCUMENT -->
+              <div class="dai-stage active" data-key="parse">
+                <div class="dai-stage-icon">
+                  <span class="sf-img sf-icon-metadata" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="dai-stage-text">
+                  <div class="dai-stage-fn">AI_PARSE_DOCUMENT</div>
+                  <div class="dai-stage-desc">OCR · Layout · Multimodal</div>
+                </div>
+              </div>
+
+              <div class="dai-connector"><div class="dai-connector-line"></div></div>
+
+              <!-- AI_CLASSIFY -->
+              <div class="dai-stage" data-key="classify">
+                <div class="dai-stage-icon">
+                  <span class="sf-img sf-icon-horizon" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="dai-stage-text">
+                  <div class="dai-stage-fn">AI_CLASSIFY</div>
+                  <div class="dai-stage-desc">Identify document type</div>
+                </div>
+                <span class="dai-stage-badge dai-stage-badge--opt">Optional</span>
+              </div>
+
+              <div class="dai-connector"><div class="dai-connector-line"></div></div>
+
+              <!-- AI_EXTRACT -->
+              <div class="dai-stage" data-key="extract">
+                <div class="dai-stage-icon">
+                  <span class="sf-img sf-icon-structured" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="dai-stage-text">
+                  <div class="dai-stage-fn">AI_EXTRACT</div>
+                  <div class="dai-stage-desc">Named field extraction</div>
+                </div>
+              </div>
+
+              <div class="dai-connector"><div class="dai-connector-line"></div></div>
+
+              <!-- AI_REDACT -->
+              <div class="dai-stage" data-key="redact">
+                <div class="dai-stage-icon">
+                  <span class="sf-img sf-icon-security-gov" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="dai-stage-text">
+                  <div class="dai-stage-fn">AI_REDACT</div>
+                  <div class="dai-stage-desc">Remove PII &amp; sensitive data</div>
+                </div>
+                <span class="dai-stage-badge dai-stage-badge--opt">Optional</span>
+              </div>
+
+              <div class="dai-connector"><div class="dai-connector-line"></div></div>
+
+              <!-- Output -->
+              <div class="dai-terminal">
+                <div class="dai-terminal-icon">
+                  <span class="sf-img sf-icon-sf-tables" style="width:24px;height:24px;opacity:.6;"></span>
+                </div>
+                <span class="dai-terminal-label">Structured Table — typed, governed</span>
+              </div>
+
+            </div>
+
+            <!-- Right: detail panel -->
+            <div class="dai-detail" id="dai-detail">
+              <div class="dai-detail-header">
+                <span id="dai-fn-name" class="dai-detail-fn">AI_PARSE_DOCUMENT</span>
+                <span class="dai-detail-hint">&#8592; click a stage</span>
+              </div>
+              <div class="dai-detail-body">
+                <div id="dai-code" class="dai-detail-code"></div>
+                <div id="dai-explain" class="dai-detail-explain"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal: full pipeline -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Full Document AI pipeline in one query</span>
+<span class="code-kw">SELECT</span>
+  <span class="code-id">relative_path</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_CLASSIFY</span><span class="code-punc">(</span><span class="code-id">parsed</span><span class="code-punc">,</span>
+    <span class="code-punc">[</span><span class="code-str">'invoice'</span><span class="code-punc">,</span><span class="code-str">'contract'</span><span class="code-punc">,</span><span class="code-str">'receipt'</span><span class="code-punc">]</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">doc_type</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_EXTRACT</span><span class="code-punc">(</span><span class="code-id">parsed</span><span class="code-punc">,</span>
+    <span class="code-str">'vendor_name'</span><span class="code-punc">,</span> <span class="code-str">'invoice_number'</span><span class="code-punc">,</span>
+    <span class="code-str">'total_amount'</span><span class="code-punc">,</span> <span class="code-str">'due_date'</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">fields</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_REDACT</span><span class="code-punc">(</span><span class="code-id">parsed</span><span class="code-punc">,</span> <span class="code-str">'pii'</span><span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">safe_text</span>
+<span class="code-kw">FROM</span> <span class="code-punc">(</span>
+  <span class="code-kw">SELECT</span>
+    <span class="code-id">relative_path</span><span class="code-punc">,</span>
+    <span class="code-fn">AI_PARSE_DOCUMENT</span><span class="code-punc">(</span>
+      <span class="code-id">@docs_stage</span><span class="code-punc">,</span> <span class="code-id">relative_path</span><span class="code-punc">,</span>
+      <span class="code-punc">{</span><span class="code-str">'mode'</span><span class="code-punc">:</span> <span class="code-str">'LAYOUT'</span><span class="code-punc">}</span>
+    <span class="code-punc">)</span><span class="code-punc">:</span><span class="code-id">content</span> <span class="code-kw">AS</span> <span class="code-id">parsed</span>
+  <span class="code-kw">FROM</span> <span class="code-id">DIRECTORY</span><span class="code-punc">(</span><span class="code-id">@docs_stage</span><span class="code-punc">)</span>
+  <span class="code-kw">WHERE</span> <span class="code-fn">AI_FILTER</span><span class="code-punc">(</span><span class="code-id">relative_path</span><span class="code-punc">,</span>
+    <span class="code-str">'is a PDF or image file'</span><span class="code-punc">)</span>
+<span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Full Pipeline in SQL</h4>
+      <p>One query parses every file in a stage, classifies it, extracts structured fields, and redacts PII. No external orchestration needed.</p>
+      <p>Wrap this in a <strong>Dynamic Table</strong> or <strong>Task</strong> to process new files automatically as they land.</p>
+      <p>The <code>DIRECTORY()</code> table function lists all files in the stage, enabling batch processing across hundreds of documents.</p>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const STAGES = {
+      parse: {
+        fn: 'AI_PARSE_DOCUMENT',
+        code: `${cm('-- Three parse modes:')}\n\n${cm('-- OCR: scanned images, handwriting')}\n${k('SELECT')} ${f('AI_PARSE_DOCUMENT')}${p('(')}\n  ${id('@stage')}${p(',')} ${id('relative_path')}${p(',')}\n  ${p('{')}\${str("'mode'")}${p(':')} ${str("'OCR'")}\n  ${p('}')}\n${p(')')}${p(':')}${id('content')} ${k('AS')} ${id('text')}\n${k('FROM')} ${f('DIRECTORY')}${p('(')}${id('@stage')}${p(')')}${p(';')}\n\n${cm('-- LAYOUT: PDFs with tables and structure')}\n${cm('-- (preserves column/row relationships)')}\n${p('{')}\${str("'mode'")}${p(':')} ${str("'LAYOUT'")}\${p('}')}\n\n${cm('-- MULTIMODAL: charts, diagrams, images')}\n${cm('-- in PDFs analyzed visually')}\n${p('{')}\${str("'mode'")}${p(':')} ${str("'MULTIMODAL'")}\${p('}')}`,
+        explain: `<h4>AI_PARSE_DOCUMENT</h4>
+<p>Converts files from a Snowflake Stage into text. Three modes:</p>
+<ul>
+  <li><strong>OCR</strong> — scanned images and handwritten docs. Best for paper-digitization workflows.</li>
+  <li><strong>LAYOUT</strong> — PDFs with tables, columns, and structure. Preserves spatial relationships.</li>
+  <li><strong>MULTIMODAL</strong> — analyzes charts, diagrams, and visual elements inside PDFs.</li>
+</ul>
+<p><strong>Supported formats:</strong> PDF, PNG, JPEG, TIFF, DOCX, PPTX, XLSX.</p>
+<p>Returns a VARIANT — use <code>:content</code> to extract the text for downstream functions.</p>`
+      },
+      classify: {
+        fn: 'AI_CLASSIFY',
+        code: `${cm('-- Classify document type before extraction')}\n${cm('-- so you can apply the right schema')}\n\n${k('SELECT')}\n  ${id('path')}${p(',')}\n  ${f('AI_CLASSIFY')}${p('(')}${id('parsed_text')}${p(',')}\n    ${p('[')}${str("'invoice'")}${p(',')} ${str("'contract'")}${p(',')}\n     ${str("'receipt'")}${p(',')} ${str("'report'")}\n    ${p(']')}\n  ${p(')')} ${k('AS')} ${id('doc_type')}\n${k('FROM')} ${id('parsed_docs')}${p(';')}\n\n${cm('-- Then route to different extraction logic:')}\n${cm('-- invoices -> vendor, amount, due_date')}\n${cm('-- contracts -> parties, term, termination')}\n${cm('-- receipts -> merchant, total, items')}`,
+        explain: `<h4>AI_CLASSIFY (Document Routing)</h4>
+<p>Before extracting fields, classify the document so you can apply the right extraction schema. An invoice needs different fields than a contract.</p>
+<p>Use the classification result to filter and branch:</p>
+<ul>
+  <li><code>WHERE doc_type = 'invoice'</code> → extract vendor/amount/date</li>
+  <li><code>WHERE doc_type = 'contract'</code> → extract parties/term/termination</li>
+</ul>
+<p>This avoids hallucinated fields when you ask for invoice fields on a contract.</p>`
+      },
+      extract: {
+        fn: 'AI_EXTRACT',
+        code: `${cm('-- Extract named fields from parsed text')}\n${k('SELECT')}\n  ${id('path')}${p(',')}\n  ${f('AI_EXTRACT')}${p('(')}${id('parsed_text')}${p(',')}\n    ${str("'vendor_name'")}\n    ${str("'invoice_number'")}\n    ${str("'total_amount'")}\n    ${str("'due_date'")}\n    ${str("'line_items'")}\n  ${p(')')} ${k('AS')} ${id('fields')}\n${k('FROM')} ${id('parsed_docs')}\n${k('WHERE')} ${id('doc_type')} ${p('=')} ${str("'invoice'")}${p(';')}\n\n${cm('-- Access typed results:')}\n${cm('-- fields:vendor_name::STRING')}\n${cm('-- fields:total_amount::FLOAT')}\n${cm('-- fields:due_date::DATE')}`,
+        explain: `<h4>AI_EXTRACT</h4>
+<p>Extracts named fields from unstructured text and returns them as a typed VARIANT object.</p>
+<p>Field names are natural language — use descriptive names like <code>'total_amount_usd'</code> rather than <code>'amt'</code>. The model infers intent from the name.</p>
+<p><strong>Type cast the results</strong> using Snowflake semi-structured access: <code>fields:vendor_name::STRING</code>, <code>fields:total_amount::FLOAT</code>.</p>
+<p>For multi-value fields (line items, signatories) the result is an ARRAY.</p>`
+      },
+      redact: {
+        fn: 'AI_REDACT',
+        code: `${cm('-- Remove PII before storing or sharing')}\n${k('SELECT')}\n  ${id('path')}${p(',')}\n  ${id('fields')}${p(',')}\n  ${f('AI_REDACT')}${p('(')}${id('parsed_text')}${p(',')}\n    ${str("'pii'")}\n  ${p(')')} ${k('AS')} ${id('safe_text')}\n${k('FROM')} ${id('extracted_docs')}${p(';')}\n\n${cm('-- Redaction categories:')}\n${cm("-- 'pii'       — names, SSNs, DOBs, etc.")}\n${cm("-- 'financial' — account numbers, card data")}\n${cm("-- 'phi'       — medical record info")}\n${cm("-- 'all'       — everything above")}\n\n${cm('-- Original text → [REDACTED] tokens')}\n${cm('-- Structure and context preserved')}`,
+        explain: `<h4>AI_REDACT</h4>
+<p>Replaces sensitive values with <code>[REDACTED]</code> while preserving document structure and context. The surrounding text remains intact for analysis.</p>
+<p><strong>Redaction categories:</strong></p>
+<ul>
+  <li><code>'pii'</code> — names, SSNs, dates of birth, phone numbers</li>
+  <li><code>'financial'</code> — account numbers, card data, routing numbers</li>
+  <li><code>'phi'</code> — HIPAA-covered health information</li>
+  <li><code>'all'</code> — all of the above</li>
+</ul>
+<p>Apply before storing to a shared table, writing to a data product, or sending to an AI agent.</p>`
+      }
+    };
+
+    const stageOrder = ['parse', 'classify', 'extract', 'redact'];
+
+    function showStage(key) {
+      const stage = STAGES[key];
+      if (!stage) return;
+
+      // Update active state
+      document.querySelectorAll('.dai-stage').forEach(el => el.classList.remove('active'));
+      const el = document.querySelector(`.dai-stage[data-key="${key}"]`);
+      if (el) el.classList.add('active');
+
+      document.getElementById('dai-fn-name').textContent = stage.fn;
+      document.getElementById('dai-code').innerHTML = stage.code;
+      document.getElementById('dai-explain').innerHTML = stage.explain;
+    }
+
+    // Wire clicks
+    document.querySelectorAll('.dai-stage[data-key]').forEach(el => {
+      el.addEventListener('click', () => showStage(el.dataset.key));
+    });
+
+    // Show first stage by default
+    showStage('parse');
+  </script>
+
+</body>
+</html>

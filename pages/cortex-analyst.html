@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cortex Analyst — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 4px; }
+
+    /* ── Page wrapper ─────────────────────────────────────── */
+    .ca-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px 10px;
+      min-height: 0;
+      gap: 14px;
+    }
+
+    /* ── NL-to-SQL pipeline ───────────────────────────────── */
+    .ca-pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+    }
+    .ca-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(41,181,232,.25);
+      background: var(--sf-card);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, transform .13s;
+    }
+    .ca-node:hover {
+      border-color: var(--sf-blue);
+      transform: translateY(-2px);
+    }
+    .ca-node.ca-node--highlight {
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.08);
+    }
+    .ca-node-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ca-node-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .ca-node-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.5);
+      line-height: 1.3;
+    }
+    .ca-node-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .ca-tag {
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 9px;
+      font-weight: 700;
+      border: 1px solid rgba(41,181,232,.4);
+      color: var(--sf-blue);
+    }
+    .ca-arrow {
+      font-size: 22px;
+      color: rgba(41,181,232,.5);
+      flex-shrink: 0;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── Feature cards ────────────────────────────────────── */
+    .ca-features {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .ca-feat {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.15);
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .ca-feat:hover { border-color: var(--sf-blue); }
+    .ca-feat-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-blue);
+      margin-bottom: 3px;
+    }
+    .ca-feat-desc {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.55);
+      line-height: 1.4;
+    }
+
+    /* ── Detail panel ─────────────────────────────────────── */
+    .ca-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .ca-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .ca-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 660px;
+      max-width: 92vw;
+      max-height: 78vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .ca-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .ca-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
+    .ca-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ca-panel-close:hover { background: rgba(255,255,255,.35); }
+    .ca-panel-body { display: flex; flex: 1; overflow: hidden; }
+    .ca-panel-code {
+      flex: 3; background: var(--code-bg); padding: 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12.5px; line-height: 1.65; color: var(--code-base); white-space: pre-wrap;
+    }
+    .ca-panel-explain {
+      flex: 2; padding: 18px; overflow-y: auto;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .ca-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .ca-panel-explain p  { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst',
+      code:  true,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_cortex_analyst/index.html',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-agents.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Cortex Analyst</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Cortex Analyst</div>
+          <div class="s6-sub" style="text-align:center;">Ask business questions in plain English. Cortex Analyst generates verified SQL from your semantic data model — no prompt engineering required.</div>
+        </div>
+
+        <div class="ca-page content-wrap">
+
+          <!-- NL-to-SQL pipeline -->
+          <div class="ca-pipeline">
+
+            <div class="ca-node" data-idx="0">
+              <div class="ca-node-icon" style="background:rgba(41,181,232,.15);">
+                <span style="font-size:22px;">&#x1F4AC;</span>
+              </div>
+              <div class="ca-node-title">Business Question</div>
+              <div class="ca-node-sub">Natural language. No SQL knowledge required.</div>
+            </div>
+
+            <div class="ca-arrow">&#x2192;</div>
+
+            <div class="ca-node ca-node--highlight" style="flex:1.7;" data-idx="1">
+              <div class="ca-node-icon" style="background:var(--sf-blue);">
+                <span class="sf-img sf-icon-analytics" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="ca-node-title">Semantic View</div>
+              <div class="ca-node-sub">Business data model with metrics, dimensions, and relationships.</div>
+              <div class="ca-node-tags">
+                <span class="ca-tag">Metrics</span>
+                <span class="ca-tag">Dimensions</span>
+                <span class="ca-tag">Verified Queries</span>
+              </div>
+            </div>
+
+            <div class="ca-arrow">&#x2192;</div>
+
+            <div class="ca-node" data-idx="2">
+              <div class="ca-node-icon" style="background:rgba(41,181,232,.15);">
+                <span class="sf-img sf-icon-sql" style="width:24px;height:24px;"></span>
+              </div>
+              <div class="ca-node-title">Generated SQL</div>
+              <div class="ca-node-sub">Accurate, verifiable SQL grounded in your semantic model.</div>
+            </div>
+
+            <div class="ca-arrow">&#x2192;</div>
+
+            <div class="ca-node" data-idx="3">
+              <div class="ca-node-icon" style="background:rgba(41,181,232,.15);">
+                <span style="font-size:22px;">&#x2705;</span>
+              </div>
+              <div class="ca-node-title">Result + Charts</div>
+              <div class="ca-node-sub">Answer with data, auto-generated visualizations.</div>
+            </div>
+
+          </div>
+
+          <!-- Feature cards -->
+          <div class="ca-features">
+            <div class="ca-feat" data-idx="4">
+              <div class="ca-feat-title">Verified Queries</div>
+              <div class="ca-feat-desc">Pre-validate exact SQL for known questions. The model matches semantically equivalent questions to verified answers — no hallucination risk.</div>
+            </div>
+            <div class="ca-feat" data-idx="5">
+              <div class="ca-feat-title">Business Semantics</div>
+              <div class="ca-feat-desc">Define metrics, dimensions, and relationships once in the semantic view. Analyst uses them to generate contextually accurate SQL every time.</div>
+            </div>
+            <div class="ca-feat" data-idx="6">
+              <div class="ca-feat-title">REST API + Streaming</div>
+              <div class="ca-feat-desc">Embed in any app via REST. Supports multi-turn conversation with message history. Streams results for low-latency perceived performance.</div>
+            </div>
+            <div class="ca-feat" data-idx="7">
+              <div class="ca-feat-title">Governed by Horizon</div>
+              <div class="ca-feat-desc">Generated SQL runs under the user's role. RBAC, masking, and row access policies enforce your data governance on every query.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- 1. Create a Semantic View</span>
+<span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">SEMANTIC VIEW</span> <span class="code-id">sales_analytics</span>
+  <span class="code-fn">TABLES</span> <span class="code-punc">(</span>
+    <span class="code-id">orders</span> <span class="code-kw">AS</span> <span class="code-id">sales.orders</span>
+      <span class="code-fn">PRIMARY KEY</span> <span class="code-punc">(</span><span class="code-id">order_id</span><span class="code-punc">)</span><span class="code-punc">,</span>
+    <span class="code-id">customers</span> <span class="code-kw">AS</span> <span class="code-id">sales.customers</span>
+      <span class="code-fn">PRIMARY KEY</span> <span class="code-punc">(</span><span class="code-id">customer_id</span><span class="code-punc">)</span>
+  <span class="code-punc">)</span>
+  <span class="code-fn">RELATIONSHIPS</span> <span class="code-punc">(</span>
+    <span class="code-id">orders</span><span class="code-punc">.</span><span class="code-id">customer_id</span> <span class="code-fn">REFERENCES</span> <span class="code-id">customers</span><span class="code-punc">.</span><span class="code-id">customer_id</span>
+  <span class="code-punc">)</span>
+  <span class="code-fn">METRICS</span> <span class="code-punc">(</span>
+    <span class="code-id">total_revenue</span> <span class="code-kw">AS</span> <span class="code-fn">SUM</span><span class="code-punc">(</span><span class="code-id">orders</span><span class="code-punc">.</span><span class="code-id">amount</span><span class="code-punc">)</span><span class="code-punc">,</span>
+    <span class="code-id">order_count</span>   <span class="code-kw">AS</span> <span class="code-fn">COUNT</span><span class="code-punc">(</span><span class="code-id">orders</span><span class="code-punc">.</span><span class="code-id">order_id</span><span class="code-punc">)</span>
+  <span class="code-punc">)</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- 2. Ask questions via REST API</span>
+<span class="code-comment">-- POST /api/v2/cortex/analyst/message</span>
+<span class="code-comment">-- { "messages": [{"role":"user",</span>
+<span class="code-comment">--   "content":"What was total revenue last quarter?"}],</span>
+<span class="code-comment">--   "semantic_model": "sales_analytics" }</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Cortex Analyst</h4>
+      <p>Define your data model once as a Semantic View — tables, relationships, metrics, and dimensions. Analyst uses this to generate accurate SQL for any natural language question.</p>
+      <p><strong>Verified queries</strong> let you pre-validate exact SQL for known questions, ensuring consistent and correct answers for your highest-frequency use cases.</p>
+      <p>Embed in any app via REST API with streaming support.</p>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div id="ca-panel-overlay" class="ca-panel-overlay">
+    <div class="ca-panel">
+      <div class="ca-panel-header">
+        <span id="ca-panel-title" class="ca-panel-title"></span>
+        <button class="ca-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="ca-panel-body">
+        <div id="ca-panel-code" class="ca-panel-code"></div>
+        <div id="ca-panel-explain" class="ca-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const st = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { name: 'Business Question',
+        code: `${cm('-- Users ask in natural language via:')}\n${cm('-- 1. REST API (embed in any app)')}\n${cm('-- 2. Snowsight Cortex Analyst UI')}\n${cm('-- 3. Cortex Agent tool call')}\n\n${cm('-- Example questions:')}\n${cm('-- "What was revenue last quarter by region?"')}\n${cm('-- "Which customers churned in Q2?"')}\n${cm('-- "Show me MoM order growth for 2026"')}\n${cm('-- "Compare conversion rates across segments"')}\n\n${cm('-- No SQL knowledge required')}\n${cm('-- Supports multi-turn follow-up questions')}`,
+        desc: '<h4>Business Question Interface</h4><p>End users ask questions in plain English. No SQL, no prompt engineering, no data team intermediary needed for routine analytics.</p><p>Supports multi-turn conversation — users can ask follow-up questions and Cortex Analyst maintains context across the session.</p>' },
+
+      { name: 'Semantic View',
+        code: `${k('CREATE OR REPLACE')} ${f('SEMANTIC VIEW')} ${id('sales_analytics')}\n  ${f('TABLES')} ${p('(')}\n    ${id('orders')} ${k('AS')} ${id('sales.orders')}\n      ${f('PRIMARY KEY')} ${p('(')}${id('order_id')}${p(')')}\n      ${f('SYNONYMS')} ${p('=')} ${p('[')}${st('"transactions"')}${p(',')} ${st('"purchases"')}${p(']')}${p(',')}\n    ${id('customers')} ${k('AS')} ${id('sales.customers')}\n      ${f('PRIMARY KEY')} ${p('(')}${id('customer_id')}${p(')')}\n  ${p(')')}\n  ${f('RELATIONSHIPS')} ${p('(')}\n    ${id('orders')}${p('.')}${id('customer_id')} ${f('REFERENCES')}\n      ${id('customers')}${p('.')}${id('customer_id')}\n  ${p(')')}\n  ${f('DIMENSIONS')} ${p('(')}\n    ${id('orders')}${p('.')}${id('region')}\n      ${f('SYNONYMS')} ${p('=')} ${p('[')}${st('"territory"')}${p(',')}\n                    ${st('"area"')}${p(']')}\n  ${p(')')}\n  ${f('METRICS')} ${p('(')}\n    ${id('total_revenue')} ${k('AS')} ${f('SUM')}${p('(')}${id('orders')}${p('.')}${id('amount')}${p(')')}\n      ${f('SYNONYMS')} ${p('=')} ${p('[')}${st('"sales"')}${p(',')}\n                    ${st('"bookings"')}${p(']')}\n  ${p(')')}${p(';')}`,
+        desc: '<h4>Semantic View</h4><p>A business-level data model that tells Cortex Analyst about your tables, joins, metrics, and dimensions. Define synonyms so users can ask in their natural vocabulary.</p><p>Analysts only need to define this once. All downstream questions benefit from the model automatically — no per-question prompt engineering.</p>' },
+
+      { name: 'Generated SQL',
+        code: `${cm('-- User asks: "Revenue by region last quarter?"')}\n${cm('-- Cortex Analyst generates:')}\n\n${k('SELECT')}\n  ${id('o')}${p('.')}${id('region')}${p(',')}\n  ${f('SUM')}${p('(')}${id('o')}${p('.')}${id('amount')}${p(')')} ${k('AS')} ${id('total_revenue')}\n${k('FROM')} ${id('sales.orders')} ${id('o')}\n${k('JOIN')} ${id('sales.customers')} ${id('c')}\n  ${k('ON')} ${id('o')}${p('.')}${id('customer_id')} ${p('=')} ${id('c')}${p('.')}${id('customer_id')}\n${k('WHERE')} ${id('o')}${p('.')}${id('created_at')} ${k('BETWEEN')}\n  ${f('DATE_TRUNC')}${p('(')}${st("'quarter'")}, ${f('DATEADD')}${p('(')}${st("'quarter'")}, ${p('-')}${n('1')},\n    ${f('CURRENT_DATE')}${p('()')}${p(')')}\n  ${k('AND')} ${f('DATE_TRUNC')}${p('(')}${st("'quarter'")}, ${f('CURRENT_DATE')}${p('()')}${p(')')}\n${k('GROUP BY')} ${n('1')}\n${k('ORDER BY')} ${n('2')} ${k('DESC')}${p(';')}\n\n${cm('-- SQL is shown to the user for transparency')}`,
+        desc: '<h4>Generated SQL</h4><p>Cortex Analyst generates accurate SQL from your semantic model. The SQL is surfaced to end users for transparency — they can see exactly how the answer was derived.</p><p>The model grounds generation in your semantic view, preventing hallucination of column names, table joins, or incorrect aggregations.</p>' },
+
+      { name: 'Result + Charts',
+        code: `${cm('-- Response includes:')}\n${cm('-- {')}\n${cm('--   "message": {')}\n${cm('--     "role": "analyst",')}\n${cm('--     "content": [')}\n${cm('--       {')}\n${cm('--         "type": "text",')}\n${cm('--         "text": "Revenue last quarter..."')}\n${cm('--       },')}\n${cm('--       {')}\n${cm('--         "type": "sql",')}\n${cm('--         "statement": "SELECT region, SUM..."')}\n${cm('--       }')}\n${cm('--     ]')}\n${cm('--   }')}\n${cm('-- }')}\n\n${cm('-- Apps render SQL results as charts,')}\n${cm('-- tables, or formatted summaries')}`,
+        desc: '<h4>Results and Charts</h4><p>Cortex Analyst returns both a natural language answer and the SQL used to derive it. Applications execute the SQL and render results as tables, charts, or dashboards.</p><p>The response format is structured JSON, making it easy to integrate into any BI tool, chatbot, or custom application.</p>' },
+
+      { name: 'Verified Queries',
+        code: `${cm('-- Add verified query representations (VQRs)')}\n${cm('-- to pre-validate SQL for known questions')}\n\n${k('ALTER')} ${f('SEMANTIC VIEW')} ${id('sales_analytics')}\n  ${k('ADD')} ${f('VERIFIED QUERY')} ${st('"revenue last quarter"')}\n  ${f('QUESTION')} ${p('=')} ${st('"What was total revenue last quarter?"')}\n  ${f('SQL')} ${p('=')} ${st('"SELECT SUM(amount) FROM orders\n  WHERE created_at BETWEEN\n    DATE_TRUNC(\\'quarter\\', DATEADD(\\'quarter\\',\n      -1, CURRENT_DATE())) AND\n    DATE_TRUNC(\\'quarter\\', CURRENT_DATE())"')}${p(';')}\n\n${cm('-- Semantically similar questions reuse')}\n${cm('-- this exact SQL -- no model inference')}`,
+        desc: '<h4>Verified Query Representations</h4><p>For your highest-frequency, most critical questions, pre-validate exact SQL as a Verified Query. When users ask semantically equivalent questions, Cortex Analyst routes to the verified SQL instead of generating new queries.</p><p>This eliminates all hallucination risk for known questions and ensures consistent, auditable answers for executives and regulated use cases.</p>' },
+
+      { name: 'Business Semantics',
+        code: `${cm('-- Synonyms help users ask in their vocabulary')}\n${k('ALTER')} ${f('SEMANTIC VIEW')} ${id('sales_analytics')}\n  ${k('ALTER')} ${f('DIMENSION')} ${id('orders')}${p('.')}${id('region')}\n  ${k('SET')} ${f('SYNONYMS')} ${p('=')} ${p('[')}${st('"territory"')}${p(',')} ${st('"area"')}${p(',')} ${st('"zone"')}${p(']')}${p(';')}\n\n${cm('-- Filters: define valid values')}\n${k('ALTER')} ${f('SEMANTIC VIEW')} ${id('sales_analytics')}\n  ${k('ALTER')} ${f('DIMENSION')} ${id('orders')}${p('.')}${id('status')}\n  ${k('SET')} ${f('SAMPLE_VALUES')} ${p('=')} ${p('[')}${st('"complete"')}${p(',')} ${st('"pending"')}${p(']')}${p(';')}\n\n${cm('-- Users can now ask:')}\n${cm('-- "Revenue by territory" -> maps to region')}\n${cm('-- "Show pending orders" -> uses status enum')}`,
+        desc: '<h4>Business Semantics</h4><p>Semantic views capture how your organization actually talks about data. Synonyms let users ask "show me territory revenue" when the column is called `region`. Sample values help the model filter correctly.</p><p>This business context lives in one place — the semantic view — and benefits all questions automatically.</p>' },
+
+      { name: 'REST API + Streaming',
+        code: `${cm('-- REST API: embed in any application')}\n${cm('-- POST /api/v2/cortex/analyst/message')}\n${cm('-- Authorization: Bearer <token>')}\n${cm('-- {')}\n${cm('--   "messages": [')}\n${cm('--     {"role":"user", "content": [')}\n${cm('--       {"type":"text",')}\n${cm('--        "text": "Revenue last quarter?"}')}\n${cm('--     ]}')}\n${cm('--   ],')}\n${cm('--   "semantic_model": "sales_analytics",')}\n${cm('--   "stream": true')}\n${cm('-- }')}\n\n${cm('-- Snowflake Python SDK:')}\n${cm('-- analyst = root.cortex.analyst')}\n${cm('-- response = analyst.answer(question=...,')}\n${cm('--   semantic_model=...)')}`,
+        desc: '<h4>REST API and Streaming</h4><p>Cortex Analyst exposes a REST API that any application can call. Stream responses for low-latency perceived performance in chat interfaces.</p><p>Multi-turn conversation is supported via the messages array — pass prior turns for follow-up questions. Also available through the Snowflake Python SDK.</p>' },
+
+      { name: 'Governed by Horizon',
+        code: `${cm('-- Grant analyst access per role')}\n${k('GRANT')} ${f('USAGE')} ${k('ON')} ${f('SEMANTIC VIEW')}\n  ${id('sales_analytics')} ${k('TO')} ${f('ROLE')} ${id('analyst')}${p(';')}\n\n${cm('-- Generated SQL runs as the caller\\'s role')}\n${cm('-- Row access policies on source tables')}\n${cm('-- filter results for each user automatically')}\n\n${cm('-- Example: EMEA analyst asking')}\n${cm('-- "What was revenue last quarter?"')}\n${cm('-- -> SQL returns only EMEA rows')}\n${cm('--    (row access policy on orders)')}\n\n${cm('-- Data governance is not bypassed')}\n${cm('-- by natural language interfaces')}`,
+        desc: '<h4>Governed by Horizon</h4><p>Cortex Analyst does not bypass your existing data governance. Generated SQL runs under the caller\'s role, so row access policies, column masking, and RBAC all apply normally.</p><p>An EMEA analyst asking "what was revenue last quarter?" will only see EMEA data — the same result as if they wrote the SQL themselves.</p>' },
+    ];
+
+    function showItem(idx) {
+      const item = ITEMS[idx];
+      document.getElementById('ca-panel-title').textContent = item.name;
+      document.getElementById('ca-panel-code').innerHTML   = item.code;
+      document.getElementById('ca-panel-explain').innerHTML = item.desc;
+      document.getElementById('ca-panel-overlay').classList.add('open');
+    }
+    function closePanel() { document.getElementById('ca-panel-overlay').classList.remove('open'); }
+
+    document.querySelectorAll('[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closePanel();
+    });
+    document.getElementById('ca-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+</body>
+</html>

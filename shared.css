@@ -94,6 +94,26 @@
     .img-ext-flink      { background-image: url('other-icons/Flink_logo.png'); }
     .img-ext-flink-mark { background-image: url('other-icons/Flink.png'); }          /* mark only — use in small icon circles */
     .img-ext-dremio     { background-image: url('other-icons/dremio_logo.png'); }
+    /* ── Partner logos ─────────────────────────────────────── */
+    .img-ext-fivetran     { background-image: url('other-icons/fivetran_logo.svg'); }
+    .img-ext-dbt          { background-image: url('other-icons/dbt_logo.svg'); }
+    .img-ext-airbyte      { background-image: url('other-icons/airbyte_logo.svg'); }
+    .img-ext-matillion    { background-image: url('other-icons/matillion_logo.svg'); }
+    .img-ext-informatica  { background-image: url('other-icons/informatica_logo.svg'); }
+    .img-ext-qlik         { background-image: url('other-icons/qlik_logo.svg'); }
+    .img-ext-sigma        { background-image: url('other-icons/sigma_logo.svg'); }
+    .img-ext-thoughtspot  { background-image: url('other-icons/thoughtspot_logo.svg'); }
+    .img-ext-airflow      { background-image: url('other-icons/apacheairflow_logo.svg'); }
+    .img-ext-prefect      { background-image: url('other-icons/prefect_logo.svg'); }
+    .img-ext-dagster      { background-image: url('other-icons/dagster_logo.svg'); }
+    .img-ext-nvidia       { background-image: url('other-icons/nvidia_logo.svg'); }
+    .img-ext-weightsbiases { background-image: url('other-icons/weightsandbiases_logo.svg'); }
+    .img-ext-h2oai        { background-image: url('other-icons/h2oai_logo.svg'); }
+    .img-ext-montecarlo   { background-image: url('other-icons/montecarlo_logo.svg'); }
+    .img-ext-alation      { background-image: url('other-icons/alation_logo.svg'); }
+    .img-ext-collibra     { background-image: url('other-icons/collibra_logo.svg'); }
+    .img-ext-wiz          { background-image: url('other-icons/wiz_logo.svg'); }
+    .img-ext-securonix    { background-image: url('other-icons/securonix_logo.svg'); }
     /* ── External IDE logos ────────────────────────────────── */
     .img-ext-vscode   { background-image: url('other-icons/vscode_logo.svg'); }
     .img-ext-jupyter  { background-image: url('other-icons/Jupyter_logo.svg'); }

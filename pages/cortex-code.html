@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake CoCo — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 6px; }
+
+    /* ── Layout: cards left, GIF right ─────────────────────── */
+    .cco-page {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      padding: 8px 24px 10px;
+      min-height: 0;
+      gap: 20px;
+    }
+    .cco-left {
+      flex: 0 0 44%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+    }
+    .cco-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+    .cco-demo-img {
+      width: 100%;
+      max-height: calc(100% - 28px);
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+      transition: opacity .2s;
+    }
+    .cco-demo-video {
+      width: 100%;
+      max-height: calc(100% - 28px);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+      object-fit: contain;
+    }
+    .cco-demo-caption {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.45);
+      text-align: center;
+      margin-top: 6px;
+      font-style: italic;
+      height: 20px;
+      line-height: 1.3;
+    }
+
+    /* Active card highlight */
+    .cco-card.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.15);
+    }
+    .cco-card { cursor: pointer; }
+
+    /* ── Feature cards ──────────────────────────────────────── */
+    .cco-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: border-color .17s, box-shadow .17s;
+    }
+    .cco-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 3px 14px rgba(41,181,232,.18);
+    }
+    .cco-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cco-card-icon {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cco-card-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+    }
+    .cco-card-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.55);
+      line-height: 1.45;
+    }
+    .cco-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .cco-chip {
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--sf-blue);
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code',
+      code:  null,
+      guide: null,
+      blog:  'https://www.snowflake.com/en/blog/snowflake-coco-built-to-scale-enterprise-ai/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake CoCo</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake CoCo</div>
+          <div class="s6-sub" style="text-align:center;">The AI-native IDE for Snowflake — schema-aware, agentic, and built for the full data and AI lifecycle.</div>
+        </div>
+
+        <div class="cco-page content-wrap">
+
+          <!-- Left: feature cards -->
+          <div class="cco-left">
+
+            <div class="cco-card" data-gif="../other-icons/coco-chat-demo.gif" data-caption="Agentic AI chat — schema-aware, multi-step execution">
+              <div class="cco-card-head">
+                <div class="cco-card-icon">
+                  <span class="sf-img sf-icon-horizon" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cco-card-title">Schema-Aware AI</div>
+              </div>
+              <div class="cco-card-desc">CoCo reads your live Snowflake catalog — tables, views, columns, data types, relationships — and generates code that runs correctly the first time. No copy-pasting schema into prompts.</div>
+              <div class="cco-chips">
+                <span class="cco-chip">Live Catalog</span>
+                <span class="cco-chip">Column Awareness</span>
+                <span class="cco-chip">Relationship Inference</span>
+              </div>
+            </div>
+
+            <div class="cco-card" data-gif="../Images/summitcocodesktopstreamlit.mp4" data-caption="CoCo Desktop — agentic execution with native Snowflake context">
+              <div class="cco-card-head">
+                <div class="cco-card-icon">
+                  <span class="sf-img sf-icon-ai" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cco-card-title">Agentic Execution</div>
+              </div>
+              <div class="cco-card-desc">CoCo can run queries, create tables and views, build pipelines, and iterate on results autonomously. Multi-step plans with verification checkpoints — not just code suggestions.</div>
+              <div class="cco-chips">
+                <span class="cco-chip">Run SQL</span>
+                <span class="cco-chip">Create Objects</span>
+                <span class="cco-chip">Multi-Step Plans</span>
+                <span class="cco-chip">Auto-Verify</span>
+              </div>
+            </div>
+
+            <div class="cco-card" data-gif="../other-icons/coco-skills-plugins.png" data-caption="Skills &amp; Plugins catalog — browse, certify, and share team workflows">
+              <div class="cco-card-head">
+                <div class="cco-card-icon">
+                  <span class="sf-img sf-icon-platform" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cco-card-title">Skills System</div>
+              </div>
+              <div class="cco-card-desc">Specialized knowledge modules for every Snowflake product area: semantic views, dynamic tables, MLOps, governance, cost management, and more. Skills are shareable and catalog-discoverable.</div>
+              <div class="cco-chips">
+                <span class="cco-chip">Product Skills</span>
+                <span class="cco-chip">Custom Skills</span>
+                <span class="cco-chip">Skill Catalog</span>
+                <span class="cco-chip">Shareable</span>
+              </div>
+            </div>
+
+            <div class="cco-card" data-gif="../other-icons/coco-chat-demo.gif" data-caption="Agentic AI chat — schema-aware, multi-step execution">
+              <div class="cco-card-head">
+                <div class="cco-card-icon">
+                  <span class="sf-img sf-icon-connected" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cco-card-title">MCP &amp; Plugins</div>
+              </div>
+              <div class="cco-card-desc">Connect CoCo to external tools via the Model Context Protocol — GitHub, Google Workspace, Jira, Slack, and any MCP-compatible service. Extend capabilities without leaving the IDE.</div>
+              <div class="cco-chips">
+                <span class="cco-chip">GitHub</span>
+                <span class="cco-chip">Google Workspace</span>
+                <span class="cco-chip">Jira</span>
+                <span class="cco-chip">Custom MCP</span>
+              </div>
+            </div>
+
+            <div class="cco-card" data-gif="../other-icons/cortex-quota-demo.gif" data-caption="Per-user AI cost quotas — real-time visibility and spend controls">
+              <div class="cco-card-head">
+                <div class="cco-card-icon">
+                  <span class="sf-img sf-icon-security-gov" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cco-card-title">Enterprise Governance</div>
+              </div>
+              <div class="cco-card-desc">Runs on Snowflake compute with your RBAC applied. No data leaves your account. Full audit trail of every AI action. Admin-controlled model selection and cost management.</div>
+              <div class="cco-chips">
+                <span class="cco-chip">RBAC Enforced</span>
+                <span class="cco-chip">Audit Trail</span>
+                <span class="cco-chip">Data Stays in Snowflake</span>
+                <span class="cco-chip">Cost Controls</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right: demo (video or GIF, swaps on card click) -->
+          <div class="cco-right">
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+              <div id="cco-demo-wrap" style="width:100%;">
+                <video id="cco-video" class="cco-demo-video" autoplay loop muted playsinline
+                  src="../Images/summitcocodesktopstreamlit.mp4"></video>
+                <img id="cco-gif" src="" alt="Snowflake CoCo demo"
+                     class="cco-demo-img" style="display:none;">
+              </div>
+              <div id="cco-caption" class="cco-demo-caption">CoCo Desktop — intelligent, governed app development in your native IDE</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('cco-video');
+    const gif   = document.getElementById('cco-gif');
+
+    function showDemo(src, caption) {
+      document.getElementById('cco-caption').textContent = caption;
+      if (src.endsWith('.mp4') || src.endsWith('.mov')) {
+        gif.style.display = 'none';
+        video.style.display = '';
+        if (video.src !== new URL(src, location.href).href) {
+          video.src = src;
+          video.load();
+        }
+      } else {
+        video.style.display = 'none';
+        gif.style.display = '';
+        gif.src = src;
+      }
+    }
+
+    document.querySelectorAll('.cco-card[data-gif]').forEach(card => {
+      card.addEventListener('click', () => {
+        showDemo(card.dataset.gif, card.dataset.caption);
+        document.querySelectorAll('.cco-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

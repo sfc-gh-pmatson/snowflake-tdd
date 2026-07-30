@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cortex Search — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 4px; }
+
+    /* ── Page wrapper ─────────────────────────────────────── */
+    .cs-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px 10px;
+      min-height: 0;
+      gap: 14px;
+    }
+
+    /* ── RAG pipeline diagram ─────────────────────────────── */
+    .cs-pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+    }
+    .cs-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(41,181,232,.25);
+      background: var(--sf-card);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, transform .13s;
+    }
+    .cs-node:hover {
+      border-color: var(--sf-blue);
+      transform: translateY(-2px);
+    }
+    .cs-node.cs-node--highlight {
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.08);
+    }
+    .cs-node-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cs-node-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .cs-node-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.5);
+      line-height: 1.3;
+    }
+    .cs-arrow {
+      font-size: 22px;
+      color: rgba(41,181,232,.5);
+      flex-shrink: 0;
+      padding: 0 4px;
+    }
+
+    /* Hybrid search callout inside the search service node */
+    .cs-hybrid {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .cs-hybrid-pill {
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 9px;
+      font-weight: 700;
+      border: 1px solid rgba(41,181,232,.4);
+      color: var(--sf-blue);
+    }
+
+    /* ── Feature cards row ────────────────────────────────── */
+    .cs-features {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .cs-feat {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.15);
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .cs-feat:hover { border-color: var(--sf-blue); }
+    .cs-feat-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-blue);
+      margin-bottom: 3px;
+    }
+    .cs-feat-desc {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.55);
+      line-height: 1.4;
+    }
+
+    /* ── Detail panel ─────────────────────────────────────── */
+    .cs-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .cs-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .cs-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 660px;
+      max-width: 92vw;
+      max-height: 78vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .cs-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .cs-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
+    .cs-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cs-panel-close:hover { background: rgba(255,255,255,.35); }
+    .cs-panel-body { display: flex; flex: 1; overflow: hidden; }
+    .cs-panel-code {
+      flex: 3; background: var(--code-bg); padding: 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12.5px; line-height: 1.65; color: var(--code-base); white-space: pre-wrap;
+    }
+    .cs-panel-explain {
+      flex: 2; padding: 18px; overflow-y: auto;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .cs-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .cs-panel-explain p  { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-search/cortex-search-overview',
+      code:  true,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-agents.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Cortex Search</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Cortex Search</div>
+          <div class="s6-sub" style="text-align:center;">Fully managed hybrid retrieval — vector + keyword — for RAG pipelines and Cortex Agents. No embeddings to manage.</div>
+        </div>
+
+        <div class="cs-page content-wrap">
+
+          <!-- RAG pipeline diagram -->
+          <div class="cs-pipeline">
+
+            <div class="cs-node" data-idx="0">
+              <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
+                <span class="sf-img sf-icon-structured" style="width:24px;height:24px;"></span>
+              </div>
+              <div class="cs-node-title">Source Table</div>
+              <div class="cs-node-sub">Any Snowflake table or view. Text, documents, semi-structured data.</div>
+            </div>
+
+            <div class="cs-arrow">&#x2192;</div>
+
+            <div class="cs-node cs-node--highlight" style="flex:1.6;" data-idx="1">
+              <div class="cs-node-icon" style="background:var(--sf-blue);">
+                <span class="sf-img sf-icon-ai" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="cs-node-title">Cortex Search Service</div>
+              <div class="cs-node-sub">Incrementally indexed. Refreshes on target lag.</div>
+              <div class="cs-hybrid">
+                <span class="cs-hybrid-pill">Dense (Vector)</span>
+                <span class="cs-hybrid-pill">Sparse (BM25)</span>
+                <span class="cs-hybrid-pill">Re-ranked</span>
+              </div>
+            </div>
+
+            <div class="cs-arrow">&#x2192;</div>
+
+            <div class="cs-node" data-idx="2">
+              <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
+                <span class="sf-img sf-icon-analytics" style="width:24px;height:24px;"></span>
+              </div>
+              <div class="cs-node-title">Query / Agent</div>
+              <div class="cs-node-sub">SQL function, REST API, or Cortex Agent tool call.</div>
+            </div>
+
+            <div class="cs-arrow">&#x2192;</div>
+
+            <div class="cs-node" data-idx="3">
+              <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
+                <span class="sf-img sf-icon-ai" style="width:24px;height:24px;"></span>
+              </div>
+              <div class="cs-node-title">LLM Answer</div>
+              <div class="cs-node-sub">Grounded in retrieved context. Cited sources.</div>
+            </div>
+
+          </div>
+
+          <!-- Feature cards -->
+          <div class="cs-features">
+            <div class="cs-feat" data-idx="4">
+              <div class="cs-feat-title">Hybrid Retrieval</div>
+              <div class="cs-feat-desc">Combines dense (semantic) and sparse (BM25 keyword) retrieval. Better recall than vector-only approaches on enterprise data.</div>
+            </div>
+            <div class="cs-feat" data-idx="5">
+              <div class="cs-feat-title">Auto-Refresh</div>
+              <div class="cs-feat-desc">Target lag keeps the index fresh as source data changes. No pipelines, no manual re-indexing, no drift.</div>
+            </div>
+            <div class="cs-feat" data-idx="6">
+              <div class="cs-feat-title">Zero Embedding Ops</div>
+              <div class="cs-feat-desc">Snowflake manages embeddings, indexing, and serving. You define the source table and column — nothing else needed.</div>
+            </div>
+            <div class="cs-feat" data-idx="7">
+              <div class="cs-feat-title">Governed by Horizon</div>
+              <div class="cs-feat-desc">RBAC applied at query time. Masking policies respected in retrieved results. Full audit trail on every search call.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- 1. Create a Cortex Search Service</span>
+<span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">CORTEX SEARCH SERVICE</span> <span class="code-id">support_kb_search</span>
+  <span class="code-fn">ON</span> <span class="code-id">body</span>
+  <span class="code-fn">ATTRIBUTES</span> <span class="code-id">title</span><span class="code-punc">,</span> <span class="code-id">category</span><span class="code-punc">,</span> <span class="code-id">created_at</span>
+  <span class="code-fn">WAREHOUSE</span> <span class="code-punc">=</span> <span class="code-id">compute_wh</span>
+  <span class="code-fn">TARGET_LAG</span> <span class="code-punc">=</span> <span class="code-str">'1 hour'</span>
+  <span class="code-kw">AS</span> <span class="code-punc">(</span>
+    <span class="code-kw">SELECT</span> <span class="code-id">body</span><span class="code-punc">,</span> <span class="code-id">title</span><span class="code-punc">,</span> <span class="code-id">category</span><span class="code-punc">,</span> <span class="code-id">created_at</span>
+    <span class="code-kw">FROM</span> <span class="code-id">support.articles</span>
+  <span class="code-punc">)</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- 2. Query directly via SQL</span>
+<span class="code-kw">SELECT</span> <span class="code-id">r</span><span class="code-punc">.</span><span class="code-id">value</span>
+<span class="code-kw">FROM</span> <span class="code-punc">(</span>
+  <span class="code-kw">SELECT</span> <span class="code-fn">SNOWFLAKE.CORTEX.SEARCH_PREVIEW</span><span class="code-punc">(</span>
+    <span class="code-str">'support_kb_search'</span><span class="code-punc">,</span>
+    <span class="code-str">'{"query": "billing invoice error", "columns": ["title","body"], "limit": 5}'</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">results</span>
+<span class="code-punc">)</span><span class="code-punc">,</span> <span class="code-fn">LATERAL FLATTEN</span><span class="code-punc">(</span><span class="code-id">results</span><span class="code-punc">:</span><span class="code-id">results</span><span class="code-punc">)</span> <span class="code-id">r</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- 3. Use as an Agent tool (auto-invoked at reasoning time)</span>
+<span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">AGENT</span> <span class="code-id">support_agent</span>
+  <span class="code-fn">MODEL</span> <span class="code-punc">=</span> <span class="code-str">'claude-sonnet-5'</span>
+  <span class="code-fn">TOOLS</span> <span class="code-punc">=</span> <span class="code-punc">(</span><span class="code-id">support_kb_search</span><span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Cortex Search</h4>
+      <p>Define the source table and column to search on. Snowflake handles all embedding generation, indexing, and serving automatically.</p>
+      <p><strong>ATTRIBUTES</strong> are additional columns returned with results for filtering and display.</p>
+      <p><strong>TARGET_LAG</strong> keeps the index in sync as new rows land — no manual refresh needed.</p>
+      <p>Add the service as a tool to any Cortex Agent and it will search autonomously at reasoning time.</p>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div id="cs-panel-overlay" class="cs-panel-overlay">
+    <div class="cs-panel">
+      <div class="cs-panel-header">
+        <span id="cs-panel-title" class="cs-panel-title"></span>
+        <button class="cs-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="cs-panel-body">
+        <div id="cs-panel-code" class="cs-panel-code"></div>
+        <div id="cs-panel-explain" class="cs-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const st = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { name: 'Source Table',
+        code: `${cm('-- Any Snowflake table or view as source')}\n${cm('-- Structured, semi-structured, or document text')}\n\n${k('SELECT')} ${id('title')}${p(',')} ${id('body')}${p(',')} ${id('category')}${p(',')} ${id('created_at')}\n${k('FROM')} ${id('support.articles')}\n${k('LIMIT')} ${n('5')}${p(';')}\n\n${cm('-- Output:')}\n${cm('-- TITLE                  | BODY                | CATEGORY')}\n${cm('-- Billing invoice error  | To update your ...  | billing')}\n${cm('-- Password reset flow    | Navigate to ...     | auth')}\n${cm('-- API rate limit guide   | When your app ...   | api')}`,
+        desc: '<h4>Source Table</h4><p>Point Cortex Search at any Snowflake table or view containing text. This includes documents, support tickets, product descriptions, meeting transcripts, contracts, and more.</p><p>The service indexes the column you specify for search, and can return any other columns (ATTRIBUTES) alongside results.</p>' },
+
+      { name: 'Cortex Search Service',
+        code: `${k('CREATE OR REPLACE')} ${f('CORTEX SEARCH SERVICE')} ${id('support_kb_search')}\n  ${f('ON')} ${id('body')}\n  ${f('ATTRIBUTES')} ${id('title')}${p(',')} ${id('category')}\n  ${f('WAREHOUSE')} ${p('=')} ${id('compute_wh')}\n  ${f('TARGET_LAG')} ${p('=')} ${st("'1 hour'")}\n  ${k('AS')} ${p('(')}\n    ${k('SELECT')} ${id('body')}${p(',')} ${id('title')}${p(',')} ${id('category')}\n    ${k('FROM')} ${id('support.articles')}\n  ${p(')')}${p(';')}\n\n${cm('-- Snowflake automatically:')}\n${cm('-- 1. Generates dense (vector) embeddings')}\n${cm('-- 2. Builds sparse BM25 keyword index')}\n${cm('-- 3. Refreshes both every hour')}\n${cm('-- 4. Manages serving infrastructure')}`,
+        desc: '<h4>Cortex Search Service</h4><p>A single DDL statement creates a fully managed hybrid search index. Snowflake generates and maintains embeddings, builds BM25 keyword indices, and handles serving — all automatically.</p><p><strong>Hybrid retrieval</strong> combines dense vector similarity with sparse keyword matching, then re-ranks for the best results. This outperforms vector-only on enterprise data with product names, IDs, and domain jargon.</p>' },
+
+      { name: 'Query / Agent',
+        code: `${cm('-- Direct SQL query')}\n${k('SELECT')} ${id('r')}${p('.')}${id('value')}\n${k('FROM')} ${p('(')}\n  ${k('SELECT')} ${f('SNOWFLAKE.CORTEX.SEARCH_PREVIEW')}${p('(')}\n    ${st("'support_kb_search'")}${p(',')}\n    ${st("'{\"query\":\"billing invoice\",\"limit\":5}'")}\n  ${p(')')} ${k('AS')} ${id('results')}\n${p(')')}${p(',')} ${f('LATERAL FLATTEN')}${p('(')}${id('results')}${p(':')}${id('results')}${p(')')} ${id('r')}${p(';')}\n\n${cm('-- As Cortex Agent tool call (automatic):')}\n${cm('-- Agent reasons: "need to search KB"')}\n${cm('-- -> calls support_kb_search at runtime')}\n${cm('-- -> gets top-5 results as context')}\n${cm('-- -> LLM generates grounded answer')}`,
+        desc: '<h4>Query Interface</h4><p>Query directly via the SQL function for ad-hoc retrieval, or add the service as a tool in a Cortex Agent for autonomous RAG.</p><p>When used in an agent, the search is invoked automatically as part of the reasoning loop. The agent decides what to search, when to search, and how to use results in its answer.</p>' },
+
+      { name: 'LLM Answer',
+        code: `${cm('-- Grounded response with citations:')}\n${cm('-- {')}\n${cm('--   "answer": "To resolve a billing invoice')}\n${cm('--     error, navigate to Settings > Billing')}\n${cm('--     and click Sync Invoices. If that fails,')}\n${cm('--     submit a support ticket with your')}\n${cm('--     account ID and invoice number.",')}\n${cm('--')}\n${cm('--   "citations": [')}\n${cm('--     {')}\n${cm('--       "source": "support_kb_search",')}\n${cm('--       "doc_title": "Billing invoice error",')}\n${cm('--       "score": 0.94')}\n${cm('--     }')}\n${cm('--   ]')}\n${cm('-- }')}`,
+        desc: '<h4>Grounded Answers</h4><p>Cortex Search provides retrieved context to the LLM, which generates a grounded answer with citations tracing back to specific source documents.</p><p>This eliminates hallucination on factual questions — the model can only reference what it retrieved from your data.</p>' },
+
+      { name: 'Hybrid Retrieval',
+        code: `${cm('-- Why hybrid beats vector-only:')}\n${cm('--')}\n${cm('-- Query: "Snowflake SCIM API 429 error"')}\n${cm('--')}\n${cm('-- Dense (vector) retrieval:')}\n${cm('--   Finds: semantically similar API articles')}\n${cm('--   Misses: exact token "429" or "SCIM"')}\n${cm('--')}\n${cm('-- Sparse (BM25) retrieval:')}\n${cm('--   Finds: exact matches on "429", "SCIM"')}\n${cm('--   Misses: paraphrases of the concept')}\n${cm('--')}\n${cm('-- Hybrid (re-ranked):')}\n${cm('--   Captures both — consistently better recall')}\n${cm('--   on enterprise data with IDs, codes, names')}`,
+        desc: '<h4>Hybrid Retrieval</h4><p>Cortex Search uses both dense (vector) and sparse (BM25 keyword) retrieval, then re-ranks combined results for the highest quality matches.</p><p>Dense retrieval excels at semantic paraphrases. Sparse retrieval excels at exact product names, error codes, and identifiers common in enterprise data.</p><p>Hybrid approaches consistently outperform either alone on enterprise workloads.</p>' },
+
+      { name: 'Auto-Refresh',
+        code: `${cm('-- TARGET_LAG controls freshness SLA')}\n\n${k('ALTER')} ${f('CORTEX SEARCH SERVICE')} ${id('support_kb_search')}\n  ${k('SET')} ${f('TARGET_LAG')} ${p('=')} ${st("'15 minutes'")}${p(';')}\n\n${cm('-- Check service status + last refresh')}\n${k('SHOW')} ${f('CORTEX SEARCH SERVICES')} ${k('LIKE')} ${st("'%support%'")}${p(';')}\n\n${cm('-- Output includes:')}\n${cm('-- NAME              | STATUS  | UPDATED_ON')}\n${cm('-- support_kb_search | Active  | 2026-07-30 14:15:00')}`,
+        desc: '<h4>Auto-Refresh with Target Lag</h4><p>TARGET_LAG defines the maximum acceptable staleness of the search index. Snowflake monitors source table changes and automatically triggers re-indexing to maintain freshness.</p><p>No Airflow DAGs, no manual triggers, no drift. The index stays in sync as data lands.</p>' },
+
+      { name: 'Zero Embedding Ops',
+        code: `${cm('-- Everything managed by Snowflake:')}\n${cm('--')}\n${cm('-- You provide:')}\n${cm('--   CREATE CORTEX SEARCH SERVICE ...')}\n${cm('--')}\n${cm('-- Snowflake handles:')}\n${cm('--   - Model selection for embeddings')}\n${cm('--   - Embedding generation at ingest')}\n${cm('--   - Index build + incremental updates')}\n${cm('--   - Serving infrastructure')}\n${cm('--   - Re-embedding on model upgrades')}\n${cm('--   - Scaling to query volume')}\n${cm('--')}\n${cm('-- No Python, no orchestration, no ops')}`,
+        desc: '<h4>Zero Embedding Operations</h4><p>Building a vector search pipeline typically requires: choosing an embedding model, writing ingestion code, scheduling re-indexing, managing serving infrastructure, and handling model upgrades.</p><p>Cortex Search eliminates all of this. One DDL statement is all you need. Snowflake manages the entire lifecycle.</p>' },
+
+      { name: 'Governed by Horizon',
+        code: `${cm('-- Access control applies at query time')}\n\n${cm('-- Grant search service access to a role')}\n${k('GRANT')} ${f('USAGE')} ${k('ON')} ${f('CORTEX SEARCH SERVICE')}\n  ${id('support_kb_search')} ${k('TO')} ${f('ROLE')} ${id('support_analyst')}${p(';')}\n\n${cm('-- Column masking on source table applies')}\n${cm('-- to results returned by the search service')}\n${cm('-- Users only see data their role allows')}\n\n${cm('-- Row access policies on the source table')}\n${cm('-- filter search results automatically')}`,
+        desc: '<h4>Governed by Horizon</h4><p>Cortex Search inherits all Snowflake governance policies. Column masking, row access, and RBAC all apply to search results.</p><p>Users only retrieve data they are authorized to see — search does not bypass your existing security perimeter.</p>' },
+    ];
+
+    function showItem(idx) {
+      const item = ITEMS[idx];
+      document.getElementById('cs-panel-title').textContent = item.name;
+      document.getElementById('cs-panel-code').innerHTML   = item.code;
+      document.getElementById('cs-panel-explain').innerHTML = item.desc;
+      document.getElementById('cs-panel-overlay').classList.add('open');
+    }
+    function closePanel() { document.getElementById('cs-panel-overlay').classList.remove('open'); }
+
+    document.querySelectorAll('[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closePanel();
+    });
+    document.getElementById('cs-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+</body>
+</html>
