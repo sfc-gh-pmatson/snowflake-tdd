@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cortex Agents — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Governance wrapper ───────────────────────────────── */
+    .cag-gov {
+      width: 100%;
+      max-width: 860px;
+      border: 3px solid var(--sf-blue);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .cag-gov-header {
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 9px 16px;
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .cag-gov-sep { color: rgba(255,255,255,.4); font-weight: 400; }
+    .cag-gov-inner {
+      background: #fff;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ── Orchestration flow ───────────────────────────────── */
+    .cag-flow {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+    .cag-flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      min-width: 130px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s;
+    }
+    .cag-flow-node:hover {
+      border-color: var(--sf-blue);
+      transform: translateY(-2px);
+    }
+    .cag-flow-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .cag-flow-label {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .cag-flow-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.5);
+      line-height: 1.3;
+    }
+    .cag-flow-arrow {
+      font-size: 1.4rem;
+      color: var(--sf-blue);
+      opacity: .6;
+      flex-shrink: 0;
+    }
+
+    /* ── Center loop indicator ────────────────────────────── */
+    .cag-loop-label {
+      font-size: var(--fs-h5);
+      font-weight: 600;
+      color: rgba(7,21,37,.45);
+      letter-spacing: .5px;
+      text-align: center;
+    }
+
+    /* ── Tools row ───────────────────────────────────────── */
+    .cag-tools-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cag-tool-chip {
+      padding: 6px 14px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.08);
+      border: 1.5px solid rgba(41,181,232,.25);
+      font-size: var(--fs-h5);
+      font-weight: 600;
+      color: var(--sf-ink);
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .cag-tool-chip:hover {
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.15);
+    }
+
+    /* ── Differentiator strip ────────────────────────────── */
+    .cag-diffs {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 14px;
+    }
+    .cag-diff {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.15);
+    }
+    .cag-diff-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-blue);
+      margin-bottom: 3px;
+    }
+    .cag-diff-desc {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.55);
+      line-height: 1.45;
+    }
+
+    /* ── Detail panel ────────────────────────────────────── */
+    .cag-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .cag-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .cag-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 640px;
+      max-width: 92vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .cag-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .cag-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
+    .cag-panel-nav { display: flex; gap: 6px; }
+    .cag-panel-nav button {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cag-panel-nav button:hover { background: rgba(255,255,255,.35); }
+    .cag-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cag-panel-close:hover { background: rgba(255,255,255,.35); }
+    .cag-panel-body { display: flex; flex: 1; overflow: hidden; }
+    .cag-panel-code {
+      flex: 3; background: var(--code-bg); padding: 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12.5px; line-height: 1.6; color: var(--code-base); white-space: pre-wrap;
+    }
+    .cag-panel-explain {
+      flex: 2; padding: 18px; overflow-y: auto;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .cag-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .cag-panel-explain p { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/getting-started-with-cortex-agents/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Cortex Agents</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Cortex Agents</div>
+          <div class="s6-sub" style="text-align:center;">Autonomous AI that reasons over your data. Agents plan, use tools, observe results, and iterate until the question is answered.</div>
+        </div>
+
+        <!-- Main content -->
+        <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 16px 10px;">
+
+          <!-- Governance wrapper -->
+          <div class="cag-gov">
+            <div class="cag-gov-header">
+              <span>Governed by Snowflake Horizon</span>
+              <span class="cag-gov-sep">|</span>
+              <span>RBAC</span>
+              <span class="cag-gov-sep">|</span>
+              <span>Audit</span>
+              <span class="cag-gov-sep">|</span>
+              <span>Lineage</span>
+            </div>
+
+            <div class="cag-gov-inner">
+
+              <!-- Orchestration flow: Question -> Reason -> Tools -> Answer -->
+              <div class="cag-flow">
+                <div class="cag-flow-node" data-idx="0">
+                  <div class="cag-flow-icon">&#x1F4AC;</div>
+                  <div class="cag-flow-label">Question</div>
+                  <div class="cag-flow-sub">Natural language</div>
+                </div>
+
+                <div class="cag-flow-arrow">&#x2192;</div>
+
+                <div class="cag-flow-node" data-idx="1">
+                  <div class="cag-flow-icon">&#x1F9E0;</div>
+                  <div class="cag-flow-label">Reason</div>
+                  <div class="cag-flow-sub">Plan, observe, decide</div>
+                </div>
+
+                <div class="cag-flow-arrow">&#x21C4;</div>
+
+                <div class="cag-flow-node" data-idx="2">
+                  <div class="cag-flow-icon">&#x1F527;</div>
+                  <div class="cag-flow-label">Tools</div>
+                  <div class="cag-flow-sub">Execute autonomously</div>
+                </div>
+
+                <div class="cag-flow-arrow">&#x2192;</div>
+
+                <div class="cag-flow-node" data-idx="3">
+                  <div class="cag-flow-icon">&#x2705;</div>
+                  <div class="cag-flow-label">Answer</div>
+                  <div class="cag-flow-sub">Cited, structured</div>
+                </div>
+              </div>
+
+              <div class="cag-loop-label">&#x21BB; Agent iterates until the answer is complete</div>
+
+              <!-- Available tools -->
+              <div class="cag-tools-row">
+                <div class="cag-tool-chip" data-idx="4">SQL Executor</div>
+                <div class="cag-tool-chip" data-idx="5">Cortex Search</div>
+                <div class="cag-tool-chip" data-idx="6">Semantic Views</div>
+                <div class="cag-tool-chip" data-idx="7">Python UDFs</div>
+                <div class="cag-tool-chip" data-idx="8">MCP Servers</div>
+                <div class="cag-tool-chip" data-idx="9">REST APIs</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Differentiators -->
+          <div class="cag-diffs">
+            <div class="cag-diff">
+              <div class="cag-diff-title">Every tool call governed</div>
+              <div class="cag-diff-desc">RBAC enforced per invocation. Full audit trail on every action the agent takes.</div>
+            </div>
+            <div class="cag-diff">
+              <div class="cag-diff-title">Data never leaves Snowflake</div>
+              <div class="cag-diff-desc">Tools run server-side. No external orchestration needed. No data copying.</div>
+            </div>
+            <div class="cag-diff">
+              <div class="cag-diff-title">Enterprise-grade</div>
+              <div class="cag-diff-desc">Versioning, REST API, streaming responses, multi-turn conversation state.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal (resource bar) -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Create a Cortex Agent with tools and context</span>
+<span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">AGENT</span> <span class="code-id">my_support_agent</span>
+  <span class="code-fn">MODEL</span> <span class="code-punc">=</span> <span class="code-str">'claude-sonnet-5'</span>
+  <span class="code-fn">TOOLS</span> <span class="code-punc">=</span> <span class="code-punc">(</span>
+    <span class="code-id">my_search_service</span><span class="code-punc">,</span>
+    <span class="code-id">my_sql_tool</span><span class="code-punc">,</span>
+    <span class="code-id">my_python_udf</span>
+  <span class="code-punc">)</span>
+  <span class="code-fn">SYSTEM_PROMPT</span> <span class="code-punc">=</span> <span class="code-str">'You are a helpful support agent.
+Answer questions using the available tools.
+Always cite your sources.'</span>
+  <span class="code-fn">DESCRIPTION</span> <span class="code-punc">=</span> <span class="code-str">'Handles customer support queries'</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Chat with the agent</span>
+<span class="code-kw">SELECT</span> <span class="code-fn">SNOWFLAKE.CORTEX.AGENT</span><span class="code-punc">(</span>
+  <span class="code-str">'my_support_agent'</span><span class="code-punc">,</span>
+  <span class="code-str">'What were the top 3 issues last week?'</span>
+<span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Cortex Agents</h4>
+      <p>Define an agent with a model, tools, and system prompt. The agent autonomously decides which tools to invoke.</p>
+      <p><strong>Multi-step reasoning.</strong> Plans, executes, observes, iterates until done.</p>
+      <p>Full governance applies: RBAC, audit, data policies enforced on every tool call.</p>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div id="cag-panel-overlay" class="cag-panel-overlay">
+    <div class="cag-panel">
+      <div class="cag-panel-header">
+        <span id="cag-panel-title" class="cag-panel-title"></span>
+        <div class="cag-panel-nav">
+          <button onclick="navItem(-1)" title="Previous">&#8592;</button>
+          <button onclick="navItem(1)" title="Next">&#8594;</button>
+        </div>
+        <button class="cag-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="cag-panel-body">
+        <div id="cag-panel-code" class="cag-panel-code"></div>
+        <div id="cag-panel-explain" class="cag-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { name: 'Question',
+        code: `${cm('-- Users interact via SQL or REST API')}\n\n${k('SELECT')} ${f('SNOWFLAKE.CORTEX.AGENT')}${p('(')}\n  ${str("'my_support_agent'")}${p(',')}\n  ${str("'What were our top 3 issues last week?'")}\n${p(')')}\n${p(';')}\n\n${cm('-- Or via REST API:')}\n${cm('-- POST /api/v2/cortex/agent/my_support_agent:run')}\n${cm('-- { "messages": [{"role":"user","content":"..."}] }')}`,
+        desc: '<h4>Natural Language Interface</h4><p>Users ask questions in plain English via SQL function call or REST API. No prompt engineering required by end users.</p><p>Supports multi-turn conversations with automatic state management across requests.</p>' },
+
+      { name: 'Reasoning Loop',
+        code: `${cm('-- The agent autonomously:')}\n${cm('-- 1. PLAN: Analyze the question')}\n${cm('--    "I need ticket data from last 7 days"')}\n${cm('--')}\n${cm('-- 2. ACT: Choose and invoke a tool')}\n${cm('--    -> SQL Executor: query support_tickets')}\n${cm('--')}\n${cm('-- 3. OBSERVE: Inspect the results')}\n${cm('--    "Got 847 tickets across 5 categories"')}\n${cm('--')}\n${cm('-- 4. DECIDE: Answer or iterate?')}\n${cm('--    "Need resolution context -> search KB"')}\n${cm('--')}\n${cm('-- Loop repeats until answer is complete')}`,
+        desc: '<h4>Autonomous Reasoning</h4><p>The agent plans a strategy, executes tool calls, observes results, and decides whether to iterate. This loop repeats until the question is fully answered.</p><p>You define the tools and guardrails. The agent handles orchestration, tool selection, and result synthesis automatically.</p>' },
+
+      { name: 'Tool Execution',
+        code: `${cm('-- Agent chooses tools based on the task:')}\n\n${cm('-- SQL for structured data')}\n${k('SELECT')} ${id('category')}${p(',')} ${f('COUNT')}${p('(*)')} ${k('AS')} ${id('cnt')}\n${k('FROM')} ${id('support_tickets')}\n${k('WHERE')} ${id('created_at')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')}\n  ${p('-')}${n('7')}${p(',')} ${f('CURRENT_DATE')}${p('()')}${p(')')}\n${k('GROUP BY')} ${id('category')}${p(';')}\n\n${cm('-- Search for unstructured context')}\n${cm('-- -> Cortex Search: "billing resolution"')}\n\n${cm('-- All tools run under caller RBAC')}`,
+        desc: '<h4>Tool Execution</h4><p>Tools run server-side in Snowflake. The agent generates SQL, invokes search services, calls Python UDFs, or connects to MCP servers as needed.</p><p>Every tool invocation is governed: the caller\'s role determines data access. Masking policies, row access policies, and column security all apply.</p>' },
+
+      { name: 'Structured Response',
+        code: `${cm('-- Agent returns a structured response:')}\n${cm('-- {')}\n${cm('--   "answer": "Top 3 issues last week:')}\n${cm('--     1. Billing (312) - invoice sync...')}\n${cm('--     2. Auth (201) - SSO token expiry...')}\n${cm('--     3. Performance (134) - dashboard..."')}\n${cm('--   "citations": [')}\n${cm('--     {"source":"support_tickets","query":"..."}')}\n${cm('--     {"source":"knowledge_base","doc":"..."}')}\n${cm('--   ]')}\n${cm('-- }')}`,
+        desc: '<h4>Cited Responses</h4><p>Agents return structured answers with citations tracing back to the data sources used. Users can verify every claim.</p><p>Responses stream in real-time via the REST API, or return as a complete result via SQL.</p>' },
+
+      { name: 'SQL Executor',
+        code: `${cm('-- Agent writes and runs SQL autonomously')}\n${k('SELECT')} ${id('category')}${p(',')} ${f('COUNT')}${p('(*)')}\n${k('FROM')} ${id('support.tickets')}\n${k('WHERE')} ${id('created_at')} ${p('>=')} ${str("'2025-07-21'")}\n${k('GROUP BY')} ${id('category')}\n${k('ORDER BY')} ${n('2')} ${k('DESC')}\n${k('LIMIT')} ${n('3')}${p(';')}\n\n${cm('-- Runs under caller\\'s role')}\n${cm('-- Full RBAC + audit logging')}`,
+        desc: '<h4>SQL Executor</h4><p>Agents generate and execute SQL queries against your Snowflake data. Every query runs under the calling user\'s role with full governance.</p><p>The agent never sees data the user doesn\'t have access to.</p>' },
+
+      { name: 'Cortex Search',
+        code: `${k('CREATE OR REPLACE')} ${f('CORTEX SEARCH SERVICE')} ${id('kb_search')}\n  ${f('ON')} ${id('content')}\n  ${f('WAREHOUSE')} ${p('=')} ${id('my_wh')}\n  ${f('TARGET_LAG')} ${p('=')} ${str("'1 hour'")}\n  ${k('AS')} ${p('(')}\n    ${k('SELECT')} ${id('content')}${p(',')} ${id('title')}\n    ${k('FROM')} ${id('knowledge_base')}\n  ${p(')')}${p(';')}\n\n${cm('-- Agent searches at runtime')}\n${cm('-- Hybrid vector + keyword retrieval')}`,
+        desc: '<h4>Cortex Search</h4><p>Hybrid vector + keyword search provides RAG context. Agents decide when and what to search based on their reasoning.</p><p>Auto-indexes and stays fresh via target lag. No manual re-indexing needed.</p>' },
+
+      { name: 'Semantic Views',
+        code: `${k('CREATE OR REPLACE')} ${f('SEMANTIC VIEW')} ${id('sales_metrics')}\n  ${k('AS')} ${id('analytics.sales_summary')}\n  ${f('COMMENT')} ${p('=')} ${str("'Monthly sales by region'")}${p(';')}\n\n${cm('-- Agent uses semantic views to')}\n${cm('-- understand your data model and')}\n${cm('-- generate accurate SQL from')}\n${cm('-- natural language questions')}`,
+        desc: '<h4>Semantic Views</h4><p>Business-level data models that help agents understand table relationships, metrics, and dimensions without needing raw schema knowledge.</p><p>Agents use them to translate natural language into accurate queries.</p>' },
+
+      { name: 'Python UDFs',
+        code: `${k('CREATE OR REPLACE')} ${f('FUNCTION')} ${id('churn_risk')}${p('(')}\n  ${id('customer_id')} ${f('STRING')}\n${p(')')}\n${f('RETURNS')} ${f('OBJECT')}\n${f('LANGUAGE')} ${str("'PYTHON'")}\n${f('HANDLER')} ${p('=')} ${str("'model.predict'")}\n${f('PACKAGES')} ${p('=')} ${p('(')}${str("'scikit-learn'")}${p(')')}\n${p(';')}\n\n${cm('-- Agent calls UDFs when reasoning')}\n${cm('-- requires custom logic or ML models')}`,
+        desc: '<h4>Python UDFs</h4><p>Custom Python functions as agent tools. For domain-specific calculations, ML inference, or complex transformations the LLM cannot do alone.</p><p>Runs in Snowpark with full package support.</p>' },
+
+      { name: 'MCP Servers',
+        code: `${k('CREATE OR REPLACE')} ${f('MCP SERVER')} ${id('jira_mcp')}\n  ${f('TYPE')} ${p('=')} ${str("'REMOTE'")}\n  ${f('URL')} ${p('=')} ${str("'https://mcp.example.com'")}\n  ${f('AUTH')} ${p('=')} ${p('(')}${f('TYPE')} ${p('=')} ${str("'OAUTH'")}${p(')')}\n${p(';')}\n\n${cm('-- Agents discover and invoke MCP tools')}\n${cm('-- at runtime: Jira, Slack, PagerDuty...')}`,
+        desc: '<h4>MCP Servers</h4><p>Connect agents to external systems via Model Context Protocol. Agents discover available tools and invoke them during reasoning.</p><p>Supports Snowflake-managed and custom MCP servers.</p>' },
+
+      { name: 'REST APIs',
+        code: `${k('CREATE OR REPLACE')} ${f('EXTERNAL ACCESS INTEGRATION')}\n  ${id('weather_api')}\n  ${f('ALLOWED_NETWORK_RULES')} ${p('=')} ${p('(')}${id('rule')}${p(')')}\n  ${f('ENABLED')} ${p('=')} ${k('TRUE')}${p(';')}\n\n${cm('-- Wrap any HTTP endpoint as a tool')}\n${cm('-- Agent invokes when reasoning requires')}\n${cm('-- external data or service calls')}`,
+        desc: '<h4>REST APIs</h4><p>Connect agents to any HTTP endpoint through External Access Integrations. Agents call external services, SaaS platforms, and internal APIs as tools.</p>' },
+    ];
+
+    let currentIdx = 0;
+
+    function showItem(idx) {
+      currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
+      const item = ITEMS[currentIdx];
+      document.getElementById('cag-panel-title').textContent = item.name;
+      document.getElementById('cag-panel-code').innerHTML = item.code;
+      document.getElementById('cag-panel-explain').innerHTML = item.desc;
+      document.getElementById('cag-panel-overlay').classList.add('open');
+    }
+
+    function navItem(dir) { showItem(currentIdx + dir); }
+    function closePanel() { document.getElementById('cag-panel-overlay').classList.remove('open'); }
+
+    document.querySelectorAll('[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+
+    document.addEventListener('keydown', e => {
+      const overlay = document.getElementById('cag-panel-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') closePanel();
+      if (e.key === 'ArrowLeft') navItem(-1);
+      if (e.key === 'ArrowRight') navItem(1);
+    });
+
+    document.getElementById('cag-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

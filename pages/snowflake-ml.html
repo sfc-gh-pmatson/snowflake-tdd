@@ -134,6 +134,39 @@
       padding: 8px 10px;
     }
 
+    /* ── Layer 0: APPS (clickable nav cards) ────────────────── */
+    .sml-layer--apps { background: var(--sf-light); }
+    .sml-layer--apps .sml-layer-lbl {
+      color: rgba(7,21,37,.45);
+      border-right: 1px solid rgba(7,21,37,.1);
+    }
+    .sml-app-card {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 2px solid rgba(255,255,255,.5);
+      text-decoration: none;
+      transition: box-shadow .17s, transform .15s;
+      cursor: pointer;
+    }
+    .sml-app-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.18); transform: translateY(-1px); }
+    .sml-app-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
+
+    /* 2x2 grid for interact layer */
+    .sml-interact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex: 1;
+    }
+    .sml-interact-grid--sm { max-width: 240px; flex: none; }
+    .sml-app-card--sm { padding: 7px 10px; }
+    .sml-app-card--sm .sml-app-title { font-size: var(--fs-h5); }
+
     /* ── Layer 1: IDE ─────────────────────────────────────────── */
     .sml-layer--ide { background: var(--sf-light); }
     .sml-layer--ide .sml-layer-lbl {
@@ -176,6 +209,7 @@
 
     /* ── Layer 2: MLOps ───────────────────────────────────────── */
     .sml-layer--mlops { background: var(--sf-blue); }
+    .sml-layer--mlops:hover { box-shadow: 0 4px 16px rgba(41,181,232,.35); transform: translateY(-1px); }
     .sml-layer--mlops .sml-layer-lbl {
       color: rgba(255,255,255,.8);
       border-right: 1px solid rgba(255,255,255,.2);
@@ -317,10 +351,9 @@
       justify-content: center;
       background: var(--sf-blue-dark);
       color: #fff;
-      font-size: 8px;
+      font-size: var(--fs-h4);
       font-weight: 800;
       letter-spacing: 1.2px;
-      text-transform: uppercase;
       writing-mode: vertical-lr;
       transform: rotate(180deg);
     }
@@ -416,42 +449,57 @@
               <div class="sml-header">Snowflake ML</div>
               <div class="sml-inner">
 
-                <!-- ── Layer 1: IDE ── -->
-                <div class="sml-layer sml-layer--ide">
-                  <div class="sml-layer-lbl">IDE</div>
+                <!-- ── Layer 1: INTERACT (2x2 grid + external IDEs) ── -->
+                <div class="sml-layer sml-layer--apps">
+                  <div class="sml-layer-lbl">INTERACT</div>
                   <div class="sml-layer-body">
-
-                    <!-- Snowflake-native tools -->
-                    <div class="sml-chip">
-                      <span class="sf-img sf-icon-snowflake" style="width:18px;height:18px;flex-shrink:0;"></span>
-                      Snowflake CoCo
-                    </div>
-                    <div class="sml-chip">
-                      <span class="sf-img sf-icon-python" style="width:18px;height:18px;flex-shrink:0;"></span>
-                      Snowflake Notebooks
+                    <!-- 2x2 grid -->
+                    <div class="sml-interact-grid">
+                      <a href="./ml-functions.html" class="sml-app-card">
+                      <span class="sf-img sf-icon-analytics" style="width:20px;height:20px;flex-shrink:0;"></span>
+                      <span class="sml-app-title">In-SQL ML Functions</span>
+                    </a>
+                      <a href="./ml-agent.html" class="sml-app-card">
+                        <span class="sf-img sf-icon-ai" style="width:20px;height:20px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">ML Agent</span>
+                      </a>
+                      <a href="./coming-soon.html" class="sml-app-card">
+                        <span class="sf-img sf-icon-snowflake" style="width:20px;height:20px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">Snowflake CoCo</span>
+                      </a>
+                      <a href="./coming-soon.html" class="sml-app-card">
+                        <span class="sf-img sf-icon-python" style="width:20px;height:20px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">Notebooks</span>
+                      </a>
                     </div>
 
                     <!-- Divider -->
                     <div class="sml-ide-sep"></div>
 
-                    <!-- External IDEs with logos -->
-                    <div class="sml-chip sml-chip--ext">
-                      <span class="sf-img img-ext-vscode" style="width:16px;height:16px;flex-shrink:0;"></span>
-                    </div>
-                    <div class="sml-chip sml-chip--ext">
-                      <span class="sf-img img-ext-jupyter" style="width:16px;height:16px;flex-shrink:0;"></span>
-                    </div>
-                    <div class="sml-chip sml-chip--ext">
-                      <span class="sf-img img-ext-cursor" style="width:16px;height:16px;flex-shrink:0;border-radius:3px;overflow:hidden;"></span>
-                    </div>
-                    <div class="sml-chip sml-chip--ext">
-                      <span class="sf-img sf-icon-snowflake" style="width:16px;height:16px;flex-shrink:0;"></span>
+                    <!-- External IDEs 2x2 grid -->
+                    <div class="sml-interact-grid sml-interact-grid--sm">
+                      <div class="sml-app-card sml-app-card--sm">
+                        <span class="sf-img img-ext-vscode" style="width:18px;height:18px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">VS Code</span>
+                      </div>
+                      <div class="sml-app-card sml-app-card--sm">
+                        <span class="sf-img img-ext-jupyter" style="width:18px;height:18px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">Jupyter</span>
+                      </div>
+                      <div class="sml-app-card sml-app-card--sm">
+                        <span class="sf-img img-ext-cursor" style="width:18px;height:18px;flex-shrink:0;border-radius:3px;overflow:hidden;"></span>
+                        <span class="sml-app-title">Cursor</span>
+                      </div>
+                      <div class="sml-app-card sml-app-card--sm">
+                        <span class="sf-img sf-icon-third-party" style="width:18px;height:18px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">Any IDE</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- ── Layer 2: MLOps ── -->
-                <div class="sml-layer sml-layer--mlops">
+                <!-- ── Layer 2: MLOps (clickable) ── -->
+                <a href="./mlops.html" class="sml-layer sml-layer--mlops" style="text-decoration:none;cursor:pointer;transition:box-shadow .17s,transform .15s;">
                   <div class="sml-layer-lbl">MLOPS</div>
                   <div class="sml-layer-body">
 
@@ -481,7 +529,7 @@
                     </div>
 
                   </div>
-                </div>
+                </a>
 
                 <!-- ── Layer 3: Compute ── -->
                 <div class="sml-layer sml-layer--compute">
@@ -490,7 +538,7 @@
 
                     <!-- Container Runtime: vertical left label + grid + CPU/GPU -->
                     <div class="sml-cr-section">
-                      <div class="sml-cr-lbl">Container Runtime</div>
+                      <div class="sml-cr-lbl">Runtime<br> Container</div>
                       <div class="sml-fw-grid">
                         <div class="sml-fw-item">
                           <div class="sml-fw-logo sf-img img-ext-pytorch"></div>

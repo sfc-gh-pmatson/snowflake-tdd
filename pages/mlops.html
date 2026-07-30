@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MLOps — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page wrapper ──────────────────────────────────────── */
+    .mlo-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 14px 8px;
+      min-height: 0;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    /* ── Lifecycle context banner ────────────────────────────── */
+    .mlo-lifecycle {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 920px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--sf-blue);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+    .mlo-lc-step {
+      flex: 1;
+      text-align: center;
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      padding: 6px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .mlo-lc-step:hover { background: rgba(255,255,255,.15); color: #fff; }
+    .mlo-lc-step.active { background: rgba(255,255,255,.25); color: #fff; }
+    .mlo-lc-arrow {
+      font-size: 13px;
+      color: rgba(255,255,255,.5);
+      flex-shrink: 0;
+      padding: 0 3px;
+    }
+
+    /* ── Component grid ─────────────────────────────────────── */
+    .mlo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 920px;
+    }
+    .mlo-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .mlo-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 16px rgba(41,181,232,.25);
+      transform: translateY(-2px);
+    }
+    .mlo-card.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .mlo-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mlo-card-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mlo-card-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+      line-height: 1.2;
+    }
+    .mlo-card-phase {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--sf-blue);
+      opacity: .8;
+    }
+    .mlo-card-desc {
+      font-size: var(--fs-h5);
+      color: rgba(7,21,37,.6);
+      line-height: 1.4;
+    }
+    .mlo-card-details {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.5);
+      line-height: 1.4;
+      border-top: 1px solid rgba(41,181,232,.12);
+      padding-top: 6px;
+      margin-top: auto;
+    }
+    .mlo-card-details span {
+      display: inline-block;
+      padding: 1px 6px;
+      margin: 1px 2px;
+      border-radius: 3px;
+      background: rgba(41,181,232,.06);
+      border: 1px solid rgba(41,181,232,.12);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(7,21,37,.65);
+      white-space: nowrap;
+    }
+
+
+
+    /* ── Detail panel (overlay) ────────────────────────────── */
+    .mlo-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .mlo-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+    .mlo-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 760px;
+      max-width: 92vw;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .mlo-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .mlo-panel-title {
+      font-size: var(--fs-h3);
+      font-weight: 700;
+      flex: 1;
+    }
+    .mlo-panel-nav {
+      display: flex;
+      gap: 6px;
+    }
+    .mlo-panel-nav button {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .mlo-panel-nav button:hover { background: rgba(255,255,255,.35); }
+    .mlo-panel-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .mlo-panel-close:hover { background: rgba(255,255,255,.35); }
+
+    .mlo-panel-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .mlo-panel-code {
+      flex: 3;
+      background: var(--code-bg);
+      padding: 18px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--code-base);
+      white-space: pre-wrap;
+    }
+    .mlo-panel-explain {
+      flex: 2;
+      padding: 18px;
+      overflow-y: auto;
+      font-size: var(--fs-h5);
+      color: var(--sf-ink);
+      line-height: 1.6;
+    }
+    .mlo-panel-explain h4 {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--sf-ink);
+    }
+    .mlo-panel-explain p { margin-bottom: 10px; }
+    .mlo-panel-explain ul { margin: 0 0 10px 16px; }
+    .mlo-panel-explain li { margin-bottom: 4px; }
+    .mlo-panel-explain code {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 11px;
+      background: rgba(41,181,232,.08);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/snowflake-ml/overview',
+      code:  true,
+      guide: 'https://docs.snowflake.com/en/developer-guide/snowflake-ml/quickstart',
+      blog:  'https://www.snowflake.com/en/blog/scalable-model-development-production-snowflake-ml/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./snowflake-ml.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">MLOps</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">ML Features</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">MLOps</div>
+          <div class="s6-sub" style="text-align:center;">End-to-end ML lifecycle on Snowflake: develop, orchestrate, manage, deploy, and monitor models with zero data movement.</div>
+        </div>
+
+        <div class="mlo-page content-wrap">
+
+          <!-- Lifecycle context banner -->
+          <div class="mlo-lifecycle">
+            <div class="mlo-lc-step" data-phase="develop">Develop</div>
+            <span class="mlo-lc-arrow">&#x25B6;</span>
+            <div class="mlo-lc-step" data-phase="orchestrate">Orchestrate</div>
+            <span class="mlo-lc-arrow">&#x25B6;</span>
+            <div class="mlo-lc-step" data-phase="manage">Manage</div>
+            <span class="mlo-lc-arrow">&#x25B6;</span>
+            <div class="mlo-lc-step" data-phase="deploy">Deploy</div>
+            <span class="mlo-lc-arrow">&#x25B6;</span>
+            <div class="mlo-lc-step" data-phase="monitor">Monitor</div>
+          </div>
+
+          <!-- Component grid -->
+          <div class="mlo-grid">
+
+            <!-- 1. Snowflake ML Modeling APIs -->
+            <div class="mlo-card" data-idx="0">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-python" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">ML Modeling APIs</div>
+                  <div class="mlo-card-phase">Develop</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Train models using familiar Python frameworks (XGBoost, LightGBM, scikit-learn) with distributed execution on Snowflake compute. Data never leaves the platform.</div>
+              <div class="mlo-card-details">
+                <span>Preprocessing</span>
+                <span>Training</span>
+                <span>Hyperparameter Tuning</span>
+                <span>Cross-Validation</span>
+              </div>
+            </div>
+
+            <!-- 2. Experiment Tracking -->
+            <div class="mlo-card" data-idx="1">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-analytics" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Experiment Tracking</div>
+                  <div class="mlo-card-phase">Develop</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Log parameters, metrics, and artifacts for every training run. Compare experiments side-by-side to identify the best model configuration before promoting to production.</div>
+              <div class="mlo-card-details">
+                <span>Params &amp; Metrics</span>
+                <span>Run Comparison</span>
+                <span>Artifact Logging</span>
+                <span>Lineage</span>
+              </div>
+            </div>
+
+            <!-- 3. ML Jobs -->
+            <div class="mlo-card" data-idx="2">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-process" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">ML Jobs</div>
+                  <div class="mlo-card-phase">Orchestrate</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Submit Python training scripts to managed compute pools (CPU or GPU). No Docker, no Kubernetes. Integrates with Snowflake Tasks for cron-scheduled retraining pipelines.</div>
+              <div class="mlo-card-details">
+                <span>GPU Compute Pools</span>
+                <span>Conda Envs</span>
+                <span>Task Scheduling</span>
+                <span>Job Status API</span>
+              </div>
+            </div>
+
+            <!-- 4. Model Registry -->
+            <div class="mlo-card" data-idx="3">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-horizon" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Model Registry</div>
+                  <div class="mlo-card-phase">Manage</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Governed catalog for all ML models. Version, tag, attach metrics, set production defaults. Full RBAC controls who can log, deploy, or delete models. Immutable audit trail.</div>
+              <div class="mlo-card-details">
+                <span>Versioning</span>
+                <span>Default Version</span>
+                <span>Metrics &amp; Tags</span>
+                <span>RBAC</span>
+                <span>Lineage</span>
+              </div>
+            </div>
+
+            <!-- 5. Feature Store -->
+            <div class="mlo-card" data-idx="4">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Feature Store</div>
+                  <div class="mlo-card-phase">Manage</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Centralized feature engineering: define entities and feature views once, refresh automatically via pipelines, generate point-in-time correct training datasets, and serve features online.</div>
+              <div class="mlo-card-details">
+                <span>Entities</span>
+                <span>Feature Views</span>
+                <span>Auto-Refresh</span>
+                <span>Point-in-Time Joins</span>
+                <span>Online Serving</span>
+              </div>
+            </div>
+
+            <!-- 6. Model Serving -->
+            <div class="mlo-card" data-idx="5">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-launch" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Model Serving</div>
+                  <div class="mlo-card-phase">Deploy</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Registered models become callable SQL functions or Python methods. No endpoint provisioning. Auto-scales on warehouse or container runtime. Batch and real-time inference.</div>
+              <div class="mlo-card-details">
+                <span>SQL Function Call</span>
+                <span>Python .run()</span>
+                <span>Auto-Scale</span>
+                <span>GPU Inference</span>
+                <span>Batch + RT</span>
+              </div>
+            </div>
+
+            <!-- 7. ML Observability -->
+            <div class="mlo-card" data-idx="6">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-security-gov" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">ML Observability</div>
+                  <div class="mlo-card-phase">Monitor</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Continuous monitoring of deployed models: detect data drift (PSI, KL divergence), track prediction accuracy over time, trigger alerts on degradation, and auto-retrain when thresholds breach.</div>
+              <div class="mlo-card-details">
+                <span>Data Drift</span>
+                <span>Prediction Drift</span>
+                <span>Accuracy Tracking</span>
+                <span>Alert Rules</span>
+              </div>
+            </div>
+
+            <!-- 8. Explainability -->
+            <div class="mlo-card" data-idx="7">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon">
+                  <span class="sf-img sf-icon-ai" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Explainability</div>
+                  <div class="mlo-card-phase">Monitor</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Understand why models make predictions. Shapley values per prediction, global feature importance, and model-agnostic explanations. Critical for regulated industries and stakeholder trust.</div>
+              <div class="mlo-card-details">
+                <span>SHAP Values</span>
+                <span>Feature Importance</span>
+                <span>Local vs Global</span>
+                <span>Audit Trail</span>
+              </div>
+            </div>
+
+            <!-- 9. BYOM -->
+            <div class="mlo-card" data-idx="8">
+              <div class="mlo-card-head">
+                <div class="mlo-card-icon" style="background:var(--sf-blue-dark);">
+                  <span style="font-size:12px;color:#fff;font-weight:800;">BYO</span>
+                </div>
+                <div>
+                  <div class="mlo-card-title">Bring Your Own Model</div>
+                  <div class="mlo-card-phase">Manage + Deploy</div>
+                </div>
+              </div>
+              <div class="mlo-card-desc">Log any pre-trained Python model (PyTorch, TensorFlow, HuggingFace, custom pickle) into the registry. Snowflake handles serialization, environment packaging, and serving infrastructure.</div>
+              <div class="mlo-card-details">
+                <span>PyTorch</span>
+                <span>HuggingFace</span>
+                <span>scikit-learn</span>
+                <span>Custom Code</span>
+                <span>ONNX</span>
+              </div>
+            </div>
+
+          </div>
+
+
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal content (resource bar Code button) -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment"># End-to-end: train, log, deploy, predict</span>
+<span class="code-kw">from</span> <span class="code-id">snowflake.ml.registry</span> <span class="code-kw">import</span> <span class="code-id">Registry</span>
+<span class="code-kw">from</span> <span class="code-id">snowflake.ml.modeling.xgboost</span> <span class="code-kw">import</span> <span class="code-id">XGBClassifier</span>
+
+<span class="code-comment"># Train on Snowflake compute</span>
+<span class="code-id">model</span> <span class="code-punc">=</span> <span class="code-fn">XGBClassifier</span><span class="code-punc">(</span><span class="code-id">input_cols</span><span class="code-punc">=</span><span class="code-id">features</span><span class="code-punc">,</span> <span class="code-id">label_cols</span><span class="code-punc">=[</span><span class="code-str">"CHURNED"</span><span class="code-punc">])</span>
+<span class="code-id">model</span><span class="code-punc">.</span><span class="code-fn">fit</span><span class="code-punc">(</span><span class="code-id">train_df</span><span class="code-punc">)</span>
+
+<span class="code-comment"># Log to Model Registry with metrics</span>
+<span class="code-id">reg</span> <span class="code-punc">=</span> <span class="code-fn">Registry</span><span class="code-punc">(</span><span class="code-id">session</span><span class="code-punc">)</span>
+<span class="code-id">mv</span> <span class="code-punc">=</span> <span class="code-id">reg</span><span class="code-punc">.</span><span class="code-fn">log_model</span><span class="code-punc">(</span>
+    <span class="code-id">model</span><span class="code-punc">,</span>
+    <span class="code-id">model_name</span><span class="code-punc">=</span><span class="code-str">"churn_xgb"</span><span class="code-punc">,</span>
+    <span class="code-id">version_name</span><span class="code-punc">=</span><span class="code-str">"v1"</span><span class="code-punc">,</span>
+    <span class="code-id">metrics</span><span class="code-punc">={</span><span class="code-str">"auc"</span><span class="code-punc">:</span> <span class="code-num">0.94</span><span class="code-punc">}</span>
+<span class="code-punc">)</span>
+
+<span class="code-comment"># Serve — call from SQL or Python</span>
+<span class="code-id">mv</span><span class="code-punc">.</span><span class="code-fn">run</span><span class="code-punc">(</span><span class="code-id">test_df</span><span class="code-punc">,</span> <span class="code-id">function_name</span><span class="code-punc">=</span><span class="code-str">"predict"</span><span class="code-punc">)</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Full lifecycle in a few lines</h4>
+      <p>Train with your favorite framework, log to the Model Registry with versioning and metrics, then serve predictions via SQL or Python. No Docker, no endpoints to manage, no data leaves Snowflake.</p>
+      <p><strong>Model Registry</strong> versions, tags, and governs every model. <strong>Model Serving</strong> auto-scales inference on warehouse or container compute.</p>
+    </div>
+  </div>
+
+  <!-- Detail panel overlay -->
+  <div id="mlo-panel-overlay" class="mlo-panel-overlay">
+    <div class="mlo-panel">
+      <div class="mlo-panel-header">
+        <span id="mlo-panel-title" class="mlo-panel-title"></span>
+        <div class="mlo-panel-nav">
+          <button onclick="navItem(-1)" title="Previous">&#8592;</button>
+          <button onclick="navItem(1)" title="Next">&#8594;</button>
+        </div>
+        <button class="mlo-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="mlo-panel-body">
+        <div id="mlo-panel-code" class="mlo-panel-code"></div>
+        <div id="mlo-panel-explain" class="mlo-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      {
+        title: 'ML Modeling APIs',
+        phase: 'develop',
+        code: `${cm('# Snowflake ML Modeling APIs — sklearn-compatible, distributed')}
+${k('from')} ${id('snowflake.ml.modeling.xgboost')} ${k('import')} ${id('XGBClassifier')}
+${k('from')} ${id('snowflake.ml.modeling.preprocessing')} ${k('import')} ${id('StandardScaler')}${p(',')} ${id('OneHotEncoder')}
+${k('from')} ${id('snowflake.ml.modeling.pipeline')} ${k('import')} ${id('Pipeline')}
+${k('from')} ${id('snowflake.ml.modeling.model_selection')} ${k('import')} ${id('GridSearchCV')}
+
+${cm('# Build a preprocessing + training pipeline')}
+${id('pipe')} ${p('=')} ${f('Pipeline')}${p('([')}
+    ${p('(')}${str('"scaler"')}${p(',')} ${f('StandardScaler')}${p('(')}
+        ${id('input_cols')}${p('=')}${id('numeric_cols')}${p(',')}
+        ${id('output_cols')}${p('=')}${id('numeric_cols')}
+    ${p(')),')}
+    ${p('(')}${str('"encoder"')}${p(',')} ${f('OneHotEncoder')}${p('(')}
+        ${id('input_cols')}${p('=')}${id('categorical_cols')}${p(',')}
+        ${id('output_cols')}${p('=')}${id('categorical_cols')}
+    ${p(')),')}
+    ${p('(')}${str('"model"')}${p(',')} ${f('XGBClassifier')}${p('(')}
+        ${id('input_cols')}${p('=')}${id('all_feature_cols')}${p(',')}
+        ${id('label_cols')}${p('=[')}${str('"CHURNED"')}${p('],')}
+        ${id('n_estimators')}${p('=')}${n('200')}${p(',')}
+        ${id('max_depth')}${p('=')}${n('6')}
+    ${p('))')}
+${p('])')}
+
+${cm('# Fit on Snowflake DataFrame — distributed execution on warehouse')}
+${id('pipe')}${p('.')}${f('fit')}${p('(')}${id('train_df')}${p(')')}
+
+${cm('# Hyperparameter search (runs in parallel on warehouse nodes)')}
+${id('grid')} ${p('=')} ${f('GridSearchCV')}${p('(')}
+    ${id('estimator')}${p('=')}${id('pipe')}${p(',')}
+    ${id('param_grid')}${p('={')}${str('"model__max_depth"')}${p(':')} ${p('[')}${n('4')}${p(',')} ${n('6')}${p(',')} ${n('8')}${p('],')} ${str('"model__n_estimators"')}${p(':')} ${p('[')}${n('100')}${p(',')} ${n('200')}${p(']}')}${p(',')}
+    ${id('scoring')}${p('=')}${str('"roc_auc"')}${p(',')}
+    ${id('input_cols')}${p('=')}${id('all_feature_cols')}${p(',')}
+    ${id('label_cols')}${p('=[')}${str('"CHURNED"')}${p(']')}
+${p(')')}
+${id('grid')}${p('.')}${f('fit')}${p('(')}${id('train_df')}${p(')')}
+${id('best')} ${p('=')} ${id('grid')}${p('.')}${id('to_sklearn')}${p('()')}${p('.')}${id('best_estimator_')}`,
+        desc: `<h4>ML Modeling APIs</h4>
+<p>Snowflake ML provides <strong>sklearn-compatible wrappers</strong> for popular frameworks that execute training directly on Snowflake compute:</p>
+<ul>
+<li><strong>Preprocessing:</strong> StandardScaler, MinMaxScaler, OneHotEncoder, OrdinalEncoder, LabelEncoder all operate on Snowflake DataFrames without pulling data to the client</li>
+<li><strong>Training:</strong> XGBClassifier, XGBRegressor, LightGBMClassifier, LightGBMRegressor, all scikit-learn estimators</li>
+<li><strong>Pipelines:</strong> Chain preprocessing + training in a single Pipeline object, just like sklearn</li>
+<li><strong>Hyperparameter Tuning:</strong> GridSearchCV and RandomizedSearchCV distribute search across warehouse nodes</li>
+<li><strong>Data stays in Snowflake:</strong> Operates on Snowpark DataFrames. No data export, no S3 staging, no local memory limits</li>
+</ul>
+<p><strong>Key difference from local sklearn:</strong> These execute as distributed operations on your Snowflake warehouse. A 100M-row training set works the same as a 1K-row one from your code's perspective.</p>`
+      },
+      {
+        title: 'Experiment Tracking',
+        phase: 'develop',
+        code: `${cm('# Track experiments for reproducibility and comparison')}
+${k('from')} ${id('snowflake.ml.experiment_tracking')} ${k('import')} ${id('ExperimentTracker')}
+
+${cm('# Initialize tracker for this experiment')}
+${id('tracker')} ${p('=')} ${f('ExperimentTracker')}${p('(')}
+    ${id('session')}${p(',')}
+    ${id('experiment_name')}${p('=')}${str('"churn_prediction_v2"')}${p(',')}
+    ${id('run_name')}${p('=')}${str('"xgb_depth6_est200"')}
+${p(')')}
+
+${cm('# Log hyperparameters')}
+${id('tracker')}${p('.')}${f('log_param')}${p('(')}${str('"model_type"')}${p(',')} ${str('"XGBClassifier"')}${p(')')}
+${id('tracker')}${p('.')}${f('log_param')}${p('(')}${str('"max_depth"')}${p(',')} ${n('6')}${p(')')}
+${id('tracker')}${p('.')}${f('log_param')}${p('(')}${str('"n_estimators"')}${p(',')} ${n('200')}${p(')')}
+${id('tracker')}${p('.')}${f('log_param')}${p('(')}${str('"learning_rate"')}${p(',')} ${n('0.1')}${p(')')}
+
+${cm('# Train model...')}
+${id('model')}${p('.')}${f('fit')}${p('(')}${id('train_df')}${p(')')}
+${id('preds')} ${p('=')} ${id('model')}${p('.')}${f('predict')}${p('(')}${id('test_df')}${p(')')}
+
+${cm('# Log evaluation metrics')}
+${id('tracker')}${p('.')}${f('log_metric')}${p('(')}${str('"auc"')}${p(',')} ${n('0.943')}${p(')')}
+${id('tracker')}${p('.')}${f('log_metric')}${p('(')}${str('"f1"')}${p(',')} ${n('0.881')}${p(')')}
+${id('tracker')}${p('.')}${f('log_metric')}${p('(')}${str('"precision"')}${p(',')} ${n('0.912')}${p(')')}
+${id('tracker')}${p('.')}${f('log_metric')}${p('(')}${str('"recall"')}${p(',')} ${n('0.853')}${p(')')}
+
+${cm('# Log artifacts (confusion matrix, feature importance plot)')}
+${id('tracker')}${p('.')}${f('log_artifact')}${p('(')}${str('"confusion_matrix.png"')}${p(')')}
+${id('tracker')}${p('.')}${f('log_artifact')}${p('(')}${str('"feature_importance.json"')}${p(')')}
+
+${cm('# Compare runs across experiments')}
+${id('runs')} ${p('=')} ${id('tracker')}${p('.')}${f('search_runs')}${p('(')}
+    ${id('filter_string')}${p('=')}${str('"metrics.auc > 0.90"')}${p(',')}
+    ${id('order_by')}${p('=[')}${str('"metrics.auc DESC"')}${p(']')}
+${p(')')}`,
+        desc: `<h4>Experiment Tracking</h4>
+<p>Built-in experiment tracking eliminates the need for external tools (MLflow, W&B, Neptune):</p>
+<ul>
+<li><strong>Parameters:</strong> Log every hyperparameter and configuration choice for each run</li>
+<li><strong>Metrics:</strong> Record evaluation metrics (AUC, F1, RMSE, custom) at any granularity</li>
+<li><strong>Artifacts:</strong> Attach plots, data samples, serialized objects to runs</li>
+<li><strong>Comparison:</strong> Search and filter runs by metric thresholds, sort by performance</li>
+<li><strong>Lineage:</strong> Automatic link from experiment run to the model version logged to the Registry</li>
+<li><strong>Governance:</strong> All tracking data stored in Snowflake with full RBAC, no external SaaS dependency</li>
+</ul>
+<p><strong>Why it matters:</strong> When you need to reproduce a result from 6 months ago, or explain why you chose model v3 over v2, experiment tracking gives you the complete decision record.</p>`
+      },
+      {
+        title: 'ML Jobs',
+        phase: 'orchestrate',
+        code: `${cm('# ML Jobs — managed compute for training scripts')}
+${k('from')} ${id('snowflake.ml.jobs')} ${k('import')} ${id('MLJob')}
+
+${cm('# Submit a training script to a GPU compute pool')}
+${id('job')} ${p('=')} ${f('MLJob')}${p('(')}
+    ${id('session')}${p(',')}
+    ${id('source')}${p('=')}${str('"@ML_STAGE/scripts/train_churn.py"')}${p(',')}
+    ${id('compute_pool')}${p('=')}${str('"ML_GPU_POOL"')}${p(',')}          ${cm('# GPU_NV_S (1xA10G) or GPU_NV_M (4xA10G)')}
+    ${id('stage_name')}${p('=')}${str('"ML_ARTIFACTS"')}${p(',')}           ${cm('# output artifacts stored here')}
+    ${id('num_instances')}${p('=')}${n('1')}${p(',')}                      ${cm('# scale horizontally for distributed training')}
+    ${id('env_vars')}${p('={')}${str('"EPOCHS"')}${p(':')} ${str('"50"')}${p(',')} ${str('"BATCH_SIZE"')}${p(':')} ${str('"256"')}${p('}')}
+${p(')')}
+
+${cm('# Submit and monitor')}
+${id('job')}${p('.')}${f('submit')}${p('()')}
+${id('job')}${p('.')}${f('status')}${p('()')}        ${cm('# PENDING | RUNNING | COMPLETED | FAILED')}
+${id('job')}${p('.')}${f('get_logs')}${p('()')}      ${cm('# stdout/stderr from the container')}
+
+${cm('# Wait for completion (blocking)')}
+${id('job')}${p('.')}${f('wait')}${p('()')}
+
+${cm('# ═══ Automate with Snowflake Tasks ═══')}
+${cm('-- Retrain every Monday at 2 AM UTC')}
+${k('CREATE OR REPLACE TASK')} ${id('weekly_retrain')}
+  ${k('WAREHOUSE')} ${p('=')} ${id('ML_WH')}
+  ${k('SCHEDULE')} ${p('=')} ${str("'USING CRON 0 2 * * MON UTC'")}
+  ${k('COMMENT')} ${p('=')} ${str("'Weekly churn model retraining'")}
+${k('AS')}
+  ${k('CALL')} ${f('SYSTEM$ML_JOB_SUBMIT')}${p('(')}
+    ${str("'@ML_STAGE/scripts/train_churn.py'")}${p(',')}
+    ${str("'ML_GPU_POOL'")}${p(',')}
+    ${str("'ML_ARTIFACTS'")}
+  ${p(')')};
+
+${k('ALTER TASK')} ${id('weekly_retrain')} ${k('RESUME')};`,
+        desc: `<h4>ML Jobs</h4>
+<p>Run full training scripts on Snowflake-managed infrastructure without managing containers or clusters:</p>
+<ul>
+<li><strong>Compute Pools:</strong> CPU pools for classical ML, GPU pools (A10G, A100) for deep learning. Snowflake manages provisioning and teardown</li>
+<li><strong>Environment:</strong> Specify conda dependencies or use pre-built images. Your code runs in an isolated container with your exact package versions</li>
+<li><strong>Multi-node:</strong> Set <code>num_instances > 1</code> for distributed training (PyTorch DDP, Horovod, Ray)</li>
+<li><strong>Artifacts:</strong> Outputs (model files, checkpoints, logs) are written to internal stages</li>
+<li><strong>Scheduling:</strong> Combine with Snowflake Tasks for cron-based retraining. Trigger on data freshness, drift alerts, or business events</li>
+<li><strong>Monitoring:</strong> Real-time logs, status API, and integration with Snowflake alerting</li>
+</ul>
+<p><strong>Compared to SageMaker/Vertex:</strong> No IAM roles, no S3 bucket configs, no VPC endpoints. Your data is already in Snowflake; ML Jobs run where the data lives.</p>`
+      },
+      {
+        title: 'Model Registry',
+        phase: 'manage',
+        code: `${cm('# Model Registry — governed model catalog')}
+${k('from')} ${id('snowflake.ml.registry')} ${k('import')} ${id('Registry')}
+
+${id('reg')} ${p('=')} ${f('Registry')}${p('(')}${id('session')}${p(',')} ${id('database_name')}${p('=')}${str('"ML_DB"')}${p(',')} ${id('schema_name')}${p('=')}${str('"MODELS"')}${p(')')}
+
+${cm('# Log a model with full metadata')}
+${id('mv')} ${p('=')} ${id('reg')}${p('.')}${f('log_model')}${p('(')}
+    ${id('model')}${p(',')}
+    ${id('model_name')}${p('=')}${str('"churn_xgb"')}${p(',')}
+    ${id('version_name')}${p('=')}${str('"v3"')}${p(',')}
+    ${id('metrics')}${p('={')}${str('"auc"')}${p(':')} ${n('0.943')}${p(',')} ${str('"f1"')}${p(':')} ${n('0.881')}${p(',')} ${str('"precision"')}${p(':')} ${n('0.912')}${p('},')}
+    ${id('tags')}${p('={')}${str('"team"')}${p(':')} ${str('"growth"')}${p(',')} ${str('"use_case"')}${p(':')} ${str('"retention"')}${p('},')}
+    ${id('sample_input_data')}${p('=')}${id('train_df')}${p('.')}${f('limit')}${p('(')}${n('100')}${p('),')}
+    ${id('comment')}${p('=')}${str('"Added tenure bucketing + interaction features"')}
+${p(')')}
+
+${cm('# List all versions of a model')}
+${id('m')} ${p('=')} ${id('reg')}${p('.')}${f('get_model')}${p('(')}${str('"churn_xgb"')}${p(')')}
+${id('m')}${p('.')}${f('show_versions')}${p('()')}
+${cm('# v1: auc=0.89 | v2: auc=0.91 | v3: auc=0.94')}
+
+${cm('# Promote to production (set as default)')}
+${id('m')}${p('.')}${id('default')} ${p('=')} ${str('"v3"')}
+
+${cm('# Delete a version (governance: requires OWNERSHIP on model)')}
+${id('m')}${p('.')}${f('delete_version')}${p('(')}${str('"v1"')}${p(')')}
+
+${cm('# Browse the registry')}
+${id('all_models')} ${p('=')} ${id('reg')}${p('.')}${f('show_models')}${p('()')}
+${cm('# Returns: name, versions, default, owner, created, comment')}
+
+${cm('-- SQL: query the model directly')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('ML_DB')}${p('.')}${id('MODELS')}${p('.')}${id('CHURN_XGB')}${p('!')}${f('SHOW_VERSIONS')}${p('()')};`,
+        desc: `<h4>Model Registry</h4>
+<p>A <strong>governed, versioned catalog</strong> for all ML models in your organization:</p>
+<ul>
+<li><strong>Versioning:</strong> Every model has named versions (v1, v2, ...) with immutable snapshots. Roll back by changing the default pointer</li>
+<li><strong>Metadata:</strong> Attach metrics, tags, comments, and sample input data to each version for discoverability</li>
+<li><strong>Default version:</strong> One version is "default" (production). Downstream SQL queries and pipelines always call the default unless they pin a specific version</li>
+<li><strong>RBAC:</strong> Snowflake roles control who can log models, set defaults, or delete versions. Separation of data science (log) from ML engineering (deploy)</li>
+<li><strong>Lineage:</strong> Automatic link from model version back to the experiment run, training data, and feature views used</li>
+<li><strong>SQL access:</strong> Models are first-class Snowflake objects. <code>SHOW MODELS</code>, <code>DESCRIBE MODEL</code>, <code>GRANT</code> all work</li>
+</ul>
+<p><strong>Key insight:</strong> The Registry is not just storage. It is the governance layer that connects "who trained this" to "who approved deployment" to "what is serving in production right now."</p>`
+      },
+      {
+        title: 'Feature Store',
+        phase: 'manage',
+        code: `${cm('# Feature Store — centralized, versioned, served')}
+${k('from')} ${id('snowflake.ml.feature_store')} ${k('import')} (
+    ${id('FeatureStore')}${p(',')} ${id('Entity')}${p(',')} ${id('FeatureView')}${p(',')} ${id('CreationMode')}
+${p(')')}
+
+${id('fs')} ${p('=')} ${f('FeatureStore')}${p('(')}
+    ${id('session')}${p(',')}
+    ${id('database')}${p('=')}${str('"ML_DB"')}${p(',')}
+    ${id('schema')}${p('=')}${str('"FEATURES"')}${p(',')}
+    ${id('creation_mode')}${p('=')}${id('CreationMode')}${p('.')}${id('CREATE_IF_NOT_EXIST')}
+${p(')')}
+
+${cm('# Define an entity (the join key for features)')}
+${id('customer')} ${p('=')} ${f('Entity')}${p('(')}${id('name')}${p('=')}${str('"CUSTOMER"')}${p(',')} ${id('join_keys')}${p('=[')}${str('"CUSTOMER_ID"')}${p('])')}
+${id('fs')}${p('.')}${f('register_entity')}${p('(')}${id('customer')}${p(')')}
+
+${cm('# Create a feature view from a transformation query')}
+${id('behavior_df')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str(`"""
+    SELECT customer_id,
+           COUNT(*) AS login_count_30d,
+           AVG(session_duration) AS avg_session_30d,
+           MAX(last_activity) AS last_active,
+           SUM(CASE WHEN action='purchase' THEN 1 ELSE 0 END) AS purchases_30d
+    FROM events
+    WHERE event_date >= DATEADD(day, -30, CURRENT_DATE())
+    GROUP BY customer_id
+"""`)}${p(')')}
+
+${id('fv')} ${p('=')} ${f('FeatureView')}${p('(')}
+    ${id('name')}${p('=')}${str('"customer_behavior_30d"')}${p(',')}
+    ${id('entities')}${p('=[')}${id('customer')}${p('],')}
+    ${id('feature_df')}${p('=')}${id('behavior_df')}${p(',')}
+    ${id('refresh_freq')}${p('=')}${str('"1 hour"')}${p(',')}           ${cm('# auto-refresh schedule')}
+    ${id('description')}${p('=')}${str('"30-day rolling behavioral signals"')}
+${p(')')}
+${id('fv')} ${p('=')} ${id('fs')}${p('.')}${f('register_feature_view')}${p('(')}${id('fv')}${p(',')} ${str('"v1"')}${p(')')}
+
+${cm('# Generate a training dataset (point-in-time correct)')}
+${id('training_data')} ${p('=')} ${id('fs')}${p('.')}${f('generate_training_set')}${p('(')}
+    ${id('spine_df')}${p('=')}${id('label_df')}${p(',')}                ${cm('# customer_id + label + timestamp')}
+    ${id('features')}${p('=[')}${str('"customer_behavior_30d/v1"')}${p('],')}
+    ${id('spine_timestamp_col')}${p('=')}${str('"EVENT_TS"')}       ${cm('# avoids future leakage')}
+${p(')')}
+
+${cm('# Online serving (low-latency feature retrieval)')}
+${id('online')} ${p('=')} ${id('fs')}${p('.')}${f('retrieve_feature_values')}${p('(')}
+    ${id('spine_df')}${p('=')}${id('request_df')}${p(',')}
+    ${id('features')}${p('=[')}${str('"customer_behavior_30d/v1"')}${p(']')}
+${p(')')}`,
+        desc: `<h4>Feature Store</h4>
+<p>Centralized feature engineering that solves the training/serving skew problem:</p>
+<ul>
+<li><strong>Entities:</strong> Define join keys (customer_id, product_id) once. All feature views register against entities for consistent joins</li>
+<li><strong>Feature Views:</strong> Versioned, auto-refreshing feature transformations backed by SQL or DataFrame logic. Refresh runs as a managed pipeline</li>
+<li><strong>Point-in-Time Joins:</strong> <code>generate_training_set()</code> handles temporal correctness automatically. No future data leakage in training sets</li>
+<li><strong>Online Serving:</strong> <code>retrieve_feature_values()</code> serves the same features used in training, eliminating train/serve skew</li>
+<li><strong>Versioning:</strong> Feature views are versioned independently. Update feature logic without breaking existing models that depend on the old version</li>
+<li><strong>Discovery:</strong> Searchable catalog of all features across the organization. Reuse before rebuilding</li>
+</ul>
+<p><strong>The core problem it solves:</strong> Without a feature store, the same feature (e.g. "30-day login count") gets reimplemented differently in training notebooks vs production pipelines. Feature Store guarantees one definition, one refresh, consistent values everywhere.</p>`
+      },
+      {
+        title: 'Model Serving',
+        phase: 'deploy',
+        code: `${cm('# Model Serving — models become callable functions')}
+
+${cm('# ═══ SQL: call the model as a built-in function ═══')}
+${cm('-- No deployment step. Logging to Registry = deployed.')}
+${k('SELECT')}
+  ${id('customer_id')}${p(',')}
+  ${id('churn_xgb')}${p('!')}${f('predict')}${p('(')}
+    ${id('tenure')}${p(',')} ${id('monthly_charges')}${p(',')} ${id('total_charges')}${p(',')}
+    ${id('contract_type')}${p(',')} ${id('payment_method')}
+  ${p(')')}${p(':')}${id('prediction')} ${k('AS')} ${id('churn_score')}
+${k('FROM')} ${id('active_customers')}
+${k('WHERE')} ${id('churn_xgb')}${p('!')}${f('predict')}${p('(')}${p('...')}${p(')')}${p(':')}${id('prediction')} ${p('>')} ${n('0.7')}${p(';')}
+
+${cm('-- Batch: score an entire table into a new table')}
+${k('CREATE TABLE')} ${id('churn_scores')} ${k('AS')}
+${k('SELECT')} ${id('customer_id')}${p(',')}
+       ${id('churn_xgb')}${p('!')}${f('predict')}${p('(')}${p('*')}${p(')')}${p(':')}${id('prediction')} ${k('AS')} ${id('score')}${p(',')}
+       ${f('CURRENT_TIMESTAMP')}${p('()')} ${k('AS')} ${id('scored_at')}
+${k('FROM')} ${id('customer_features')}${p(';')}
+
+${cm('# ═══ Python: batch inference on DataFrames ═══')}
+${id('reg')} ${p('=')} ${f('Registry')}${p('(')}${id('session')}${p(')')}
+${id('mv')} ${p('=')} ${id('reg')}${p('.')}${f('get_model')}${p('(')}${str('"churn_xgb"')}${p(')')}${p('.')}${id('default')}
+
+${cm('# Run inference (executes on Snowflake compute, not client)')}
+${id('predictions')} ${p('=')} ${id('mv')}${p('.')}${f('run')}${p('(')}
+    ${id('new_customers_df')}${p(',')}
+    ${id('function_name')}${p('=')}${str('"predict"')}
+${p(')')}
+
+${cm('# Pin a specific version (not default)')}
+${id('mv_v2')} ${p('=')} ${id('reg')}${p('.')}${f('get_model')}${p('(')}${str('"churn_xgb"')}${p(')')}${p('.')}${f('version')}${p('(')}${str('"v2"')}${p(')')}
+${id('v2_preds')} ${p('=')} ${id('mv_v2')}${p('.')}${f('run')}${p('(')}${id('df')}${p(',')} ${id('function_name')}${p('=')}${str('"predict"')}${p(')')}`,
+        desc: `<h4>Model Serving</h4>
+<p>Models logged to the Registry are <strong>immediately callable</strong> with no separate deployment step:</p>
+<ul>
+<li><strong>SQL function syntax:</strong> <code>MODEL_NAME!predict(...)</code> works in any SELECT, WHERE, INSERT, or CREATE TABLE statement. Analysts can use models without Python</li>
+<li><strong>Auto-scaling:</strong> Inference runs on the calling warehouse. Scale the warehouse up for throughput, or use a dedicated inference warehouse for isolation</li>
+<li><strong>Container Runtime:</strong> For GPU-intensive models (deep learning, large embeddings), serve on Container Runtime with GPU nodes</li>
+<li><strong>Batch inference:</strong> Score entire tables with CREATE TABLE AS SELECT. No row-at-a-time overhead</li>
+<li><strong>Version pinning:</strong> Default version serves production. Pin a specific version for A/B testing or gradual rollouts</li>
+<li><strong>Zero cold start:</strong> Models are pre-loaded. First-call latency is warehouse startup time, not model loading time</li>
+</ul>
+<p><strong>The key insight:</strong> "Deploying a model" on Snowflake means <code>reg.log_model()</code>. There is no separate infra step. The same RBAC that governs who can read a table governs who can call a model.</p>`
+      },
+      {
+        title: 'ML Observability',
+        phase: 'monitor',
+        code: `${cm('# ML Observability — continuous production monitoring')}
+${k('from')} ${id('snowflake.ml.monitoring')} ${k('import')} ${id('ModelMonitor')}
+
+${cm('# Create a monitor attached to a deployed model')}
+${id('monitor')} ${p('=')} ${f('ModelMonitor')}${p('(')}
+    ${id('session')}${p(',')}
+    ${id('name')}${p('=')}${str('"churn_monitor"')}${p(',')}
+    ${id('model_name')}${p('=')}${str('"churn_xgb"')}${p(',')}
+    ${id('model_version')}${p('=')}${str('"v3"')}${p(',')}
+    ${id('source')}${p('=')}${id('ModelMonitor')}${p('.')}${id('ModelMonitorSourceConfig')}${p('(')}
+        ${id('prediction_columns')}${p('=[')}${str('"PREDICTION"')}${p('],')}
+        ${id('label_columns')}${p('=[')}${str('"ACTUAL_CHURNED"')}${p('],')}
+        ${id('source_table')}${p('=')}${str('"PREDICTION_LOG"')}${p(',')}
+        ${id('timestamp_column')}${p('=')}${str('"SCORED_AT"')}
+    ${p(')')}
+${p(')')}
+
+${cm('# Get data drift metrics (feature distribution shift)')}
+${id('drift')} ${p('=')} ${id('monitor')}${p('.')}${f('get_drift_metrics')}${p('()')}
+${cm('# Returns per-feature: PSI, KL divergence, mean shift, null rate change')}
+
+${cm('# Get model accuracy over a rolling window')}
+${id('perf')} ${p('=')} ${id('monitor')}${p('.')}${f('get_model_accuracy')}${p('(')}
+    ${id('metric')}${p('=')}${p('[')}${str('"auc"')}${p(',')} ${str('"precision"')}${p(',')} ${str('"recall"')}${p('],')}
+    ${id('window')}${p('=')}${str('"7d"')}${p(',')}
+    ${id('group_by')}${p('=')}${str('"segment"')}  ${cm('# slice by customer segment')}
+${p(')')}
+
+${cm('# Set alerting thresholds')}
+${id('monitor')}${p('.')}${f('set_alert')}${p('(')}
+    ${id('metric')}${p('=')}${str('"auc"')}${p(',')}
+    ${id('threshold')}${p('=')}${n('0.85')}${p(',')}     ${cm('# fire if AUC drops below 0.85')}
+    ${id('action')}${p('=')}${str('"EMAIL"')}${p(',')}
+    ${id('recipients')}${p('=[')}${str('"ml-team@company.com"')}${p(']')}
+${p(')')}
+
+${cm('# Query historical monitoring data')}
+${k('SELECT')} ${id('window_start')}${p(',')} ${id('metric_name')}${p(',')} ${id('metric_value')}
+${k('FROM')} ${k('TABLE')}${p('(')}${id('monitor')}${p('!')}${f('GET_HISTORY')}${p('(')}${p('))')}
+${k('WHERE')} ${id('metric_name')} ${p('=')} ${str("'auc'")}
+${k('ORDER BY')} ${id('window_start')} ${k('DESC')}${p(';')}`,
+        desc: `<h4>ML Observability</h4>
+<p>Continuous monitoring that catches model degradation before it impacts business outcomes:</p>
+<ul>
+<li><strong>Data Drift:</strong> Population Stability Index (PSI) and KL divergence on every input feature. Detects when production data distribution shifts from training data</li>
+<li><strong>Prediction Drift:</strong> Monitors the distribution of model outputs. A sudden shift means the model is behaving differently even if inputs look normal</li>
+<li><strong>Accuracy Tracking:</strong> When ground truth labels arrive (delayed feedback), compute accuracy, precision, recall, AUC over rolling windows</li>
+<li><strong>Slice Analysis:</strong> <code>group_by</code> any dimension to catch degradation in specific segments (e.g. model works for US but fails for EMEA)</li>
+<li><strong>Alerting:</strong> Threshold-based alerts via email, webhook, or Snowflake notification integrations. Trigger retraining pipelines automatically</li>
+<li><strong>Historical Queries:</strong> Full monitoring history queryable via SQL for dashboards and compliance reporting</li>
+</ul>
+<p><strong>Why drift matters:</strong> A model trained on 2024 data will silently degrade as customer behavior shifts in 2025. Without monitoring, you only find out when a business KPI drops weeks later.</p>`
+      },
+      {
+        title: 'Explainability',
+        phase: 'monitor',
+        code: `${cm('# Explainability — understand why models predict what they predict')}
+
+${cm('# ═══ Global feature importance ═══')}
+${id('reg')} ${p('=')} ${f('Registry')}${p('(')}${id('session')}${p(')')}
+${id('mv')} ${p('=')} ${id('reg')}${p('.')}${f('get_model')}${p('(')}${str('"churn_xgb"')}${p(')')}${p('.')}${id('default')}
+
+${cm('# Get feature importance (built-in for tree models)')}
+${id('importance')} ${p('=')} ${id('mv')}${p('.')}${f('run')}${p('(')}
+    ${id('test_df')}${p(',')}
+    ${id('function_name')}${p('=')}${str('"explain_feature_importance"')}
+${p(')')}
+${cm('# Returns: feature_name, importance_score, rank')}
+${cm('# tenure: 0.31 | monthly_charges: 0.24 | contract_type: 0.18 | ...')}
+
+${cm('# ═══ Local explanations (per-prediction SHAP) ═══')}
+${id('explanations')} ${p('=')} ${id('mv')}${p('.')}${f('run')}${p('(')}
+    ${id('single_customer_df')}${p(',')}
+    ${id('function_name')}${p('=')}${str('"explain"')}
+${p(')')}
+${cm('# Returns Shapley values for each feature for this prediction:')}
+${cm('# tenure: -0.12 (reduces churn risk)')}
+${cm('# monthly_charges: +0.28 (increases churn risk)')}
+${cm('# contract_type=month-to-month: +0.35 (biggest risk factor)')}
+
+${cm('# ═══ SQL: explain in bulk ═══')}
+${k('SELECT')}
+  ${id('customer_id')}${p(',')}
+  ${id('churn_xgb')}${p('!')}${f('predict')}${p('(')}${p('*')}${p(')')}${p(':')}${id('prediction')} ${k('AS')} ${id('score')}${p(',')}
+  ${id('churn_xgb')}${p('!')}${f('explain')}${p('(')}${p('*')}${p(')')} ${k('AS')} ${id('explanation')}
+${k('FROM')} ${id('customer_features')}
+${k('WHERE')} ${id('churn_xgb')}${p('!')}${f('predict')}${p('(')}${p('*')}${p(')')}${p(':')}${id('prediction')} ${p('>')} ${n('0.8')}${p(';')}
+${cm('-- High-risk customers with full explanations for support team')}
+
+${cm('# ═══ Compliance: audit trail ═══')}
+${cm('-- Every prediction + explanation is logged to PREDICTION_LOG')}
+${cm('-- Satisfies GDPR Art. 22 (right to explanation)')}
+${cm('-- Satisfies SR 11-7 (model risk management for banks)')}`,
+        desc: `<h4>Explainability</h4>
+<p>Model transparency for trust, debugging, and regulatory compliance:</p>
+<ul>
+<li><strong>Global importance:</strong> Which features drive the model overall? Built-in for tree-based models; computed via permutation for others</li>
+<li><strong>Local explanations (SHAP):</strong> For a specific prediction, which features pushed the score up or down? Returns per-feature Shapley values</li>
+<li><strong>SQL-native:</strong> <code>MODEL!explain(*)</code> works inline in queries. Explain high-risk predictions in the same SELECT that scores them</li>
+<li><strong>Bulk explanations:</strong> Generate explanations at scale for entire cohorts. Store in tables for downstream analysis and dashboards</li>
+<li><strong>Audit trail:</strong> Predictions + explanations logged together. Critical for regulated industries (banking SR 11-7, healthcare, GDPR Article 22)</li>
+<li><strong>Debugging:</strong> When a model makes a surprising prediction, explanations reveal whether it is relying on the right signals or overfitting to noise</li>
+</ul>
+<p><strong>Practical use:</strong> A support agent sees "Customer X has 85% churn risk." Without explainability that is an opaque number. With it: "because month-to-month contract (+0.35), high monthly charges (+0.28), and recent support tickets (+0.15)." Now the agent can take targeted action.</p>`
+      },
+      {
+        title: 'Bring Your Own Model',
+        phase: 'manage',
+        code: `${cm('# BYOM — log any pre-trained model into Snowflake')}
+${k('from')} ${id('snowflake.ml.registry')} ${k('import')} ${id('Registry')}
+${k('import')} ${id('torch')}
+${k('import')} ${id('joblib')}
+
+${id('reg')} ${p('=')} ${f('Registry')}${p('(')}${id('session')}${p(')')}
+
+${cm('# ═══ PyTorch model ═══')}
+${id('pytorch_model')} ${p('=')} ${id('torch')}${p('.')}${f('load')}${p('(')}${str('"model_weights.pt"')}${p(')')}
+${id('mv')} ${p('=')} ${id('reg')}${p('.')}${f('log_model')}${p('(')}
+    ${id('pytorch_model')}${p(',')}
+    ${id('model_name')}${p('=')}${str('"fraud_detector"')}${p(',')}
+    ${id('version_name')}${p('=')}${str('"v1"')}${p(',')}
+    ${id('conda_dependencies')}${p('=[')}${str('"pytorch"')}${p(',')} ${str('"torchvision"')}${p('],')}
+    ${id('signatures')}${p('={')}${str('"predict"')}${p(':')} ${id('ModelSignature')}${p('(')}
+        ${id('inputs')}${p('=[')}${id('FeatureSpec')}${p('(')}${str('"features"')}${p(',')} ${id('DataType')}${p('.')}${id('ARRAY')}${p('()')}${p(')],')}
+        ${id('outputs')}${p('=[')}${id('FeatureSpec')}${p('(')}${str('"score"')}${p(',')} ${id('DataType')}${p('.')}${id('FLOAT')}${p('()')}${p(')]')}
+    ${p(')}')}
+${p(')')}
+
+${cm('# ═══ HuggingFace transformer ═══')}
+${k('from')} ${id('transformers')} ${k('import')} ${id('pipeline')}
+${id('sentiment')} ${p('=')} ${f('pipeline')}${p('(')}${str('"sentiment-analysis"')}${p(',')} ${id('model')}${p('=')}${str('"distilbert-base"')}${p(')')}
+${id('reg')}${p('.')}${f('log_model')}${p('(')}
+    ${id('sentiment')}${p(',')}
+    ${id('model_name')}${p('=')}${str('"sentiment_bert"')}${p(',')}
+    ${id('version_name')}${p('=')}${str('"v1"')}${p(',')}
+    ${id('conda_dependencies')}${p('=[')}${str('"transformers"')}${p(',')} ${str('"torch"')}${p(']')}
+${p(')')}
+
+${cm('# ═══ Pickle / joblib (sklearn, custom) ═══')}
+${id('custom_model')} ${p('=')} ${id('joblib')}${p('.')}${f('load')}${p('(')}${str('"custom_ensemble.pkl"')}${p(')')}
+${id('reg')}${p('.')}${f('log_model')}${p('(')}
+    ${id('custom_model')}${p(',')}
+    ${id('model_name')}${p('=')}${str('"custom_ensemble"')}${p(',')}
+    ${id('version_name')}${p('=')}${str('"v1"')}${p(',')}
+    ${id('pip_requirements')}${p('=[')}${str('"scikit-learn==1.4.0"')}${p(',')} ${str('"numpy>=1.26"')}${p(']')}
+${p(')')}
+
+${cm('# All BYOM models serve identically to native-trained models:')}
+${k('SELECT')} ${id('fraud_detector')}${p('!')}${f('predict')}${p('(')}${id('features')}${p(')')} ${k('FROM')} ${id('transactions')}${p(';')}`,
+        desc: `<h4>Bring Your Own Model</h4>
+<p>Log <strong>any pre-trained Python model</strong> into Snowflake and serve it without rebuilding:</p>
+<ul>
+<li><strong>PyTorch / TensorFlow:</strong> Log trained neural networks with their weights. Snowflake handles serialization, environment packaging, and GPU serving</li>
+<li><strong>HuggingFace:</strong> Log transformer pipelines (sentiment, NER, classification, generation) directly. Specify the model card and dependencies</li>
+<li><strong>scikit-learn / XGBoost / LightGBM:</strong> Log pickle or joblib files. Specify pip/conda dependencies for exact reproducibility</li>
+<li><strong>Custom code:</strong> Any Python class with a <code>predict()</code> method. Define input/output signatures for type safety</li>
+<li><strong>Environment isolation:</strong> Each model version carries its own dependency spec. No version conflicts between models</li>
+<li><strong>Identical serving:</strong> BYOM models serve with the same <code>MODEL!predict()</code> SQL syntax as native-trained models. No special handling downstream</li>
+</ul>
+<p><strong>Migration path:</strong> Already have models trained on SageMaker, Vertex, or Databricks? Export the artifact, <code>log_model()</code> into Snowflake, and serve without re-training. Your data stays in Snowflake; only the model artifact moves once.</p>`
+      }
+    ];
+
+    let currentIdx = 0;
+
+    function showItem(idx) {
+      currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
+      const item = ITEMS[currentIdx];
+      document.getElementById('mlo-panel-title').textContent = item.title;
+      document.getElementById('mlo-panel-code').innerHTML = item.code;
+      document.getElementById('mlo-panel-explain').innerHTML = item.desc;
+      document.getElementById('mlo-panel-overlay').classList.add('open');
+      document.querySelectorAll('.mlo-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
+      // Highlight lifecycle phase
+      document.querySelectorAll('.mlo-lc-step').forEach(el => el.classList.toggle('active', el.dataset.phase === item.phase));
+    }
+
+    function navItem(dir) { showItem(currentIdx + dir); }
+
+    function closePanel() {
+      document.getElementById('mlo-panel-overlay').classList.remove('open');
+      document.querySelectorAll('.mlo-card').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.mlo-lc-step').forEach(el => el.classList.remove('active'));
+    }
+
+    // Card clicks
+    document.querySelectorAll('.mlo-card[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+
+    // Lifecycle banner clicks (show first item in that phase)
+    document.querySelectorAll('.mlo-lc-step').forEach(el => {
+      el.addEventListener('click', () => {
+        const phase = el.dataset.phase;
+        const idx = ITEMS.findIndex(i => i.phase === phase);
+        if (idx >= 0) showItem(idx);
+      });
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+      const overlay = document.getElementById('mlo-panel-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') closePanel();
+      if (e.key === 'ArrowLeft') navItem(-1);
+      if (e.key === 'ArrowRight') navItem(1);
+    });
+
+    document.getElementById('mlo-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

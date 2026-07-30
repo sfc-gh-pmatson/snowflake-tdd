@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ML Agent — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 6px; }
+
+    /* ── Layout: cards left, GIF right ─────────────────────── */
+    .mla-page {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      padding: 10px 24px 10px;
+      min-height: 0;
+      gap: 20px;
+    }
+    .mla-left {
+      flex: 0 0 42%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+    .mla-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+    .mla-demo-img {
+      width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    }
+    .mla-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color .17s, box-shadow .17s;
+    }
+    .mla-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 3px 14px rgba(41,181,232,.18);
+    }
+    .mla-card-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+    }
+    .mla-card-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.55);
+      line-height: 1.45;
+    }
+    .mla-card-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 3px;
+    }
+    .mla-chip {
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--sf-blue);
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/snowflake-ml/overview',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./snowflake-ml.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">ML Agent</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">ML Agent</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">ML Agent with CoCo</div>
+          <div class="s6-sub" style="text-align:center;">Automate the path from data to predictive insights with Snowflake CoCo</div>
+        </div>
+
+        <div class="mla-page content-wrap">
+          <!-- Left: 4 stacked cards -->
+          <div class="mla-left">
+            <div class="mla-card">
+              <div class="mla-card-title">End-to-End ML Automation</div>
+              <div class="mla-card-desc">Automate the full ML pipeline — data prep, feature engineering, training, evaluation, and deployment.</div>
+              <div class="mla-card-chips">
+                <span class="mla-chip">Data Prep</span>
+                <span class="mla-chip">Feature Engineering</span>
+                <span class="mla-chip">Training</span>
+                <span class="mla-chip">Evaluation</span>
+                <span class="mla-chip">Deployment</span>
+              </div>
+            </div>
+
+            <div class="mla-card">
+              <div class="mla-card-title">Iterative Reasoning</div>
+              <div class="mla-card-desc">Smart suggestions that get you to a performant solution faster.</div>
+              <div class="mla-card-chips">
+                <span class="mla-chip">Hyperparameter Tuning</span>
+                <span class="mla-chip">Feature Selection</span>
+                <span class="mla-chip">Model Comparison</span>
+              </div>
+            </div>
+
+            <div class="mla-card">
+              <div class="mla-card-title">Multi-Agent Orchestration</div>
+              <div class="mla-card-desc">Specialized sub-agents handle exploration, training, and validation in parallel.</div>
+              <div class="mla-card-chips">
+                <span class="mla-chip">Parallel Execution</span>
+                <span class="mla-chip">Specialization</span>
+                <span class="mla-chip">Quality Gates</span>
+              </div>
+            </div>
+
+            <div class="mla-card">
+              <div class="mla-card-title">Fully Functional Code</div>
+              <div class="mla-card-desc">Executes code in a secure sandbox to deliver verified, production-ready solutions.</div>
+              <div class="mla-card-chips">
+                <span class="mla-chip">Secure Sandbox</span>
+                <span class="mla-chip">Verified Output</span>
+                <span class="mla-chip">Production-Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: GIF demo -->
+          <div class="mla-right">
+            <img src="../other-icons/ml-agent-demo.gif" alt="ML Agent with CoCo demo"
+                 class="mla-demo-img">
+          </div>
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

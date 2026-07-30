@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Built-in LLM Functions — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Three-column flow layout ─────────────────────────── */
+    .caf-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      max-width: 960px;
+      flex: 1;
+      min-height: 0;
+      padding: 8px 12px 12px;
+    }
+
+    /* Column base */
+    .caf-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Column header labels — aligned horizontally via absolute positioning */
+    .caf-col-label {
+      font-size: var(--fs-h3);
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.75);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* Container caps height; columns stretch to fill it */
+    .caf-flow { align-items: stretch; max-height: 480px; outline: 2px solid rgba(41,181,232,.4); border-radius: 12px; }
+    .caf-col { padding-top: 0; justify-content: flex-start; }
+
+    /* ── Left: ALL DATA ───────────────────────────────────── */
+    .caf-data {
+      width: 180px;
+      flex-shrink: 0;
+      padding-right: 8px;
+    }
+    .caf-data-items {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-evenly;
+    }
+    .caf-data-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.12);
+    }
+    .caf-data-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      opacity: .85;
+    }
+    .caf-data-name {
+      font-size: var(--fs-h5);
+      font-weight: 600;
+      color: rgba(255,255,255,.82);
+      flex: 1;
+    }
+    .caf-badge-new {
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      background: var(--sf-blue);
+      color: #fff;
+    }
+
+    /* ── Arrows between columns ───────────────────────────── */
+    .caf-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      flex-shrink: 0;
+      font-size: 1.3rem;
+      color: var(--sf-blue);
+      opacity: .7;
+      padding-top: 36px;
+    }
+
+    /* ── Center: INSIGHTS (function pills) ────────────────── */
+    .caf-insights {
+      width: 210px;
+      flex-shrink: 0;
+      padding: 0 4px;
+      gap: 3px;
+      justify-content: flex-start;
+    }
+    .caf-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.35);
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--sf-ink);
+      transition: border-color .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .caf-pill:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 2px 10px rgba(41,181,232,.2);
+    }
+    .caf-pill--custom {
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.06);
+    }
+
+    /* ── Right: BUSINESS OUTCOMES (2x3 grid) ──────────────── */
+    .caf-outcomes {
+      flex: 1;
+      min-width: 0;
+      padding-left: 8px;
+    }
+    .caf-outcome-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+      align-content: space-evenly;
+    }
+    .caf-outcome-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-height: 120px;
+      max-height: 120px;
+      transition: box-shadow .17s, transform .15s;
+    }
+    .caf-outcome-card:hover {
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-1px);
+    }
+    .caf-outcome-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-ink);
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+    .caf-outcome-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.55);
+      line-height: 1.45;
+    }
+
+    /* ── Function detail panel ────────────────────────────── */
+    .caf-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
+    }
+    .caf-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+    .caf-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 680px;
+      max-width: 92vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .caf-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .caf-panel-fn {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h3);
+      font-weight: 700;
+      flex: 1;
+    }
+    .caf-panel-nav {
+      display: flex;
+      gap: 6px;
+    }
+    .caf-panel-nav button {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .caf-panel-nav button:hover { background: rgba(255,255,255,.35); }
+    .caf-panel-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .caf-panel-close:hover { background: rgba(255,255,255,.35); }
+
+    .caf-panel-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .caf-panel-code {
+      flex: 3;
+      background: var(--code-bg);
+      padding: 18px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--code-base);
+      white-space: pre-wrap;
+    }
+    .caf-panel-explain {
+      flex: 2;
+      padding: 18px;
+      overflow-y: auto;
+      font-size: var(--fs-h5);
+      color: var(--sf-ink);
+      line-height: 1.6;
+    }
+    .caf-panel-explain h4 {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--sf-ink);
+    }
+    .caf-panel-explain p { margin-bottom: 10px; }
+
+    .caf-pill { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/gain-insights-from-unstructured-data/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Built-in LLM Functions</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Built-in LLM Functions</div>
+          <div class="s6-sub" style="text-align:center;">SQL-native AI for every data type, performance-optimized, easy to use, governed by default</div>
+        </div>
+
+        <!-- Three-column flow -->
+        <div class="caf-flow content-wrap" style="justify-content:center;margin:auto;">
+
+          <!-- ═══ Left: ALL DATA ═══ -->
+          <div class="caf-col caf-data">
+            <div class="caf-col-label">All Data</div>
+
+            <div class="caf-data-items">
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-unstructured caf-data-icon"></span>
+                <span class="caf-data-name">Text Data</span>
+              </div>
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-metadata caf-data-icon"></span>
+                <span class="caf-data-name">Documents</span>
+              </div>
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-apps-collab caf-data-icon"></span>
+                <span class="caf-data-name">Images</span>
+                <span class="caf-badge-new">NEW</span>
+              </div>
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-process caf-data-icon"></span>
+                <span class="caf-data-name">Audio</span>
+              </div>
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-launch caf-data-icon"></span>
+                <span class="caf-data-name">Video</span>
+                <span class="caf-badge-new">NEW</span>
+              </div>
+              <div class="caf-data-item">
+                <span class="sf-img sf-icon-structured caf-data-icon"></span>
+                <span class="caf-data-name">Structured</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="caf-arrow">&#x2192;</div>
+
+          <!-- ═══ Center: INSIGHTS ═══ -->
+          <div class="caf-col caf-insights">
+            <div class="caf-col-label">Insights</div>
+
+            <div class="caf-pill">CUSTOM_AI_FUNCTION <span class="caf-badge-new">NEW</span></div>
+            <div class="caf-pill">AI_COMPLETE</div>
+            <div class="caf-pill">AI_CLASSIFY</div>
+            <div class="caf-pill">AI_FILTER</div>
+            <div class="caf-pill">AI_AGG</div>
+            <div class="caf-pill">AI_SUMMARIZE_AGG</div>
+            <div class="caf-pill">AI_EMBED</div>
+            <div class="caf-pill">AI_SIMILARITY</div>
+            <div class="caf-pill">AI_EXTRACT</div>
+            <div class="caf-pill">AI_SENTIMENT</div>
+            <div class="caf-pill">AI_TRANSLATE</div>
+            <div class="caf-pill">AI_TRANSCRIBE</div>
+            <div class="caf-pill">AI_REDACT</div>
+            <div class="caf-pill">AI_PARSE_DOCUMENT</div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="caf-arrow">&#x2192;</div>
+
+          <!-- ═══ Right: BUSINESS OUTCOMES ═══ -->
+          <div class="caf-col caf-outcomes">
+            <div class="caf-col-label">Business Outcomes</div>
+
+            <div class="caf-outcome-grid">
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Generate Customer Responses</div>
+                <div class="caf-outcome-desc">Automated, context-aware replies.</div>
+              </div>
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Triage Support Tickets</div>
+                <div class="caf-outcome-desc">Route and prioritize instantly.</div>
+              </div>
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Contract Validation</div>
+                <div class="caf-outcome-desc">Extract terms &amp; verify compliance.</div>
+              </div>
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Summarize Top Themes</div>
+                <div class="caf-outcome-desc">Executive insights at scale.</div>
+              </div>
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Search Docs &amp; Videos</div>
+                <div class="caf-outcome-desc">Semantic search across formats.</div>
+              </div>
+              <div class="caf-outcome-card">
+                <div class="caf-outcome-title">Brand Sentiment Analysis</div>
+                <div class="caf-outcome-desc">Understand customer perception.</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /caf-flow -->
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal content (resource bar Code button) -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-kw">SELECT</span>
+  <span class="code-id">support_ticket_id</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_CLASSIFY</span><span class="code-punc">(</span><span class="code-id">description</span><span class="code-punc">,</span>
+    <span class="code-punc">[</span><span class="code-str">'billing'</span><span class="code-punc">,</span> <span class="code-str">'technical'</span><span class="code-punc">,</span> <span class="code-str">'account'</span><span class="code-punc">]</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">category</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_SENTIMENT</span><span class="code-punc">(</span><span class="code-id">description</span><span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">sentiment</span><span class="code-punc">,</span>
+  <span class="code-fn">AI_EXTRACT</span><span class="code-punc">(</span><span class="code-id">description</span><span class="code-punc">,</span>
+    <span class="code-str">'product_name'</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">product</span>
+<span class="code-kw">FROM</span> <span class="code-id">support_tickets</span>
+<span class="code-kw">WHERE</span> <span class="code-fn">AI_FILTER</span><span class="code-punc">(</span>
+  <span class="code-id">description</span><span class="code-punc">,</span>
+  <span class="code-str">'mentions a deadline or SLA'</span>
+<span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Compose AI in a single query</h4>
+      <p>Combine multiple AI functions in one SELECT to classify tickets by type, gauge sentiment, extract structured fields, and filter by semantic condition.</p>
+      <p><strong>No model hosting. No API keys. No data movement.</strong></p>
+      <p>Every function runs server-side on Snowflake's managed infrastructure with full governance, audit, and RBAC applied automatically.</p>
+    </div>
+  </div>
+
+  <!-- Function detail panel -->
+  <div id="caf-panel-overlay" class="caf-panel-overlay">
+    <div class="caf-panel">
+      <div class="caf-panel-header">
+        <span id="caf-panel-fn" class="caf-panel-fn"></span>
+        <div class="caf-panel-nav">
+          <button onclick="navFn(-1)" title="Previous">&#8592;</button>
+          <button onclick="navFn(1)" title="Next">&#8594;</button>
+        </div>
+        <button class="caf-panel-close" onclick="closeFnPanel()">&#x2715;</button>
+      </div>
+      <div class="caf-panel-body">
+        <div id="caf-panel-code" class="caf-panel-code"></div>
+        <div id="caf-panel-explain" class="caf-panel-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper shorthand for building highlighted code
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const FN_DATA = [
+      { name: 'CUSTOM_AI_FUNCTION',
+        code: `${k('SELECT')} ${f('MY_CLASSIFY_FUNC')}${p('(')}${id('review_text')}${p(')')}
+  ${k('AS')} ${id('category')}
+${k('FROM')} ${id('product_reviews')}
+${k('LIMIT')} ${n('10')}${p(';')}`,
+        desc: '<h4>Custom AI Function</h4><p>Create your own reusable AI functions with custom prompts, model selection, and output schemas.</p><p>Encapsulate complex prompt engineering into a simple SQL function call that any analyst can use.</p>' },
+
+      { name: 'AI_COMPLETE',
+        code: `${k('SELECT')} ${f('AI_COMPLETE')}${p('(')}
+  ${str("'snowflake-arctic-instruct'") }${p(',')}
+  ${str("'Summarize this ticket: '")}
+    ${p('||')} ${id('ticket_text')}
+${p(')')} ${k('AS')} ${id('summary')}
+${k('FROM')} ${id('support_tickets')}${p(';')}`,
+        desc: '<h4>AI_COMPLETE</h4><p>Generate text completions using any supported LLM. Pass a prompt with optional system message and get back generated text.</p><p>Supports all model providers available on Cortex AI (OpenAI, Anthropic, Meta, Mistral, Snowflake Arctic, and more).</p>' },
+
+      { name: 'AI_CLASSIFY',
+        code: `${k('SELECT')} ${f('AI_CLASSIFY')}${p('(')}
+  ${id('email_body')}${p(',')}
+  ${p('[')}${str("'sales'")}${p(',')} ${str("'support'")}${p(',')} ${str("'billing'")}${p(',')}
+   ${str("'spam'")}${p(',')} ${str("'partnership'")}${p(']')}
+${p(')')} ${k('AS')} ${id('category')}
+${k('FROM')} ${id('incoming_emails')}${p(';')}`,
+        desc: '<h4>AI_CLASSIFY</h4><p>Classify text into one of the provided categories. Returns the best-matching label from your list.</p><p>No training required. Works zero-shot on any categorization task with natural language labels.</p>' },
+
+      { name: 'AI_FILTER',
+        code: `${k('SELECT')} ${p('*')}
+${k('FROM')} ${id('customer_feedback')}
+${k('WHERE')} ${f('AI_FILTER')}${p('(')}
+  ${id('comment')}${p(',')}
+  ${str("'mentions a product defect or safety concern'")}
+${p(')')}${p(';')}`,
+        desc: '<h4>AI_FILTER</h4><p>Semantically filter rows based on a natural language condition. Returns TRUE/FALSE for each row.</p><p>Replace complex regex and keyword matching with intent-based filtering that understands meaning.</p>' },
+
+      { name: 'AI_AGG',
+        code: `${k('SELECT')} ${f('AI_AGG')}${p('(')}
+  ${id('feedback_text')}${p(',')}
+  ${str("'What are the top 3 feature requests?'")}
+${p(')')} ${k('AS')} ${id('insights')}
+${k('FROM')} ${id('product_feedback')}
+${k('WHERE')} ${id('quarter')} ${p('=')} ${str("'2025-Q2'")}${p(';')}`,
+        desc: '<h4>AI_AGG</h4><p>Aggregate multiple text rows into a single AI-generated insight. Like GROUP BY but for unstructured text.</p><p>Summarize themes, extract patterns, or answer questions across thousands of rows in one call.</p>' },
+
+      { name: 'AI_SUMMARIZE_AGG',
+        code: `${k('SELECT')} ${id('department')}${p(',')}
+  ${f('AI_SUMMARIZE_AGG')}${p('(')}${id('notes')}${p(')')} ${k('AS')} ${id('summary')}
+${k('FROM')} ${id('meeting_notes')}
+${k('GROUP BY')} ${id('department')}${p(';')}`,
+        desc: '<h4>AI_SUMMARIZE_AGG</h4><p>Summarize a collection of text values into a concise summary. Works as an aggregate function with GROUP BY.</p><p>Ideal for condensing large volumes of text (meeting notes, tickets, reviews) into actionable summaries per group.</p>' },
+
+      { name: 'AI_EMBED',
+        code: `${k('SELECT')}
+  ${id('doc_id')}${p(',')}
+  ${f('AI_EMBED')}${p('(')}
+    ${str("'snowflake-arctic-embed-l-v2.0'")}${p(',')}
+    ${id('content')}
+  ${p(')')} ${k('AS')} ${id('embedding')}
+${k('FROM')} ${id('knowledge_base')}${p(';')}`,
+        desc: '<h4>AI_EMBED</h4><p>Generate vector embeddings for text using Snowflake Arctic Embed or other embedding models.</p><p>Powers semantic search, RAG pipelines, clustering, and similarity matching. Store results in VECTOR columns for fast retrieval.</p>' },
+
+      { name: 'AI_SIMILARITY',
+        code: `${k('SELECT')} ${id('doc_title')}${p(',')}
+  ${f('AI_SIMILARITY')}${p('(')}
+    ${id('query_embedding')}${p(',')}
+    ${id('doc_embedding')}
+  ${p(')')} ${k('AS')} ${id('score')}
+${k('FROM')} ${id('documents')}
+${k('ORDER BY')} ${id('score')} ${k('DESC')}
+${k('LIMIT')} ${n('5')}${p(';')}`,
+        desc: '<h4>AI_SIMILARITY</h4><p>Compute cosine similarity between two vector embeddings. Returns a score from -1 to 1.</p><p>Use with AI_EMBED to build semantic search, find similar documents, or power recommendation engines.</p>' },
+
+      { name: 'AI_EXTRACT',
+        code: `${k('SELECT')}
+  ${f('AI_EXTRACT')}${p('(')}
+    ${id('contract_text')}${p(',')}
+    ${str("'effective_date'")}${p(',')}
+    ${str("'termination_clause'")}${p(',')}
+    ${str("'total_value'")}
+  ${p(')')} ${k('AS')} ${id('extracted')}
+${k('FROM')} ${id('contracts')}${p(';')}`,
+        desc: '<h4>AI_EXTRACT</h4><p>Extract structured fields from unstructured text. Specify the fields you want and get back a structured object.</p><p>Turn free-form documents into queryable data without building custom parsers or training models.</p>' },
+
+      { name: 'AI_SENTIMENT',
+        code: `${k('SELECT')}
+  ${id('product_name')}${p(',')}
+  ${id('review_text')}${p(',')}
+  ${f('AI_SENTIMENT')}${p('(')}${id('review_text')}${p(')')}
+    ${k('AS')} ${id('sentiment_score')}
+${k('FROM')} ${id('product_reviews')}
+${k('ORDER BY')} ${id('sentiment_score')} ${k('ASC')}${p(';')}`,
+        desc: '<h4>AI_SENTIMENT</h4><p>Analyze sentiment of text on a scale from -1 (very negative) to 1 (very positive).</p><p>Monitor brand health, flag unhappy customers, and measure campaign reception at scale.</p>' },
+
+      { name: 'AI_TRANSLATE',
+        code: `${k('SELECT')}
+  ${id('original_text')}${p(',')}
+  ${f('AI_TRANSLATE')}${p('(')}
+    ${id('original_text')}${p(',')}
+    ${str("'en'")}${p(',')} ${str("'es'")}
+  ${p(')')} ${k('AS')} ${id('spanish_text')}
+${k('FROM')} ${id('support_articles')}${p(';')}`,
+        desc: '<h4>AI_TRANSLATE</h4><p>Translate text between languages. Specify source and target language codes.</p><p>Localize content, analyze multilingual feedback, and serve global customers without external translation APIs.</p>' },
+
+      { name: 'AI_TRANSCRIBE',
+        code: `${k('SELECT')}
+  ${id('recording_name')}${p(',')}
+  ${f('AI_TRANSCRIBE')}${p('(')}
+    ${id('@audio_stage')}${p(',')}
+    ${id('relative_path')}
+  ${p(')')} ${k('AS')} ${id('transcript')}
+${k('FROM')} ${id('call_recordings')}${p(';')}`,
+        desc: '<h4>AI_TRANSCRIBE</h4><p>Convert audio files to text transcripts. Supports common audio formats from internal stages.</p><p>Transcribe call recordings, meetings, and voice notes for downstream analysis with other AI functions.</p>' },
+
+      { name: 'AI_REDACT',
+        code: `${k('SELECT')}
+  ${f('AI_REDACT')}${p('(')}
+    ${id('customer_message')}${p(',')}
+    ${str("'pii'")}
+  ${p(')')} ${k('AS')} ${id('safe_text')}
+${k('FROM')} ${id('support_chats')}${p(';')}`,
+        desc: '<h4>AI_REDACT</h4><p>Remove sensitive information (PII, PHI, financial data) from text. Specify what categories to redact.</p><p>Clean data for safe sharing, comply with privacy regulations, and prepare text for analytics without exposing sensitive details.</p>' },
+
+      { name: 'AI_PARSE_DOCUMENT',
+        code: `${k('SELECT')}
+  ${f('AI_PARSE_DOCUMENT')}${p('(')}
+    ${id('@docs_stage')}${p(',')}
+    ${id('relative_path')}${p(',')}
+    ${p("{")}${str("'mode'")}${p(':')} ${str("'OCR'")}${p("}")}
+  ${p(')')}${p(':')}${id('content')} ${k('AS')} ${id('text')}
+${k('FROM')} ${id('scanned_invoices')}${p(';')}`,
+        desc: '<h4>AI_PARSE_DOCUMENT</h4><p>Extract text content from PDFs, images, and scanned documents using OCR or layout-aware parsing.</p><p>Digitize paper processes, ingest legacy documents, and unlock unstructured file content for AI analysis.</p>' },
+    ];
+
+    let currentFnIdx = 0;
+
+    function showFn(idx) {
+      currentFnIdx = ((idx % FN_DATA.length) + FN_DATA.length) % FN_DATA.length;
+      const fn = FN_DATA[currentFnIdx];
+      document.getElementById('caf-panel-fn').textContent = fn.name;
+      document.getElementById('caf-panel-code').innerHTML = fn.code;
+      document.getElementById('caf-panel-explain').innerHTML = fn.desc;
+      document.getElementById('caf-panel-overlay').classList.add('open');
+    }
+
+    function navFn(dir) { showFn(currentFnIdx + dir); }
+
+    function closeFnPanel() {
+      document.getElementById('caf-panel-overlay').classList.remove('open');
+    }
+
+    // Wire up pill clicks
+    document.querySelectorAll('.caf-pill').forEach((pill, i) => {
+      pill.addEventListener('click', () => showFn(i));
+    });
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      const overlay = document.getElementById('caf-panel-overlay');
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape') closeFnPanel();
+      if (e.key === 'ArrowLeft') navFn(-1);
+      if (e.key === 'ArrowRight') navFn(1);
+    });
+
+    // Close on overlay click
+    document.getElementById('caf-panel-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeFnPanel();
+    });
+  </script>
+
+</body>
+</html>

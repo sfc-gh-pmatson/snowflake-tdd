@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>In-SQL ML Functions — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 8px 24px 6px; }
+
+    /* ── Feature grid ──────────────────────────────────────────── */
+    .mlf-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 20px 10px;
+      min-height: 0;
+    }
+    .mlf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 860px;
+    }
+    .mlf-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+      text-decoration: none;
+    }
+    .mlf-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 16px rgba(41,181,232,.25);
+      transform: translateY(-2px);
+    }
+    .mlf-card.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .mlf-card-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mlf-card-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+    }
+    .mlf-card-desc {
+      font-size: var(--fs-h5);
+      color: rgba(7,21,37,.55);
+      line-height: 1.4;
+    }
+
+    /* ── Code panel (slides up from bottom) ────────────────────── */
+    .mlf-code-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 860px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+    .mlf-code-panel.open { transform: translateX(-50%) translateY(0); }
+    .mlf-code-panel.open ~ * { /* won't work across siblings */ }
+
+    /* Shift cards up when code panel is open */
+    .mlf-page.panel-open {
+      justify-content: flex-start;
+    }
+    .mlf-page.panel-open .mlf-grid {
+      margin-top: 20px;
+      transition: margin .25s ease;
+    }
+    .mlf-code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .mlf-code-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-blue);
+    }
+    .mlf-code-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mlf-code-close:hover { background: rgba(41,181,232,.3); }
+    .mlf-code-block {
+      background: var(--code-bg);
+      color: rgba(255,255,255,.85);
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h6);
+      line-height: 1.75;
+      border: 1px solid rgba(41,181,232,.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/guides-overview-ml-functions',
+      code:  null,
+      guide: 'https://docs.snowflake.com/en/user-guide/ml-functions/forecasting',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./snowflake-ml.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">In-SQL ML Functions</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">ML Functions</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">In-SQL ML Functions</div>
+          <div class="s6-sub" style="text-align:center;">Predictive analytics in pure SQL — no Python, no model management, no infrastructure.</div>
+        </div>
+
+        <div class="mlf-page content-wrap">
+          <div class="mlf-grid">
+
+            <div class="mlf-card" data-fn="forecast">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-time" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Forecasting</div>
+              <div class="mlf-card-desc">Multi-series time-series forecasting with automatic seasonality detection</div>
+            </div>
+
+            <div class="mlf-card" data-fn="anomaly">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-security-gov" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Anomaly Detection</div>
+              <div class="mlf-card-desc">Identify outliers and unexpected patterns in time-series data</div>
+            </div>
+
+            <div class="mlf-card" data-fn="classify">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-horizon" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Classification</div>
+              <div class="mlf-card-desc">Predict categorical outcomes from labeled training data</div>
+            </div>
+
+            <div class="mlf-card" data-fn="regression">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-analytics" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Regression</div>
+              <div class="mlf-card-desc">Predict continuous numeric values from structured features</div>
+            </div>
+
+            <div class="mlf-card" data-fn="contrib">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-eliminate-delays" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Contribution Explorer</div>
+              <div class="mlf-card-desc">Identify which dimensions drove a metric change between periods</div>
+            </div>
+
+            <div class="mlf-card" data-fn="insights">
+              <div class="mlf-card-icon">
+                <span class="sf-img sf-icon-ai" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="mlf-card-title">Top Insights</div>
+              <div class="mlf-card-desc">Automatically surface the most interesting patterns in your data</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code panel (slides up on card click) -->
+  <div class="mlf-code-panel" id="code-panel">
+    <div class="mlf-code-header">
+      <span class="mlf-code-title" id="code-title"></span>
+      <button class="mlf-code-close" onclick="closeCode()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="code-block"></div>
+  </div>
+
+  <script>
+    const CODE = {
+      forecast: {
+        title: 'Forecasting',
+        code: `<span class="code-comment">-- Train a multi-series forecasting model</span>
+<span class="code-kw">CREATE OR REPLACE</span> SNOWFLAKE.ML.<span class="code-fn">FORECAST</span> sales_forecast(
+  <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'sales_history'</span>),
+  <span class="code-kw">TIMESTAMP_COLNAME</span> => <span class="code-str">'date'</span>,
+  <span class="code-kw">TARGET_COLNAME</span> => <span class="code-str">'revenue'</span>,
+  <span class="code-kw">SERIES_COLNAME</span> => <span class="code-str">'region'</span>  <span class="code-comment">-- forecasts each series independently</span>
+);
+
+<span class="code-comment">-- Generate 30-day forecast with 95% prediction intervals</span>
+<span class="code-kw">CALL</span> sales_forecast!<span class="code-fn">FORECAST</span>(
+  <span class="code-kw">FORECASTING_PERIODS</span> => 30,
+  <span class="code-kw">CONFIG_OBJECT</span> => {<span class="code-str">'prediction_interval'</span>: 0.95}
+);
+<span class="code-comment">-- Output: TS, SERIES, FORECAST, LOWER_BOUND, UPPER_BOUND</span>
+
+<span class="code-comment">-- Retrain on new data without rebuilding</span>
+<span class="code-kw">ALTER</span> SNOWFLAKE.ML.FORECAST sales_forecast <span class="code-fn">REFRESH</span>();
+
+<span class="code-comment">-- Automate: schedule daily retraining + prediction</span>
+<span class="code-kw">CREATE TASK</span> daily_forecast <span class="code-kw">SCHEDULE</span> = <span class="code-str">'USING CRON 0 6 * * * UTC'</span> <span class="code-kw">AS</span>
+  <span class="code-kw">INSERT INTO</span> predictions <span class="code-kw">SELECT</span> * <span class="code-kw">FROM TABLE</span>(sales_forecast!<span class="code-fn">FORECAST</span>(30));`
+      },
+      anomaly: {
+        title: 'Anomaly Detection',
+        code: `<span class="code-comment">-- Train unsupervised anomaly detection</span>
+<span class="code-kw">CREATE OR REPLACE</span> SNOWFLAKE.ML.<span class="code-fn">ANOMALY_DETECTION</span> txn_monitor(
+  <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'transactions'</span>),
+  <span class="code-kw">TIMESTAMP_COLNAME</span> => <span class="code-str">'ts'</span>,
+  <span class="code-kw">TARGET_COLNAME</span> => <span class="code-str">'amount'</span>,
+  <span class="code-kw">LABEL_COLNAME</span> => <span class="code-str">''</span>  <span class="code-comment">-- unsupervised (no labels needed)</span>
+);
+
+<span class="code-comment">-- Detect anomalies with custom sensitivity threshold</span>
+<span class="code-kw">CALL</span> txn_monitor!<span class="code-fn">DETECT_ANOMALIES</span>(
+  <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'recent_transactions'</span>),
+  <span class="code-kw">TIMESTAMP_COLNAME</span> => <span class="code-str">'ts'</span>,
+  <span class="code-kw">TARGET_COLNAME</span> => <span class="code-str">'amount'</span>,
+  <span class="code-kw">CONFIG_OBJECT</span> => {<span class="code-str">'threshold'</span>: 0.99}
+);
+<span class="code-comment">-- Output: IS_ANOMALY (bool), PERCENTILE, DISTANCE (deviation from normal)</span>
+
+<span class="code-comment">-- Retrain incrementally as baseline shifts</span>
+<span class="code-kw">ALTER</span> SNOWFLAKE.ML.ANOMALY_DETECTION txn_monitor <span class="code-fn">REFRESH</span>();`
+      },
+      classify: {
+        title: 'Classification',
+        code: `<span class="code-comment">-- Train a multi-class classifier</span>
+<span class="code-kw">CREATE OR REPLACE</span> SNOWFLAKE.ML.<span class="code-fn">CLASSIFICATION</span> churn_model(
+  <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'customer_features'</span>),
+  <span class="code-kw">TARGET_COLNAME</span> => <span class="code-str">'churned'</span>
+);
+
+<span class="code-comment">-- Predict with per-class probabilities</span>
+<span class="code-kw">SELECT</span> customer_id, churned_prediction, churned_probability
+<span class="code-kw">FROM</span> <span class="code-fn">TABLE</span>(
+  churn_model!<span class="code-fn">PREDICT</span>(
+    <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'new_customers'</span>)
+  )
+);
+<span class="code-comment">-- Output: &lt;target&gt;_prediction + &lt;class&gt;_probability for each class</span>
+
+<span class="code-comment">-- Feature importance: which columns drive predictions?</span>
+<span class="code-kw">CALL</span> churn_model!<span class="code-fn">SHOW_FEATURE_IMPORTANCE</span>();
+
+<span class="code-comment">-- Evaluation metrics (precision, recall, F1, AUC)</span>
+<span class="code-kw">CALL</span> churn_model!<span class="code-fn">SHOW_EVALUATION_METRICS</span>();`
+      },
+      regression: {
+        title: 'Regression',
+        code: `<span class="code-comment">-- Train a regression model</span>
+<span class="code-kw">CREATE OR REPLACE</span> SNOWFLAKE.ML.<span class="code-fn">REGRESSION</span> price_model(
+  <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'listing_features'</span>),
+  <span class="code-kw">TARGET_COLNAME</span> => <span class="code-str">'price'</span>
+);
+
+<span class="code-comment">-- Predict and persist results</span>
+<span class="code-kw">INSERT INTO</span> price_predictions
+<span class="code-kw">SELECT</span> listing_id, price_prediction
+<span class="code-kw">FROM</span> <span class="code-fn">TABLE</span>(
+  price_model!<span class="code-fn">PREDICT</span>(
+    <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'new_listings'</span>)
+  )
+);
+
+<span class="code-comment">-- Evaluation: R-squared, MAE, RMSE</span>
+<span class="code-kw">CALL</span> price_model!<span class="code-fn">SHOW_EVALUATION_METRICS</span>();
+<span class="code-comment">-- R2 = 0.87 means 87% of price variance explained by features</span>
+
+<span class="code-comment">-- Feature importance</span>
+<span class="code-kw">CALL</span> price_model!<span class="code-fn">SHOW_FEATURE_IMPORTANCE</span>();`
+      },
+      contrib: {
+        title: 'Contribution Explorer',
+        code: `<span class="code-comment">-- Which dimensions drove revenue change Q1 vs Q2?</span>
+<span class="code-kw">SELECT</span> *
+<span class="code-kw">FROM</span> <span class="code-fn">TABLE</span>(
+  SNOWFLAKE.ML.<span class="code-fn">CONTRIBUTION_EXPLORER</span>('{
+    "source_table": "revenue_data",
+    "label_colname": "period",
+    "label_values": ["2026-Q1", "2026-Q2"],
+    "metric_colname": "revenue",
+    "metric": "AVG",
+    "dimensions": ["region", "product", "channel"]
+  }')
+);
+
+<span class="code-comment">-- Example output:</span>
+<span class="code-comment">-- DIMENSION: region | CONTRIBUTOR: EMEA</span>
+<span class="code-comment">-- EXPECTED: $4.2M | ACTUAL: $5.1M</span>
+<span class="code-comment">-- RELATIVE_CONTRIBUTION: 38.2% | DIRECTION: GROWTH</span>
+<span class="code-comment">--</span>
+<span class="code-comment">-- "EMEA accounted for 38% of the revenue increase"</span>`
+      },
+      insights: {
+        title: 'Top Insights',
+        code: `<span class="code-comment">-- Surface statistically surprising patterns (no training needed)</span>
+<span class="code-kw">SELECT</span> *
+<span class="code-kw">FROM</span> <span class="code-fn">TABLE</span>(
+  SNOWFLAKE.ML.<span class="code-fn">TOP_INSIGHTS</span>(
+    <span class="code-kw">INPUT_DATA</span> => <span class="code-fn">SYSTEM$REFERENCE</span>(<span class="code-str">'TABLE'</span>, <span class="code-str">'sales_data'</span>),
+    <span class="code-kw">METRIC_COLNAME</span> => <span class="code-str">'revenue'</span>,
+    <span class="code-kw">METRIC</span> => <span class="code-str">'SUM'</span>,
+    <span class="code-kw">DIMENSIONS</span> => [<span class="code-str">'region'</span>, <span class="code-str">'category'</span>, <span class="code-str">'segment'</span>],
+    <span class="code-kw">MAX_RESULTS</span> => 10
+  )
+)
+<span class="code-kw">WHERE</span> surprise_score > 0.8
+<span class="code-kw">ORDER BY</span> surprise_score <span class="code-kw">DESC</span>;
+
+<span class="code-comment">-- SURPRISE (0-1): how unexpected vs rest of data</span>
+<span class="code-comment">-- Runs as a single query - no model, no training, instant results</span>
+<span class="code-comment">-- Combine with time filters for period-over-period analysis</span>`
+      }
+    };
+
+    function showCode(fn) {
+      const data = CODE[fn];
+      if (!data) return;
+      document.getElementById('code-title').textContent = data.title;
+      document.getElementById('code-block').innerHTML = data.code;
+      document.getElementById('code-panel').classList.add('open');
+      document.querySelector('.mlf-page').classList.add('panel-open');
+      document.querySelectorAll('.mlf-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closeCode() {
+      document.getElementById('code-panel').classList.remove('open');
+      document.querySelector('.mlf-page').classList.remove('panel-open');
+      document.querySelectorAll('.mlf-card').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.mlf-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showCode(card.dataset.fn));
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCode(); });
+  </script>
+
+</body>
+</html>
