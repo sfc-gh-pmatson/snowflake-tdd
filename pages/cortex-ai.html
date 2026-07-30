@@ -269,6 +269,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Cortex AI is Snowflake's complete AI platform — not a single feature, but a full stack from data access through LLM inference to AI app deployment. The key architectural insight is that all of it runs inside the Snowflake security boundary. Your data never leaves governance. You get access to the best frontier models from OpenAI, Anthropic, Meta, Mistral, and Snowflake's own Arctic models — selected per use case, not locked in.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Apps layer:</strong> Snowflake CoWork (enterprise AI assistant) and CoCo (coding IDE) — end-user AI applications built on the platform.</li>
+  <li><strong>APIs layer:</strong> Cortex Agents (multi-step reasoning), AI Functions (SQL-native LLM calls), Agentic ML (model inference).</li>
+  <li><strong>Context layer:</strong> Cortex Sense Runtime, MCP connectors, Semantic Views, Business Logic — how agents understand your specific data.</li>
+  <li><strong>Model choice:</strong> 30+ models across 8 providers. Swap models without changing your application code. Pay by token, no minimum commitment.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Where are you running AI inference today — is it hitting an external API with data exported from Snowflake?</li>
+  <li>Who are the target users for AI in your org — are they business analysts, data engineers, or customer-facing employees?</li>
+  <li>Do you have concerns about sending sensitive data to external AI APIs? That's a core reason customers move to Cortex.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -364,11 +384,11 @@
                 </a>
                 <!-- Sub-row: 3 components -->
                 <div class="cai-context-sub-row" style="width:100%;">
-                  <a href="./coming-soon.html" class="cai-block--context">
+                  <a href="./mcp-connectors.html" class="cai-block--context">
                     <span class="sf-img sf-icon-connected" style="width:20px;height:20px;flex-shrink:0;"></span>
                     <span class="cai-title">MCP &amp; Connectors</span>
                   </a>
-                  <a href="./coming-soon.html" class="cai-block--context">
+                  <a href="./cortex-analyst.html" class="cai-block--context">
                     <span class="sf-img sf-icon-horizon" style="width:20px;height:20px;flex-shrink:0;"></span>
                     <span class="cai-title">Semantic Views</span>
                   </a>

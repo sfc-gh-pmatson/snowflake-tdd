@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MCP &amp; Connectors — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page ───────────────────────────────────────────────── */
+    .mcp-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 14px 8px;
+      min-height: 0;
+      gap: 8px;
+      overflow-y: auto;
+      margin-top: 6px;
+    }
+
+    /* ── Gateway architecture banner ───────────────────────── */
+    .mcp-arch {
+      width: 100%;
+      max-width: 920px;
+      border: 3px solid var(--sf-blue);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .mcp-arch-header {
+      background: var(--sf-blue);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: var(--fs-h4);
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .mcp-arch-inner {
+      background: #fff;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Agent ecosystem column (left) */
+    .mcp-agents {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+      width: 150px;
+    }
+    .mcp-agents-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(7,21,37,.4);
+      text-align: center;
+      margin-bottom: 2px;
+      border-bottom: 1.5px solid rgba(41,181,232,.15);
+      padding-bottom: 3px;
+    }
+    .mcp-agent-chip {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(7,21,37,.7);
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(41,181,232,.05);
+      border: 1px solid rgba(41,181,232,.15);
+      text-align: center;
+    }
+    .mcp-agent-chip--sf {
+      background: rgba(41,181,232,.1);
+      border-color: rgba(41,181,232,.3);
+      color: var(--sf-blue);
+      font-weight: 700;
+    }
+
+    /* Center arrow */
+    .mcp-center-arrow {
+      font-size: 20px;
+      color: rgba(41,181,232,.5);
+      flex-shrink: 0;
+    }
+
+    /* Gateway hub */
+    .mcp-hub {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid var(--sf-blue);
+    }
+    .mcp-hub-title {
+      background: var(--sf-blue-dark);
+      color: #fff;
+      padding: 7px 12px;
+      text-align: center;
+      font-size: var(--fs-h4);
+      font-weight: 800;
+    }
+    .mcp-hub-body {
+      background: #fff;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .mcp-hub-row {
+      display: flex;
+      gap: 5px;
+    }
+    .mcp-hub-pill {
+      flex: 1;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(41,181,232,.06);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--sf-ink);
+      text-align: center;
+    }
+    .mcp-hub-pill--ga {
+      background: rgba(34,197,94,.07);
+      border-color: rgba(34,197,94,.25);
+      color: #15803d;
+    }
+    .mcp-hub-pill--pvpr {
+      background: rgba(245,158,11,.07);
+      border-color: rgba(245,158,11,.25);
+      color: #b45309;
+    }
+
+    /* Snowflake tools column (right) */
+    .mcp-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+      width: 130px;
+    }
+    .mcp-tools-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(7,21,37,.4);
+      text-align: center;
+      margin-bottom: 2px;
+      border-bottom: 1.5px solid rgba(41,181,232,.15);
+      padding-bottom: 3px;
+    }
+    .mcp-tool-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(41,181,232,.04);
+      border: 1px solid rgba(41,181,232,.18);
+    }
+    .mcp-tool-text {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--sf-ink);
+      line-height: 1.2;
+    }
+
+    /* ── Pillar cards ───────────────────────────────────────── */
+    .mcp-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      width: 100%;
+      max-width: 920px;
+      flex-shrink: 0;
+    }
+    .mcp-pillar {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .mcp-pillar:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .mcp-pillar.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .mcp-pillar-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mcp-pillar-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mcp-pillar-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
+    .mcp-pillar-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.58); line-height: 1.4; }
+    .mcp-pillar-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+    .mcp-chip {
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--sf-blue);
+    }
+    .mcp-chip--pvpr {
+      background: rgba(245,158,11,.07);
+      border-color: rgba(245,158,11,.25);
+      color: #b45309;
+    }
+
+    /* ── Code/detail panel ──────────────────────────────────── */
+    .mcp-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 920px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 44vh;
+      overflow-y: auto;
+    }
+    .mcp-panel.open { transform: translateX(-50%) translateY(0); }
+    .mcp-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .mcp-panel-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .mcp-panel-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mcp-panel-close:hover { background: rgba(41,181,232,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents',
+      code:  null,
+      guide: null,
+      blog:  'https://www.snowflake.com/en/blog/enterprise-ai-security-agentic-mcp-governance/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-ai.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">MCP &amp; Connectors</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">GA + PvPr</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">MCP &amp; Connectors</div>
+          <div class="s6-sub" style="text-align:center;">Cortex AI Gateway — the governed interoperability layer connecting every AI agent to Snowflake's tools, data, and models.</div>
+        </div>
+
+        <div class="mcp-page content-wrap">
+
+          <!-- Architecture banner -->
+          <div class="mcp-arch">
+            <div class="mcp-arch-header">
+              <span class="sf-img sf-icon-connected" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              Cortex AI Gateway
+            </div>
+            <div class="mcp-arch-inner">
+
+              <!-- Left: external agents -->
+              <div class="mcp-agents">
+                <div class="mcp-agents-label">Any Agent</div>
+                <div class="mcp-agent-chip mcp-agent-chip--sf">Snowflake CoCo</div>
+                <div class="mcp-agent-chip mcp-agent-chip--sf">Snowflake CoWork</div>
+                <div class="mcp-agent-chip">Amazon Bedrock</div>
+                <div class="mcp-agent-chip">Azure AI Foundry</div>
+                <div class="mcp-agent-chip">Claude Code</div>
+                <div class="mcp-agent-chip">ChatGPT</div>
+                <div class="mcp-agent-chip">Cursor</div>
+                <div class="mcp-agent-chip">LangChain / LlamaIndex</div>
+              </div>
+
+              <div class="mcp-center-arrow">&#x2194;</div>
+
+              <!-- Center: Gateway hub -->
+              <div class="mcp-hub">
+                <div class="mcp-hub-title">Cortex AI Gateway</div>
+                <div class="mcp-hub-body">
+                  <div class="mcp-hub-row">
+                    <div class="mcp-hub-pill mcp-hub-pill--pvpr">Access Governance</div>
+                    <div class="mcp-hub-pill mcp-hub-pill--pvpr">Model Routing</div>
+                  </div>
+                  <div class="mcp-hub-row">
+                    <div class="mcp-hub-pill mcp-hub-pill--pvpr">Observability &amp; Tracing</div>
+                    <div class="mcp-hub-pill mcp-hub-pill--pvpr">Cost Controls</div>
+                  </div>
+                  <div class="mcp-hub-row">
+                    <div class="mcp-hub-pill mcp-hub-pill--ga">Agent Identity</div>
+                    <div class="mcp-hub-pill mcp-hub-pill--pvpr">100+ MCP Servers</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mcp-center-arrow">&#x2194;</div>
+
+              <!-- Right: Snowflake tools -->
+              <div class="mcp-tools">
+                <div class="mcp-tools-label">Snowflake Tools</div>
+                <div class="mcp-tool-item">
+                  <span class="sf-img sf-icon-structured" style="width:14px;height:14px;"></span>
+                  <div class="mcp-tool-text">Data &amp; Tables</div>
+                </div>
+                <div class="mcp-tool-item">
+                  <span class="sf-img sf-icon-ai" style="width:14px;height:14px;"></span>
+                  <div class="mcp-tool-text">Cortex AI Models</div>
+                </div>
+                <div class="mcp-tool-item">
+                  <span class="sf-img sf-icon-horizon" style="width:14px;height:14px;"></span>
+                  <div class="mcp-tool-text">Cortex Search</div>
+                </div>
+                <div class="mcp-tool-item">
+                  <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;"></span>
+                  <div class="mcp-tool-text">Semantic Views</div>
+                </div>
+                <div class="mcp-tool-item">
+                  <span class="sf-img sf-icon-security-gov" style="width:14px;height:14px;"></span>
+                  <div class="mcp-tool-text">Enterprise APIs</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Pillar cards -->
+          <div class="mcp-pillars">
+
+            <div class="mcp-pillar" data-fn="control">
+              <div class="mcp-pillar-head">
+                <div class="mcp-pillar-icon">
+                  <span class="sf-img sf-icon-security-gov" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="mcp-pillar-title">Control</div>
+              </div>
+              <div class="mcp-pillar-desc">Grant, restrict, and audit model and tool access from a single endpoint. Manage permissions centrally instead of configuring each agent type individually. Covers 100+ MCP servers including BYO and VPC connect.</div>
+              <div class="mcp-pillar-chips">
+                <span class="mcp-chip mcp-chip--pvpr">PvPr</span>
+                <span class="mcp-chip">Wide Model Catalog</span>
+                <span class="mcp-chip">Sprawl Control</span>
+                <span class="mcp-chip">Shadow AI Detection</span>
+              </div>
+            </div>
+
+            <div class="mcp-pillar" data-fn="visibility">
+              <div class="mcp-pillar-head">
+                <div class="mcp-pillar-icon">
+                  <span class="sf-img sf-icon-analytics" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="mcp-pillar-title">Visibility</div>
+              </div>
+              <div class="mcp-pillar-desc">Every agent tool call captured in real time — which tool was called, which system it touched, in what order, by whom. Full audit trails for compliance without instrumenting each agent individually.</div>
+              <div class="mcp-pillar-chips">
+                <span class="mcp-chip mcp-chip--pvpr">PvPr</span>
+                <span class="mcp-chip">Observability &amp; Tracing</span>
+                <span class="mcp-chip">Action Auditability</span>
+              </div>
+            </div>
+
+            <div class="mcp-pillar" data-fn="cost">
+              <div class="mcp-pillar-head">
+                <div class="mcp-pillar-icon">
+                  <span class="sf-img sf-icon-pricing" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="mcp-pillar-title">Cost &amp; Performance</div>
+              </div>
+              <div class="mcp-pillar-desc">Route agent requests automatically to the right model based on cost, latency, capability, and data residency. Enforce spending limits per team, agent, or workload before costs spiral.</div>
+              <div class="mcp-pillar-chips">
+                <span class="mcp-chip mcp-chip--pvpr">PvPr</span>
+                <span class="mcp-chip">Intelligent Routing</span>
+                <span class="mcp-chip">Budget Guardrails</span>
+                <span class="mcp-chip">Unified AI Spend View</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div class="mcp-panel" id="mcp-panel">
+    <div class="mcp-panel-header">
+      <span class="mcp-panel-title" id="mcp-panel-title"></span>
+      <button class="mcp-panel-close" onclick="closePanel()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="mcp-panel-body"></div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      control: {
+        title: 'Control — Governed Agent Access',
+        body: `${cm('# Cortex AI Gateway: Manage all agent connections from one place')}
+
+${cm('# ── Wide Model Catalog (PvPr) ─────────────────────────────────────')}
+${cm('# One API for every leading model — GPT, Gemini, Claude, Grok, Mistral, GLM+')}
+${cm('# Models run in the right geography to keep data in the required region')}
+
+${k('CREATE OR REPLACE')} ${id('CORTEX_AI_GATEWAY')} ${id('my_gateway')}
+  ${id('MODELS')} ${p('=')} ${p('(')}${str('"openai.gpt-4o"')}${p(',')} ${str('"anthropic.claude-3-5-sonnet"')}${p(',')} ${str('"google.gemini-1-5-pro"')}${p(')')}
+  ${id('REGION_AFFINITY')} ${p('=')} ${str('"US"')}${p(';')}
+
+${cm('# ── Access Governance & Sprawl Control (PvPr) ──────────────────────')}
+${cm('# Grant fine-grained tool access per role — no manual agent config')}
+${k('GRANT')} ${id('TOOL_CALL')} ${k('ON')} ${id('MCP_SERVER')}::${id('salesforce_mcp')}
+  ${k('TO')} ${id('ROLE')} ${id('sales_analyst')}
+  ${id('WITH')} ${id('CONDITIONS')} ${p('=')} ${str('"read_only = true"')}${p(';')}
+
+${cm('# ── Govern Every Agent Connection (PvPr) ───────────────────────────')}
+${cm('# 100+ MCP servers — external, BYO, or VPC Connect')}
+${k('CREATE OR REPLACE')} ${id('EXTERNAL_MCP_SERVER')} ${id('jira_mcp')}
+  ${id('URL')} ${p('=')} ${str('"https://your-jira.atlassian.net/mcp"')}
+  ${id('AUTH')} ${p('=')} ${id('OAUTH')}
+  ${id('GATEWAY')} ${p('=')} ${id('my_gateway')}${p(';')}
+
+${cm('# All connections governed by Snowflake RBAC automatically')}
+${cm('# Shadow AI automatically discovered and flagged for review')}`
+      },
+      visibility: {
+        title: 'Visibility — Real-Time Agent Observability',
+        body: `${cm('# Every tool call captured — which tool, which system, by whom, in what order')}
+
+${cm('# ── Query the agent activity log ─────────────────────────────────────')}
+${k('SELECT')}
+  ${id('request_timestamp')}${p(',')}
+  ${id('agent_id')}${p(',')}
+  ${id('user_name')}${p(',')}
+  ${id('tool_name')}${p(',')}
+  ${id('mcp_server')}${p(',')}
+  ${id('action_type')}${p(',')}
+  ${id('data_accessed')}${p(',')}
+  ${id('decision')}        ${cm('-- ALLOWED | DENIED | REDACTED')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('CORTEX_AGENT_ACTIVITY')}
+${k('WHERE')} ${id('request_timestamp')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'hour'")}${p(',')} ${p('-')}${n('24')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(')')}
+  ${k('AND')} ${id('decision')} ${p('=')} ${str("'DENIED'")}
+${k('ORDER BY')} ${id('request_timestamp')} ${k('DESC')}${p(';')}
+
+${cm('# ── Agent action auditability ────────────────────────────────────────')}
+${cm('# End-to-end record: every step of the agent\'s reasoning chain')}
+${k('SELECT')}
+  ${id('session_id')}${p(',')}
+  ${id('step_number')}${p(',')}
+  ${id('tool_called')}${p(',')}
+  ${id('systems_touched')}${p(',')}
+  ${id('data_returned_bytes')}${p(',')}
+  ${id('latency_ms')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('CORTEX_AGENT_TRACES')}
+${k('WHERE')} ${id('session_id')} ${p('=')} ${str("'sess_abc123'")}
+${k('ORDER BY')} ${id('step_number')} ${k('ASC')}${p(';')}
+
+${cm('# Compliance: produces auditable evidence without instrumenting each agent')}`
+      },
+      cost: {
+        title: 'Cost & Performance — Intelligent Model Routing',
+        body: `${cm('# Route automatically to the right model. Enforce budgets before costs spiral.')}
+
+${cm('# ── Intelligent Model Routing (PvPr) ─────────────────────────────────')}
+${cm('# Route by cost, latency, capability, and data residency')}
+${k('CREATE OR REPLACE')} ${id('ROUTING_POLICY')} ${id('enterprise_routing')}
+  ${id('RULES')} ${p('=')} ${p('(')}
+    ${cm('-- Use fast/cheap model for simple lookups')}
+    ${p('{')}${str('"complexity"')}: ${str('"low"')}${p(',')}  ${str('"route_to"')}: ${str('"mistral-small"')}${p(',')}  ${str('"max_cost_per_call"')}: ${n('0.001')}${p('}')}${p(',')}
+    ${cm('-- Use powerful model for complex analysis')}
+    ${p('{')}${str('"complexity"')}: ${str('"high"')}${p(',')} ${str('"route_to"')}: ${str('"claude-sonnet-4-5"')}${p(',')} ${str('"max_cost_per_call"')}: ${n('0.05')}${p('}')}${p(',')}
+    ${cm('-- EU data stays in EU')}
+    ${p('{')}${str('"data_tag"')}: ${str('"gdpr"')}${p(',')}   ${str('"route_to"')}: ${str('"mistral-large-eu"')}${p(',')} ${str('"region"')}: ${str('"eu-west"')}${p('}')}
+  ${p(')')}${p(';')}
+
+${cm('# ── AI Cost Control (PvPr) ───────────────────────────────────────────')}
+${cm('# Enforce spending limits per team, agent, or workload')}
+${k('ALTER')} ${id('CORTEX_AI_GATEWAY')} ${id('my_gateway')} ${k('SET')}
+  ${id('BUDGET_RULE')} ${p('=')} ${p('{')}
+    ${str('"engineering_team"')}${p(':')}  ${p('{')}${str('"monthly_limit_usd"')}: ${n('500')}${p(',')} ${str('"alert_at_pct"')}: ${n('80')}${p('}')}${p(',')}
+    ${str('"sales_team"')}${p(':')}       ${p('{')}${str('"monthly_limit_usd"')}: ${n('200')}${p(',')} ${str('"alert_at_pct"')}: ${n('90')}${p('}')}
+  ${p('}')}${p(';')}
+
+${cm('# ── Query unified AI spend view ──────────────────────────────────────')}
+${k('SELECT')} ${id('team')}${p(',')} ${id('model_used')}${p(',')} ${k('SUM')}${p('(')}${id('tokens_used')}${p(')')} ${k('AS')} ${id('total_tokens')}${p(',')}
+       ${k('SUM')}${p('(')}${id('cost_usd')}${p(')')} ${k('AS')} ${id('total_cost')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('CORTEX_AI_CONSUMPTION')}
+${k('WHERE')} ${id('month')} ${p('=')} ${f('DATE_TRUNC')}${p('(')}${str("'month'")}${p(',')} ${f('CURRENT_DATE')}${p('()')}${p(')')}
+${k('GROUP BY')} ${n('1')}${p(',')} ${n('2')}
+${k('ORDER BY')} ${id('total_cost')} ${k('DESC')}${p(';')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('mcp-panel-title').textContent = data.title;
+      document.getElementById('mcp-panel-body').innerHTML = data.body;
+      document.getElementById('mcp-panel').classList.add('open');
+      document.querySelectorAll('.mcp-pillar').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('mcp-panel').classList.remove('open');
+      document.querySelectorAll('.mcp-pillar').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.mcp-pillar[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  </script>
+
+</body>
+</html>
