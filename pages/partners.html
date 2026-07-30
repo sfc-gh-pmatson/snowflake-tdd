@@ -78,7 +78,17 @@
     .hdr-cloud    { background: rgba(41,181,232,.2);  color: #0369a1; }
 
     /* ── Logo cards ───────────────────────────────────────── */
-    .prt-card {
+    .prt-card--no-logo {
+      border: 1.5px dashed rgba(7,21,37,.18);
+      opacity: .75;
+    }
+    .prt-card--no-logo::after {
+      content: '\2022';
+      font-size: 8px;
+      color: rgba(7,21,37,.3);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
       background: #fff;
       border-radius: 7px;
       padding: 6px 8px;
@@ -281,11 +291,11 @@
                   <span class="sf-img img-ext-h2oai prt-logo"></span>
                   <span class="prt-name">H2O.ai</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">DataRobot</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">SAS</span>
                 </div>
@@ -316,15 +326,15 @@
                   <span class="sf-img img-ext-securonix prt-logo"></span>
                   <span class="prt-name">Securonix</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">Immuta</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">BigID</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">OneTrust</span>
                 </div>
@@ -362,7 +372,7 @@
                   <span class="sf-img img-ext-spark prt-logo"></span>
                   <span class="prt-name">Apache Kafka</span>
                 </div>
-                <div class="prt-card">
+                <div class="prt-card prt-card--no-logo">
                   <span class="prt-logo"></span>
                   <span class="prt-name">Striim</span>
                 </div>

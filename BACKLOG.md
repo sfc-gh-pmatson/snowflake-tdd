@@ -31,3 +31,18 @@ Key concepts: mirroring vs pg_lake · `CREATE MIRROR` · CDC mechanics · monito
 | `interactive-tables.html` | Interactive Warehouse (def card + flow target) | `sf-icon-warehouse` (generic warehouse) | Official Interactive Warehouse icon |
 
 **Note:** Third-party logos require brand approval before use in customer-facing materials.
+
+---
+
+## Partner Logos — Missing Assets
+
+Cards marked with a dashed border on `partners.html` are logo-less. Source the official SVG/PNG logo for each and add to `other-icons/`, then wire up a new `img-ext-*` class in `shared.css` and update the card markup.
+
+| Partner | Lane | Notes |
+|---|---|---|
+| DataRobot | ML / Data Science | Not on SimpleIcons; try datarobot.com brand assets |
+| SAS | ML / Data Science | SAS Institute — try sas.com/en_us/content/dam/SAS/support/en/sas-community-questions/brand-assets |
+| Immuta | Security &amp; Gov. | Not on SimpleIcons; try immuta.com press kit |
+| BigID | Security &amp; Gov. | Not on SimpleIcons; try bigid.com press resources |
+| OneTrust | Security &amp; Gov. | Not on SimpleIcons; try onetrust.com brand center |
+| Striim | Streaming | Not on SimpleIcons; try striim.com press kit |
