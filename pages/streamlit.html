@@ -155,33 +155,69 @@
     .sis-card-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); }
     .sis-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.4; }
 
-    /* Code panel (slides up) */
-    .sis-code-panel {
+    /* Overlay panel (screenshot left, code right) */
+    .sis-overlay {
+      display: none;
       position: fixed;
-      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-      width: 100%; max-width: 960px;
-      background: var(--sf-navy);
-      border-top: 3px solid var(--sf-blue);
-      border-radius: 12px 12px 0 0;
-      padding: 14px 24px 18px;
-      transition: transform .25s ease;
-      z-index: 100;
-      max-height: 44vh;
-      overflow-y: auto;
+      inset: 0;
+      background: rgba(5,13,26,.6);
+      z-index: 900;
     }
-    .sis-code-panel.open { transform: translateX(-50%) translateY(0); }
-    .sis-code-header {
+    .sis-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .sis-panel {
+      background: #fff;
+      border-radius: 14px;
+      width: 840px;
+      max-width: 92vw;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      overflow: hidden;
+    }
+    .sis-panel-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      gap: 12px;
+      padding: 13px 18px;
+      background: var(--sf-blue);
+      color: #fff;
+      flex-shrink: 0;
     }
-    .sis-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
-    .sis-code-close {
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(41,181,232,.15); border: none; cursor: pointer;
-      color: var(--sf-blue); font-size: 15px;
+    .sis-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
+    .sis-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      font-size: 14px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
+    }
+    .sis-panel-close:hover { background: rgba(255,255,255,.35); }
+    .sis-panel-body { display: flex; flex: 1; overflow: hidden; }
+    .sis-panel-img {
+      flex: 4;
+      background: #f0f4f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-right: 1px solid rgba(41,181,232,.15);
+    }
+    .sis-panel-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .sis-panel-code {
+      flex: 3;
+      background: var(--code-bg);
+      padding: 16px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--code-base);
+      white-space: pre-wrap;
     }
     .sis-code-close:hover { background: rgba(41,181,232,.3); }
   </style>
@@ -264,7 +300,7 @@
             <div class="sis-right-label">Click any use case to see the code</div>
             <div class="sis-grid">
 
-              <div class="sis-card" data-fn="cortex">
+              <div class="sis-card" data-fn="cortex" data-img="https://raw.githubusercontent.com/Snowflake-Labs/snowflake-demo-streamlit/main/Chat%20app%20using%20Snowflake%20Cortex/assets/simple_cortex_app.png">
                 <div class="sis-card-head">
                   <div class="sis-card-icon">
                     <span class="sf-img sf-icon-ai" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
@@ -274,7 +310,7 @@
                 <div class="sis-card-desc">RAG-powered chat assistant over your data using Cortex Search and AI_COMPLETE.</div>
               </div>
 
-              <div class="sis-card" data-fn="dashboard">
+              <div class="sis-card" data-fn="dashboard" data-img="https://raw.githubusercontent.com/Snowflake-Labs/snowflake-demo-streamlit/main/shared_assets/sis-home.png">
                 <div class="sis-card-head">
                   <div class="sis-card-icon">
                     <span class="sf-img sf-icon-analytics" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
@@ -284,7 +320,7 @@
                 <div class="sis-card-desc">Interactive sales analytics with filters, charts, and QoQ trend analysis.</div>
               </div>
 
-              <div class="sis-card" data-fn="forecast">
+              <div class="sis-card" data-fn="forecast" data-img="https://raw.githubusercontent.com/Snowflake-Labs/snowflake-demo-streamlit/main/Forecasting%20and%20Anomaly%20Detection/assets/forecast.png">
                 <div class="sis-card-head">
                   <div class="sis-card-icon">
                     <span class="sf-img sf-icon-time" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
@@ -294,7 +330,7 @@
                 <div class="sis-card-desc">Time-series forecasting and anomaly detection using Snowflake ML Functions.</div>
               </div>
 
-              <div class="sis-card" data-fn="governance">
+              <div class="sis-card" data-fn="governance" data-img="https://raw.githubusercontent.com/Snowflake-Labs/snowflake-demo-streamlit/main/Snowflake%20Account%20Usage%20Monitoring/assets/credits.gif">
                 <div class="sis-card-head">
                   <div class="sis-card-icon">
                     <span class="sf-img sf-icon-security-gov" style="width:12px;height:12px;filter:brightness(0) invert(1);"></span>
@@ -339,13 +375,18 @@
     </div>
   </div>
 
-  <!-- Slide-up code panel -->
-  <div class="sis-code-panel" id="sis-code-panel">
-    <div class="sis-code-header">
-      <span class="sis-code-title" id="sis-code-title"></span>
-      <button class="sis-code-close" onclick="closeCode()">&#10005;</button>
+  <!-- Overlay panel: screenshot left, code right -->
+  <div class="sis-overlay" id="sis-overlay">
+    <div class="sis-panel">
+      <div class="sis-panel-header">
+        <span id="sis-panel-title" class="sis-panel-title"></span>
+        <button class="sis-panel-close" onclick="closeCode()">&#x2715;</button>
+      </div>
+      <div class="sis-panel-body">
+        <div class="sis-panel-img"><img id="sis-panel-img" src="" alt="App screenshot"></div>
+        <div id="sis-panel-code" class="sis-panel-code"></div>
+      </div>
     </div>
-    <div class="mlf-code-block" id="sis-code-block"></div>
   </div>
 
   <script>
@@ -493,22 +534,27 @@ ${id('st')}${p('.')}${f('dataframe')}${p('(')}${id('credits')}${p(',')} ${id('us
       }
     };
 
-    function showCode(fn) {
+    function showCode(fn, imgSrc) {
       const data = CODE[fn];
       if (!data) return;
-      document.getElementById('sis-code-title').textContent = data.title;
-      document.getElementById('sis-code-block').innerHTML = data.code;
-      document.getElementById('sis-code-panel').classList.add('open');
+      document.getElementById('sis-panel-title').textContent = data.title;
+      document.getElementById('sis-panel-code').innerHTML = data.code;
+      document.getElementById('sis-panel-img').src = imgSrc || '';
+      document.getElementById('sis-overlay').classList.add('open');
       document.querySelectorAll('.sis-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
     }
 
     function closeCode() {
-      document.getElementById('sis-code-panel').classList.remove('open');
+      document.getElementById('sis-overlay').classList.remove('open');
       document.querySelectorAll('.sis-card').forEach(c => c.classList.remove('active'));
     }
 
     document.querySelectorAll('.sis-card[data-fn]').forEach(card => {
-      card.addEventListener('click', () => showCode(card.dataset.fn));
+      card.addEventListener('click', () => showCode(card.dataset.fn, card.dataset.img));
+    });
+
+    document.getElementById('sis-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeCode();
     });
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCode(); });
