@@ -35,7 +35,6 @@ Key concepts: mirroring vs pg_lake · `CREATE MIRROR` · CDC mechanics · monito
 | `cortex-agents.html` | Flow node — Answer | Emoji `&#x2705;` (✅) | Proper Snowflake-style icon for "output / answer" |
 | `cortex-analyst.html` | Pipeline node — Business Question | Emoji `&#x1F4AC;` (💬) | Proper Snowflake-style icon for "user question / input" |
 | `cortex-analyst.html` | Pipeline node — Result + Charts | Emoji `&#x2705;` (✅) | Proper Snowflake-style icon for "output / answer" |
-| `snowflake-ml.html` | Left flank — Any Model | Emoji `🤗` (HuggingFace brand mark) | Official HuggingFace SVG logo asset |
 
 **Note:** Third-party logos require brand approval before use in customer-facing materials.
 
