@@ -204,6 +204,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake's OLTP story is one of the most differentiated capabilities in the portfolio. Hybrid Tables bring row-level locking, primary keys, foreign keys, and single-digit millisecond point lookups to Snowflake — the same platform your analytics team uses. This means you can power operational applications, transactional workflows, and analytics from a single platform without running a separate OLTP database.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Sub-millisecond point reads:</strong> Hybrid Tables use a row-based storage engine optimized for primary key lookups — not the columnar engine used for analytics scans.</li>
+  <li><strong>Single platform:</strong> Run operational apps (order status, user profiles, inventory) and analytics (aggregations, dashboards) on the same tables. No ETL between OLTP and OLAP.</li>
+  <li><strong>Familiar SQL:</strong> Foreign keys, unique constraints, INSERT/UPDATE/DELETE with row-level locking. Standard SQL application code works as-is.</li>
+  <li><strong>Governance unified:</strong> Same Horizon policies (masking, row access, RBAC) apply to both the operational read path and the analytical query path.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have an operational data store (RDS, MySQL, DynamoDB) separate from Snowflake that you're ETL-ing data out of for analytics?</li>
+  <li>Are there operational applications querying Snowflake today that are hitting latency issues because they're doing point lookups on analytical tables?</li>
+  <li>Is there a "source of truth" operational database that your analytics team is always 24 hours behind on because of replication lag?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

@@ -188,6 +188,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Data Mesh is an organizational architecture pattern — federated ownership of data products by domain teams, with a shared infrastructure layer underneath. Snowflake is the platform that makes Data Mesh practical at scale: Snowflake's Data Sharing lets domain teams publish live data products to other teams without copying data, while Horizon governance ensures each team maintains control over who accesses their data and under what conditions.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Data products = live shares:</strong> A domain team publishes a curated Snowflake database as a share. Consumers query it live — no ETL pipeline, no data duplication, always current.</li>
+  <li><strong>Federated governance:</strong> Each domain team sets masking policies and row access rules on their own data. The central team defines standards; domain teams enforce them locally.</li>
+  <li><strong>Marketplace as the discovery layer:</strong> Snowflake's Internal Marketplace lets teams publish data products with metadata, documentation, and SLAs. Consumers request access through a governed workflow.</li>
+  <li><strong>Decentralized compute:</strong> Each domain team has its own warehouse. They're billed for their own usage. Central IT doesn't bottleneck data access.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Is your current data architecture centralized (one team owns all pipelines) or are you trying to move toward domain ownership?</li>
+  <li>How long does it take for a product team to get access to data from another team's system today?</li>
+  <li>Are there teams who refuse to use Snowflake because they don't want to lose control over their data? Data Sharing addresses that concern directly.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

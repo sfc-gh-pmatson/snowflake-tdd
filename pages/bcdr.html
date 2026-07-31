@@ -213,6 +213,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Business continuity for a data platform used to mean expensive standby clusters and manual failover procedures. Snowflake's approach is continuous replication with automated client redirect — so when a region goes down, your applications reconnect to the secondary automatically, often with no code changes. The primary and secondary stay synchronized to within seconds.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Continuous replication:</strong> Changes stream to the secondary in near-real-time. No scheduled sync windows, no batch replication jobs.</li>
+  <li><strong>Client redirect:</strong> Connection strings point to a Snowflake account URL. On failover, Snowflake redirects traffic to the secondary — most drivers handle this transparently.</li>
+  <li><strong>Failover Groups:</strong> Replicate databases, shares, and integrations as a unit. A single failover command promotes the secondary and all associated objects atomically.</li>
+  <li><strong>No standby cost during normal operation:</strong> Secondary warehouses don't run until they're needed — you pay for storage, not idle compute.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Have you had a data platform outage in the last 2 years? What was the business impact and recovery time?</li>
+  <li>What's your current RTO/RPO requirement from your business or compliance team?</li>
+  <li>Are there specific workloads (reporting, BI dashboards, customer-facing APIs) that need to be resilient independent of internal ETL jobs?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

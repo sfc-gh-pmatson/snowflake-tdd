@@ -259,6 +259,27 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake is built around three pillars that define the product philosophy: <strong>Easy</strong> — fully managed, nothing to tune or patch; <strong>Connected</strong> — one copy of data shared across clouds and engines without movement; <strong>Trusted</strong> — governance, security, and compliance built in, not bolted on.</p>
+<p>These aren't marketing bullets — they're architectural commitments. Ask the customer which pillar they're most interested in, then use the rest of the deck to go deep on that theme.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Easy:</strong> Auto-suspend, auto-scale, zero maintenance. No index tuning, no partitioning strategy, no vacuum jobs.</li>
+  <li><strong>Connected:</strong> A single data copy shared across clouds (Snowgrid), engines (Iceberg), and orgs (data sharing). No ETL between copies.</li>
+  <li><strong>Trusted:</strong> Horizon governance — masking, row-level security, classification, lineage — applied uniformly across all data, all clouds, all engines.</li>
+  <li>The pillars stack: connected data that's ungoverned is a liability; governed data that's hard to use isn't used.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Which pillar aligns most with your current pain — is it operational overhead, data silos across teams, or governance gaps?</li>
+  <li>Do you have data spread across multiple clouds or platforms today that your analysts can't easily join?</li>
+  <li>What does your current compliance/audit process look like for data access?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">

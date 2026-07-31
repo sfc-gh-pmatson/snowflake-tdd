@@ -82,6 +82,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Agentic ML is where Snowflake's ML platform and Cortex Agents intersect. Instead of building a static model pipeline, you give an AI agent access to ML tools — model training, prediction, drift monitoring — and it orchestrates the workflow autonomously. This enables self-improving pipelines where an agent detects drift, retrains the model, evaluates it, and promotes it to production, all without human intervention.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>ML as agent tools:</strong> Model training, PREDICT calls, drift analysis — all available as tools for Cortex Agents. The agent decides when and how to invoke them.</li>
+  <li><strong>Autonomous pipeline management:</strong> An agent can monitor model performance via Dynamic Tables, trigger retraining when drift exceeds a threshold, and log the results to the Model Registry.</li>
+  <li><strong>Governed automation:</strong> The agent runs under a service account role. RBAC controls what data it can access for training and inference — same governance as any other Snowflake workload.</li>
+  <li><strong>Natural language ML:</strong> Ask an agent to "retrain the churn model excluding the last 30 days of data and compare it to the current production version."</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How much of your ML team's time is spent on operational tasks — monitoring, retraining, deployment — versus building new models?</li>
+  <li>Have you thought about what it would mean to automate the retraining and evaluation loop for your most important models?</li>
+  <li>Are there ML workflows that are currently triggered manually by a data scientist that could be automated end-to-end?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

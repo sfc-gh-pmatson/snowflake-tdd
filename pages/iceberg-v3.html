@@ -152,6 +152,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Iceberg v3 is the next-generation spec that closes the remaining gaps between open format tables and native warehouse tables. Snowflake co-authored it and already supports the key features. The headline additions: Variant-type support (semi-structured data natively in Iceberg), deletion vectors (faster deletes and updates without full file rewrites), and row lineage for audit and time-travel.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Variant type:</strong> Store JSON, Avro, and semi-structured data in Iceberg tables. Previously you needed to stringify JSON or use a separate table format.</li>
+  <li><strong>Deletion vectors:</strong> Mark rows as deleted without rewriting the Parquet files. Dramatically faster DELETE and UPDATE operations on large Iceberg tables.</li>
+  <li><strong>Row lineage:</strong> Every row has a provenance identifier. Enables point-in-time queries and audit trails at the row level — not just snapshot-level time travel.</li>
+  <li><strong>Snowflake's advantage:</strong> As a co-author of the spec, Snowflake ships v3 support at the same time as the spec is ratified — not months later.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you storing semi-structured or JSON data in separate tables or systems from your structured Iceberg data today?</li>
+  <li>How are you handling deletes and updates on your Iceberg tables currently — are you rewriting partitions manually?</li>
+  <li>Do you have regulatory requirements around row-level audit trails or data lineage?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

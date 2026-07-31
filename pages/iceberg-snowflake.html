@@ -224,6 +224,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>With Snowflake-managed Iceberg, you get the best of both worlds: open format files on your own storage, with Snowflake handling all the hard parts — catalog management, compaction, clustering, and optimization. You own the data; Snowflake runs the engine. And because it's open Iceberg, Spark, Flink, and Trino can all read the same tables.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Your storage, Snowflake's engine:</strong> Files live in your S3/ADLS/GCS bucket in Parquet format. You have direct access to the objects. Snowflake manages the Iceberg metadata and catalog endpoint.</li>
+  <li><strong>Full query performance:</strong> Automatic clustering, micro-partition pruning, result caching all apply to Iceberg tables — same as native Snowflake tables.</li>
+  <li><strong>Polaris catalog endpoint:</strong> Snowflake exposes your tables as an Iceberg REST catalog. Any Iceberg-compatible engine can read them using this endpoint — no proprietary driver needed.</li>
+  <li><strong>DDL is familiar:</strong> <code>CREATE ICEBERG TABLE ... CATALOG='SNOWFLAKE'</code> — one additional parameter versus a regular table.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have a storage cost target that's driving the interest in keeping data in S3 vs Snowflake-managed storage?</li>
+  <li>Which engines outside of Snowflake need write access to these tables? That affects whether managed vs externally-managed is the right fit.</li>
+  <li>Are you currently running clustering or optimization jobs manually on your lake? We eliminate that overhead.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

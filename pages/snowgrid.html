@@ -361,6 +361,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowgrid is Snowflake's answer to multi-cloud. Most enterprises are multi-cloud by accident — one business unit on AWS, another on Azure, a SaaS vendor on GCP. Snowgrid connects all of these into one logical platform where data flows automatically between regions and clouds. Your analysts in London query the same data your engineers in San Francisco are writing, with no ETL in between.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Cross-cloud replication:</strong> Tables, databases, and even entire accounts replicate continuously. Failover is automated — your application reconnects to the secondary and keeps running.</li>
+  <li><strong>Global data sharing:</strong> Share live data across Snowflake accounts in different clouds or organizations. The consumer queries your data; you control access. No data copy.</li>
+  <li><strong>Business Continuity:</strong> RPO/RTO is measured in seconds for most workloads. Client redirect handles connection rerouting transparently.</li>
+  <li><strong>One governance layer:</strong> Policies set in the primary replicate to all secondaries. You don't manage governance separately per region.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you on a single cloud today, or are different teams or business units on different clouds?</li>
+  <li>What's your current disaster recovery plan for your data warehouse? What's the RTO target?</li>
+  <li>Do you share data with partners, customers, or internal teams in different cloud regions today — how are you doing that?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">

@@ -123,6 +123,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake's partner ecosystem is a key part of the value proposition — customers don't have to rip and replace their existing tooling to adopt Snowflake. Their Fivetran ingestion, dbt transformations, Tableau dashboards, and Informatica pipelines all continue to work, just pointed at Snowflake instead of a legacy warehouse. In many cases, the partner tools actually perform better with Snowflake because of elastic compute and zero-copy cloning.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Ingestion:</strong> Fivetran, Airbyte, Matillion, Informatica, Glue — all have native Snowflake connectors. Customers keep their existing ingestion tooling.</li>
+  <li><strong>Transformation:</strong> dbt is the dominant transformation tool for Snowflake. Dynamic Tables offer a Snowflake-native alternative for teams that prefer SQL-based pipelines.</li>
+  <li><strong>BI/Analytics:</strong> Tableau, PowerBI, Looker, Sigma — all query Snowflake directly via JDBC/ODBC or native connectors. No data movement to BI layer required.</li>
+  <li><strong>Native Apps:</strong> Partners can deploy applications that run inside the customer's Snowflake account. The app accesses customer data without the data leaving governance.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What's your current data stack look like — what tools are you using for ingestion, transformation, and BI?</li>
+  <li>Are there specific partner integrations that are must-haves for your team to adopt Snowflake?</li>
+  <li>Are there any partners you're evaluating alternatives to — where a Snowflake-native capability might replace an external tool?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

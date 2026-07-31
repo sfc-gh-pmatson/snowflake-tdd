@@ -97,31 +97,93 @@
       text-align: center;
     }
 
-    /* ── Tools row ───────────────────────────────────────── */
-    .cag-tools-row {
+        /* ── Featured AI tools ──────────────────────────────── */
+    .cag-ai-tools {
       display: flex;
       gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .cag-ai-tool {
+      flex: 1;
+      max-width: 280px;
+      background: rgba(41,181,232,.06);
+      border: 2px solid rgba(41,181,232,.35);
+      border-radius: 10px;
+      padding: 12px 14px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color .15s, background .15s, transform .13s;
+    }
+    .cag-ai-tool:hover {
+      border-color: var(--sf-blue);
+      background: rgba(41,181,232,.12);
+      transform: translateY(-2px);
+    }
+    .cag-ai-tool-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cag-ai-tool-name {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+    }
+    .cag-ai-tool-arrow {
+      font-size: 16px;
+      color: var(--sf-blue);
+    }
+    .cag-ai-tool-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.6);
+      line-height: 1.4;
+    }
+    .cag-ai-tool-tag {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 8px;
+      border-radius: 100px;
+      border: 1px solid rgba(41,181,232,.4);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--sf-blue);
+    }
+    /* ── Section divider label ────────────────────────── */
+    .cag-section-lbl {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.3);
+      text-align: center;
+    }
+    /* ── Utility tool chips ───────────────────────────── */
+    .cag-tools-row {
+      display: flex;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
     .cag-tool-chip {
-      padding: 6px 14px;
+      padding: 5px 13px;
       border-radius: 100px;
-      background: rgba(41,181,232,.08);
-      border: 1.5px solid rgba(41,181,232,.25);
-      font-size: var(--fs-h5);
+      background: rgba(41,181,232,.05);
+      border: 1.5px solid rgba(41,181,232,.2);
+      font-size: var(--fs-h6);
       font-weight: 600;
       color: var(--sf-ink);
       cursor: pointer;
-      transition: border-color .15s, background .15s;
+      transition: border-color .15s, background .15s, color .15s;
     }
     .cag-tool-chip:hover {
       border-color: var(--sf-blue);
-      background: rgba(41,181,232,.15);
+      background: rgba(41,181,232,.12);
+      color: var(--sf-ink);
     }
-    a.cag-tool-chip {
-      text-decoration: none;
-    }
+    a.cag-tool-chip { text-decoration: none; }
 
     /* ── Differentiator strip ────────────────────────────── */
     .cag-diffs {
@@ -135,18 +197,18 @@
       flex: 1;
       padding: 12px 16px;
       border-radius: 10px;
-      background: rgba(41,181,232,.04);
-      border: 1px solid rgba(41,181,232,.15);
+      background: var(--sf-blue-mid);
+      border: 1px solid rgba(255,255,255,.12);
     }
     .cag-diff-title {
       font-size: var(--fs-h5);
-      font-weight: 700;
-      color: var(--sf-blue);
+      font-weight: 600;
+      color: var(--sf-ink);
       margin-bottom: 3px;
     }
     .cag-diff-desc {
       font-size: var(--fs-h6);
-      color: rgba(255,255,255,.55);
+      color: rgba(255,255,255,.70);
       line-height: 1.45;
     }
 
@@ -210,6 +272,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Cortex Agents are where Snowflake crosses the line from "AI functions you call" to "AI that acts on your behalf." An agent doesn't answer a single question — it plans a strategy, calls tools, observes results, and iterates until the question is fully answered. The key architecture decision: every tool call (SQL queries, search, Python functions, REST APIs) runs inside Snowflake's security boundary with RBAC applied. The agent can only see what the calling user can see.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Reasoning loop:</strong> Plan → Act → Observe → Decide. The agent orchestrates multiple tool calls to answer complex questions that a single LLM call can't handle.</li>
+  <li><strong>Tools available:</strong> SQL Executor (generates and runs queries), Cortex Search (RAG on your documents), Semantic Views (NL-to-SQL), Python UDFs, MCP Servers, REST APIs.</li>
+  <li><strong>Governance at every step:</strong> RBAC applies to every SQL query the agent generates. The agent can't retrieve data the user doesn't have access to. Every action is audited.</li>
+  <li><strong>Differentiated vs LangChain/CrewAI:</strong> No external orchestration server, no data copy to a vector store, no separate API key management. Built into the platform.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are there questions your analysts ask that require joining multiple data sources and multiple steps — the kind that take an analyst 30 minutes to answer?</li>
+  <li>Do you have a use case for an internal AI assistant that can query your data and answer questions in plain English?</li>
+  <li>How are you thinking about governance for agentic AI — is it a blocker today that AI could access data users shouldn't see?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -294,18 +376,34 @@
 
               <div class="cag-loop-label">&#x21BB; Agent iterates until the answer is complete</div>
 
-              <!-- Available tools -->
+              <!-- Featured AI tools -->
+              <div class="cag-ai-tools">
+                <a href="./cortex-search.html" class="cag-ai-tool">
+                  <div class="cag-ai-tool-header">
+                    <span class="cag-ai-tool-name">Cortex Search</span>
+                    <span class="cag-ai-tool-arrow">&#x2192;</span>
+                  </div>
+                  <div class="cag-ai-tool-desc">Hybrid vector + keyword retrieval over unstructured data. Agents search knowledge bases, documents, and tickets at reasoning time.</div>
+                  <span class="cag-ai-tool-tag">RAG &bull; Unstructured</span>
+                </a>
+                <a href="./cortex-analyst.html" class="cag-ai-tool">
+                  <div class="cag-ai-tool-header">
+                    <span class="cag-ai-tool-name">Semantic Views</span>
+                    <span class="cag-ai-tool-arrow">&#x2192;</span>
+                  </div>
+                  <div class="cag-ai-tool-desc">Business data models that translate natural language into accurate SQL. Agents query structured data without writing SQL themselves.</div>
+                  <span class="cag-ai-tool-tag">NL-to-SQL &bull; Structured</span>
+                </a>
+              </div>
+
+              <!-- Utility tools -->
+              <div class="cag-section-lbl">+ additional tools</div>
               <div class="cag-tools-row">
                 <div class="cag-tool-chip" data-idx="4">SQL Executor</div>
-                <a href="./cortex-search.html" class="cag-tool-chip">Cortex Search</a>
-                <a href="./cortex-analyst.html" class="cag-tool-chip">Semantic Views</a>
                 <div class="cag-tool-chip" data-idx="7">Python UDFs</div>
                 <div class="cag-tool-chip" data-idx="8">MCP Servers</div>
                 <div class="cag-tool-chip" data-idx="9">REST APIs</div>
               </div>
-
-            </div>
-          </div>
 
           <!-- Differentiators -->
           <div class="cag-diffs">
@@ -322,6 +420,10 @@
               <div class="cag-diff-desc">Versioning, REST API, streaming responses, multi-turn conversation state.</div>
             </div>
           </div>
+
+            </div>
+          </div>
+
 
         </div>
 

@@ -122,6 +122,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Cortex Code (CoCo) is Snowflake's AI coding assistant — specifically tuned for the Snowflake platform. Unlike generic coding assistants, CoCo understands your actual data catalog, your schemas, your query history, and the Snowflake-specific APIs. It's not just autocomplete; it's an agent that can write queries against your real tables, build Streamlit apps, and debug issues by querying the platform itself.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Snowflake-aware context:</strong> CoCo has access to your table schemas, recent query history, and Snowflake documentation. It doesn't generate generic SQL — it generates SQL against your actual data.</li>
+  <li><strong>Full agentic loop:</strong> CoCo can run queries, interpret results, and iterate. Ask it to "find all tables with PII and add masking policies" — it will search, analyze, and apply.</li>
+  <li><strong>Skills and plugins:</strong> Extensible with custom skills for domain-specific workflows. Snowflake-internal teams ship skills for account analysis, customer intelligence, and more.</li>
+  <li><strong>Desktop IDE:</strong> Runs as a native desktop application with a persistent workspace, git integration, and the full Snowflake CLI available.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How much time do your data engineers and analysts spend writing boilerplate SQL, documentation, or debugging queries?</li>
+  <li>Do you have Snowflake-specific tasks — like data governance policy application or performance analysis — that require deep platform knowledge?</li>
+  <li>Are you looking for an AI coding assistant that your team can use safely without data leaving your governance boundary?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

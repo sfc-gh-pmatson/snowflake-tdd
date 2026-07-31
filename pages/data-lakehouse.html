@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Lakehouse — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout (mirrors iceberg.html) ─────────── */
+    .dlh-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: pillars ────────────────────────────────────── */
+    .dlh-left {
+      width: 44%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 32px 20px 28px;
+      gap: 0;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+
+    .dlh-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 6px;
+    }
+    .dlh-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .dlh-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .dlh-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .dlh-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .dlh-feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .dlh-feature-text { flex: 1; }
+    .dlh-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f4fd;
+      margin-bottom: 3px;
+    }
+    .dlh-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.55;
+    }
+
+    /* ── Right: navigation cards ──────────────────────────── */
+    .dlh-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+      padding: 28px 32px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dlh-right::before {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.08) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .dlh-right-label {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.55);
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Reuse iceberg-module-card — already in shared.css if iceberg.html was loaded,
+       but since each page is standalone we define it locally */
+    .dlh-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: #fff;
+      border: 3px solid var(--sf-blue);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .18s;
+      position: relative;
+      z-index: 1;
+    }
+    .dlh-card:hover {
+      background: rgba(41,181,232,.06);
+      transform: translateX(5px);
+    }
+    .dlh-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .dlh-card-text { flex: 1; min-width: 0; }
+    .dlh-card-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: var(--sf-ink);
+      margin-bottom: 3px;
+    }
+    .dlh-card-desc {
+      font-size: var(--fs-h5);
+      color: rgba(7,21,37,.58);
+      line-height: 1.4;
+    }
+    .dlh-card-arrow {
+      font-size: 20px;
+      color: var(--sf-blue);
+      flex-shrink: 0;
+      transition: transform .18s;
+    }
+    .dlh-card:hover .dlh-card-arrow { transform: translateX(3px); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The traditional data architecture forced a tradeoff: data lakes were cheap and open but unmanaged and slow; data warehouses were fast and governed but expensive and closed. The lakehouse pattern is the answer — open formats on your storage, with warehouse performance and governance on top. Snowflake's version of this is zero-copy: your Spark jobs write Iceberg, Snowflake reads it, with no ETL in between.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Access in place:</strong> Query Iceberg, Delta, and Parquet on S3/ADLS/GCS. No ingestion, no copies. The file Spark wrote is the file Snowflake reads.</li>
+  <li><strong>AI-ready:</strong> Cortex AI functions, Cortex Agents, and Cortex Analyst all run directly on lakehouse data. No export to a separate vector store or AI platform.</li>
+  <li><strong>Unified governance:</strong> Masking policies, row-level security, and RBAC from Snowflake Horizon apply to all lakehouse data — even tables written by other engines.</li>
+  <li>Key differentiator vs Databricks: governance applies to all readers, not just Spark sessions. Snowflake enforces policy even when Databricks queries the same file.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have data in S3 or ADLS today that you're not able to query efficiently without moving it first?</li>
+  <li>Are different teams using different engines (Spark, Snowflake, dbt) to access the same data? Are you managing duplicate copies?</li>
+  <li>How are you enforcing governance on data in your lake today — is it consistent across all access patterns?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-iceberg',
+      code:  true,
+      guide: 'https://www.snowflake.com/en/developers/guides/modern-lakehouse-analytics-on-snowflake/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Data Lakehouse</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Data Lakehouse</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Power Analytics and AI Without Moving Your Data</div>
+          <div class="s6-sub" style="text-align:center;">Access your entire data estate, wherever it lives. No pipelines, no copies, no re-architecture.</div>
+        </div>
+
+        <div class="dlh-layout content-wrap">
+
+          <!-- ════════ Left: pillars ════════ -->
+          <div class="dlh-left">
+            <div class="dlh-eyebrow">Snowflake — Open Lakehouse</div>
+            <div class="dlh-title">One Platform.<br>Your Storage.</div>
+            <div class="dlh-sub">Query Iceberg, Delta, and Parquet data in-place, with Snowflake performance and governance applied to files you already own.</div>
+
+            <!-- Pillar 1 -->
+            <div class="dlh-feature">
+              <div class="dlh-feature-icon">
+                <span class="sf-img sf-icon-lakehouse" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-feature-text">
+                <div class="dlh-feature-title">Access Data in Place</div>
+                <div class="dlh-feature-body">Query Iceberg, Delta, and Parquet files directly on S3, ADLS, or GCS. No ETL required. No duplicate storage costs. The same file Spark wrote, Snowflake reads.</div>
+              </div>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="dlh-feature">
+              <div class="dlh-feature-icon">
+                <span class="sf-img sf-icon-ai" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-feature-text">
+                <div class="dlh-feature-title">AI-Ready by Default</div>
+                <div class="dlh-feature-body">Snowflake's query engine, Cortex AI functions, and Cortex Agents all run directly on your open-format lakehouse data. No data copy needed to run AI on your lake.</div>
+              </div>
+            </div>
+
+            <!-- Pillar 3 -->
+            <div class="dlh-feature">
+              <div class="dlh-feature-icon">
+                <span class="sf-img sf-icon-horizon" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-feature-text">
+                <div class="dlh-feature-title">Unified Governance</div>
+                <div class="dlh-feature-body">One policy for your full data estate. Masking, row-level security, audit, and RBAC apply to all lakehouse data — regardless of which engine wrote the file.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ════════ Right: nav cards ════════ -->
+          <div class="dlh-right">
+            <div class="dlh-right-label">Explore in Depth</div>
+
+            <a href="./iceberg.html" class="dlh-card">
+              <div class="dlh-card-icon">
+                <span class="sf-img sf-icon-iceberg" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-card-text">
+                <div class="dlh-card-title">Apache Iceberg on Snowflake</div>
+                <div class="dlh-card-desc">Open format, enterprise performance. Snowflake-managed or externally managed — choose your model.</div>
+              </div>
+              <div class="dlh-card-arrow">&#8594;</div>
+            </a>
+
+            <a href="./iceberg-catalog-linked.html" class="dlh-card">
+              <div class="dlh-card-icon">
+                <span class="sf-img sf-icon-connected" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-card-text">
+                <div class="dlh-card-title">Catalog Integration</div>
+                <div class="dlh-card-desc">Connect Unity Catalog, AWS Glue, or Apache Polaris. Query Iceberg in-place, zero data movement.</div>
+              </div>
+              <div class="dlh-card-arrow">&#8594;</div>
+            </a>
+
+            <a href="./coming-soon.html" class="dlh-card">
+              <div class="dlh-card-icon">
+                <span class="sf-img sf-icon-ext-engines" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-card-text">
+                <div class="dlh-card-title">Delta Direct</div>
+                <div class="dlh-card-desc">Read Databricks Delta tables natively in Snowflake. No conversion, no ETL, no data copy.</div>
+              </div>
+              <div class="dlh-card-arrow">&#8594;</div>
+            </a>
+
+            <a href="./coming-soon.html" class="dlh-card">
+              <div class="dlh-card-icon">
+                <span class="sf-img sf-icon-data-mesh" style="width:26px;height:26px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="dlh-card-text">
+                <div class="dlh-card-title">External Tables</div>
+                <div class="dlh-card-desc">Query raw Parquet, ORC, or CSV files directly from object storage — no ingestion required.</div>
+              </div>
+              <div class="dlh-card-arrow">&#8594;</div>
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Code modal -->
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Snowflake-managed Iceberg on your S3 bucket</span>
+<span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">ICEBERG TABLE</span> <span class="code-id">customer_events</span>
+  <span class="code-fn">EXTERNAL_VOLUME</span> <span class="code-punc">=</span> <span class="code-str">'my_s3_volume'</span>
+  <span class="code-fn">CATALOG</span> <span class="code-punc">=</span> <span class="code-str">'SNOWFLAKE'</span>
+  <span class="code-fn">BASE_LOCATION</span> <span class="code-punc">=</span> <span class="code-str">'customer_events/'</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Full Snowflake performance on your storage</span>
+<span class="code-kw">SELECT</span> <span class="code-id">region</span><span class="code-punc">,</span> <span class="code-fn">COUNT</span><span class="code-punc">(*)</span> <span class="code-kw">AS</span> <span class="code-id">events</span>
+<span class="code-kw">FROM</span> <span class="code-id">customer_events</span>
+<span class="code-kw">WHERE</span> <span class="code-id">event_date</span> <span class="code-punc">>=</span> <span class="code-str">'2025-01-01'</span>
+<span class="code-kw">GROUP BY</span> <span class="code-id">region</span><span class="code-punc">;</span>
+
+<span class="code-comment">-- Governance applied — same engine that wrote it</span>
+<span class="code-kw">CREATE</span> <span class="code-fn">ROW ACCESS POLICY</span> <span class="code-id">region_policy</span>
+  <span class="code-kw">AS</span> <span class="code-punc">(</span><span class="code-id">region</span> <span class="code-fn">STRING</span><span class="code-punc">)</span> <span class="code-kw">RETURNS</span> <span class="code-fn">BOOLEAN</span> <span class="code-punc">-></span>
+    <span class="code-fn">current_role</span><span class="code-punc">()</span> <span class="code-punc">=</span> <span class="code-str">'ADMIN'</span>
+    <span class="code-kw">OR</span> <span class="code-id">region</span> <span class="code-punc">=</span> <span class="code-fn">current_user_region</span><span class="code-punc">()</span><span class="code-punc">;</span>
+
+<span class="code-kw">ALTER TABLE</span> <span class="code-id">customer_events</span>
+  <span class="code-kw">ADD</span> <span class="code-fn">ROW ACCESS POLICY</span> <span class="code-id">region_policy</span>
+  <span class="code-kw">ON</span> <span class="code-punc">(</span><span class="code-id">region</span><span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Iceberg on Your Storage</h4>
+      <p>The table lives in your S3 bucket as Parquet + Iceberg metadata. Snowflake manages the catalog, compaction, and query optimization.</p>
+      <p><strong>Any engine can read it.</strong> Spark, Flink, Dremio, and Trino all access the same files via the Iceberg REST catalog endpoint Snowflake exposes.</p>
+      <p>Row access policies, masking policies, and RBAC apply to every reader — not just Snowflake queries.</p>
+    </div>
+  </div>
+
+</body>
+</html>

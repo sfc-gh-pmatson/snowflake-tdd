@@ -39,7 +39,7 @@
     }
 
     /* Container caps height; columns stretch to fill it */
-    .caf-flow { align-items: stretch; max-height: 480px; outline: 2px solid rgba(41,181,232,.4); border-radius: 12px; }
+    .caf-flow { align-items: stretch; max-height: 480px; outline: 2px solid rgba(41,181,232,.4); border-radius: 12px; position: relative; margin-bottom: 18px; }
     .caf-col { padding-top: 0; justify-content: flex-start; }
 
     /* ── Left: ALL DATA ───────────────────────────────────── */
@@ -276,6 +276,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The built-in AI functions are Snowflake's most accessible AI entry point — they work like any SQL function. A data analyst who's never touched a model can write <code>SELECT AI_SENTIMENT(review_text) FROM reviews</code> and get sentiment scores on millions of rows. No Python, no model deployment, no API keys. The functions run server-side on Snowflake's GPU infrastructure with full governance applied.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero infrastructure:</strong> No model hosting, no vector DB, no embedding pipeline to build. Call the function; get the result.</li>
+  <li><strong>Composable in SQL:</strong> Mix AI_CLASSIFY + AI_EXTRACT + AI_SENTIMENT in a single SELECT. The query optimizer handles parallelism and batching automatically.</li>
+  <li><strong>For every data type:</strong> Text, documents (PDF/image via AI_PARSE_DOCUMENT), audio (AI_TRANSCRIBE), and structured columns. One platform for all modalities.</li>
+  <li><strong>Custom AI Functions:</strong> Define your own LLM-backed function with a custom prompt, model, and output schema — callable from any SQL query.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are there unstructured text columns in your data that analysts can't currently query for insights — reviews, tickets, emails?</li>
+  <li>Are you spending engineering time building classification or extraction pipelines in Python that could be replaced with a SQL function?</li>
+  <li>Do you have PDFs or scanned documents you need to extract structured data from? AI_PARSE_DOCUMENT + AI_EXTRACT handles that in one query.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -366,7 +386,6 @@
             <div class="caf-pill">AI_TRANSCRIBE</div>
             <div class="caf-pill">AI_REDACT</div>
             <div class="caf-pill">AI_PARSE_DOCUMENT</div>
-            <a href="./document-ai.html" class="caf-pill" style="background:var(--sf-blue);border-color:var(--sf-blue);color:#fff;text-decoration:none;margin-top:4px;">Dive Deeper &rarr;</a>
           </div>
 
           <!-- Arrow -->
@@ -404,7 +423,11 @@
             </div>
           </div>
 
+          <!-- Dive Deeper pill — anchored just outside bottom of container -->
+          <a href="./document-ai.html" style="position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:6px;padding:5px 18px;border-radius:100px;background:var(--sf-blue);color:#fff;font-size:var(--fs-h5);font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.25);">Document AI Pipeline &rarr;</a>
+
         </div><!-- /caf-flow -->
+      </div><!-- /content-wrap -->
 
         <!-- Resource bar -->
         <div class="resource-trigger">

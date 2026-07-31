@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Cortex Search — Snowflake TDD</title>
+  <title>Cortex Search &#8212; Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
     body { background: transparent; margin: 0; overflow: hidden; }
     .s6-top { padding: 8px 24px 4px; }
 
-    /* ── Page wrapper ─────────────────────────────────────── */
     .cs-page {
       flex: 1;
       display: flex;
@@ -20,8 +19,6 @@
       min-height: 0;
       gap: 14px;
     }
-
-    /* ── RAG pipeline diagram ─────────────────────────────── */
     .cs-pipeline {
       display: flex;
       align-items: center;
@@ -38,59 +35,37 @@
       padding: 14px 10px;
       border-radius: 12px;
       border: 2px solid rgba(41,181,232,.25);
-      background: var(--sf-card);
+      background: var(--sf-blue-dark);
       text-align: center;
       cursor: pointer;
-      transition: border-color .15s, transform .13s;
+      transition: border-color .15s, transform .13s, box-shadow .15s;
     }
-    .cs-node:hover {
-      border-color: var(--sf-blue);
-      transform: translateY(-2px);
-    }
+    .cs-node:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
     .cs-node.cs-node--highlight {
-      border-color: var(--sf-blue);
-      background: rgba(41,181,232,.08);
+      border-color: rgba(255,255,255,.3);
+      background: #fff;
+    }
+    .cs-node--highlight .cs-node-title { color: var(--sf-navy); }
+    .cs-node--highlight .cs-node-sub   { color: rgba(5,13,26,.65); }
+    .cs-node.cs-active {
+      border-color: var(--sf-blue) !important;
+      box-shadow: 0 0 0 3px rgba(41,181,232,.3);
     }
     .cs-node-icon {
       width: 40px; height: 40px;
       border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
-    .cs-node-title {
-      font-size: var(--fs-h4);
-      font-weight: 700;
-      color: #fff;
-    }
-    .cs-node-sub {
-      font-size: var(--fs-h6);
-      color: rgba(255,255,255,.5);
-      line-height: 1.3;
-    }
-    .cs-arrow {
-      font-size: 22px;
-      color: rgba(41,181,232,.5);
-      flex-shrink: 0;
-      padding: 0 4px;
-    }
+    .cs-node-title { font-size: var(--fs-h4); font-weight: 700; color: #fff; }
+    .cs-node-sub   { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.3; }
+    .cs-arrow { font-size: 22px; color: rgba(41,181,232,.5); flex-shrink: 0; padding: 0 4px; }
 
-    /* Hybrid search callout inside the search service node */
-    .cs-hybrid {
-      display: flex;
-      gap: 6px;
-      margin-top: 4px;
-    }
+    .cs-hybrid { display: flex; gap: 6px; margin-top: 4px; }
     .cs-hybrid-pill {
-      padding: 2px 8px;
-      border-radius: 100px;
-      font-size: 9px;
-      font-weight: 700;
-      border: 1px solid rgba(41,181,232,.4);
-      color: var(--sf-blue);
+      padding: 2px 8px; border-radius: 100px; font-size: 9px; font-weight: 700;
+      border: 1px solid var(--sf-blue); color: var(--sf-blue);
     }
 
-    /* ── Feature cards row ────────────────────────────────── */
     .cs-features {
       display: flex;
       gap: 10px;
@@ -101,76 +76,115 @@
       flex: 1;
       padding: 11px 14px;
       border-radius: 10px;
-      background: rgba(41,181,232,.04);
-      border: 1px solid rgba(41,181,232,.15);
+      background: var(--sf-blue-mid);
+      border: 1px solid rgba(255,255,255,.15);
       cursor: pointer;
-      transition: border-color .15s;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .cs-feat:hover { border-color: var(--sf-blue); }
-    .cs-feat-title {
-      font-size: var(--fs-h5);
-      font-weight: 700;
-      color: var(--sf-blue);
-      margin-bottom: 3px;
+    .cs-feat:hover { border-color: rgba(255,255,255,.4); }
+    .cs-feat.cs-active {
+      border-color: #fff !important;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.3);
     }
-    .cs-feat-desc {
-      font-size: var(--fs-h6);
-      color: rgba(255,255,255,.55);
-      line-height: 1.4;
+    .cs-feat-title { font-size: var(--fs-h5); font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .cs-feat-desc  { font-size: var(--fs-h6); color: rgba(255,255,255,.85); line-height: 1.4; }
+
+    /* ── Bottom slide-up drawer ───────────────────────────── */
+    /* Shift page content up when drawer is open */
+    .cs-page.panel-open {
+      justify-content: flex-start;
+    }
+    .cs-page.panel-open .cs-pipeline {
+      margin-top: 14px;
+      transition: margin .25s ease;
     }
 
-    /* ── Detail panel ─────────────────────────────────────── */
-    .cs-panel-overlay {
-      display: none;
+    .cs-drawer {
       position: fixed;
-      inset: 0;
-      background: rgba(5,13,26,.6);
-      z-index: 900;
-    }
-    .cs-panel-overlay.open { display: flex; align-items: center; justify-content: center; }
-    .cs-panel {
-      background: #fff;
-      border-radius: 14px;
-      width: 660px;
-      max-width: 92vw;
-      max-height: 78vh;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%) translateY(110%);
+      width: 100%;
+      max-width: 900px;
+      height: 50vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      background: var(--sf-card);
+      border-top: 2px solid var(--sf-blue);
+      border-radius: 14px 14px 0 0;
+      box-shadow: 0 -8px 32px rgba(0,0,0,.45);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      z-index: 100;
       overflow: hidden;
     }
-    .cs-panel-header {
+    .cs-drawer.open { transform: translateX(-50%) translateY(0); }
+    .cs-drawer-header {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 14px 18px;
+      padding: 11px 18px;
       background: var(--sf-blue);
       color: #fff;
       flex-shrink: 0;
     }
-    .cs-panel-title { font-size: var(--fs-h3); font-weight: 700; flex: 1; }
-    .cs-panel-close {
-      width: 28px; height: 28px; border-radius: 50%;
+    .cs-drawer-title { font-size: var(--fs-h4); font-weight: 700; flex: 1; }
+    .cs-drawer-close {
+      width: 26px; height: 26px; border-radius: 50%;
       background: rgba(255,255,255,.2); border: none; color: #fff;
-      font-size: 14px; cursor: pointer;
+      font-size: 13px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .cs-panel-close:hover { background: rgba(255,255,255,.35); }
-    .cs-panel-body { display: flex; flex: 1; overflow: hidden; }
-    .cs-panel-code {
-      flex: 3; background: var(--code-bg); padding: 18px; overflow-y: auto;
+    .cs-drawer-close:hover { background: rgba(255,255,255,.35); }
+    .cs-drawer-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .cs-drawer-code {
+      flex: 3;
+      background: var(--code-bg);
+      padding: 14px 18px;
+      overflow-y: auto;
       font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
-      font-size: 12.5px; line-height: 1.65; color: var(--code-base); white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.65;
+      color: rgba(255,255,255,.92);
+      white-space: pre-wrap;
     }
-    .cs-panel-explain {
-      flex: 2; padding: 18px; overflow-y: auto;
-      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    .cs-drawer-explain {
+      flex: 2;
+      padding: 14px 16px;
+      overflow-y: auto;
+      font-size: var(--fs-h5);
+      color: rgba(5,13,26,.8);
+      line-height: 1.6;
+      background: #fff;
     }
-    .cs-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
-    .cs-panel-explain p  { margin-bottom: 10px; }
+    .cs-drawer-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; color: var(--sf-navy); }
+    .cs-drawer-explain p  { margin-bottom: 10px; }
+    .cs-drawer-explain strong { color: var(--sf-navy); }
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Cortex Search is Snowflake's built-in hybrid search service — vector similarity plus BM25 keyword scoring combined in one service that stays current automatically. You CREATE CORTEX SEARCH SERVICE and point it at a column, set a TARGET_LAG, and Snowflake handles indexing, embedding, and refresh. The service is callable from SQL, the REST API, or directly from Cortex Agents. No separate vector database to maintain.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Hybrid retrieval:</strong> Combines dense vector embeddings (semantic similarity) with BM25 sparse retrieval (exact keyword matching). Better than either alone — no tuning required.</li>
+  <li><strong>Always fresh:</strong> TARGET_LAG keeps the index up-to-date as new rows arrive. No manual re-indexing, no batch jobs.</li>
+  <li><strong>RAG foundation:</strong> Cortex Search is the retrieval layer for RAG pipelines. Pair it with AI_COMPLETE for a full RAG workflow in two Snowflake objects.</li>
+  <li><strong>No separate infra:</strong> Pinecone, Weaviate, Chroma — these are all external services you'd otherwise need to host, sync, and govern separately. Cortex Search eliminates all of that.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you building or using a RAG pipeline today? Where does the vector store live, and how are you keeping it in sync with source data?</li>
+  <li>Do you have document search or enterprise search use cases where users need to find information across a large corpus of text?</li>
+  <li>Are you spending engineering time managing a separate vector database alongside Snowflake?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -194,18 +208,16 @@
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
-        <!-- Header -->
         <div class="s6-top">
           <div class="s6-top-row">
             <span class="slide-tag tag-blue">AI / Cortex AI</span>
           </div>
           <div class="s6-header" style="margin-top:4px;text-align:center;">Cortex Search</div>
-          <div class="s6-sub" style="text-align:center;">Fully managed hybrid retrieval — vector + keyword — for RAG pipelines and Cortex Agents. No embeddings to manage.</div>
+          <div class="s6-sub" style="text-align:center;">Fully managed hybrid retrieval &#8212; vector + keyword &#8212; for RAG pipelines and Cortex Agents. No embeddings to manage.</div>
         </div>
 
         <div class="cs-page content-wrap">
 
-          <!-- RAG pipeline diagram -->
           <div class="cs-pipeline">
 
             <div class="cs-node" data-idx="0">
@@ -253,7 +265,6 @@
 
           </div>
 
-          <!-- Feature cards -->
           <div class="cs-features">
             <div class="cs-feat" data-idx="4">
               <div class="cs-feat-title">Hybrid Retrieval</div>
@@ -265,7 +276,7 @@
             </div>
             <div class="cs-feat" data-idx="6">
               <div class="cs-feat-title">Zero Embedding Ops</div>
-              <div class="cs-feat-desc">Snowflake manages embeddings, indexing, and serving. You define the source table and column — nothing else needed.</div>
+              <div class="cs-feat-desc">Snowflake manages embeddings, indexing, and serving. You define the source table and column &#8212; nothing else needed.</div>
             </div>
             <div class="cs-feat" data-idx="7">
               <div class="cs-feat-title">Governed by Horizon</div>
@@ -281,10 +292,22 @@
         </div>
 
       </div>
+
+      <!-- Bottom slide-up drawer (inside slide-canvas for correct clipping) -->
+      <div class="cs-drawer" id="cs-drawer">
+        <div class="cs-drawer-header">
+          <span class="cs-drawer-title" id="cs-drawer-title"></span>
+          <button class="cs-drawer-close" id="cs-drawer-close">&#x2715;</button>
+        </div>
+        <div class="cs-drawer-body">
+          <div class="cs-drawer-code" id="cs-drawer-code"></div>
+          <div class="cs-drawer-explain" id="cs-drawer-explain"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Code modal -->
   <div id="code-modal-content" style="display:none">
     <div class="code-modal-code">
       <pre class="code-block"><code><span class="code-comment">-- 1. Create a Cortex Search Service</span>
@@ -307,7 +330,7 @@
   <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">results</span>
 <span class="code-punc">)</span><span class="code-punc">,</span> <span class="code-fn">LATERAL FLATTEN</span><span class="code-punc">(</span><span class="code-id">results</span><span class="code-punc">:</span><span class="code-id">results</span><span class="code-punc">)</span> <span class="code-id">r</span><span class="code-punc">;</span>
 
-<span class="code-comment">-- 3. Use as an Agent tool (auto-invoked at reasoning time)</span>
+<span class="code-comment">-- 3. Use as an Agent tool</span>
 <span class="code-kw">CREATE OR REPLACE</span> <span class="code-fn">AGENT</span> <span class="code-id">support_agent</span>
   <span class="code-fn">MODEL</span> <span class="code-punc">=</span> <span class="code-str">'claude-sonnet-5'</span>
   <span class="code-fn">TOOLS</span> <span class="code-punc">=</span> <span class="code-punc">(</span><span class="code-id">support_kb_search</span><span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
@@ -316,22 +339,8 @@
       <h4>Cortex Search</h4>
       <p>Define the source table and column to search on. Snowflake handles all embedding generation, indexing, and serving automatically.</p>
       <p><strong>ATTRIBUTES</strong> are additional columns returned with results for filtering and display.</p>
-      <p><strong>TARGET_LAG</strong> keeps the index in sync as new rows land — no manual refresh needed.</p>
+      <p><strong>TARGET_LAG</strong> keeps the index in sync as new rows land &#8212; no manual refresh needed.</p>
       <p>Add the service as a tool to any Cortex Agent and it will search autonomously at reasoning time.</p>
-    </div>
-  </div>
-
-  <!-- Detail panel -->
-  <div id="cs-panel-overlay" class="cs-panel-overlay">
-    <div class="cs-panel">
-      <div class="cs-panel-header">
-        <span id="cs-panel-title" class="cs-panel-title"></span>
-        <button class="cs-panel-close" onclick="closePanel()">&#x2715;</button>
-      </div>
-      <div class="cs-panel-body">
-        <div id="cs-panel-code" class="cs-panel-code"></div>
-        <div id="cs-panel-explain" class="cs-panel-explain"></div>
-      </div>
     </div>
   </div>
 
@@ -351,18 +360,30 @@
 
       { name: 'Cortex Search Service',
         code: `${k('CREATE OR REPLACE')} ${f('CORTEX SEARCH SERVICE')} ${id('support_kb_search')}\n  ${f('ON')} ${id('body')}\n  ${f('ATTRIBUTES')} ${id('title')}${p(',')} ${id('category')}\n  ${f('WAREHOUSE')} ${p('=')} ${id('compute_wh')}\n  ${f('TARGET_LAG')} ${p('=')} ${st("'1 hour'")}\n  ${k('AS')} ${p('(')}\n    ${k('SELECT')} ${id('body')}${p(',')} ${id('title')}${p(',')} ${id('category')}\n    ${k('FROM')} ${id('support.articles')}\n  ${p(')')}${p(';')}\n\n${cm('-- Snowflake automatically:')}\n${cm('-- 1. Generates dense (vector) embeddings')}\n${cm('-- 2. Builds sparse BM25 keyword index')}\n${cm('-- 3. Refreshes both every hour')}\n${cm('-- 4. Manages serving infrastructure')}`,
-        desc: '<h4>Cortex Search Service</h4><p>A single DDL statement creates a fully managed hybrid search index. Snowflake generates and maintains embeddings, builds BM25 keyword indices, and handles serving — all automatically.</p><p><strong>Hybrid retrieval</strong> combines dense vector similarity with sparse keyword matching, then re-ranks for the best results. This outperforms vector-only on enterprise data with product names, IDs, and domain jargon.</p>' },
+        desc: '<h4>Cortex Search Service</h4><p>A single DDL statement creates a fully managed hybrid search index. Snowflake generates and maintains embeddings, builds BM25 keyword indices, and handles serving &#8212; all automatically.</p><p><strong>Hybrid retrieval</strong> combines dense vector similarity with sparse keyword matching, then re-ranks for the best results. This outperforms vector-only on enterprise data with product names, IDs, and domain jargon.</p>' },
 
       { name: 'Query / Agent',
         code: `${cm('-- Direct SQL query')}\n${k('SELECT')} ${id('r')}${p('.')}${id('value')}\n${k('FROM')} ${p('(')}\n  ${k('SELECT')} ${f('SNOWFLAKE.CORTEX.SEARCH_PREVIEW')}${p('(')}\n    ${st("'support_kb_search'")}${p(',')}\n    ${st("'{\"query\":\"billing invoice\",\"limit\":5}'")}\n  ${p(')')} ${k('AS')} ${id('results')}\n${p(')')}${p(',')} ${f('LATERAL FLATTEN')}${p('(')}${id('results')}${p(':')}${id('results')}${p(')')} ${id('r')}${p(';')}\n\n${cm('-- As Cortex Agent tool call (automatic):')}\n${cm('-- Agent reasons: "need to search KB"')}\n${cm('-- -> calls support_kb_search at runtime')}\n${cm('-- -> gets top-5 results as context')}\n${cm('-- -> LLM generates grounded answer')}`,
         desc: '<h4>Query Interface</h4><p>Query directly via the SQL function for ad-hoc retrieval, or add the service as a tool in a Cortex Agent for autonomous RAG.</p><p>When used in an agent, the search is invoked automatically as part of the reasoning loop. The agent decides what to search, when to search, and how to use results in its answer.</p>' },
 
       { name: 'LLM Answer',
-        code: `${cm('-- Grounded response with citations:')}\n${cm('-- {')}\n${cm('--   "answer": "To resolve a billing invoice')}\n${cm('--     error, navigate to Settings > Billing')}\n${cm('--     and click Sync Invoices. If that fails,')}\n${cm('--     submit a support ticket with your')}\n${cm('--     account ID and invoice number.",')}\n${cm('--')}\n${cm('--   "citations": [')}\n${cm('--     {')}\n${cm('--       "source": "support_kb_search",')}\n${cm('--       "doc_title": "Billing invoice error",')}\n${cm('--       "score": 0.94')}\n${cm('--     }')}\n${cm('--   ]')}\n${cm('-- }')}`,
-        desc: '<h4>Grounded Answers</h4><p>Cortex Search provides retrieved context to the LLM, which generates a grounded answer with citations tracing back to specific source documents.</p><p>This eliminates hallucination on factual questions — the model can only reference what it retrieved from your data.</p>' },
+        code: `${p('{')}
+  ${st('"answer"')}${p(':')} ${st('"To resolve a billing invoice error,')}
+             ${st('navigate to Settings > Billing')}
+             ${st('and click Sync Invoices."')},
+
+  ${st('"citations"')}${p(':')} ${p('[')}
+    ${p('{')}
+      ${st('"source"')}${p(':')}    ${st('"support_kb_search"')}${p(',')}
+      ${st('"doc_title"')}${p(':')} ${st('"Billing invoice error"')}${p(',')}
+      ${st('"score"')}${p(':')}     ${n('0.94')}
+    ${p('}')}
+  ${p(']')}
+${p('}')}`,
+        desc: '<h4>Grounded Answer</h4><p>Cortex Search provides retrieved context to the LLM, which generates a grounded answer with source citations tracing back to specific documents.</p><p>The <strong>score</strong> field indicates retrieval confidence. Only documents the user is authorized to see are included in results.</p>' },
 
       { name: 'Hybrid Retrieval',
-        code: `${cm('-- Why hybrid beats vector-only:')}\n${cm('--')}\n${cm('-- Query: "Snowflake SCIM API 429 error"')}\n${cm('--')}\n${cm('-- Dense (vector) retrieval:')}\n${cm('--   Finds: semantically similar API articles')}\n${cm('--   Misses: exact token "429" or "SCIM"')}\n${cm('--')}\n${cm('-- Sparse (BM25) retrieval:')}\n${cm('--   Finds: exact matches on "429", "SCIM"')}\n${cm('--   Misses: paraphrases of the concept')}\n${cm('--')}\n${cm('-- Hybrid (re-ranked):')}\n${cm('--   Captures both — consistently better recall')}\n${cm('--   on enterprise data with IDs, codes, names')}`,
+        code: `${cm('-- Why hybrid beats vector-only:')}\n${cm('--')}\n${cm('-- Query: "Snowflake SCIM API 429 error"')}\n${cm('--')}\n${cm('-- Dense (vector) retrieval:')}\n${cm('--   Finds: semantically similar API articles')}\n${cm('--   Misses: exact token "429" or "SCIM"')}\n${cm('--')}\n${cm('-- Sparse (BM25) retrieval:')}\n${cm('--   Finds: exact matches on "429", "SCIM"')}\n${cm('--   Misses: paraphrases of the concept')}\n${cm('--')}\n${cm('-- Hybrid (re-ranked):')}\n${cm('--   Captures both -- consistently better recall')}\n${cm('--   on enterprise data with IDs, codes, names')}`,
         desc: '<h4>Hybrid Retrieval</h4><p>Cortex Search uses both dense (vector) and sparse (BM25 keyword) retrieval, then re-ranks combined results for the highest quality matches.</p><p>Dense retrieval excels at semantic paraphrases. Sparse retrieval excels at exact product names, error codes, and identifiers common in enterprise data.</p><p>Hybrid approaches consistently outperform either alone on enterprise workloads.</p>' },
 
       { name: 'Auto-Refresh',
@@ -375,27 +396,39 @@
 
       { name: 'Governed by Horizon',
         code: `${cm('-- Access control applies at query time')}\n\n${cm('-- Grant search service access to a role')}\n${k('GRANT')} ${f('USAGE')} ${k('ON')} ${f('CORTEX SEARCH SERVICE')}\n  ${id('support_kb_search')} ${k('TO')} ${f('ROLE')} ${id('support_analyst')}${p(';')}\n\n${cm('-- Column masking on source table applies')}\n${cm('-- to results returned by the search service')}\n${cm('-- Users only see data their role allows')}\n\n${cm('-- Row access policies on the source table')}\n${cm('-- filter search results automatically')}`,
-        desc: '<h4>Governed by Horizon</h4><p>Cortex Search inherits all Snowflake governance policies. Column masking, row access, and RBAC all apply to search results.</p><p>Users only retrieve data they are authorized to see — search does not bypass your existing security perimeter.</p>' },
+        desc: '<h4>Governed by Horizon</h4><p>Cortex Search inherits all Snowflake governance policies. Column masking, row access, and RBAC all apply to search results.</p><p>Users only retrieve data they are authorized to see &#8212; search does not bypass your existing security perimeter.</p>' },
     ];
+
+    let activeIdx = null;
 
     function showItem(idx) {
       const item = ITEMS[idx];
-      document.getElementById('cs-panel-title').textContent = item.name;
-      document.getElementById('cs-panel-code').innerHTML   = item.code;
-      document.getElementById('cs-panel-explain').innerHTML = item.desc;
-      document.getElementById('cs-panel-overlay').classList.add('open');
+      document.getElementById('cs-drawer-title').textContent  = item.name;
+      document.getElementById('cs-drawer-code').innerHTML     = item.code;
+      document.getElementById('cs-drawer-explain').innerHTML  = item.desc;
+      document.getElementById('cs-drawer').classList.add('open');
+      document.querySelector('.cs-page').classList.add('panel-open');
+      document.querySelectorAll('[data-idx]').forEach(el => el.classList.remove('cs-active'));
+      document.querySelector(`[data-idx="${idx}"]`).classList.add('cs-active');
+      activeIdx = idx;
     }
-    function closePanel() { document.getElementById('cs-panel-overlay').classList.remove('open'); }
+
+    function closeDrawer() {
+      document.getElementById('cs-drawer').classList.remove('open');
+      document.querySelector('.cs-page').classList.remove('panel-open');
+      document.querySelectorAll('[data-idx]').forEach(el => el.classList.remove('cs-active'));
+      activeIdx = null;
+    }
 
     document.querySelectorAll('[data-idx]').forEach(el => {
-      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        if (activeIdx === idx) { closeDrawer(); } else { showItem(idx); }
+      });
     });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closePanel();
-    });
-    document.getElementById('cs-panel-overlay').addEventListener('click', e => {
-      if (e.target === e.currentTarget) closePanel();
-    });
+
+    document.getElementById('cs-drawer-close').addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
   </script>
 </body>
 </html>

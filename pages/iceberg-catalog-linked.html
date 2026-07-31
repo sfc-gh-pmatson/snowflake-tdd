@@ -210,6 +210,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Catalog-linked databases let Snowflake federate into an external Iceberg catalog — Unity Catalog, AWS Glue, Apache Polaris — without moving or copying any data. You create a Catalog Integration that authenticates to the external catalog, then create a Catalog-Linked Database. From that point, the external tables appear as Snowflake objects with full SQL access.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero data movement:</strong> The files stay in their original location. Snowflake reads the Iceberg metadata from the external catalog and accesses the Parquet files directly.</li>
+  <li><strong>Supported catalogs:</strong> Unity Catalog, AWS Glue, Apache Polaris (open-source), and any Iceberg REST catalog that follows the spec.</li>
+  <li><strong>Auto-discovery:</strong> Tables added to the external catalog are automatically visible in Snowflake without manually creating external table definitions.</li>
+  <li><strong>Governance applies:</strong> Even on externally-cataloged tables, Snowflake masking and row-access policies apply to queries run through Snowflake.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you using Unity Catalog or AWS Glue as your primary catalog today? What percentage of your Iceberg tables live there?</li>
+  <li>Do your data teams currently have to switch between Databricks and Snowflake to access different parts of the data estate?</li>
+  <li>Are there tables in your lake that you want Snowflake SQL analysts to access without the data team migrating or duplicating them?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -223,7 +243,7 @@
 
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
-      <a href="./iceberg.html" class="btn-back">&#8592; Back</a>
+      <a href="./iceberg.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
       <span class="nav-label">Catalog-Linked Iceberg</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>

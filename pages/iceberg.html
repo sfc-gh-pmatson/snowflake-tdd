@@ -180,6 +180,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Apache Iceberg is the open table format that's winning the data lakehouse standards war. Snowflake not only supports Iceberg — Snowflake co-authored the spec and leads Apache Polaris, the open-source REST catalog. So when customers bet on Iceberg, they're betting on a format that Snowflake has more engineering influence over than any other vendor.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li>Iceberg is a <strong>table format</strong>, not a storage system. It defines how Parquet files are organized and tracked. Any engine that understands the spec can read/write the same files.</li>
+  <li><strong>Snowflake-managed Iceberg:</strong> Snowflake handles the catalog, compaction, and optimization. You get full Snowflake performance on your S3 storage.</li>
+  <li><strong>Catalog-linked Iceberg:</strong> Point Snowflake at Unity Catalog, AWS Glue, or any REST catalog. Snowflake reads those tables without owning the metadata.</li>
+  <li>Snowflake co-authored <strong>Iceberg v3</strong>, which adds Variant type, deletion vectors, and row lineage — all already supported in Snowflake.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you already writing Iceberg tables from Spark or dbt? Where does the catalog live today?</li>
+  <li>Which engines need to read the same data — is it just Snowflake, or Spark + Snowflake + Trino?</li>
+  <li>Are you using Unity Catalog or AWS Glue today? We can federate directly into those without moving anything.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -193,7 +213,7 @@
 
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
-      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <a href="../index.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
       <span class="nav-label">Apache Iceberg&#x2122; on Snowflake</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>

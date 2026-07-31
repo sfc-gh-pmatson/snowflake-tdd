@@ -207,6 +207,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowpark is the answer to the question "what if I could write Python but have it run at Snowflake speed?" Your Python (or Java or Scala) code is compiled to SQL and runs inside Snowflake's engine — no data movement, no driver overhead, full query optimization. This matters most for data engineers doing complex transformations and data scientists running feature engineering at scale.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Lazy evaluation:</strong> DataFrame operations build a query plan; nothing executes until <code>.collect()</code>. Snowflake compiles the entire chain into one optimized SQL query.</li>
+  <li><strong>UDFs and Stored Procs:</strong> Register Python functions as SQL-callable UDFs. Write application logic (loops, branches, transactions) as Stored Procedures — no external application server needed.</li>
+  <li><strong>Vectorized UDFs:</strong> Receive a <code>pd.Series</code> per batch instead of one row at a time. 10–100x faster for numeric transformations and ML feature engineering.</li>
+  <li><strong>Same governance:</strong> Snowpark code runs under the caller's role. RBAC, masking, and row access policies apply to all data accessed through Snowpark.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are your data engineers writing Python Pandas transformations on data pulled out of Snowflake, then writing back? We can run that Python inside Snowflake on the full dataset.</li>
+  <li>Do you have complex ETL logic in PySpark that you'd like to simplify or migrate to Snowflake?</li>
+  <li>Are your data scientists doing feature engineering outside Snowflake because Python libraries aren't available in SQL?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

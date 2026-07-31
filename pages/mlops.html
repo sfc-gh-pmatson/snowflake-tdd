@@ -249,6 +249,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>MLOps in Snowflake means the entire lifecycle — feature engineering, training, evaluation, registry, deployment, and monitoring — runs inside the same platform where the data lives. The Model Registry is the centerpiece: every model version is tracked, every run is logged, and inference is callable from SQL or REST API with the same RBAC and governance as any other Snowflake object.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Model Registry:</strong> Version models, log training metrics, tag artifacts. Deploy a specific version by changing an alias — no code changes required in the application.</li>
+  <li><strong>Inference surfaces:</strong> Batch (Snowpark UDF called in SQL), real-time (REST endpoint with millisecond latency), or in-pipeline (Dynamic Table + model UDF).</li>
+  <li><strong>Feature Store:</strong> Feature views are versioned SQL transformations. Point-in-time correct — training data matches what the model sees at inference time, preventing training/serving skew.</li>
+  <li><strong>Model monitoring:</strong> Track drift, accuracy, and data quality post-deployment. Alert on drift using Snowflake alerts and dynamic tables.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How long does it take your team to go from a trained model to production inference today?</li>
+  <li>Are you experiencing training/serving skew — where your model's offline performance doesn't match its production performance?</li>
+  <li>Do you have models deployed in production without visibility into how their accuracy is changing over time?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -1058,15 +1078,6 @@ ${k('SELECT')} ${id('fraud_detector')}${p('!')}${f('predict')}${p('(')}${id('fea
     // Card clicks
     document.querySelectorAll('.mlo-card[data-idx]').forEach(el => {
       el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
-    });
-
-    // Lifecycle banner clicks (show first item in that phase)
-    document.querySelectorAll('.mlo-lc-step').forEach(el => {
-      el.addEventListener('click', () => {
-        const phase = el.dataset.phase;
-        const idx = ITEMS.findIndex(i => i.phase === phase);
-        if (idx >= 0) showItem(idx);
-      });
     });
 
     // Keyboard

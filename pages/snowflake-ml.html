@@ -373,6 +373,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake ML is the full machine learning platform — from feature engineering through model training, registry, and deployment — all inside the Snowflake security boundary. The key pitch: your ML team doesn't have to leave Snowflake to train and deploy models. Features stay in Snowflake (no export to a feature store), models go into the Snowflake Model Registry, and inference runs via Snowpark or the REST API with RBAC applied.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Feature Store:</strong> Define feature views on Snowflake tables. Features are versioned, reusable, and point-in-time correct. No separate feature store infra to manage.</li>
+  <li><strong>Model Registry:</strong> Version and manage models. Deploy for batch (Snowpark UDF), real-time (REST API endpoint), or in-SQL inference. One registry for all frameworks (sklearn, XGBoost, PyTorch).</li>
+  <li><strong>ML Jobs:</strong> Run distributed training on Snowflake compute — CPU or GPU — without leaving the platform. Supports Ray, PyTorch distributed, and custom training loops.</li>
+  <li><strong>Snowpark-Optimized Warehouses:</strong> Larger memory nodes for in-memory model training and vectorized UDF execution. GPU variants available for deep learning.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Where does your ML team do feature engineering today — is it in Python notebooks pulling data out of Snowflake?</li>
+  <li>How are you managing model versions and tracking which version is in production for each use case?</li>
+  <li>Are you running SageMaker, Azure ML, or Vertex AI? What's driving the cost and complexity of that platform?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
@@ -464,6 +484,8 @@
                         <span class="sml-app-title">ML Agent</span>
                       </a>
                       <a href="./cortex-code.html" class="sml-app-card">
+                        <span class="sf-img sf-icon-be-excellent" style="width:20px;height:20px;flex-shrink:0;"></span>
+                        <span class="sml-app-title">Snowflake CoCo</span>
                       </a>
                       <a href="./coming-soon.html" class="sml-app-card">
                         <span class="sf-img sf-icon-python" style="width:20px;height:20px;flex-shrink:0;"></span>

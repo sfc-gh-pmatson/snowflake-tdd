@@ -199,12 +199,32 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Document AI is the pipeline for turning unstructured files into governed, structured data. You upload PDFs, invoices, contracts, or scanned images to a Snowflake Stage. One SQL query uses AI_PARSE_DOCUMENT to OCR or extract the text, AI_CLASSIFY to identify the document type, AI_EXTRACT to pull specific fields, and AI_REDACT to remove PII — all server-side, all governed. The output is a typed table you can join with the rest of your data.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>No external OCR service needed:</strong> AI_PARSE_DOCUMENT handles PDF, PNG, JPEG, TIFF, DOCX in three modes: OCR (scanned), LAYOUT (structured PDFs), and MULTIMODAL (charts/diagrams).</li>
+  <li><strong>Field extraction without training:</strong> AI_EXTRACT pulls named fields using natural language field names. No labeled training data required.</li>
+  <li><strong>Classification enables routing:</strong> AI_CLASSIFY identifies invoice vs contract vs receipt so you can apply the right extraction schema per document type.</li>
+  <li><strong>Compliance-ready:</strong> AI_REDACT removes PII, PHI, and financial data before storing or sharing. GDPR and HIPAA use cases solved in one function call.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are there paper or PDF-based processes in your business that analysts can't query today — invoices, contracts, intake forms?</li>
+  <li>Do you have a manual data entry step where someone is copying fields from PDFs into a database? This pipeline eliminates that.</li>
+  <li>Do you have compliance requirements that prevent storing PII from scanned documents in queryable tables?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
-      docs:  'https://docs.snowflake.com/en/guides-overview-ai-features',
+      docs:  'https://docs.snowflake.com/en/sql-reference/functions/ai_parse_document',
       code:  true,
-      guide: null,
+      guide: 'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-search/tutorials/cortex-search-tutorial-3-chat-advanced',
       blog:  null,
     };
   </script>

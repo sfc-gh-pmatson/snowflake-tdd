@@ -126,6 +126,26 @@
   </style>
 </head>
 <body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake's in-SQL ML functions let data analysts build forecasting, anomaly detection, and classification models without writing a single line of Python or deploying any infrastructure. You call a function, pass it your time series or training data, and get back predictions. These are Snowflake-managed models — no model selection, no hyperparameter tuning, no deployment pipeline. It just works.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>FORECAST:</strong> Time series forecasting with automatic seasonality detection, exogenous variables support, and confidence intervals. Works on thousands of series simultaneously.</li>
+  <li><strong>ANOMALY_DETECTION:</strong> Identifies outliers in time series or tabular data. Returns anomaly score and direction. Used for fraud detection, ops monitoring, data quality.</li>
+  <li><strong>CLASSIFICATION / REGRESSION:</strong> Snowflake-managed binary classification and regression models. Train on labeled data, call PREDICT on new rows.</li>
+  <li><strong>SQL-native:</strong> Called with CREATE SNOWFLAKE.ML.FORECAST — standard DDL. No Python environment, no notebook, no external service call.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you building demand forecasting, sales forecasting, or financial projections today? Are data scientists having to build custom models for each time series?</li>
+  <li>Do you have anomaly detection needs — fraud, system monitoring, data quality — that are currently handled by hand-coded thresholds?</li>
+  <li>Are there analysts who want to run predictive analytics but are blocked because they don't have Python or ML skills?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
