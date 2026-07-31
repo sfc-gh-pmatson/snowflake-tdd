@@ -1,7 +1,7 @@
 spec:
   containers:
-    - name: tdd
-      image: /demo/public/images/interactive-tdd:latest
+    - name: web
+      image: /temp/pmatson/images/interactive-tdd:latest
       resources:
         requests:
           memory: 256M
@@ -12,4 +12,4 @@ spec:
   endpoints:
     - name: tdd-ui
       port: 80
-      public: false
+      public: true
