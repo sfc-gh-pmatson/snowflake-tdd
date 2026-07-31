@@ -451,14 +451,7 @@ ${k('with')} ${id('st')}${p('.')}${id('sidebar')}${p(':')}
     ${id('year')} ${p('=')} ${id('st')}${p('.')}${f('slider')}${p('(')}${str('"Year"')}${p(',')} ${n('2022')}${p(',')} ${n('2026')}${p(',')} ${n('2026')}${p(')')}
 
 ${cm('# Load data direct from Snowflake — no copy, no ETL')}
-${id('df')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str(f"""
-    SELECT quarter, region, SUM(revenue) AS revenue
-    FROM sales
-    WHERE region IN ({','.join([f"'{r}'" for r in region])})
-      AND YEAR(sale_date) = {year}
-    GROUP BY quarter, region
-    ORDER BY quarter
-"""')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
+${id('df')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str('"""\n    SELECT quarter, region, SUM(revenue) AS revenue\n    FROM sales\n    WHERE region IN (\'Americas\', \'EMEA\', \'APAC\')\n      AND YEAR(sale_date) = 2026\n    GROUP BY quarter, region ORDER BY quarter\n    """')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
 
 ${cm('# Side-by-side KPIs')}
 ${id('col1')}${p(',')} ${id('col2')}${p(',')} ${id('col3')} ${p('=')} ${id('st')}${p('.')}${f('columns')}${p('(')}${n('3')}${p(')')}
@@ -514,15 +507,7 @@ ${id('st')}${p('.')}${f('title')}${p('(')}${str('"Snowflake Cost Intelligence"')
 ${id('days')} ${p('=')} ${id('st')}${p('.')}${f('slider')}${p('(')}${str('"Rolling window (days)"')}${p(',')} ${n('7')}${p(',')} ${n('90')}${p(',')} ${n('30')}${p(')')}
 
 ${cm('# Query ACCOUNT_USAGE directly — no external connector needed')}
-${id('credits')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str(f"""
-    SELECT warehouse_name,
-           SUM(credits_used) AS total_credits,
-           AVG(credits_used) AS avg_per_query
-    FROM snowflake.account_usage.warehouse_metering_history
-    WHERE start_time >= DATEADD(day, -{days}, CURRENT_TIMESTAMP())
-    GROUP BY warehouse_name
-    ORDER BY total_credits DESC
-"""')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
+${id('credits')} ${p('=')} ${id('session')}${p('.')}${f('sql')}${p('(')}${str('"""\n    SELECT warehouse_name,\n           SUM(credits_used) AS total_credits,\n           AVG(credits_used) AS avg_per_query\n    FROM snowflake.account_usage.warehouse_metering_history\n    WHERE start_time >= DATEADD(day, -30, CURRENT_TIMESTAMP())\n    GROUP BY warehouse_name ORDER BY total_credits DESC\n    """')}${p(')')}${p('.')}${f('to_pandas')}${p('()')}
 
 ${cm('# KPI row')}
 ${id('c1')}${p(',')} ${id('c2')} ${p('=')} ${id('st')}${p('.')}${f('columns')}${p('(')}${n('2')}${p(')')}
