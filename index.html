@@ -141,8 +141,8 @@
 
     /* L5 — Languages */
     .arch-l5 {
-      display:flex; align-items:center; padding:8px 10px; gap:0;
-      background:rgba(41,181,232,.07); border-bottom:1px solid rgba(41,181,232,.15); flex-shrink:0;
+      display:flex; align-items:center; padding:18px 10px 22px; gap:0;
+      background:rgba(41,181,232,.07); border-bottom:1px solid rgba(41,181,232,.15); flex-shrink:0; position:relative;
     }
     .lang-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 2px; flex-shrink:0; position:relative; }
     .lang-item img, .lang-item .sf-img { width:40px; height:40px; object-fit:contain; }
@@ -153,7 +153,7 @@
     .arch-icon-w { filter: brightness(0) invert(1); }
 
     /* L6 — Architecture (sf-blue) */
-    .arch-l6 { display:flex; flex-direction:column; gap:0; background:var(--sf-blue); flex-shrink:0; padding-bottom:12px; }
+    .arch-l6 { display:flex; flex-direction:column; gap:0; background:var(--sf-blue); flex-shrink:0; padding-bottom:12px; padding-top:18px; position:relative; }
     .arch-patterns { display:flex; padding:8px 10px 4px; gap:6px; }
     .arch-pattern { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 8px; position:relative; }
     .arch-pattern img, .arch-pattern .sf-img { width:40px; height:40px; object-fit:contain; }
@@ -165,16 +165,17 @@
     .storage-item span { font-size: var(--fs-h6); color:rgba(255,255,255,.92); font-weight:600; text-align:center; line-height:1.2; }
 
     /* L7 — Cross-Cloud */
-    .arch-l7 {
+.arch-l7 {
       flex-shrink:0; display:flex; flex-direction:column;
       background:var(--sf-navy); border:2.5px solid var(--sf-blue);
       border-top:none; position:relative;
     }
     .l7-tab {
-      position:absolute; top:-14px; left:50%; transform:translateX(-50%);
-      background:var(--sf-navy); border:2px solid var(--sf-blue); border-bottom:none;
+      position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+      background:var(--sf-navy); border:2px solid var(--sf-blue);
       color:#fff; font-size: var(--fs-h6); font-weight:700; letter-spacing:.5px;
-      padding:3px 12px; border-radius:3px 3px 0 0; white-space:nowrap;
+      padding:3px 14px; border-radius:100px; white-space:nowrap; text-decoration:none;
+      transition: background .15s, color .15s;
     }
     .l7-clouds {
       display:flex; align-items:center; justify-content:center;
@@ -312,6 +313,7 @@
 
           <!-- Layer 5: Languages & Compute -->
           <div class="arch-l5">
+            <div class="l7-tab" style="top:-14px;background:#eef8fd;border-color:var(--sf-blue);color:var(--sf-blue);">Compute</div>
             <a href="./pages/coming-soon.html" class="lang-item">
               <span class="sf-img sf-icon-sql"></span>
               <span>SQL</span>
@@ -332,10 +334,9 @@
               <span>Apache Spark&#x2122;</span>
             <span class="in-progress-tag">In-Progress</span>
             </a>
-            <a href="./pages/coming-soon.html" class="lang-item">
+            <a href="./pages/containers.html" class="lang-item">
               <span class="sf-img sf-icon-spcs"></span>
               <span>Containers</span>
-            <span class="in-progress-tag">In-Progress</span>
             </a>
             <div class="lang-sep"></div>
             <a href="./pages/coming-soon.html" class="lang-item">
@@ -352,6 +353,7 @@
 
           <!-- Layer 6 + 6a: Architecture + Storage (sf-blue bg) -->
           <div class="arch-l6">
+            <div class="l7-tab" style="top:-14px;background:var(--sf-blue);border-color:rgba(255,255,255,.65);color:#fff;">Storage</div>
             <!-- 6: Architecture patterns -->
             <div class="arch-patterns">
               <a href="./pages/data-mesh.html" class="arch-pattern">
@@ -430,7 +432,7 @@
 
           <!-- Layer 7: Cross-Cloud Snowgrid -->
           <div class="arch-l7">
-            <div class="l7-tab">Snowgrid</div>
+            <a href="./pages/snowgrid.html" class="l7-tab">Snowgrid</a>
             <div class="l7-clouds">
               <a href="./pages/snowgrid.html" class="cloud-item-lg">
                 <span class="sf-img img-ext-aws"></span>

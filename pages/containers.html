@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowpark Container Services — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ──────────────────────────────────── */
+    .spcs-layout {
+      display: flex;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: pillars ────────────────────────────────────── */
+    .spcs-left {
+      width: 44%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+      gap: 0;
+    }
+
+    .spcs-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 4px;
+    }
+    .spcs-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+    .spcs-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .spcs-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .spcs-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .spcs-feature-icon {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .spcs-feature-text { flex: 1; }
+    .spcs-feature-title {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #e8f4fd;
+      margin-bottom: 2px;
+    }
+    .spcs-feature-body {
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.52);
+      line-height: 1.5;
+    }
+
+    /* ── Right: image panel ──────────────────────────────── */
+    .spcs-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .spcs-right::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .spcs-diagram {
+      width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/snowpark-container-services/overview',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowpark Container Services</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="spcs-layout content-wrap">
+
+          <!-- ════ Left: pillars ════ -->
+          <div class="spcs-left">
+            <div class="spcs-eyebrow">Snowflake Platform</div>
+            <div class="spcs-title">Snowpark Container<br>Services</div>
+            <div class="spcs-sub">Run containerized workloads — any language, any framework — directly inside Snowflake with full governance and access to your data.</div>
+
+            <div class="spcs-feature">
+              <div class="spcs-feature-icon">
+                <span class="sf-img sf-icon-spcs" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="spcs-feature-text">
+                <div class="spcs-feature-title">Any Language, Any Framework</div>
+                <div class="spcs-feature-body">Package any runtime — Python, R, C++, Java, custom ML frameworks — into an OCI container and run it on Snowflake compute. No ETL, no data movement: your container runs where the data lives.</div>
+              </div>
+            </div>
+
+            <div class="spcs-feature">
+              <div class="spcs-feature-icon">
+                <span class="sf-img sf-icon-cpu" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="spcs-feature-text">
+                <div class="spcs-feature-title">CPU &amp; GPU Compute Pools</div>
+                <div class="spcs-feature-body">Right-size compute for every workload. CPU pools for general services and APIs; GPU pools (NVIDIA) for model training, fine-tuning, and high-throughput inference at scale.</div>
+              </div>
+            </div>
+
+            <div class="spcs-feature">
+              <div class="spcs-feature-icon">
+                <span class="sf-img sf-icon-structured" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="spcs-feature-text">
+                <div class="spcs-feature-title">Built-in Container Registry</div>
+                <div class="spcs-feature-body">An OCI-compliant image registry lives inside your Snowflake account. Push private images with standard Docker tooling — governed by Snowflake RBAC, no external registry required.</div>
+              </div>
+            </div>
+
+            <div class="spcs-feature">
+              <div class="spcs-feature-icon">
+                <span class="sf-img sf-icon-launch" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="spcs-feature-text">
+                <div class="spcs-feature-title">Native App Distribution</div>
+                <div class="spcs-feature-body">Package container-based applications as Snowflake Native Apps and publish them to the Marketplace — giving customers one-click deployment without ever exposing underlying code or data.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ════ Right: architecture diagram ════ -->
+          <div class="spcs-right">
+            <img class="spcs-diagram" src="../Images/Containers.png" alt="Snowpark Container Services architecture diagram">
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -18,6 +18,7 @@
       --sf-card:       #0c1e3a;
       --sf-card2:      #0e2244;
       --sf-border:     rgba(41,181,232,0.16);
+      --sf-blue-light: #e7f2fb;   /* Solid light blue — use on non-white backgrounds */
       --sf-light:      #70D9F5;   /* Light blue highlight */
       --sf-teal:       #72d3dc;   /* Interactive Tables teal / Star Blue */
       --easy-c:        #29B5E8;   /* Easy pillar — same as sf-blue */
@@ -396,6 +397,17 @@
       opacity: 1;
       transform: translateY(0);
       pointer-events: all;
+    }
+    .s6-footer {
+      padding: 6px 22px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .s6-footer span {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.3);
     }
     .resource-btn {
       display: flex;
