@@ -4,9 +4,9 @@ Interactive Technical Deep Dive for the Snowflake Platform. Built for Snowflake 
 
 ## Live site
 
-> **SPCS (primary):** [https://esnlxl-sfsenorthamerica-pmat-aws1.snowflakecomputing.app/](https://esnlxl-sfsenorthamerica-pmat-aws1.snowflakecomputing.app/)
+> **Snowhouse SPCS (Snowflake-internal):** [https://kp55haixd-spcs.sfcogsops-snowhouse-aws-us-west-2.us-west-2.aws.snowflake.app/](https://kp55haixd-spcs.sfcogsops-snowhouse-aws-us-west-2.us-west-2.aws.snowflake.app/)
 >
-> **GitHub Pages:** [https://sfc-gh-pmatson.github.io/snowflake-tdd/](https://sfc-gh-pmatson.github.io/snowflake-tdd/)
+> Requires Snowhouse (SSO) login — accessible to all Snowflake employees.
 
 ## What's in it
 
