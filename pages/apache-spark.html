@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Apache Spark on Snowflake — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page layout ─────────────────────────────────────────── */
+    .spk-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 18px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Approach badges ─────────────────────────────────────── */
+    .spk-badges {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .spk-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 100px;
+      background: var(--sf-blue);
+      border: 2px solid var(--sf-blue);
+    }
+    .spk-badge-name {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .spk-badge-sub { font-size: var(--fs-h6); color: rgba(255,255,255,.6); }
+    .spk-badge--outline {
+      background: transparent;
+      border-color: rgba(41,181,232,.4);
+    }
+    .spk-badge--outline .spk-badge-name { color: var(--sf-blue); }
+
+    /* ── Flow diagram ─────────────────────────────────────────── */
+    .spk-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+      max-width: 860px;
+      flex-shrink: 0;
+    }
+    .spk-flow-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 13px 12px;
+      border-radius: 12px;
+      background: var(--sf-blue-dark);
+      border: 2px solid rgba(41,181,232,.3);
+      text-align: center;
+    }
+    .spk-flow-label { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
+    .spk-flow-sub { font-size: var(--fs-h6); color: rgba(255,255,255,.6); line-height: 1.35; }
+    .spk-flow-arrow {
+      font-size: 22px;
+      color: rgba(41,181,232,.5);
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Capability cards ────────────────────────────────────── */
+    .spk-caps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+      max-width: 860px;
+      flex-shrink: 0;
+    }
+    .spk-cap {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 13px 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      transition: box-shadow .17s, transform .15s, border-color .15s;
+    }
+    .spk-cap:hover {
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-1px);
+      border-color: var(--sf-blue);
+    }
+    .spk-cap.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .spk-cap-icon {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .spk-cap-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); margin-bottom: 2px; }
+    .spk-cap-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.4; }
+    .spk-cap-tag {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 1px 8px;
+      border-radius: 100px;
+      font-size: 9px;
+      font-weight: 700;
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.2);
+      color: var(--sf-blue);
+    }
+    .spk-cap-tag--pvpr {
+      background: rgba(245,158,11,.07);
+      border-color: rgba(245,158,11,.25);
+      color: #b45309;
+    }
+
+    /* ── Slide-up panel ─────────────────────────────────────── */
+    .spk-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 900px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 48vh;
+      overflow-y: auto;
+    }
+    .spk-panel.open { transform: translateX(-50%) translateY(0); }
+    .spk-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .spk-panel-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .spk-panel-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .spk-panel-close:hover { background: rgba(41,181,232,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/spark-connector-overview',
+      code:  null,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_snowpark_scala/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Apache Spark on Snowflake</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Developer Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Apache Spark&#x2122; on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;">Run Spark workloads natively on Snowflake compute or connect an external Spark cluster — same PySpark API, all your data where it already lives.</div>
+        </div>
+
+        <div class="spk-page content-wrap">
+
+          <!-- Approach badges -->
+          <div class="spk-badges">
+            <div class="spk-badge">
+              <span class="sf-img sf-icon-spark" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              <span class="spk-badge-name">Snowpark Connect</span>
+              <span class="spk-badge-sub">PvPr</span>
+            </div>
+            <div class="spk-badge spk-badge--outline">
+              <span class="sf-img sf-icon-connected" style="width:16px;height:16px;"></span>
+              <span class="spk-badge-name">Spark Connector</span>
+              <span class="spk-badge-sub" style="color:rgba(41,181,232,.6);">GA</span>
+            </div>
+          </div>
+
+          <!-- Flow -->
+          <div class="spk-flow">
+            <div class="spk-flow-node">
+              <span class="sf-img sf-icon-spark" style="width:28px;height:28px;"></span>
+              <div class="spk-flow-label">PySpark Code</div>
+              <div class="spk-flow-sub">Existing jobs, notebooks, or scripts — unchanged</div>
+            </div>
+            <div class="spk-flow-arrow">&#x2192;</div>
+            <div class="spk-flow-node">
+              <span class="sf-img sf-icon-snowpark" style="width:28px;height:28px;"></span>
+              <div class="spk-flow-label">Snowpark Connect</div>
+              <div class="spk-flow-sub">Spark execution engine runs on Snowflake compute</div>
+            </div>
+            <div class="spk-flow-arrow">&#x2194;</div>
+            <div class="spk-flow-node">
+              <span class="sf-img sf-icon-iceberg" style="width:28px;height:28px;"></span>
+              <div class="spk-flow-label">Snowflake Data</div>
+              <div class="spk-flow-sub">Iceberg tables, Native tables — no copy needed</div>
+            </div>
+            <div class="spk-flow-arrow">&#x2192;</div>
+            <div class="spk-flow-node">
+              <span class="sf-img sf-icon-snowflake" style="width:28px;height:28px;"></span>
+              <div class="spk-flow-label">Results</div>
+              <div class="spk-flow-sub">Governed, versioned, queryable in Snowflake</div>
+            </div>
+          </div>
+
+          <!-- Capability cards -->
+          <div class="spk-caps">
+
+            <div class="spk-cap" data-fn="snowpark-connect">
+              <div class="spk-cap-icon">
+                <span class="sf-img sf-icon-spark" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="spk-cap-title">Snowpark Connect (SCOS)</div>
+                <div class="spk-cap-desc">Run PySpark jobs natively on Snowflake compute. No separate Spark cluster — Snowflake executes the Spark engine. Your existing PySpark API and code works as-is.</div>
+                <span class="spk-cap-tag spk-cap-tag--pvpr">Private Preview</span>
+              </div>
+            </div>
+
+            <div class="spk-cap" data-fn="connector">
+              <div class="spk-cap-icon">
+                <span class="sf-img sf-icon-connected" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="spk-cap-title">Spark Connector</div>
+                <div class="spk-cap-desc">Connect an external Apache Spark cluster to Snowflake. Reads and writes via the Snowflake Spark Connector with aggressive query pushdown — Snowflake does the heavy lifting.</div>
+                <span class="spk-cap-tag">Generally Available</span>
+              </div>
+            </div>
+
+            <div class="spk-cap" data-fn="iceberg">
+              <div class="spk-cap-icon">
+                <span class="sf-img sf-icon-iceberg" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="spk-cap-title">Direct Iceberg Access</div>
+                <div class="spk-cap-desc">Spark reads Snowflake-managed Iceberg tables directly via the Iceberg REST catalog — no COPY INTO, no data duplication. Snowflake governs, Spark reads.</div>
+                <span class="spk-cap-tag">Generally Available</span>
+              </div>
+            </div>
+
+            <div class="spk-cap" data-fn="migrate">
+              <div class="spk-cap-icon">
+                <span class="sf-img sf-icon-launch" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="spk-cap-title">Migrate from Databricks / EMR</div>
+                <div class="spk-cap-desc">Use the Snowflake Migration Accelerator (SMA) to convert Spark scripts and notebooks. SCOS preserves the PySpark API so migration effort is minimal.</div>
+                <span class="spk-cap-tag">SMA Tool</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-up panel -->
+  <div class="spk-panel" id="spk-panel">
+    <div class="spk-panel-header">
+      <span class="spk-panel-title" id="spk-panel-title"></span>
+      <button class="spk-panel-close" onclick="closePanel()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="spk-panel-body"></div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      'snowpark-connect': {
+        title: 'Snowpark Connect (SCOS) — PySpark on Snowflake Compute',
+        body: `${cm('# Snowpark Connect: your PySpark jobs run ON Snowflake — no separate cluster')}
+
+${cm('# ── Step 1: Create a Snowpark Connect integration ───────────────────────')}
+${cm('-- In Snowflake:')}
+${k('CREATE OR REPLACE')} ${id('SNOWPARK_CONNECT_INTEGRATION')} ${id('my_scos_int')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}
+  ${id('ALLOWED_NAMESPACES')} ${p('=')} ${p('(')}${id('MY_DB')}${p(')')}${p(';')}
+
+${cm('# ── Step 2: Submit a PySpark job — no code changes required ─────────────')}
+${k('from')} ${id('pyspark.sql')} ${k('import')} ${id('SparkSession')}
+
+${cm('# Connection string points to Snowflake instead of a Spark master')}
+${id('spark')} ${p('=')} ${id('SparkSession')}${p('.')}${f('builder')}${p('.')} \
+  ${f('config')}${p('(')}${str('"spark.snowflake.integration"')}, ${str('"my_scos_int"')}${p(')')}${p('.')} \
+  ${f('config')}${p('(')}${str('"spark.snowflake.warehouse"')}, ${str('"COMPUTE_WH"')}${p(')')}${p('.')} \
+  ${f('getOrCreate')}${p('()')}
+
+${cm('# ── Standard PySpark — reads directly from Snowflake tables ────────────')}
+${id('df')} ${p('=')} ${id('spark')}${p('.')}${f('read')}${p('.')}${f('format')}${p('(')}${str('"snowflake"')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"dbtable"')}${p(',')} ${str('"SALES.ORDERS"')}${p(')')} \
+  ${p('.')}${f('load')}${p('()')}
+
+${id('result')} ${p('=')} ${id('df')}${p('.')}${f('groupBy')}${p('(')}${str('"REGION"')}${p(')')} \
+  ${p('.')}${f('agg')}${p('({')}${str('"TOTAL_AMT"')}: ${str('"sum"')}${p('})')} \
+  ${p('.')}${f('orderBy')}${p('(')}${str('"sum(TOTAL_AMT)"')}${p(',')} ${id('ascending')}${p('=')}${k('False')}${p(')')}
+
+${cm('# ── Write results back to Snowflake ────────────────────────────────────')}
+${id('result')}${p('.')}${f('write')}${p('.')}${f('format')}${p('(')}${str('"snowflake"')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"dbtable"')}${p(',')} ${str('"ANALYTICS.REGIONAL_SUMMARY"')}${p(')')} \
+  ${p('.')}${f('mode')}${p('(')}${str('"overwrite"')}${p(')')} \
+  ${p('.')}${f('save')}${p('()')}
+
+${cm('# Snowflake executes the Spark plan on a virtual warehouse.')}
+${cm('# No data leaves Snowflake. No separate cluster to manage.')}`
+      },
+      connector: {
+        title: 'Spark Connector — External Spark ↔ Snowflake',
+        body: `${cm('# Snowflake Connector for Spark: connect an existing Spark cluster')}
+${cm('# Uses pushdown optimisation — Snowflake executes filters/aggregations')}
+
+${cm('# ── Maven / SBT dependency (Spark 3.x) ─────────────────────────────────')}
+${cm('# build.sbt:')}
+${cm('# libraryDependencies += "net.snowflake" % "spark-snowflake_2.12" % "2.15.0-spark_3.4"')}
+
+${cm('# ── PySpark: read from Snowflake ────────────────────────────────────────')}
+${k('from')} ${id('pyspark.sql')} ${k('import')} ${id('SparkSession')}
+
+${id('SNOWFLAKE_OPTIONS')} ${p('=')} ${p('{')}
+  ${str('"sfURL"')}:       ${str('"MYORG-MYACCOUNT.snowflakecomputing.com"')}${p(',')}
+  ${str('"sfUser"')}:      ${str('"spark_svc_user"')}${p(',')}
+  ${str('"sfPassword"')}:  ${str('"..."')}${p(',')}
+  ${str('"sfDatabase"')}:  ${str('"SALES_DB"')}${p(',')}
+  ${str('"sfSchema"')}:    ${str('"PUBLIC"')}${p(',')}
+  ${str('"sfWarehouse"')}: ${str('"COMPUTE_WH"')}
+${p('}')}
+
+${id('df')} ${p('=')} ${id('spark')}${p('.')}${f('read')} \
+  ${p('.')}${f('format')}${p('(')}${str('"net.snowflake.spark.snowflake"')}${p(')')} \
+  ${p('.')}${f('options')}${p('(')}${p('**')}${id('SNOWFLAKE_OPTIONS')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"query"')}${p(',')}
+    ${str('"SELECT region, SUM(revenue) FROM orders GROUP BY region"')}${p(')')} \
+  ${p('.')}${f('load')}${p('()')}
+
+${cm('# The SQL runs in Snowflake — only the aggregated result is transferred')}
+
+${cm('# ── Write back to Snowflake ─────────────────────────────────────────────')}
+${id('df')}${p('.')}${f('write')} \
+  ${p('.')}${f('format')}${p('(')}${str('"net.snowflake.spark.snowflake"')}${p(')')} \
+  ${p('.')}${f('options')}${p('(')}${p('**')}${id('SNOWFLAKE_OPTIONS')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"dbtable"')}${p(',')} ${str('"ANALYTICS.RESULTS"')}${p(')')} \
+  ${p('.')}${f('mode')}${p('(')}${str('"append"')}${p(')')} \
+  ${p('.')}${f('save')}${p('()')}`
+      },
+      iceberg: {
+        title: 'Direct Iceberg Access from Spark',
+        body: `${cm('-- Snowflake exposes its Iceberg tables via the Iceberg REST catalog.')}
+${cm('-- Spark reads them directly — no data copy, no COPY INTO needed.')}
+
+${cm('-- ── Step 1: Expose Snowflake as an Iceberg REST catalog ──────────────')}
+${k('CREATE OR REPLACE')} ${id('CATALOG INTEGRATION')} ${id('my_iceberg_rest')}
+  ${id('CATALOG_SOURCE')} ${p('=')} ${id('ICEBERG_REST')}
+  ${id('TABLE_FORMAT')} ${p('=')} ${id('ICEBERG')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── Step 2: Create an Iceberg table in Snowflake ─────────────────────')}
+${k('CREATE ICEBERG TABLE')} ${id('sales_events')} ${p('(')}
+  ${id('event_ts')}  ${id('TIMESTAMP_NTZ')}${p(',')}
+  ${id('user_id')}   ${id('STRING')}${p(',')}
+  ${id('event')}     ${id('STRING')}${p(',')}
+  ${id('revenue')}   ${id('DECIMAL')}${p('(')}${n('10')},${n('2')}${p(')')}
+${p(')')}
+${id('CATALOG')} ${p('=')} ${id('SNOWFLAKE')}
+${id('EXTERNAL_VOLUME')} ${p('=')} ${str('"my_s3_volume"')}
+${id('BASE_LOCATION')} ${p('=')} ${str('"sales_events/"')}${p(';')}
+
+${cm('# ── Step 3: Spark reads via the REST catalog ──────────────────────────')}
+${id('spark')} ${p('=')} ${id('SparkSession')}${p('.')}${f('builder')} \
+  ${p('.')}${f('config')}${p('(')}${str('"spark.sql.catalog.snowflake"')},
+         ${str('"org.apache.iceberg.spark.SparkCatalog"')}${p(')')} \
+  ${p('.')}${f('config')}${p('(')}${str('"spark.sql.catalog.snowflake.type"')}${p(',')} ${str('"rest"')}${p(')')} \
+  ${p('.')}${f('config')}${p('(')}${str('"spark.sql.catalog.snowflake.uri"')}${p(',')}
+         ${str('"https://MYORG-MYACCOUNT.snowflakecomputing.com/polaris/api/catalog"')}${p(')')} \
+  ${p('.')}${f('getOrCreate')}${p('()')}
+
+${cm('# Read — no data copy, Snowflake remains the source of truth')}
+${id('df')} ${p('=')} ${id('spark')}${p('.')}${f('table')}${p('(')}${str('"snowflake.SALES_DB.PUBLIC.sales_events"')}${p(')')}
+${id('df')}${p('.')}${f('filter')}${p('(')}${id('df')}${p('.')}${id('event')} ${p('==')} ${str('"purchase"')}${p(')')}${p('.')}${f('show')}${p('()')}`
+      },
+      migrate: {
+        title: 'Migrate from Databricks / EMR to Snowflake',
+        body: `${cm('# Snowflake Migration Accelerator (SMA) automates Spark-to-Snowflake conversion')}
+
+${cm('# ── Two migration paths ─────────────────────────────────────────────────')}
+${cm('#')}
+${cm('# Path A: Snowpark Connect (SCOS) — RECOMMENDED')}
+${cm('#   • Preserve the PySpark API surface')}
+${cm('#   • Minimal code changes (just change the connection target)')}
+${cm('#   • Best for lift-and-shift of existing Spark workloads')}
+${cm('#')}
+${cm('# Path B: Snowpark Python API')}
+${cm('#   • Rewrite Spark DataFrames as Snowpark DataFrames')}
+${cm('#   • Better for greenfield or when you want full native integration')}
+
+${cm('# ── Before: Databricks PySpark ─────────────────────────────────────────')}
+${cm('# Original code — reads from Delta table, transforms, writes to Delta')}
+${id('df')} ${p('=')} ${id('spark')}${p('.')}${f('read')}${p('.')}${f('format')}${p('(')}${str('"delta"')}${p(')')}${p('.')}${f('load')}${p('(')}${str('"s3://my-bucket/sales"')}${p(')')}
+${id('result')} ${p('=')} ${id('df')}${p('.')}${f('filter')}${p('(')}${id('df')}${p('.')}${id('region')} ${p('==')} ${str('"APAC"')}${p(')')}${p('.')}${f('groupBy')}${p('(')}${str('"product"')}${p(')')}${p('.')}${f('count')}${p('()')}
+${id('result')}${p('.')}${f('write')}${p('.')}${f('format')}${p('(')}${str('"delta"')}${p(')')}${p('.')}${f('save')}${p('(')}${str('"s3://my-bucket/output"')}${p(')')}
+
+${cm('# ── After: Snowpark Connect — same PySpark code ─────────────────────────')}
+${cm('# Only the read/write targets change. The transformation logic is untouched.')}
+${id('df')} ${p('=')} ${id('spark')}${p('.')}${f('read')}${p('.')}${f('format')}${p('(')}${str('"snowflake"')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"dbtable"')}${p(',')} ${str('"SALES_DB.PUBLIC.SALES"')}${p(')')}${p('.')}${f('load')}${p('()')}
+${id('result')} ${p('=')} ${id('df')}${p('.')}${f('filter')}${p('(')}${id('df')}${p('.')}${id('region')} ${p('==')} ${str('"APAC"')}${p(')')}${p('.')}${f('groupBy')}${p('(')}${str('"product"')}${p(')')}${p('.')}${f('count')}${p('()')}
+${id('result')}${p('.')}${f('write')}${p('.')}${f('format')}${p('(')}${str('"snowflake"')}${p(')')} \
+  ${p('.')}${f('option')}${p('(')}${str('"dbtable"')}${p(',')} ${str('"ANALYTICS.APAC_SUMMARY"')}${p(')')}${p('.')}${f('save')}${p('()')}
+
+${cm('# Snowflake replaces: Databricks cluster, Unity Catalog, Delta Lake storage')}
+${cm('# One platform for storage, compute, governance, and ML')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('spk-panel-title').textContent = data.title;
+      document.getElementById('spk-panel-body').innerHTML = data.body;
+      document.getElementById('spk-panel').classList.add('open');
+      document.querySelectorAll('.spk-cap').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('spk-panel').classList.remove('open');
+      document.querySelectorAll('.spk-cap').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.spk-cap[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  </script>
+
+</body>
+</html>

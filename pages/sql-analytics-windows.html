@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Window Functions — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .win-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 880px; padding: 8px 0 4px; }
+    .win-card { background: var(--sf-card); border: 2px solid rgba(41,181,232,.2); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: border-color .15s, transform .12s; }
+    .win-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .win-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .win-card-label { font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace; font-size: var(--fs-h5); font-weight: 700; color: var(--sf-blue); margin-bottom: 4px; }
+    .win-card.active .win-card-label { color: var(--sf-light); }
+    .win-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+    .win-panel { width: 100%; max-width: 880px; border: 2px solid rgba(41,181,232,.2); border-radius: 12px; overflow: hidden; display: flex; flex: 1; min-height: 0; }
+    .win-panel-code { flex: 3; background: var(--code-bg); padding: 16px 18px; overflow-y: auto; font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace; font-size: 12px; line-height: 1.6; color: var(--code-base); white-space: pre-wrap; }
+    .win-panel-explain { flex: 2; padding: 16px 18px; overflow-y: auto; background: #fff; font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6; }
+    .win-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .win-panel-explain p { margin-bottom: 10px; }
+    .win-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .win-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake supports the complete ANSI window function spec plus several extensions that eliminate entire categories of subqueries. The most impactful for technical audiences is QUALIFY — it filters window function results inline, like HAVING does for GROUP BY, without requiring a wrapper CTE or subquery. Show an analyst who's been writing QUALIFY patterns in CTEs and they immediately want it. PIVOT/UNPIVOT, LEAD/LAG, and full ranking functions round out a toolkit that handles the most common analytical query patterns cleanly.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>QUALIFY:</strong> Filter window function results in the same query. <code>QUALIFY ROW_NUMBER() OVER (...) = 1</code> — no CTE, no subquery.</li>
+  <li><strong>Full ranking set:</strong> ROW_NUMBER, RANK, DENSE_RANK, NTILE, CUME_DIST, PERCENT_RANK — plus RATIO_TO_REPORT for proportional shares.</li>
+  <li><strong>LEAD / LAG:</strong> Access values from other rows within a partition without self-joins. Period-over-period comparisons in a single SELECT.</li>
+  <li><strong>PIVOT / UNPIVOT:</strong> Reshape rows to columns (pivot) and back (unpivot). PIVOT in Snowflake supports dynamic column values via subquery.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are your analysts writing complex nested CTEs just to filter on a window function result? QUALIFY eliminates that pattern entirely.</li>
+  <li>Do you have period-over-period reporting needs — month-over-month, year-over-year — that currently require self-joins?</li>
+  <li>Do you need to pivot survey results, product attributes, or metrics from rows to columns for reporting?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/functions-window-using',
+      code:  true,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Window Functions &amp; Advanced SQL</span>
+      <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Analytics — Window Functions</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Window Functions &amp; Advanced SQL</div>
+          <div class="s6-sub" style="text-align:center;">QUALIFY eliminates subqueries. Full ANSI window functions plus Snowflake extensions for ranking, period-over-period, and reshaping.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="win-grid">
+            <div class="win-card active" data-idx="0"><div class="win-card-label">QUALIFY Clause</div><div class="win-card-desc">Filter window results inline — no CTE needed</div></div>
+            <div class="win-card" data-idx="1"><div class="win-card-label">Ranking Functions</div><div class="win-card-desc">ROW_NUMBER, RANK, DENSE_RANK, NTILE</div></div>
+            <div class="win-card" data-idx="2"><div class="win-card-label">LEAD / LAG</div><div class="win-card-desc">Period-over-period without self-joins</div></div>
+            <div class="win-card" data-idx="3"><div class="win-card-label">Running Totals</div><div class="win-card-desc">Cumulative sums and averages over partitions</div></div>
+            <div class="win-card" data-idx="4"><div class="win-card-label">PIVOT / UNPIVOT</div><div class="win-card-desc">Reshape rows to columns and back</div></div>
+            <div class="win-card" data-idx="5"><div class="win-card-label">FIRST_VALUE / LAST_VALUE</div><div class="win-card-desc">Boundary values within a window partition</div></div>
+          </div>
+          <div class="win-panel">
+            <div id="win-code" class="win-panel-code"></div>
+            <div id="win-explain" class="win-panel-explain"></div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Top customer per region using QUALIFY (no CTE)</span>
+<span class="code-kw">SELECT</span>
+  <span class="code-id">region</span><span class="code-punc">,</span>
+  <span class="code-id">customer_id</span><span class="code-punc">,</span>
+  <span class="code-fn">SUM</span><span class="code-punc">(</span><span class="code-id">revenue</span><span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">total_rev</span><span class="code-punc">,</span>
+  <span class="code-fn">RANK</span><span class="code-punc">()</span> <span class="code-kw">OVER</span> <span class="code-punc">(</span>
+    <span class="code-kw">PARTITION BY</span> <span class="code-id">region</span>
+    <span class="code-kw">ORDER BY</span> <span class="code-fn">SUM</span><span class="code-punc">(</span><span class="code-id">revenue</span><span class="code-punc">)</span> <span class="code-kw">DESC</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">rnk</span>
+<span class="code-kw">FROM</span> <span class="code-id">orders</span>
+<span class="code-kw">GROUP BY</span> <span class="code-num">1</span><span class="code-punc">,</span> <span class="code-num">2</span>
+<span class="code-kw">QUALIFY</span> <span class="code-id">rnk</span> <span class="code-punc">&lt;=</span> <span class="code-num">3</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>QUALIFY: Top-N Per Group</h4>
+      <p>Without QUALIFY this requires wrapping in a CTE or subquery. QUALIFY filters on the window function result in the same query — like HAVING for GROUP BY.</p>
+      <p>Any window function result is filterable with QUALIFY.</p>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { label: 'QUALIFY',
+        code: `${cm('-- Deduplicate: keep latest row per user')}\n${k('SELECT')} ${p('*')}\n${k('FROM')} ${id('events')}\n${k('QUALIFY')}\n  ${f('ROW_NUMBER')}${p('()')} ${k('OVER')} ${p('(')}\n    ${k('PARTITION BY')} ${id('user_id')}\n    ${k('ORDER BY')} ${id('event_ts')} ${k('DESC')}\n  ${p(')')} ${p('=')} ${n('1')}${p(';')}\n\n${cm('-- Without QUALIFY (requires CTE):')}\n${k('WITH')} ${id('ranked')} ${k('AS')} ${p('(')}\n  ${k('SELECT')} ${p('*')}\n    ${p(',')} ${f('ROW_NUMBER')}${p('()')} ${k('OVER')} ${p('(')}..${p(')')} ${k('AS')} ${id('rn')}\n  ${k('FROM')} ${id('events')}\n${p(')')}\n${k('SELECT')} ${p('*')} ${k('FROM')} ${id('ranked')} ${k('WHERE')} ${id('rn')} ${p('=')} ${n('1')}${p(';')}\n${cm('-- QUALIFY eliminates this pattern entirely')}`,
+        explain: `<h4>QUALIFY Clause</h4><p>Filters the result of a window function in the same SELECT — like HAVING does for aggregate functions. Eliminates the need for a wrapping CTE or subquery.</p><p><strong>Common patterns:</strong></p><ul><li><code>QUALIFY ROW_NUMBER() OVER (...) = 1</code> — keep latest record per partition</li><li><code>QUALIFY RANK() OVER (...) &lt;= 3</code> — top-N per group</li><li><code>QUALIFY COUNT(*) OVER (PARTITION BY x) > 1</code> — find duplicates</li></ul><p>QUALIFY is evaluated after WHERE and GROUP BY, but before ORDER BY — same as HAVING.</p>` },
+
+      { label: 'Ranking Functions',
+        code: `${cm('-- All ranking functions in one query')}\n${k('SELECT')}\n  ${id('customer_id')}${p(',')}\n  ${id('revenue')}${p(',')}\n  ${f('ROW_NUMBER')}${p('()')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('revenue')} ${k('DESC')}${p(')')} ${k('AS')} ${id('row_num')}${p(',')}\n  ${f('RANK')}${p('()')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('revenue')} ${k('DESC')}${p(')')} ${k('AS')} ${id('rank')}${p(',')}\n  ${f('DENSE_RANK')}${p('()')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('revenue')} ${k('DESC')}${p(')')} ${k('AS')} ${id('dense_rank')}${p(',')}\n  ${f('NTILE')}${p('(')}${n('4')}${p(')')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('revenue')} ${k('DESC')}${p(')')} ${k('AS')} ${id('quartile')}${p(',')}\n  ${f('PERCENT_RANK')}${p('()')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('revenue')} ${k('DESC')}${p(')')} ${k('AS')} ${id('pct_rank')}\n${k('FROM')} ${id('customers')}${p(';')}`,
+        explain: `<h4>Ranking Functions</h4><p><strong>ROW_NUMBER</strong> — unique sequential integer. No ties.</p><p><strong>RANK</strong> — ties get the same rank; next rank skips (1,1,3).</p><p><strong>DENSE_RANK</strong> — ties get the same rank; next rank is consecutive (1,1,2).</p><p><strong>NTILE(n)</strong> — divide rows into n equal buckets. Use for quartiles, deciles, percentile bins.</p><p><strong>PERCENT_RANK</strong> — relative rank as a fraction from 0 to 1. Use with QUALIFY to filter to top X%.</p>` },
+
+      { label: 'LEAD / LAG',
+        code: `${cm('-- Month-over-month revenue change')}\n${k('SELECT')}\n  ${id('month')}\n  ${p(',')} ${id('revenue')}\n  ${p(',')} ${f('LAG')}${p('(')}${id('revenue')}${p(',')} ${n('1')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('ORDER BY')} ${id('month')}${p(')')} ${k('AS')} ${id('prev_month_rev')}\n  ${p(',')} ${id('revenue')} ${p('-')} ${f('LAG')}${p('(')}${id('revenue')}${p(',')} ${n('1')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('ORDER BY')} ${id('month')}${p(')')} ${k('AS')} ${id('mom_change')}\n  ${p(',')} ${f('ROUND')}${p('(')}\n    ${p('(')}${id('revenue')} ${p('-')} ${f('LAG')}${p('(')}${id('revenue')}${p(',')} ${n('1')}${p(')')} ${k('OVER')}\n      ${p('(')}${k('ORDER BY')} ${id('month')}${p(')')}\n    ${p(')')} ${p('/')} ${f('LAG')}${p('(')}${id('revenue')}${p(',')} ${n('1')}${p(')')} ${k('OVER')}\n      ${p('(')}${k('ORDER BY')} ${id('month')}${p(')')}\n    ${p('*')} ${n('100')}${p(',')} ${n('1')}\n  ${p(')')} ${k('AS')} ${id('mom_pct')}\n${k('FROM')} ${id('monthly_revenue')}${p(';')}`,
+        explain: `<h4>LEAD and LAG</h4><p><code>LAG(col, n)</code> returns the value n rows before the current row in the window. <code>LEAD(col, n)</code> returns n rows ahead.</p><p><strong>Use cases:</strong></p><ul><li>Month-over-month, year-over-year comparisons</li><li>Session gap detection (LEAD to find next event)</li><li>Price change detection (compare to previous reading)</li></ul><p>Third argument sets a default for when the offset goes out of bounds: <code>LAG(revenue, 1, 0)</code> returns 0 for the first row instead of NULL.</p>` },
+
+      { label: 'Running Totals',
+        code: `${cm('-- Running total, moving average, and cumulative %')}\n${k('SELECT')}\n  ${id('date')}\n  ${p(',')} ${id('revenue')}\n  ${p(',')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('ORDER BY')} ${id('date')} ${k('ROWS UNBOUNDED PRECEDING')}${p(')')} ${k('AS')} ${id('running_total')}\n  ${p(',')} ${f('AVG')}${p('(')}${id('revenue')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('ORDER BY')} ${id('date')} ${k('ROWS BETWEEN')} ${n('6')} ${k('PRECEDING AND CURRENT ROW')}${p(')')} ${k('AS')} ${id('rolling_7d_avg')}\n  ${p(',')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('date')}${p(')')} ${p('/')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('OVER')} ${p('()')} ${k('AS')} ${id('cumulative_pct')}\n${k('FROM')} ${id('daily_sales')}${p(';')}`,
+        explain: `<h4>Running Totals and Moving Averages</h4><p><strong>ROWS UNBOUNDED PRECEDING</strong> — includes all rows from the start of the partition. Standard pattern for cumulative sums.</p><p><strong>ROWS BETWEEN N PRECEDING AND CURRENT ROW</strong> — fixed-size moving window (7-day rolling average).</p><p><strong>Cumulative percentage</strong> — divide the running total by the grand total (empty OVER() = entire result set). No self-join needed.</p>` },
+
+      { label: 'PIVOT / UNPIVOT',
+        code: `${cm('-- Pivot: rows to columns (quarterly revenue by product)')}\n${k('SELECT')} ${p('*')}\n${k('FROM')} ${id('quarterly_revenue')}\n  ${k('PIVOT')} ${p('(')}${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('FOR')} ${id('quarter')}\n    ${k('IN')} ${p('(')}${str("'Q1'")}\n       ${p(',')} ${str("'Q2'")}\n       ${p(',')} ${str("'Q3'")}\n       ${p(',')} ${str("'Q4'")}${p('));\n')}\n${cm('-- Unpivot: columns to rows (normalize wide table)')}\n${k('SELECT')} ${id('product')}\n  ${p(',')} ${id('quarter')}\n  ${p(',')} ${id('revenue')}\n${k('FROM')} ${id('wide_revenue')}\n  ${k('UNPIVOT')} ${p('(')}${id('revenue')} ${k('FOR')} ${id('quarter')}\n    ${k('IN')} ${p('(')}${id('Q1')}${p(',')} ${id('Q2')}${p(',')} ${id('Q3')}${p(',')} ${id('Q4')}${p('));\n')}`,
+        explain: `<h4>PIVOT and UNPIVOT</h4><p><strong>PIVOT</strong> rotates rows into columns. Specify the aggregate function, the column to spread, and the values to use as column names.</p><p><strong>UNPIVOT</strong> reverses the process — converts a wide table with many columns into a tall table with one row per value. Use to normalize denormalized reporting tables.</p><p><strong>Dynamic PIVOT</strong> — Snowflake supports using a subquery for the IN list, so you don't have to hardcode column values when the set is unknown at query time.</p>` },
+
+      { label: 'FIRST_VALUE / LAST_VALUE',
+        code: `${cm('-- First and last order per customer')}\n${k('SELECT')}\n  ${id('customer_id')}${p(',')}\n  ${id('order_id')}${p(',')}\n  ${id('order_date')}${p(',')}\n  ${f('FIRST_VALUE')}${p('(')}${id('order_id')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('PARTITION BY')} ${id('customer_id')}\n     ${k('ORDER BY')} ${id('order_date')}${p(')')} ${k('AS')} ${id('first_order')}${p(',')}\n  ${f('LAST_VALUE')}${p('(')}${id('order_id')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('PARTITION BY')} ${id('customer_id')}\n     ${k('ORDER BY')} ${id('order_date')}\n     ${k('ROWS BETWEEN UNBOUNDED PRECEDING')}\n       ${k('AND UNBOUNDED FOLLOWING')}${p(')')} ${k('AS')} ${id('latest_order')}\n${k('FROM')} ${id('orders')}${p(';')}`,
+        explain: `<h4>FIRST_VALUE and LAST_VALUE</h4><p>Return the first or last value in the window frame. Useful for cohort analysis, finding the entry or exit event for each partition.</p><p><strong>LAST_VALUE gotcha:</strong> the default frame is <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code> — which means the "last value" is just the current row unless you explicitly extend the frame to <code>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</code>.</p>` },
+    ];
+
+    let currentIdx = 0;
+    function showItem(idx) {
+      currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
+      const item = ITEMS[currentIdx];
+      document.getElementById('win-code').innerHTML = item.code;
+      document.getElementById('win-explain').innerHTML = item.explain;
+      document.querySelectorAll('.win-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
+    }
+    document.querySelectorAll('.win-card[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+    showItem(0);
+  </script>
+</body>
+</html>

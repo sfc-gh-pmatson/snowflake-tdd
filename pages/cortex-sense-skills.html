@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Agent Skills &#8212; Cortex Sense</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Skills wrap ──────────────────────────────────────── */
+    .cse-skills-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 20px 10px;
+      gap: 10px;
+      min-height: 0;
+      align-items: center;
+    }
+    .cse-feature-row,
+    .cse-agents,
+    .cse-result-banner {
+      width: 100%;
+      max-width: 760px;
+    }
+    .cse-feature-row {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .cse-feature-chip {
+      display: inline-flex;
+      flex-direction: column;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: var(--sf-card);
+      border: 1px solid var(--sf-blue-dark);
+    }
+    .cse-feature-chip-name { font-size: var(--fs-h6); font-weight: 700; color: var(--sf-blue); }
+    .cse-feature-chip-desc { font-size: 10px; color: rgba(255,255,255,.55); line-height: 1.3; }
+    .cse-agents {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .cse-agent-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cse-agent-header {
+      padding: 10px 14px;
+      border-radius: 10px 10px 0 0;
+      border: 1.5px solid var(--sf-blue-mid);
+      border-bottom: none;
+      background: var(--sf-card);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .cse-agent-name { font-size: var(--fs-h4); font-weight: 700; color: #fff; }
+    .cse-agent-tagline { font-size: var(--fs-h6); color: rgba(255,255,255,.65); line-height: 1.3; margin-top: 2px; }
+    .cse-skill-card {
+      padding: 7px 12px;
+      border-radius: 7px;
+      background: var(--sf-card2);
+      border: 1px solid var(--sf-blue-dark);
+      flex-shrink: 0;
+    }
+    .cse-skill-name { font-size: var(--fs-h5); font-weight: 600; color: #fff; }
+    .cse-skill-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.65); line-height: 1.35; margin-top: 2px; }
+    .cse-result-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: var(--sf-navy);
+      border: 1.5px solid var(--sf-blue);
+      flex-shrink: 0;
+    }
+    .cse-result-pill {
+      padding: 2px 12px;
+      border-radius: 100px;
+      background: var(--sf-blue);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .cse-result-text { font-size: var(--fs-h5); font-weight: 700; color: #fff; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = { docs: null, code: null, guide: null, blog: null };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./cortex-sense.html" class="btn-back">&#8592; Cortex Sense</a>
+      <span class="nav-label">Agent Skills</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-priv">Private Preview</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">AI / Cortex AI</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Curated Business Agent Skills</div>
+          <div class="s6-sub" style="text-align:center;">Pre-built, composable skills for Sales, Marketing, and Finance &#8212; grounded in your Cortex Sense context from day one.</div>
+        </div>
+
+        <div class="cse-skills-wrap">
+
+
+          <!-- Feature highlights -->
+          <div class="cse-feature-row">
+            <div class="cse-feature-chip">
+              <span class="cse-feature-chip-name">Sales &middot; Marketing &middot; Finance</span>
+              <span class="cse-feature-chip-desc">Curated skills for each function. Client intel, campaign ops, variance analysis.</span>
+            </div>
+            <div class="cse-feature-chip">
+              <span class="cse-feature-chip-name">Point it at your context</span>
+              <span class="cse-feature-chip-desc">Customize prompts, tools, and metric definitions for your business.</span>
+            </div>
+            <div class="cse-feature-chip">
+              <span class="cse-feature-chip-name">Grounded out of the box</span>
+              <span class="cse-feature-chip-desc">Skills inherit your semantics and governance. No starting from scratch.</span>
+            </div>
+            <div class="cse-feature-chip">
+              <span class="cse-feature-chip-name">Composable &amp; extensible</span>
+              <span class="cse-feature-chip-desc">Combine skills, add your own, or extend Snowflake&#8217;s via Agent Studio.</span>
+            </div>
+          </div>
+
+          <!-- Three-column agent skills grid -->
+          <div class="cse-agents">
+
+            <div class="cse-agent-col">
+              <div class="cse-agent-header">
+                <div class="cse-agent-name">Sales Agent</div>
+                <div class="cse-agent-tagline">Surface client intel, track opportunities, accelerate deal execution</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Client 360</div>
+                <div class="cse-skill-desc">Unify client data and interaction history across systems</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Account Research</div>
+                <div class="cse-skill-desc">Deep research on accounts, contacts, and buyer intent signals</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Deal Intelligence</div>
+                <div class="cse-skill-desc">Track deals, stage changes, and next-best actions</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Proposal Generator</div>
+                <div class="cse-skill-desc">Create tailored proposals and follow-ups from templates</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Sales Call Summaries</div>
+                <div class="cse-skill-desc">Summarize calls, capture action items, and update CRM</div>
+              </div>
+            </div>
+
+            <div class="cse-agent-col">
+              <div class="cse-agent-header">
+                <div class="cse-agent-name">Marketing Agent</div>
+                <div class="cse-agent-tagline">Run campaigns, analyze performance, and optimize growth</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Campaign Brief Builder</div>
+                <div class="cse-skill-desc">Create clear briefs with goals, audience, messaging, and channels</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Audience Segmentation</div>
+                <div class="cse-skill-desc">Build and refine segments from first-party and third-party data</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Campaign Performance</div>
+                <div class="cse-skill-desc">Monitor KPIs and summarize performance across channels</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Content Ideation</div>
+                <div class="cse-skill-desc">Generate on-brand content ideas and campaign variations</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Competitive Watch</div>
+                <div class="cse-skill-desc">Track competitors, campaigns, and market trends</div>
+              </div>
+            </div>
+
+            <div class="cse-agent-col">
+              <div class="cse-agent-header">
+                <div class="cse-agent-name">Finance Agent</div>
+                <div class="cse-agent-tagline">Analyze financials, find variances, and support planning decisions</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Variance Analysis</div>
+                <div class="cse-skill-desc">Explain budget vs actual variances and drivers</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Financial Reporting</div>
+                <div class="cse-skill-desc">Create P&amp;L, balance sheet, and cash flow summaries</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Forecasting</div>
+                <div class="cse-skill-desc">Build rolling forecasts and scenario projections</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Spend Analysis</div>
+                <div class="cse-skill-desc">Analyze spend by category, vendor, and cost center</div>
+              </div>
+              <div class="cse-skill-card">
+                <div class="cse-skill-name">Audit &amp; Compliance</div>
+                <div class="cse-skill-desc">Identify risks, gaps, and compliance requirements</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Result banner -->
+          <div class="cse-result-banner">
+            <span class="cse-result-pill">Result</span>
+            <span class="cse-result-text">Configure in minutes. Evaluate and harden for production with governed context, observability, and feedback loops.</span>
+          </div>
+
+        </div>
+
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

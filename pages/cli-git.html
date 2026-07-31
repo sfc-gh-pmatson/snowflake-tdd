@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake CLI &amp; Git Integration — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page layout ─────────────────────────────────────────── */
+    .cli-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 18px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Tool badges ─────────────────────────────────────────── */
+    .cli-badges {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .cli-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 100px;
+      background: var(--sf-blue);
+      border: 2px solid var(--sf-blue);
+    }
+    .cli-badge-name {
+      font-size: var(--fs-h4);
+      font-weight: 700;
+      color: #fff;
+    }
+    .cli-badge-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.6);
+    }
+    .cli-badge--outline {
+      background: transparent;
+      border-color: rgba(41,181,232,.4);
+    }
+    .cli-badge--outline .cli-badge-name { color: var(--sf-blue); }
+
+    /* ── Flow: Write → CLI → Snowflake ──────────────────────── */
+    .cli-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      justify-content: center;
+      width: 100%;
+      max-width: 860px;
+      flex-shrink: 0;
+    }
+    .cli-flow-node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 12px;
+      border-radius: 12px;
+      background: var(--sf-blue-dark);
+      border: 2px solid rgba(41,181,232,.3);
+      text-align: center;
+    }
+    .cli-flow-label {
+      font-size: var(--fs-h4);
+      font-weight: 800;
+      color: #fff;
+    }
+    .cli-flow-sub {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.65);
+      line-height: 1.4;
+    }
+    .cli-flow-arrow {
+      font-size: 22px;
+      color: rgba(41,181,232,.5);
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Capability cards ────────────────────────────────────── */
+    .cli-caps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+      max-width: 860px;
+      flex-shrink: 0;
+    }
+    .cli-cap {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 13px 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      transition: box-shadow .17s, transform .15s, border-color .15s;
+    }
+    .cli-cap:hover {
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-1px);
+      border-color: var(--sf-blue);
+    }
+    .cli-cap.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .cli-cap-icon {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .cli-cap-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-ink); margin-bottom: 2px; }
+    .cli-cap-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.4; }
+
+    /* ── Slide-up code panel ─────────────────────────────────── */
+    .cli-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 900px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 48vh;
+      overflow-y: auto;
+    }
+    .cli-panel.open { transform: translateX(-50%) translateY(0); }
+    .cli-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .cli-panel-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .cli-panel-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cli-panel-close:hover { background: rgba(41,181,232,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/snowflake-cli/index',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake CLI &amp; Git Integration</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Developer Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake CLI &amp; Git Integration</div>
+          <div class="s6-sub" style="text-align:center;">A unified command-line interface and native git connectivity — build, manage, and deploy Snowflake objects without leaving your terminal or IDE.</div>
+        </div>
+
+        <div class="cli-page content-wrap">
+
+          <!-- Tool badges -->
+          <div class="cli-badges">
+            <div class="cli-badge">
+              <span class="sf-img sf-icon-resource-code" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              <span class="cli-badge-name">snow CLI</span>
+              <span class="cli-badge-sub">v3.x</span>
+            </div>
+            <div class="cli-badge cli-badge--outline">
+              <span class="sf-img sf-icon-connected" style="width:16px;height:16px;"></span>
+              <span class="cli-badge-name">Git Integration</span>
+            </div>
+          </div>
+
+          <!-- Flow -->
+          <div class="cli-flow">
+            <div class="cli-flow-node">
+              <span class="sf-img sf-icon-resource-code" style="width:28px;height:28px;"></span>
+              <div class="cli-flow-label">Write</div>
+              <div class="cli-flow-sub">SQL, Python, YAML — in any editor or IDE</div>
+            </div>
+            <div class="cli-flow-arrow">&#x2192;</div>
+            <div class="cli-flow-node">
+              <span class="sf-img sf-icon-snowpark" style="width:28px;height:28px;"></span>
+              <div class="cli-flow-label">snow CLI</div>
+              <div class="cli-flow-sub">Run, deploy, manage from terminal</div>
+            </div>
+            <div class="cli-flow-arrow">&#x2194;</div>
+            <div class="cli-flow-node">
+              <span class="sf-img sf-icon-connected" style="width:28px;height:28px;"></span>
+              <div class="cli-flow-label">Git Repo</div>
+              <div class="cli-flow-sub">Version-controlled code staged in Snowflake</div>
+            </div>
+            <div class="cli-flow-arrow">&#x2192;</div>
+            <div class="cli-flow-node">
+              <span class="sf-img sf-icon-snowflake" style="width:28px;height:28px;"></span>
+              <div class="cli-flow-label">Snowflake</div>
+              <div class="cli-flow-sub">Objects deployed and governed</div>
+            </div>
+          </div>
+
+          <!-- Capability cards -->
+          <div class="cli-caps">
+
+            <div class="cli-cap" data-fn="install">
+              <div class="cli-cap-icon">
+                <span class="sf-img sf-icon-launch" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="cli-cap-title">Install &amp; Authenticate</div>
+                <div class="cli-cap-desc">One-line install via pip. Supports key-pair, OAuth, browser-based SSO, and federated auth. Profiles for multiple accounts and roles.</div>
+              </div>
+            </div>
+
+            <div class="cli-cap" data-fn="objects">
+              <div class="cli-cap-icon">
+                <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="cli-cap-title">Manage Snowflake Objects</div>
+                <div class="cli-cap-desc">List, describe, execute SQL, manage warehouses, SPCS services, native apps, notebooks, stages — everything without opening Snowsight.</div>
+              </div>
+            </div>
+
+            <div class="cli-cap" data-fn="git">
+              <div class="cli-cap-icon">
+                <span class="sf-img sf-icon-connected" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="cli-cap-title">Git Integration</div>
+                <div class="cli-cap-desc">Connect a GitHub, GitLab, or Bitbucket repo directly to Snowflake. Branches, tags, and files become a Snowflake stage — execute code without copying it.</div>
+              </div>
+            </div>
+
+            <div class="cli-cap" data-fn="deploy">
+              <div class="cli-cap-icon">
+                <span class="sf-img sf-icon-data-eng" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="cli-cap-title">Deploy &amp; Automate</div>
+                <div class="cli-cap-desc">Deploy Snowpark functions, stored procs, SPCS services, and native apps directly from the CLI. Plug into any CI/CD pipeline with environment-variable-based auth.</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-up panel -->
+  <div class="cli-panel" id="cli-panel">
+    <div class="cli-panel-header">
+      <span class="cli-panel-title" id="cli-panel-title"></span>
+      <button class="cli-panel-close" onclick="closePanel()">&#10005;</button>
+    </div>
+    <div class="mlf-code-block" id="cli-panel-body"></div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+    const sh = s => `<span class="code-kw">${s}</span>`;  /* shell commands */
+
+    const PANELS = {
+      install: {
+        title: 'Install & Authenticate',
+        body: `${cm('# Install via pip (Python 3.8+)')}
+${sh('pip')} install snowflake-cli-labs
+
+${cm('# Verify install')}
+${sh('snow')} --version
+${cm('# → Snowflake CLI v3.x.x')}
+
+${cm('# ── Connection profiles (~/.snowflake/config.toml) ───────────────────')}
+${cm('# Key-pair auth (recommended for CI/CD)')}
+${p('[')}connections${p('.')}my_prod${p(']')}
+account ${p('=')} ${str('"MYORG-MYACCOUNT"')}
+user ${p('=')} ${str('"PMATSON"')}
+private_key_file ${p('=')} ${str('"~/.snowflake/rsa_key.p8"')}
+warehouse ${p('=')} ${str('"COMPUTE_WH"')}
+role ${p('=')} ${str('"DEVELOPER"')}
+
+${cm('# Browser-based SSO (local dev)')}
+${p('[')}connections${p('.')}my_dev${p(']')}
+account ${p('=')} ${str('"MYORG-MYACCOUNT"')}
+user ${p('=')} ${str('"PMATSON"')}
+authenticator ${p('=')} ${str('"externalbrowser"')}
+
+${cm('# CI/CD: inject credentials via environment variables')}
+${cm('# SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PRIVATE_KEY_FILE')}
+
+${cm('# Test connection')}
+${sh('snow')} connection test --connection my_prod`
+      },
+      objects: {
+        title: 'Manage Snowflake Objects',
+        body: `${cm('# ── SQL Execution ────────────────────────────────────────────────────')}
+${sh('snow')} sql -q ${str('"SELECT CURRENT_VERSION()"')} --connection my_prod
+${sh('snow')} sql -f my_migration.sql --connection my_prod
+
+${cm('# ── Object Management ────────────────────────────────────────────────')}
+${sh('snow')} object list table --schema MY_DB.MY_SCHEMA
+${sh('snow')} object describe procedure ${str('"MY_DB.MY_SCHEMA.MY_PROC(varchar)"')}
+${sh('snow')} object drop table MY_DB.MY_SCHEMA.OLD_TABLE
+
+${cm('# ── Warehouse Operations ─────────────────────────────────────────────')}
+${sh('snow')} sql -q ${str('"ALTER WAREHOUSE COMPUTE_WH RESUME"')}
+
+${cm('# ── Stage File Operations ────────────────────────────────────────────')}
+${sh('snow')} stage copy ./local_file.csv @MY_DB.PUBLIC.MY_STAGE/
+${sh('snow')} stage list @MY_DB.PUBLIC.MY_STAGE
+
+${cm('# ── Snowpark Function / Procedure Deployment ─────────────────────────')}
+${cm('# snowflake.yml describes the project:')}
+${cm('# definition_version: "2"')}
+${cm('# entities:')}
+${cm('#   my_function:')}
+${cm('#     type: function')}
+${cm('#     handler: app.process')}
+${cm('#     returns: string')}
+${cm('#     arguments: [{name: input, arg_type: string}]')}
+${cm('#     artifacts: ["app.py"]')}
+
+${sh('snow')} snowpark build
+${sh('snow')} snowpark deploy --connection my_prod`
+      },
+      git: {
+        title: 'Git Integration',
+        body: `${cm('-- ── Step 1: Create an API Integration for GitHub ──────────────────────')}
+${k('CREATE OR REPLACE')} ${id('API INTEGRATION')} ${id('github_api_integration')}
+  ${id('API_PROVIDER')} ${p('=')} ${id('git_https_api')}
+  ${id('API_ALLOWED_PREFIXES')} ${p('=')} ${p('(')}${str('"https://github.com/myorg/"')}${p(')')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── Step 2: Create a Git repository object ──────────────────────────')}
+${k('CREATE OR REPLACE')} ${id('GIT REPOSITORY')} ${id('my_repo')}
+  ${id('API_INTEGRATION')} ${p('=')} ${id('github_api_integration')}
+  ${id('ORIGIN')} ${p('=')} ${str('"https://github.com/myorg/my-snowflake-project.git"')}${p(';')}
+
+${cm('-- ── Step 3: Fetch the latest commits ───────────────────────────────')}
+${k('ALTER')} ${id('GIT REPOSITORY')} ${id('my_repo')} ${id('FETCH')}${p(';')}
+
+${cm('-- ── Step 4: Browse files in the repo ───────────────────────────────')}
+${k('LS')} @my_repo/${id('branches')}/main/${p(';')}
+${cm('-- → procedures/transform.py, tasks/pipeline.sql, ...')}
+
+${cm('-- ── Step 5: Execute a stored proc from the git stage ────────────────')}
+${k('EXECUTE IMMEDIATE')} ${k('FROM')} @my_repo/${id('branches')}/main/${str('"procedures/transform.py"')}${p(';')}
+
+${cm('-- ── Step 6: Reference specific tags or commits ─────────────────────')}
+${k('LS')} @my_repo/${id('tags')}/v1${p('.')}2${p('.')}0/${p(';')}
+${k('EXECUTE IMMEDIATE')} ${k('FROM')} @my_repo/${id('tags')}/v1${p('.')}2${p('.')}0/${str('"deploy/schema.sql"')}${p(';')}`
+      },
+      deploy: {
+        title: 'Deploy & Automate (CI/CD)',
+        body: `${cm('# ── GitHub Actions workflow example ────────────────────────────────────')}
+${cm('# .github/workflows/deploy.yml')}
+
+name${p(':')} Deploy to Snowflake
+on${p(':')}
+  push${p(':')}
+    branches${p(':')} ${p('[')}main${p(']')}
+
+jobs${p(':')}
+  deploy${p(':')}
+    runs-on${p(':')} ubuntu-latest
+    steps${p(':')}
+      - ${id('uses')}: actions/checkout@v4
+
+      - name${p(':')} Install Snowflake CLI
+        ${id('uses')}: Snowflake-Labs/snowflake-cli-action@v2
+        ${id('with')}: {cli-version: latest}
+
+      - name${p(':')} Deploy Snowpark functions
+        ${id('env')}: ${cm('# Auth via env vars — no config file needed')}
+          SNOWFLAKE_CONNECTIONS_DEFAULT_ACCOUNT: ${'$'}${'{'} secrets.SF_ACCOUNT ${'}'} 
+          SNOWFLAKE_CONNECTIONS_DEFAULT_USER: ${'$'}${'{'} secrets.SF_USER ${'}'}
+          SNOWFLAKE_CONNECTIONS_DEFAULT_PRIVATE_KEY_FILE: /tmp/rsa.p8
+        ${id('run')}: |
+          snow snowpark build
+          snow snowpark deploy --replace
+
+${cm('# ── Fetch latest git repo and run migration ─────────────────────────')}
+${sh('snow')} sql -q ${str('"ALTER GIT REPOSITORY MY_DB.PUBLIC.MY_REPO FETCH"')}
+${sh('snow')} sql -q ${str('"EXECUTE IMMEDIATE FROM @MY_REPO/branches/main/migrations/v2.sql"')}
+
+${cm('# ── Tear down resources safely ─────────────────────────────────────')}
+${sh('snow')} spcs service suspend MY_SERVICE
+${sh('snow')} sql -q ${str('"DROP SERVICE IF EXISTS MY_SERVICE"')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('cli-panel-title').textContent = data.title;
+      document.getElementById('cli-panel-body').innerHTML = data.body;
+      document.getElementById('cli-panel').classList.add('open');
+      document.querySelectorAll('.cli-cap').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('cli-panel').classList.remove('open');
+      document.querySelectorAll('.cli-cap').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.cli-cap[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+  </script>
+
+</body>
+</html>

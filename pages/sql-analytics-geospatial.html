@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Geospatial Analytics — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .geo-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      width: 100%; max-width: 880px; padding: 8px 0 4px;
+    }
+    .geo-card {
+      background: var(--sf-card); border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px; padding: 16px 18px;
+      cursor: pointer; transition: border-color .15s, transform .12s;
+    }
+    .geo-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .geo-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .geo-card-label { font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace; font-size: var(--fs-h5); font-weight: 700; color: var(--sf-blue); margin-bottom: 4px; }
+    .geo-card.active .geo-card-label { color: var(--sf-light); }
+    .geo-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+    .geo-panel { width: 100%; max-width: 880px; border: 2px solid rgba(41,181,232,.2); border-radius: 12px; overflow: hidden; display: flex; flex: 1; min-height: 0; }
+    .geo-panel-code { flex: 3; background: var(--code-bg); padding: 16px 18px; overflow-y: auto; font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace; font-size: 12px; line-height: 1.6; color: var(--code-base); white-space: pre-wrap; }
+    .geo-panel-explain { flex: 2; padding: 16px 18px; overflow-y: auto; background: #fff; font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6; }
+    .geo-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .geo-panel-explain p { margin-bottom: 10px; }
+    .geo-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .geo-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake has two geospatial types and 50+ spatial functions built natively into the SQL engine. GEOGRAPHY uses real-world WGS84 coordinates (lat/lon) and handles the curvature of the Earth — distances are accurate in meters. GEOMETRY is for flat-plane coordinate systems used in engineering and mapping. Both are fully indexed and queryable without any external GIS software. H3 hexagonal indexing is the biggest differentiator — it lets you aggregate millions of location points into hexagonal cells for density analysis at any resolution, in a single GROUP BY.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>GEOGRAPHY vs GEOMETRY:</strong> GEOGRAPHY = real-world globe (lat/lon, spherical math). GEOMETRY = flat plane (engineering, local CRS).</li>
+  <li><strong>ST_* functions:</strong> 50+ covering distance (ST_DISTANCE), containment (ST_WITHIN, ST_CONTAINS), intersection (ST_INTERSECTS), and aggregation (ST_UNION_AGG).</li>
+  <li><strong>H3 indexing:</strong> Uber's open hexagonal grid. Aggregate millions of GPS points into density cells. Resolution 0 = planet, Resolution 15 = ~1m². No custom binning needed.</li>
+  <li><strong>No separate GIS:</strong> Everything runs in Snowflake. Export to GeoJSON for Kepler.gl, Mapbox, or Tableau without external tools.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have location data in your tables — addresses, GPS coordinates, delivery zones, store locations?</li>
+  <li>Are you using a separate GIS tool (PostGIS, BigQuery Geo) today for spatial queries? What's driving that decision?</li>
+  <li>Do you have use cases around delivery route analysis, coverage mapping, proximity-based marketing, or territory management?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/sql-reference/data-types-geospatial',
+      code:  true,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Geospatial Analytics</span>
+      <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Analytics — Geospatial</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Geospatial Analytics</div>
+          <div class="s6-sub" style="text-align:center;">Native GEOGRAPHY and GEOMETRY types. 50+ ST_* functions. H3 hexagonal indexing for scalable density analysis.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="geo-grid">
+            <div class="geo-card active" data-idx="0"><div class="geo-card-label">GEOGRAPHY Type</div><div class="geo-card-desc">WGS84 real-world coordinates (lat/lon)</div></div>
+            <div class="geo-card" data-idx="1"><div class="geo-card-label">ST_DISTANCE / ST_WITHIN</div><div class="geo-card-desc">Proximity and containment queries</div></div>
+            <div class="geo-card" data-idx="2"><div class="geo-card-label">ST_UNION_AGG</div><div class="geo-card-desc">Merge and aggregate geometries</div></div>
+            <div class="geo-card" data-idx="3"><div class="geo-card-label">H3 Indexing</div><div class="geo-card-desc">Hexagonal density analysis at any resolution</div></div>
+            <div class="geo-card" data-idx="4"><div class="geo-card-label">GeoJSON I/O</div><div class="geo-card-desc">Ingest and export for mapping tools</div></div>
+            <div class="geo-card" data-idx="5"><div class="geo-card-label">GEOMETRY Type</div><div class="geo-card-desc">Flat-plane coordinates for engineering CRS</div></div>
+          </div>
+          <div class="geo-panel">
+            <div id="geo-code" class="geo-panel-code"></div>
+            <div id="geo-explain" class="geo-panel-explain"></div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="code-modal-content" style="display:none">
+    <div class="code-modal-code">
+      <pre class="code-block"><code><span class="code-comment">-- Find all stores within 5km and their distance from a point</span>
+<span class="code-kw">SELECT</span>
+  <span class="code-id">store_id</span><span class="code-punc">,</span> <span class="code-id">store_name</span><span class="code-punc">,</span>
+  <span class="code-fn">ST_DISTANCE</span><span class="code-punc">(</span>
+    <span class="code-id">location</span><span class="code-punc">,</span>
+    <span class="code-fn">TO_GEOGRAPHY</span><span class="code-punc">(</span><span class="code-str">'POINT(-122.42 37.77)'</span><span class="code-punc">)</span>
+  <span class="code-punc">)</span> <span class="code-kw">AS</span> <span class="code-id">dist_meters</span>
+<span class="code-kw">FROM</span> <span class="code-id">stores</span>
+<span class="code-kw">WHERE</span> <span class="code-fn">ST_DWITHIN</span><span class="code-punc">(</span>
+  <span class="code-id">location</span><span class="code-punc">,</span>
+  <span class="code-fn">TO_GEOGRAPHY</span><span class="code-punc">(</span><span class="code-str">'POINT(-122.42 37.77)'</span><span class="code-punc">)</span><span class="code-punc">,</span>
+  <span class="code-num">5000</span>
+<span class="code-punc">)</span>
+<span class="code-kw">ORDER BY</span> <span class="code-id">dist_meters</span><span class="code-punc">;</span></code></pre>
+    </div>
+    <div class="code-modal-explain">
+      <h4>Proximity Search</h4>
+      <p>ST_DWITHIN filters to locations within a radius (meters). ST_DISTANCE returns the exact geodesic distance.</p>
+      <p>Runs entirely in Snowflake. No PostGIS, no export. Results can be exported as GeoJSON for any mapping tool.</p>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const ITEMS = [
+      { label: 'GEOGRAPHY Type',
+        code: `${cm('-- Store as GEOGRAPHY; query with ST_* functions')}\n${k('CREATE OR REPLACE TABLE')} ${id('stores')} ${p('(')}\n  ${id('store_id')}   ${f('INT')}\n  ${p(',')} ${id('store_name')} ${f('STRING')}\n  ${p(',')} ${id('location')}   ${f('GEOGRAPHY')}  ${cm('-- WGS84 lat/lon')}\n${p(')')}\n\n${cm('-- Insert from lat/lon values')}\n${k('INSERT INTO')} ${id('stores')} ${k('VALUES')}\n  ${p('(')}${n('1')}${p(',')} ${str("'SFO Store'")}${p(',')} ${f('ST_MAKEPOINT')}${p('(')}${p('-')}${n('122.42')}${p(',')} ${n('37.77')}${p(')')}\n  ${p(',')} ${p('(')}${n('2')}${p(',')} ${str("'LA Store'")}${p(',')} ${f('ST_MAKEPOINT')}${p('(')}${p('-')}${n('118.24')}${p(',')} ${n('34.05')}${p('))')}\n\n${cm('-- Distance between two stores (in meters)')}\n${k('SELECT')} ${f('ST_DISTANCE')}${p('(')}${id('a')}.${id('location')}${p(',')} ${id('b')}.${id('location')}${p(')')}\n${k('FROM')} ${id('stores')} ${id('a')}${p(',')} ${id('stores')} ${id('b')}\n${k('WHERE')} ${id('a')}.${id('store_id')} ${p('=')} ${n('1')} ${k('AND')} ${id('b')}.${id('store_id')} ${p('=')} ${n('2')}${p(';')}`,
+        explain: `<h4>GEOGRAPHY Type</h4><p>Stores points, lines, and polygons using WGS84 coordinates (longitude, latitude). Distances are geodesic — accurate on the surface of the Earth, not a flat map.</p><p><strong>Key construction functions:</strong></p><ul><li><code>ST_MAKEPOINT(lon, lat)</code> — from numeric coordinates</li><li><code>TO_GEOGRAPHY('POINT(...)')</code> — from WKT string</li><li><code>TO_GEOGRAPHY('{"type":"Point",...}')</code> — from GeoJSON</li></ul>` },
+
+      { label: 'ST_DISTANCE / ST_WITHIN',
+        code: `${cm('-- Find all deliveries within a zone polygon')}\n${k('SELECT')} ${id('d')}.${id('delivery_id')}${p(',')} ${id('d')}.${id('address')}\n${k('FROM')} ${id('deliveries')} ${id('d')}\n  ${p(',')} ${id('zones')} ${id('z')}\n${k('WHERE')} ${id('z')}.${id('zone_name')} ${p('=')} ${str("'Downtown'")}\n  ${k('AND')} ${f('ST_WITHIN')}${p('(')}${id('d')}.${id('location')}${p(',')} ${id('z')}.${id('polygon')}${p(')')}\n${p(';')}\n\n${cm('-- Proximity: stores within 2km of a user')}\n${k('SELECT')} ${id('store_id')}\n  ${p(',')} ${f('ROUND')}${p('(')}${f('ST_DISTANCE')}${p('(')}${id('location')}${p(',')} ${id('user_loc')}${p(')')} ${p('/')} ${n('1000')}${p(',')} ${n('1')}${p(')')} ${k('AS')} ${id('km')}\n${k('FROM')} ${id('stores')}${p(',')} ${id('users')}\n${k('WHERE')} ${f('ST_DWITHIN')}${p('(')}${id('location')}${p(',')} ${id('user_loc')}${p(',')} ${n('2000')}${p(')')}\n${k('ORDER BY')} ${id('km')}${p(';')}`,
+        explain: `<h4>Containment and Proximity</h4><p><strong>ST_WITHIN(point, polygon)</strong> — true if the point is inside the polygon. Use for zone-based assignment, territory management, and geofencing.</p><p><strong>ST_DWITHIN(a, b, distance)</strong> — true if two geometries are within distance meters of each other. More efficient than ST_DISTANCE in a WHERE clause because it uses spatial index pruning.</p><p><strong>ST_DISTANCE(a, b)</strong> — returns exact geodesic distance in meters.</p>` },
+
+      { label: 'ST_UNION_AGG',
+        code: `${cm('-- Merge all delivery zones into one region polygon')}\n${k('SELECT')}\n  ${id('region')}${p(',')}\n  ${f('ST_UNION_AGG')}${p('(')}${id('zone_polygon')}${p(')')} ${k('AS')} ${id('region_polygon')}\n${k('FROM')} ${id('delivery_zones')}\n${k('GROUP BY')} ${id('region')}${p(';')}\n\n${cm('-- Compute coverage area per region (km²)')}\n${k('SELECT')}\n  ${id('region')}${p(',')}\n  ${f('ST_AREA')}${p('(')}${f('ST_UNION_AGG')}${p('(')}${id('zone_polygon')}${p(')')}\n  ${p(')')} ${p('/')} ${n('1000000')} ${k('AS')} ${id('coverage_km2')}\n${k('FROM')} ${id('delivery_zones')}\n${k('GROUP BY')} ${id('region')}${p(';')}`,
+        explain: `<h4>Spatial Aggregation</h4><p><code>ST_UNION_AGG</code> merges multiple polygons into a single geometry, like SUM for shapes. Use it to combine zone polygons into regions, or delivery areas into territory boundaries.</p><p><code>ST_AREA</code> returns the area in square meters. Divide by 1,000,000 for km².</p><p>Other spatial aggregates: <code>ST_COLLECT</code> (preserves individual geometries as a collection), <code>ST_EXTENT</code> (bounding box).</p>` },
+
+      { label: 'H3 Indexing',
+        code: `${cm('-- Group GPS events into H3 hexagons for density maps')}\n${k('SELECT')}\n  ${f('H3_LATLNG_TO_CELL')}${p('(')}\n    ${id('lat')}${p(',')} ${id('lon')}${p(',')} ${n('8')}  ${cm('-- resolution 8 ≈ 460m hex')}\n  ${p(')')} ${k('AS')} ${id('h3_cell')}${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} ${id('event_count')}\n${k('FROM')} ${id('gps_events')}\n${k('GROUP BY')} ${n('1')}\n${k('ORDER BY')} ${id('event_count')} ${k('DESC')}${p(';')}\n\n${cm('-- Convert cell back to center point for mapping')}\n${k('SELECT')} ${id('h3_cell')}${p(',')} ${id('event_count')}\n  ${p(',')} ${f('H3_CELL_TO_LATLNG')}${p('(')}${id('h3_cell')}${p(')')}${p(':')}${id('lat')} ${k('AS')} ${id('lat')}\n  ${p(',')} ${f('H3_CELL_TO_LATLNG')}${p('(')}${id('h3_cell')}${p(')')}${p(':')}${id('lng')} ${k('AS')} ${id('lon')}\n${k('FROM')} ${id('density_result')}${p(';')}`,
+        explain: `<h4>H3 Hexagonal Indexing</h4><p>H3 (Uber's open hexagonal grid) divides the globe into hexagonal cells at 16 resolution levels (0=planet to 15=~1m²). Group millions of GPS points into cells with a single GROUP BY — no custom binning, no equal-area projections.</p><p><strong>Resolution guide:</strong></p><ul><li>5 — ~250km² (country regions)</li><li>7 — ~5km² (city districts)</li><li>8 — ~460m² (neighborhoods)</li><li>10 — ~15m² (street blocks)</li></ul>` },
+
+      { label: 'GeoJSON I/O',
+        code: `${cm('-- Ingest GeoJSON from a Variant column')}\n${k('SELECT')}\n  ${id('name')}\n  ${p(',')} ${f('TO_GEOGRAPHY')}${p('(')}${id('geojson_col')}${p(')')} ${k('AS')} ${id('geom')}\n${k('FROM')} ${id('raw_features')}${p(';')}\n\n${cm('-- Export as GeoJSON for mapping tools')}\n${k('SELECT')}\n  ${id('store_id')}\n  ${p(',')} ${f('ST_ASGEOJSON')}${p('(')}${id('location')}${p(')')} ${k('AS')} ${id('geojson')}\n  ${p(',')} ${f('ST_ASWKT')}${p('(')}${id('location')}${p(')')} ${k('AS')} ${id('wkt')}\n${k('FROM')} ${id('stores')}${p(';')}\n\n${cm('-- Parse from WKT string')}\n${k('SELECT')} ${f('TO_GEOGRAPHY')}${p('(')}${str("'POLYGON((-122.4 37.7, -122.3 37.7, ...))'")}\n  ${p(')')} ${k('AS')} ${id('polygon')}${p(';')}`,
+        explain: `<h4>GeoJSON Import and Export</h4><p>Snowflake reads and writes standard GeoJSON, WKT (Well-Known Text), and WKB formats. This means:</p><ul><li><strong>Import</strong> from any GIS tool, REST API, or file that produces GeoJSON</li><li><strong>Export</strong> to Kepler.gl, Mapbox, Tableau, Looker, or any mapping platform</li></ul><p>Use <code>PARSE_JSON()</code> + <code>TO_GEOGRAPHY()</code> to ingest GeoJSON from a VARIANT column loaded via Snowpipe or COPY INTO.</p>` },
+
+      { label: 'GEOMETRY Type',
+        code: `${cm('-- GEOMETRY: flat-plane coordinates')}\n${cm('-- Use for engineering CRS, CAD, local surveys')}\n${k('CREATE OR REPLACE TABLE')} ${id('parcels')} ${p('(')}\n  ${id('parcel_id')} ${f('INT')}\n  ${p(',')} ${id('boundary')} ${f('GEOMETRY')}  ${cm('-- flat plane')}\n${p(')')}\n\n${cm('-- Import from WKT with a coordinate reference system')}\n${k('INSERT INTO')} ${id('parcels')} ${k('VALUES')} ${p('(')}\n  ${n('1')}\n  ${p(',')} ${f('TO_GEOMETRY')}${p('(')}\n    ${str("'POLYGON((1000 2000, 1100 2000, 1100 2100, 1000 2000))'")}\n    ${p(',')} ${n('2263')}  ${cm('-- SRID: NY State Plane')}\n  ${p(')')}\n${p(')')}\n\n${cm('-- ST_* functions work on both GEOGRAPHY and GEOMETRY')}\n${k('SELECT')} ${f('ST_AREA')}${p('(')}${id('boundary')}${p(')')} ${k('FROM')} ${id('parcels')}${p(';')}`,
+        explain: `<h4>GEOMETRY Type</h4><p>Where <strong>GEOGRAPHY</strong> uses real-world globe coordinates (WGS84, lat/lon, spherical math), <strong>GEOMETRY</strong> uses a flat Cartesian plane — critical for engineering drawings, CAD data, local survey coordinates, and any CRS that isn't geographic.</p><p>Specify the SRID (Spatial Reference System ID) when constructing GEOMETRY values. All 50+ <code>ST_*</code> functions work on both types.</p><p>Use GEOGRAPHY for real-world location data. Use GEOMETRY for floor plans, infrastructure maps, and engineering coordinate systems.</p>` },
+    ];
+
+    let currentIdx = 0;
+    function showItem(idx) {
+      currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
+      const item = ITEMS[currentIdx];
+      document.getElementById('geo-code').innerHTML = item.code;
+      document.getElementById('geo-explain').innerHTML = item.explain;
+      document.querySelectorAll('.geo-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
+    }
+    document.querySelectorAll('.geo-card[data-idx]').forEach(el => {
+      el.addEventListener('click', () => showItem(parseInt(el.dataset.idx)));
+    });
+    showItem(0);
+  </script>
+</body>
+</html>

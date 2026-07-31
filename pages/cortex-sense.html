@@ -9,32 +9,7 @@
     body { background: transparent; margin: 0; overflow: hidden; }
     .s6-top { padding: 6px 24px 4px; }
 
-    /* ── Tab strip ────────────────────────────────────────── */
-    .cse-tabs {
-      display: flex;
-      gap: 8px;
-      padding: 4px 20px 0;
-      flex-shrink: 0;
-    }
-    .cse-tab {
-      padding: 4px 18px;
-      border-radius: 100px;
-      border: 1.5px solid rgba(41,181,232,.4);
-      color: rgba(255,255,255,.55);
-      cursor: pointer;
-      font-size: var(--fs-h6);
-      font-weight: 700;
-      letter-spacing: .3px;
-      background: transparent;
-      transition: all .15s;
-      user-select: none;
-    }
-    .cse-tab:hover { border-color: var(--sf-blue); color: #fff; }
-    .cse-tab.active { background: var(--sf-blue); border-color: var(--sf-blue); color: #fff; }
 
-    /* ── Panel visibility ─────────────────────────────────── */
-    .cse-panel { display: none; flex: 1; flex-direction: column; min-height: 0; }
-    .cse-panel.active { display: flex; }
 
     /* ── Context Runtime tab ──────────────────────────────── */
     .cse-runtime {
@@ -236,7 +211,7 @@
       margin-bottom: 4px;
     }
     .cse-source-title {
-      font-size: var(--fs-h5);
+      font-size: var(--fs-h6);
       font-weight: 700;
       color: #fff;
     }
@@ -261,90 +236,6 @@
       font-weight: 700;
       letter-spacing: .3px;
     }
-
-
-
-    /* ── Agent Skills tab ─────────────────────────────────── */
-    .cse-skills-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 8px 20px 10px;
-      gap: 8px;
-      min-height: 0;
-    }
-    .cse-feature-row {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .cse-feature-chip {
-      display: inline-flex;
-      flex-direction: column;
-      padding: 4px 12px;
-      border-radius: 8px;
-      background: rgba(41,181,232,.08);
-      border: 1px solid rgba(41,181,232,.25);
-    }
-    .cse-feature-chip-name { font-size: var(--fs-h6); font-weight: 700; color: var(--sf-blue); }
-    .cse-feature-chip-desc { font-size: 10px; color: rgba(255,255,255,.55); line-height: 1.3; }
-    .cse-agents {
-      display: flex;
-      gap: 8px;
-      flex: 1;
-      min-height: 0;
-    }
-    .cse-agent-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-height: 0;
-      overflow-y: auto;
-    }
-    .cse-agent-header {
-      padding: 8px 12px;
-      border-radius: 8px 8px 0 0;
-      border: 1.5px solid rgba(41,181,232,.3);
-      border-bottom: none;
-      background: var(--sf-card);
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .cse-agent-name { font-size: var(--fs-h5); font-weight: 700; color: #fff; }
-    .cse-agent-tagline { font-size: 10px; color: rgba(255,255,255,.5); line-height: 1.3; }
-    .cse-skill-card {
-      padding: 5px 10px;
-      border-radius: 6px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(41,181,232,.15);
-      flex-shrink: 0;
-    }
-    .cse-skill-name { font-size: var(--fs-h6); font-weight: 600; color: #fff; }
-    .cse-skill-desc { font-size: 10px; color: rgba(255,255,255,.5); line-height: 1.3; margin-top: 1px; }
-    .cse-result-banner {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 9px 16px;
-      border-radius: 8px;
-      background: var(--sf-navy);
-      border: 1.5px solid var(--sf-blue);
-      flex-shrink: 0;
-    }
-    .cse-result-pill {
-      padding: 2px 10px;
-      border-radius: 100px;
-      background: var(--sf-blue);
-      color: #fff;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: .8px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .cse-result-text { font-size: var(--fs-h5); font-weight: 700; color: #fff; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -379,14 +270,7 @@
           <div class="s6-sub" style="text-align:center;">The context runtime that gives CoCo and CoWork immediate business context &#8212; zero manual modeling.</div>
         </div>
 
-        <!-- Tab strip -->
-        <div class="cse-tabs">
-          <div class="cse-tab active" onclick="switchTab('runtime')">Context Runtime</div>
-          <div class="cse-tab" onclick="switchTab('skills')">Agent Skills</div>
-        </div>
-
-        <!-- ── TAB 1: Context Runtime ─────────────────────── -->
-        <div id="tab-runtime" class="cse-panel active">
+        <!-- ── Context Runtime ─────────────────────────────── -->
           <div class="cse-runtime" id="cse-runtime">
 
             <div class="cse-flow" id="cse-flow">
@@ -491,134 +375,13 @@
                 <div class="cse-source-pills">
                   <span class="cse-source-pill">Business Glossary *</span>
                   <span class="cse-source-pill">Knowledge Graph *</span>
-                  <span class="cse-source-pill">Reusable Skills</span>
+                  <a class="cse-source-pill" href="./cortex-sense-skills.html">Reusable Skills →</a>
                 </div>
                 </div>
               </div>
             </div>
 
           </div>
-        </div>
-
-        <!-- ── TAB 2: Agent Skills ────────────────────────── -->
-        <div id="tab-skills" class="cse-panel">
-          <div class="cse-skills-wrap">
-
-            <!-- Feature highlights -->
-            <div class="cse-feature-row">
-              <div class="cse-feature-chip">
-                <span class="cse-feature-chip-name">Sales &middot; Marketing &middot; Finance</span>
-                <span class="cse-feature-chip-desc">Curated skills for each function. Client intel, campaign ops, variance analysis.</span>
-              </div>
-              <div class="cse-feature-chip">
-                <span class="cse-feature-chip-name">Point it at your context</span>
-                <span class="cse-feature-chip-desc">Customize prompts, tools, and metric definitions for your business.</span>
-              </div>
-              <div class="cse-feature-chip">
-                <span class="cse-feature-chip-name">Grounded out of the box</span>
-                <span class="cse-feature-chip-desc">Skills inherit your semantics and governance. No starting from scratch.</span>
-              </div>
-              <div class="cse-feature-chip">
-                <span class="cse-feature-chip-name">Composable &amp; extensible</span>
-                <span class="cse-feature-chip-desc">Combine skills, add your own, or extend Snowflake's via Agent Studio.</span>
-              </div>
-            </div>
-
-            <!-- Three-column agent skills grid -->
-            <div class="cse-agents">
-
-              <div class="cse-agent-col">
-                <div class="cse-agent-header">
-                  <div class="cse-agent-name">Sales Agent</div>
-                  <div class="cse-agent-tagline">Surface client intel, track opportunities, accelerate deal execution</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Client 360</div>
-                  <div class="cse-skill-desc">Unify client data and interaction history across systems</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Account Research</div>
-                  <div class="cse-skill-desc">Deep research on accounts, contacts, and buyer intent signals</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Deal Intelligence</div>
-                  <div class="cse-skill-desc">Track deals, stage changes, and next-best actions</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Proposal Generator</div>
-                  <div class="cse-skill-desc">Create tailored proposals and follow-ups from templates</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Sales Call Summaries</div>
-                  <div class="cse-skill-desc">Summarize calls, capture action items, and update CRM</div>
-                </div>
-              </div>
-
-              <div class="cse-agent-col">
-                <div class="cse-agent-header">
-                  <div class="cse-agent-name">Marketing Agent</div>
-                  <div class="cse-agent-tagline">Run campaigns, analyze performance, and optimize growth</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Campaign Brief Builder</div>
-                  <div class="cse-skill-desc">Create clear briefs with goals, audience, messaging, and channels</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Audience Segmentation</div>
-                  <div class="cse-skill-desc">Build and refine segments from first-party and third-party data</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Campaign Performance</div>
-                  <div class="cse-skill-desc">Monitor KPIs and summarize performance across channels</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Content Ideation</div>
-                  <div class="cse-skill-desc">Generate on-brand content ideas and campaign variations</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Competitive Watch</div>
-                  <div class="cse-skill-desc">Track competitors, campaigns, and market trends</div>
-                </div>
-              </div>
-
-              <div class="cse-agent-col">
-                <div class="cse-agent-header">
-                  <div class="cse-agent-name">Finance Agent</div>
-                  <div class="cse-agent-tagline">Analyze financials, find variances, and support planning decisions</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Variance Analysis</div>
-                  <div class="cse-skill-desc">Explain budget vs actual variances and drivers</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Financial Reporting</div>
-                  <div class="cse-skill-desc">Create P&amp;L, balance sheet, and cash flow summaries</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Forecasting</div>
-                  <div class="cse-skill-desc">Build rolling forecasts and scenario projections</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Spend Analysis</div>
-                  <div class="cse-skill-desc">Analyze spend by category, vendor, and cost center</div>
-                </div>
-                <div class="cse-skill-card">
-                  <div class="cse-skill-name">Audit &amp; Compliance</div>
-                  <div class="cse-skill-desc">Identify risks, gaps, and compliance requirements</div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Result banner -->
-            <div class="cse-result-banner">
-              <span class="cse-result-pill">Result</span>
-              <span class="cse-result-text">Configure in minutes. Evaluate and harden for production with governed context, observability, and feedback loops.</span>
-            </div>
-
-          </div>
-        </div>
-
         <!-- Resource bar -->
         <div class="resource-trigger">
           <div class="resource-bar"></div>
@@ -634,16 +397,6 @@
   </div>
 
   <script>
-    // ── Tab switching ──────────────────────────────
-    function switchTab(id) {
-      document.querySelectorAll('.cse-tab').forEach((t, i) => {
-        const ids = ['runtime', 'skills'];
-        t.classList.toggle('active', ids[i] === id);
-      });
-      document.querySelectorAll('.cse-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('tab-' + id).classList.add('active');
-      document.querySelectorAll('.cse-source').forEach(el => el.classList.remove('cse-active'));
-    }
 
 </script>
 </body>
