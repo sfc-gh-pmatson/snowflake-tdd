@@ -217,4 +217,24 @@ document.addEventListener('keydown', function(e) {
     var depth = location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
     location.href = depth;
   }
+  if (e.key === 'w' || e.key === 'W') {
+    var wafPath = location.pathname.includes('/pages/') ? './well-architected-framework.html' : './pages/well-architected-framework.html';
+    location.href = wafPath;
+  }
+});
+
+// ── Dynamic back button ─────────────────────────────────────
+// Use history.back() so the back button always returns to wherever
+// the user actually navigated from, not a hard-coded href.
+// Falls back to the href only when there is no browser history
+// (e.g. page was opened directly via URL).
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.btn-back').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      if (history.length > 1) {
+        e.preventDefault();
+        history.back();
+      }
+    });
+  });
 });

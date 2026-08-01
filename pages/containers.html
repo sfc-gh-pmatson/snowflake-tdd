@@ -114,7 +114,28 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowpark Container Services (SPCS) lets customers run any containerized workload — custom AI models, third-party applications, GPU inference, long-running services — directly inside Snowflake. The container has native access to Snowflake data, governance, and network policies without any data leaving the platform.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Full container flexibility:</strong> Any Docker image can run in SPCS — LLMs, ML inference servers, APIs, Streamlit apps, or internal tools. No data movement to an external cluster needed.</li>
+  <li><strong>GPU compute available:</strong> SPCS supports GPU-accelerated compute pools for model training and inference workloads that require more than CPU.</li>
+  <li><strong>Governed by default:</strong> SPCS services run inside the customer's Snowflake account. Snowflake's RBAC, network policies, and private link settings apply automatically.</li>
+  <li><strong>Public or private endpoints:</strong> Services can expose a public HTTPS endpoint (useful for demos and internal tools) or remain private and accessible only from within Snowflake.</li>
+  <li><strong>Replaces external infrastructure:</strong> Teams no longer need a separate Kubernetes cluster or EC2 instance to host model serving endpoints or custom applications alongside their Snowflake data.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you running any ML models or APIs outside of Snowflake that need to access Snowflake data?</li>
+  <li>Do you have GPU workloads today — model training, fine-tuning, or inference?</li>
+  <li>How do you currently manage model serving infrastructure?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/developer-guide/snowpark-container-services/overview',

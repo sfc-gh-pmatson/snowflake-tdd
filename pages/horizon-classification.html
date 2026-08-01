@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Classification &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hsp-layout {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; margin: 0 20px;
+    }
+    .hsp-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .hsp-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .hsp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .hsp-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 16px; line-height: 1.5; }
+    .hsp-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .hsp-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .hsp-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .hsp-feature-text { flex: 1; }
+    .hsp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .hsp-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+    .hsp-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hsp-right::before {
+      content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .hsp-code {
+      width: 100%; background: var(--code-bg); border-radius: 10px;
+      padding: 16px 18px; font-family: monospace; font-size: 11px;
+      line-height: 1.85; position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Data Classification is how Horizon Catalog discovers sensitive data at scale. Instead of manually reviewing thousands of columns, Snowflake ML classifiers scan column names, data types, and sample values to detect PII, PHI, and financial data — then automatically apply system tags and trigger governance policies.</p>
+<h3>Key Points</h3>
+<ul>
+  <li>System classifiers cover the most common PII/PHI patterns out of the box — emails, SSNs, phone numbers, DOBs, medical record numbers</li>
+  <li>Results stored in ACCOUNT_USAGE.DATA_CLASSIFICATION_LATEST — queryable for compliance reporting</li>
+  <li>auto_tag: true option applies system tags automatically from classification results</li>
+  <li>Once tagged, masking policies bound to those tags activate automatically</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you know where all your PII lives today across Snowflake?</li>
+  <li>Do you have compliance requirements (GDPR, CCPA, HIPAA) that require PII tracking?</li>
+  <li>How would you prove to an auditor that all PII is masked for non-privileged roles?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/classify-intro',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Classification</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Classification</div>
+          <div class="s6-sub" style="text-align:center;">Automatically detect PII, PHI, and sensitive data using ML classifiers &#8212; no manual column review required.</div>
+        </div>
+
+        <div class="hsp-layout">
+          <div class="hsp-left">
+            <div class="hsp-eyebrow">Horizon Catalog &#183; Classification</div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon">&#129302;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Auto-Classification</div>
+                <div class="hsp-feature-body">Snowflake ML classifiers analyze column names, data types, and sample values to detect PII (emails, SSNs, phone numbers), PHI (medical record numbers), and financial data. System tags are applied automatically.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#127775;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Custom Classifiers</div>
+                <div class="hsp-feature-body">Create domain-specific classifiers using <code style="font-size:10px;font-family:monospace;">CREATE PRIVACY CATEGORY</code> and <code style="font-size:10px;font-family:monospace;">CREATE SEMANTIC CATEGORY</code> to detect business-specific sensitive data patterns.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9881;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">On-Demand &amp; Scheduled</div>
+                <div class="hsp-feature-body">Run <code style="font-size:10px;font-family:monospace;">SYSTEM$CLASSIFY</code> on any table or schema on-demand. Schedule classification to run automatically as new tables and columns are added.</div>
+              </div>
+            </div>
+          </div>
+          <div class="hsp-right">
+            <div class="hsp-code">
+              <span class="code-comment">-- Classify a single table on demand</span><br>
+              <span class="code-kw">CALL</span> <span class="code-fn">SYSTEM$CLASSIFY</span><span class="code-punc">(</span><br>
+              &nbsp;&nbsp;<span class="code-str">'MY_DB.SCHEMA.CUSTOMERS'</span><span class="code-punc">,</span><br>
+              &nbsp;&nbsp;<span class="code-punc">{</span><span class="code-str">'auto_tag'</span><span class="code-punc">:</span> <span class="code-kw">true</span><span class="code-punc">}</span><br>
+              <span class="code-punc">)</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- Create a custom privacy category</span><br>
+              <span class="code-kw">CREATE PRIVACY CATEGORY</span> <span class="code-id">internal_id</span><br>
+              &nbsp;&nbsp;<span class="code-kw">COMMENT</span> <span class="code-punc">=</span> <span class="code-str">'Internal employee IDs'</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- View classification results</span><br>
+              <span class="code-kw">SELECT</span> <span class="code-punc">*</span> <span class="code-kw">FROM</span><br>
+              &nbsp;&nbsp;<span class="code-id">SNOWFLAKE.ACCOUNT_USAGE.DATA_CLASSIFICATION_LATEST</span><br>
+              <span class="code-kw">WHERE</span> <span class="code-id">table_name</span> <span class="code-punc">=</span> <span class="code-str">'CUSTOMERS'</span><span class="code-punc">;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

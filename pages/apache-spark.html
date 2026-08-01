@@ -166,7 +166,27 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake gives customers two paths to run Apache Spark workloads: the Snowflake Connector for Spark (no code changes, repoint existing jobs) and Snowpark — a Snowflake-native DataFrame API for Python, Java, and Scala that runs natively in Snowflake compute. Together, they let teams modernize Spark workloads without ripping out existing investments.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero migration required:</strong> The Spark connector lets existing PySpark and Scala jobs read and write Snowflake tables directly — no rewrite, no data movement to a separate cluster.</li>
+  <li><strong>Snowpark is the native path:</strong> For new workloads, Snowpark's Python/Java/Scala DataFrame API pushes compute into Snowflake — no cluster to manage, no infrastructure to size.</li>
+  <li><strong>Performance:</strong> Snowpark runs on Snowflake's elastic compute, scales automatically, and doesn't require tuning executor/memory settings like a Spark cluster does.</li>
+  <li><strong>Cost model:</strong> You pay for the Snowflake warehouse credits used during execution — not for an always-on Spark cluster.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you running Spark today — on Databricks, EMR, or self-managed?</li>
+  <li>What's the primary use case — ETL/ELT, ML feature engineering, or complex transformations?</li>
+  <li>How much time does your team spend on Spark infrastructure management vs. writing business logic?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/user-guide/spark-connector-overview',

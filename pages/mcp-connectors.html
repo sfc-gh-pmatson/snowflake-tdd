@@ -273,7 +273,28 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>MCP (Model Context Protocol) is Snowflake's governed interoperability layer — the standard by which Cortex AI agents connect to external tools, APIs, data sources, and models. Snowflake acts as the MCP gateway, meaning all tool calls go through Snowflake's security and governance layer rather than making raw outbound API calls.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Governed tool access:</strong> Every tool an agent calls — Salesforce, Jira, Slack, external APIs — is registered as an MCP server with explicit permissions. No uncontrolled outbound calls.</li>
+  <li><strong>Native Snowflake tools:</strong> SQL execution, Cortex Search, Cortex Analyst, and the Document AI pipeline are all available as first-class MCP tools without any external configuration.</li>
+  <li><strong>External connectors:</strong> Connect agents to Salesforce, ServiceNow, GitHub, Confluence, and hundreds of other SaaS tools through the MCP connector catalog.</li>
+  <li><strong>Enterprise security:</strong> MCP connections use Snowflake's External Access Integrations — network rules, secrets, and OAuth tokens are managed centrally, not scattered in agent config files.</li>
+  <li><strong>Auditability:</strong> All tool calls are logged in Snowflake's event table — full observability on what agents accessed, when, and why.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What external systems do your agents or workflows need to read from or write to?</li>
+  <li>How do you manage API credentials and access policies for AI tools today?</li>
+  <li>Does your security team have visibility into what external calls your AI systems are making?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents',

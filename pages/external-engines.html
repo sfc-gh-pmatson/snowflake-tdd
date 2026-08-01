@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>External Engines — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    .ee-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%; max-width: 960px;
+      padding: 8px 0 4px;
+    }
+    .ee-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .ee-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .ee-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .ee-card-logo {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background-size: contain; background-repeat: no-repeat; background-position: center;
+    }
+    .ee-card-text { flex: 1; }
+    .ee-card-label {
+      font-size: var(--fs-h5); font-weight: 700;
+      color: #e8f4fd; margin-bottom: 2px;
+    }
+    .ee-card.active .ee-card-label { color: var(--sf-light); }
+    .ee-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.48); line-height: 1.35; }
+
+    .ee-panel {
+      width: 100%; max-width: 960px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .ee-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .ee-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .ee-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .ee-panel-explain p { margin-bottom: 10px; }
+    .ee-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .ee-panel-explain li { margin-bottom: 4px; }
+    .ee-detail-link {
+      display: inline-block; margin-top: 6px;
+      padding: 5px 14px; border-radius: 100px;
+      background: var(--sf-blue); color: #fff;
+      font-size: var(--fs-h6); font-weight: 700;
+      text-decoration: none; letter-spacing: .5px;
+    }
+    .ee-detail-link:hover { background: var(--sf-blue-mid); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The External Engines story is about meeting customers where they are. Snowflake doesn't require you to abandon your existing Spark jobs, Flink pipelines, or Kafka infrastructure. Instead, Snowflake exposes native connectors and open standard interfaces (Iceberg, Delta Sharing) that let external engines read from and write to Snowflake data — with the same governance, lineage, and access controls that apply to native Snowflake workloads.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Spark:</strong> Two options — Snowpark for Spark (PySpark API, compute runs ON Snowflake) or the Spark Connector (compute runs in the Spark cluster, data moves). For lift-and-shift migrations, Snowpark for Spark is the path of least resistance.</li>
+  <li><strong>Flink:</strong> Primarily a streaming ingestion story. The Kafka Connector for Snowflake or Snowpipe Streaming SDK routes Flink output into Snowflake landing tables.</li>
+  <li><strong>Kafka:</strong> Kafka Connector for Snowflake (open source, Confluent certified) loads topics directly into Snowflake tables. Snowpipe Streaming is the high-performance path for sub-second latency.</li>
+  <li><strong>Trino/Dremio:</strong> Federation story — these engines can query Snowflake tables alongside other sources. Useful in data mesh architectures where queries span multiple systems.</li>
+  <li><strong>Databricks:</strong> Coexistence story — Delta Sharing, Iceberg, and Unity Catalog integration let both platforms share live data without copying.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have existing Spark pipelines or Databricks workloads that transform data before loading into Snowflake — could those run directly on Snowflake instead?</li>
+  <li>Are you using Kafka today — what's your current path from Kafka topics to analytics-ready tables?</li>
+  <li>Do you have a requirement to query across multiple data platforms (Snowflake + S3 + Databricks) in a single query?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">External Engines</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Ecosystem</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">External Engines &amp; Connectors</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">External Engines</div>
+          <div class="s6-sub" style="text-align:center;">Spark, Flink, Kafka, Trino, Dremio, Databricks — native connectors and open standards let any engine read from and write to Snowflake.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="ee-grid">
+            <div class="ee-card" onclick="showPanel(0)">
+              <div class="ee-card-logo img-ext-spark-mark"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Apache Spark™</div>
+                <div class="ee-card-desc">Snowpark for Spark: run PySpark on Snowflake compute. Or connect an external cluster via Spark Connector.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(1)">
+              <div class="ee-card-logo img-ext-trino"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Trino</div>
+                <div class="ee-card-desc">Federated SQL across Snowflake + S3/Hive in one query. Snowflake as a Trino catalog via JDBC.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(2)">
+              <div class="ee-card-logo img-ext-flink-mark"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Apache Flink</div>
+                <div class="ee-card-desc">Stream Flink output into Snowflake via Kafka Connector or Snowpipe Streaming for sub-second latency.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(3)">
+              <div class="ee-card-logo img-ext-databricks"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Databricks</div>
+                <div class="ee-card-desc">Iceberg and Delta Sharing let both platforms share live data bidirectionally — no copies, no ETL.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(4)">
+              <div class="ee-card-logo img-ext-aws" style="background-size:contain;"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">AWS Glue</div>
+                <div class="ee-card-desc">Glue Data Catalog as Iceberg source for Snowflake. Glue ETL jobs read/write Snowflake via Spark Connector.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(5)">
+              <div class="ee-card-logo img-ext-azure" style="background-size:contain;"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Microsoft Fabric</div>
+                <div class="ee-card-desc">OneLake Iceberg and Delta Sharing enable Snowflake ↔ Fabric bidirectional access over shared storage.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(6)">
+              <div class="ee-card-logo img-ext-dbt"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">dbt</div>
+                <div class="ee-card-desc">SQL transformation framework with first-class Snowflake support — incremental models, merge strategies, dynamic tables.</div>
+              </div>
+            </div>
+            <div class="ee-card" onclick="showPanel(7)">
+              <div class="ee-card-logo img-ext-airflow"></div>
+              <div class="ee-card-text">
+                <div class="ee-card-label">Apache Airflow</div>
+                <div class="ee-card-desc">Orchestrate Snowflake workflows via the Snowflake provider — SQL operators, sensors, and task dependency graphs.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ee-panel" id="ee-panel">
+            <div class="ee-panel-code" id="ee-code">-- Select an engine above to see its Snowflake integration pattern</div>
+            <div class="ee-panel-explain" id="ee-explain">
+              <h4>External Engines</h4>
+              <p>Click any engine card to see its connection pattern, key SQL, and integration architecture.</p>
+              <p>Snowflake supports external engines through native connectors, JDBC/ODBC, and open standards (Iceberg, Delta Sharing) — so you keep your existing tools while unifying governance and data access.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+  const cfgk = s => `<span style="color:var(--sf-light)">${s}</span>`;
+
+  const items = [
+    {
+      label: 'Apache Spark™',
+      code: `${cm('── Option 1: Snowpark for Spark (recommended for new workloads)')}\n${cm('# PySpark code runs on Snowflake compute — no Spark cluster needed')}\n${k('from')} ${id('snowflake')}.${id('snowpark')}.${id('context')} ${k('import')} ${f('get_active_session')}\n${k('from')} ${id('snowflake')}.${id('snowpark')} ${k('import')} ${id('functions')} ${k('as')} ${id('F')}\n\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str("'sales.orders'")}${p(')')}\n${id('result')} ${p('=')} ${id('df')}.${f('group_by')}${p('(')}${str("'region'")}${p(')')}${p('.')}${f('agg')}${p('(')}${id('F')}.${f('sum')}${p('(')}${str("'revenue'")}${p('))')}\n${id('result')}.${f('show')}${p('()')}\n\n${cm('── Option 2: Spark Connector (existing cluster, external compute)')}\n${id('df')} ${p('=')} ${id('spark')}.${id('read')}.${f('format')}${p('(')}${str("'net.snowflake.spark.snowflake'")}${p(')')}\\\n  .${f('options')}${p('(')}${p('**')}${id('sf_options')}${p(')')}\\\n  .${f('option')}${p('(')}${str("'dbtable'")}${p(',')} ${str("'ANALYTICS.SALES.ORDERS'")}${p(')')}\\\n  .${f('load')}${p('()')}\n${id('df')}.${id('write')}.${f('format')}${p('(')}${str("'net.snowflake.spark.snowflake'")}${p(')')}\\\n  .${f('options')}${p('(')}${p('**')}${id('sf_options')}${p(')')}\\\n  .${f('option')}${p('(')}${str("'dbtable'")}${p(',')} ${str("'ANALYTICS.RESULTS.SCORED'")}${p(')')}\\\n  .${f('mode')}${p('(')}${str("'overwrite'")}${p(')')}.${f('save')}${p('()')}`,
+      html: `<p><strong>Apache Spark</strong> integrates with Snowflake via two compute models:</p>
+<ul>
+  <li><strong>Snowpark for Spark</strong>: write PySpark code that runs as Snowflake jobs. No external Spark cluster. Pushes computation into Snowflake. Best for net-new workloads and migrations.</li>
+  <li><strong>Spark Connector</strong>: connect an external Spark cluster to Snowflake as a source/sink. Compute stays in Spark; data is read from or written to Snowflake. Best for existing Spark workloads.</li>
+</ul>
+<a class="ee-detail-link" href="./apache-spark.html">Deep Dive: Apache Spark on Snowflake →</a>`
+    },
+    {
+      label: 'Trino',
+      code: `${cm('-- etc/catalog/snowflake.properties')}\n${cfgk('connector.name')}${p('=')}${str('snowflake')}\n${cfgk('connection-url')}${p('=')}${str('jdbc:snowflake://<account>.snowflakecomputing.com')}\n${cfgk('connection-user')}${p('=')}${str('TRINO_USER')}\n${cfgk('snowflake.warehouse')}${p('=')}${str('TRINO_WH')}\n${cfgk('snowflake.database')}${p('=')}${str('ANALYTICS')}\n\n${cm('-- Federated query: Snowflake + Hive in one SQL statement')}\n${k('SELECT')}\n  sf.customer_id${p(',')}\n  sf.lifetime_value${p(',')}\n  h.session_count\n${k('FROM')} snowflake.analytics.customers sf\n${k('JOIN')} hive.web.sessions h\n  ${k('ON')} sf.customer_id ${p('=')} h.customer_id\n${k('WHERE')} sf.region ${p('=')} ${str("'NORTH_AMERICA'")}\n${k('ORDER')} ${k('BY')} sf.lifetime_value ${k('DESC')}\n${k('LIMIT')} ${p('1000')};`,
+      html: `<p><strong>Trino</strong> is an open-source distributed SQL engine that federates queries across multiple data sources in a single statement — Snowflake, Hive, S3, PostgreSQL, and more.</p>
+<ul>
+  <li>Add Snowflake as a Trino catalog via JDBC. Predicates are pushed down to Snowflake, minimizing data transfer.</li>
+  <li>Common use case: data mesh architectures where queries span Snowflake governed products + S3 raw data lake.</li>
+  <li>Governance note: Trino bypasses Snowflake row-level security and masking policies — access control is at the JDBC user level.</li>
+</ul>`
+    },
+    {
+      label: 'Apache Flink',
+      code: `${cm('-- Snowflake: create landing table for Flink output')}\n${k('CREATE')} ${k('TABLE')} streaming.events_landing ${p('(')}payload ${k('VARIANT')}${p(')')}\n${k('CLUSTER')} ${k('BY')} ${p('(')}${f('TO_DATE')}${p('(')}payload${p(':')}event_time${p(')')}${p(')')};\n\n${cm('-- Kafka Connector config  (Flink → Kafka → Snowflake)')}\n${cfgk('connector.class')}${p('=')}${str('com.snowflake.kafka.connector.SnowflakeSinkConnector')}\n${cfgk('snowflake.url.name')}${p('=')}${str('<account>.snowflakecomputing.com')}\n${cfgk('snowflake.topic2table.map')}${p('=')}${str('flink-output:EVENTS_LANDING')}\n${cfgk('buffer.flush.time')}${p('=')}${str('10')}      ${cm('# seconds per flush')}\n${cfgk('buffer.count.records')}${p('=')}${str('10000')}  ${cm('# or flush at this many records')}\n\n${cm('-- Snowpipe Streaming SDK: sub-second latency alternative')}\n${id('client')} ${p('=')} ${id('SnowflakeStreamingIngestClient')}${p('(')}account${p('=')}${str('<acct>')}, credentials${p('=')}${id('key')}${p(')')}\n${id('channel')} ${p('=')} ${id('client')}.${f('openChannel')}${p('(')}tableName${p('=')}${str('events_landing')}${p(')')}\n${id('channel')}.${f('insertRows')}${p('(')}${id('rows')}, offsetToken${p('=')}${id('offset')}${p(')')}`,
+      html: `<p><strong>Apache Flink</strong> doesn't have a native Snowflake sink — it uses two patterns based on latency requirements:</p>
+<ul>
+  <li><strong>Kafka Connector</strong>: Flink writes to Kafka; the Snowflake Kafka Connector loads records into Snowflake. Buffer-based, ~60s latency. Simple to configure.</li>
+  <li><strong>Snowpipe Streaming SDK</strong>: implement a custom Flink sink using the SDK directly. Sub-second, row-level commit latency. More complex but much fresher data.</li>
+</ul>`
+    },
+    {
+      label: 'Databricks',
+      code: `${cm('── Snowflake → Databricks via Iceberg (bidirectional, no copies)')}\n${k('CREATE')} ${k('ICEBERG')} ${k('TABLE')} shared.events\n  ${k('CATALOG')} ${p('=')} ${str("'SNOWFLAKE'")}\n  ${k('EXTERNAL_VOLUME')} ${p('=')} my_s3_vol\n  ${k('BASE_LOCATION')} ${p('=')} ${str("'events/'")}\n  ${k('AS')} ${k('SELECT')} ${p('*')} ${k('FROM')} raw.events;\n\n${cm('── Databricks reads same Iceberg files from S3 — no copy')}\n${id('df')} ${p('=')} ${id('spark')}.${id('read')}.${f('format')}${p('(')}${str("'iceberg'")}${p(')')}\n         .${f('load')}${p('(')}${str("'s3://bucket/iceberg/shared/events'")}${p(')')}\n\n${cm('── Delta Direct: Snowflake reads Databricks Delta tables')}\n${k('CREATE')} ${k('CATALOG')} ${k('INTEGRATION')} unity_catalog_int\n  ${k('CATALOG_SOURCE')} ${p('=')} ${id('ICEBERG_REST')}\n  ${k('CATALOG_NAMESPACE')} ${p('=')} ${str("'main'")}\n  ${k('REST_CONFIG')} ${p('=')} ${p('(')}${k('CATALOG_URI')} ${p('=')} ${str("'https://...'")} ${k('CATALOG_TYPE')} ${p('=')} ${id('UNITY')}${p(')')};`,
+      html: `<p><strong>Databricks and Snowflake</strong> coexist via open standards — no ETL, no copies:</p>
+<ul>
+  <li><strong>Snowflake-managed Iceberg → Databricks</strong>: Create Iceberg tables in Snowflake on S3/Azure/GCS. Databricks reads the same Parquet files. One copy of truth, two query engines.</li>
+  <li><strong>Delta Direct</strong>: Snowflake reads Databricks Delta tables directly via Unity Catalog integration — no conversion required.</li>
+  <li><strong>Delta Sharing</strong>: Snowflake publishes listings; Databricks consumes as a Delta Sharing client. No data movement.</li>
+</ul>`
+    },
+    {
+      label: 'AWS Glue',
+      code: `${cm('-- Create catalog integration pointing at AWS Glue Data Catalog')}\n${k('CREATE')} ${k('CATALOG')} ${k('INTEGRATION')} glue_iceberg_int\n  ${k('CATALOG_SOURCE')} ${p('=')} ${id('GLUE')}\n  ${k('CATALOG_NAMESPACE')} ${p('=')} ${str("'analytics_db'")}\n  ${k('TABLE_FORMAT')} ${p('=')} ${id('ICEBERG')}\n  ${id('GLUE_AWS_ROLE_ARN')} ${p('=')} ${str("'arn:aws:iam::123456789:role/SnowflakeRole'")}\n  ${id('GLUE_CATALOG_ID')} ${p('=')} ${str("'123456789012'")}\n  ${id('GLUE_REGION')} ${p('=')} ${str("'us-east-1'")}\n  ${k('ENABLED')} ${p('=')} ${k('TRUE')};\n\n${cm('-- Auto-discover Glue Iceberg tables as a catalog-linked database')}\n${k('CREATE')} ${k('DATABASE')} glue_analytics\n  ${k('FROM')} ${k('CATALOG')} ${k('INTEGRATION')} glue_iceberg_int;\n\n${cm('-- Query Glue-managed Iceberg tables as native Snowflake:')}\n${k('SELECT')} order_id${p(',')} customer_id${p(',')} order_value\n${k('FROM')} glue_analytics.analytics_db.orders\n${k('WHERE')} order_date ${p('>')} ${k('CURRENT_DATE')} ${p('-')} ${p('30')};`,
+      html: `<p><strong>AWS Glue</strong> integrates with Snowflake in two ways:</p>
+<ul>
+  <li><strong>Glue Data Catalog as Iceberg source</strong>: create a CATALOG INTEGRATION pointing at Glue, then a catalog-linked database. Snowflake auto-discovers and queries Glue-managed Iceberg tables without moving data.</li>
+  <li><strong>Glue ETL → Snowflake</strong>: Glue ETL jobs use the Spark Connector to read from and write to Snowflake tables. Common for AWS-native customers who already have Glue pipelines.</li>
+</ul>
+<p>The CATALOG INTEGRATION path is the modern approach — Snowflake reads Glue Iceberg metadata and Parquet files directly from S3 with predicate pushdown.</p>`
+    },
+    {
+      label: 'Microsoft Fabric',
+      code: `${cm('-- Create external volume pointing at OneLake (Azure ADLS Gen2)')}\n${k('CREATE')} ${k('EXTERNAL')} ${k('VOLUME')} onelake_vol\n  ${k('STORAGE_LOCATIONS')} ${p('=')} ${p('(')}\n    ${p('(')}${k('NAME')} ${p('=')} ${str("'fabric_onelake'")}\n     ${k('STORAGE_PROVIDER')} ${p('=')} ${str("'AZURE'")}\n     ${k('STORAGE_BASE_URL')} ${p('=')} ${str("'abfss://workspace@onelake.dfs.fabric.microsoft.com/'")}${p(')')}\n  ${p(')')};\n\n${cm('-- Snowflake creates Iceberg table on OneLake — Fabric reads same files')}\n${k('CREATE')} ${k('ICEBERG')} ${k('TABLE')} shared.sales_facts\n  ${k('EXTERNAL_VOLUME')} ${p('=')} onelake_vol\n  ${k('BASE_LOCATION')} ${p('=')} ${str("'sales_facts/'")}\n  ${k('AS')} ${k('SELECT')} ${p('*')} ${k('FROM')} analytics.sales;\n\n${cm('-- Fabric reads the same Parquet/Iceberg files via its built-in catalog')}\n${cm('-- Delta Sharing: publish a Snowflake listing; Fabric consumes as client')}`,
+      html: `<p><strong>Microsoft Fabric</strong> integrates with Snowflake via OneLake and Delta Sharing:</p>
+<ul>
+  <li><strong>OneLake Iceberg</strong>: create Snowflake external volumes pointing at OneLake (Azure ADLS Gen2 endpoint). Snowflake-managed Iceberg tables written there are immediately readable by Fabric via its native Iceberg catalog — one copy, two engines.</li>
+  <li><strong>Delta Sharing</strong>: publish Snowflake data as a Marketplace or private listing; Fabric connects as a Delta Sharing consumer. No storage sharing required — Snowflake handles the protocol.</li>
+</ul>
+<p>OneLake is the preferred path for joint Fabric+Snowflake architectures: Fabric handles Power BI, Teams integration, and Microsoft 365 workflows; Snowflake handles the analytical and AI layer — both over the same data files.</p>`
+    },
+    {
+      label: 'dbt',
+      code: `${cm('-- profiles.yml: Snowflake connection')}\n${cfgk('type')}${p(':')} ${str('snowflake')}\n${cfgk('account')}${p(':')} ${str('myorg-myaccount')}\n${cfgk('warehouse')}${p(':')} ${str('DBT_WH')}   ${cfgk('threads')}${p(':')} ${str('8')}\n${cfgk('database')}${p(':')} ${str('ANALYTICS')}  ${cfgk('schema')}${p(':')} ${str('DBT_PROD')}\n\n${cm('-- models/orders_daily.sql')}\n${p('{{')} ${f('config')}${p('(')}materialized${p('=')}${str("'incremental'")}, cluster_by${p('=[')}${str("'order_date'")}${p('])')}${p('}}')} \n${k('SELECT')}\n  ${f('DATE_TRUNC')}${p('(')}${str("'day'")}, order_time${p(')')} ${k('AS')} order_date,\n  region, ${f('SUM')}${p('(')}order_value${p(')')} ${k('AS')} revenue\n${k('FROM')} ${p('{{')} ${f('source')}${p('(')}${str("'raw'")}, ${str("'orders'")}${p(')')} ${p('}}')} \n${p('{%')} ${k('if')} ${f('is_incremental')}${p('()')} ${p('%}')}\n  ${k('WHERE')} order_time ${p('>=')} ${p('(')}${k('SELECT')} ${f('MAX')}${p('(')}order_date${p(')')} ${k('FROM')} ${p('{{')} this ${p('}}')}${p(')')}\n${p('{%')} ${k('endif')} ${p('%}')}\n${k('GROUP')} ${k('BY')} ${p('1, 2')}`,
+      html: `<p><strong>dbt</strong> is the SQL-first transformation framework with first-class Snowflake support via the dbt-snowflake adapter.</p>
+<ul>
+  <li>Configure in <code>profiles.yml</code> with role, warehouse, database, and schema. Supports RSA key pair auth for production.</li>
+  <li><strong>Incremental models</strong> with <code>merge</code> strategy are highly optimized on Snowflake — dbt generates Snowflake MERGE statements using your <code>unique_key</code>.</li>
+  <li>Snowflake-specific features: <code>cluster_by</code>, <code>copy_grants</code>, <code>transient</code> tables, <code>dynamic_table</code> materialization.</li>
+  <li>dbt Semantic Layer integrates with Cortex Analyst — define metrics in dbt, query via natural language in Snowflake.</li>
+</ul>`
+    },
+    {
+      label: 'Apache Airflow',
+      code: `${cm('# pip install apache-airflow-providers-snowflake')}\n${k('from')} ${id('airflow')} ${k('import')} ${id('DAG')}\n${k('from')} ${id('airflow')}.${id('providers')}.${id('snowflake')}.${id('operators')}.${id('snowflake')} ${k('import')} ${id('SnowflakeOperator')}\n${k('from')} ${id('airflow')}.${id('providers')}.${id('snowflake')}.${id('sensors')}.${id('snowflake')} ${k('import')} ${id('SnowflakeSensor')}\n\n${k('with')} ${id('DAG')}${p('(')}${str("'daily_rollup'")}, schedule${p('=')}${str("'@daily'")}${p(')')}:\n\n    ${cm('# Wait until yesterday\'s events have landed')}\n    ${id('wait')} ${p('=')} ${id('SnowflakeSensor')}${p('(')}\n        task_id${p('=')}${str("'check_events'")}, snowflake_conn_id${p('=')}${str("'snowflake_default'")},\n        sql${p('=')}${str("'SELECT COUNT(*) > 0 FROM staging.events WHERE date = CURRENT_DATE - 1'")}\n    ${p(')')}\n\n    ${id('rollup')} ${p('=')} ${id('SnowflakeOperator')}${p('(')}\n        task_id${p('=')}${str("'run_rollup'")}, snowflake_conn_id${p('=')}${str("'snowflake_default'")},\n        sql${p('=')}${str("'INSERT INTO reporting.summary SELECT * FROM staging.events WHERE date = CURRENT_DATE - 1'")}\n    ${p(')')}\n\n    ${id('wait')} ${p('>>')} ${id('rollup')}`,
+      html: `<p><strong>Apache Airflow</strong> is the most widely used orchestration engine for Snowflake workflows, via the <code>apache-airflow-providers-snowflake</code> package.</p>
+<ul>
+  <li><strong>SnowflakeOperator</strong>: execute any SQL statement or script in a Snowflake session. Supports multiple statements, <code>autocommit</code>, and parameterized queries.</li>
+  <li><strong>SnowflakeSensor</strong>: pause a DAG until a SQL condition returns true — e.g. wait for data to land before running a downstream transformation.</li>
+  <li><strong>S3ToSnowflakeOperator</strong>, <strong>SnowflakeToSlackOperator</strong>, and others cover common ingestion and alerting patterns.</li>
+  <li>Connection configured once in Airflow as <code>snowflake_default</code> — stores account, user, private key, warehouse, role, and database.</li>
+</ul>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.ee-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('ee-code').innerHTML = items[i].code;
+    document.getElementById('ee-explain').innerHTML = `<h4>${items[i].label}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

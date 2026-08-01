@@ -239,7 +239,27 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Cortex Sense is the context runtime that powers Snowflake CoCo and CoWork. Instead of requiring customers to manually model semantic views or configure every metric definition, Cortex Sense automatically builds and continuously refreshes a business context index from data across the entire Snowflake estate — connectors, semantic views, unstructured docs, and business logic. Every AI surface inherits this context from day one.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero manual modeling:</strong> Cortex Sense discovers and indexes context automatically — schema metadata, lineage, query patterns, Semantic Views, and document stores.</li>
+  <li><strong>Four source categories:</strong> Ecosystem connectors (dbt, Databricks, Tableau), Structured Knowledge (Semantic Views, lineage), Unstructured Knowledge (Cortex Search, wikis, SharePoint), and Business Logic (Glossary, Knowledge Graph, Skills).</li>
+  <li><strong>Continuously refreshed:</strong> As schemas evolve, new data lands, or business definitions change, Cortex Sense updates its internal index automatically.</li>
+  <li><strong>Proven accuracy gain:</strong> Agentic Search on unstructured data boosted agent answer accuracy from 5% to 67% in enterprise document scenarios.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do your analysts currently find which table or metric to use for a given question?</li>
+  <li>Do you have business glossary terms or semantic definitions managed somewhere today?</li>
+  <li>How often do schema changes break existing dashboards or reports?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  null,

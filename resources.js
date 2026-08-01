@@ -45,7 +45,17 @@
         '</span>' +
         '<span class="rb-label">' + def.label + '</span>';
 
-      if (def.key === 'code') {
+      if (def.key === 'code' && val !== true && typeof val === 'string' && val.startsWith('http')) {
+        // code is a URL — render as link, not modal button
+        var a = document.createElement('a');
+        a.href = val;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'resource-btn';
+        a.setAttribute('aria-label', 'View code / repo');
+        a.innerHTML = inner;
+        bar.appendChild(a);
+      } else if (def.key === 'code') {
         var btn = document.createElement('button');
         btn.className = 'resource-btn';
         btn.setAttribute('aria-label', 'View code example');

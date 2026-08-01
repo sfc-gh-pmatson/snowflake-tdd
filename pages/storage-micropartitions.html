@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Micro-Partitioning — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ──────────────────────────────── */
+    .mp-layout {
+      display: flex;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: pillars ────────────────────────────────── */
+    .mp-left {
+      width: 44%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+      gap: 0;
+    }
+    .mp-eyebrow { font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 4px; }
+    .mp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 4px; }
+    .mp-sub { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 14px; line-height: 1.5; }
+    .mp-feature {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .mp-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .mp-feature-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .mp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .mp-feature-body { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+
+    /* ── Right: diagram ──────────────────────────────── */
+    .mp-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 20px;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .mp-right::before {
+      content: ''; position: absolute;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* ── Diagram elements ────────────────────────────── */
+    .mp-diag { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; max-width: 340px; position: relative; z-index: 1; }
+
+    .mp-raw {
+      width: 100%;
+      background: rgba(41,181,232,.08);
+      border: 1.5px solid rgba(41,181,232,.3);
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: center;
+    }
+    .mp-raw-title { font-size: var(--fs-h5); font-weight: 700; color: rgba(255,255,255,.7); }
+    .mp-raw-sub { font-size: 9px; color: rgba(255,255,255,.35); margin-top: 1px; }
+
+    .mp-arrow { color: rgba(41,181,232,.5); font-size: 16px; line-height: 1; }
+    .mp-arrow-label { font-size: 9px; color: rgba(255,255,255,.3); text-align: center; margin-top: -6px; }
+
+    .mp-partitions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+    .mp-part {
+      border-radius: 8px;
+      border: 2px solid rgba(41,181,232,.3);
+      padding: 8px 10px;
+      background: var(--sf-blue-dark);
+      display: flex; flex-direction: column; gap: 3px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .mp-part.pruned {
+      opacity: .35;
+      border-color: rgba(255,255,255,.1);
+      background: rgba(5,13,26,.6);
+    }
+    .mp-part.scanned {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 10px rgba(41,181,232,.35);
+      background: rgba(41,181,232,.12);
+    }
+    .mp-part-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.4); letter-spacing: .8px; text-transform: uppercase; }
+    .mp-part-val { font-size: 10px; font-weight: 700; color: #e8f4fd; font-family: 'SF Mono', ui-monospace, monospace; }
+    .mp-part-meta { font-size: 8px; color: rgba(255,255,255,.35); line-height: 1.5; }
+    .mp-part-badge {
+      font-size: 8px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      padding: 1px 5px; border-radius: 3px; align-self: flex-start; margin-top: 2px;
+    }
+    .mp-part.pruned .mp-part-badge { background: rgba(255,255,255,.08); color: rgba(255,255,255,.3); }
+    .mp-part.scanned .mp-part-badge { background: var(--sf-blue); color: #fff; }
+
+    .mp-query {
+      width: 100%;
+      background: rgba(7,21,37,.6);
+      border: 1.5px solid rgba(245,158,11,.4);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-family: 'SF Mono', ui-monospace, monospace;
+      font-size: 10px;
+      color: rgba(245,158,11,.9);
+      text-align: center;
+    }
+
+    .mp-result {
+      display: flex; gap: 12px;
+      font-size: 9px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+    }
+    .mp-result-scanned { color: var(--sf-blue); }
+    .mp-result-pruned { color: rgba(255,255,255,.3); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./storage.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Micro-Partitioning</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="mp-layout content-wrap">
+
+          <!-- ════ Left pillars ════ -->
+          <div class="mp-left">
+            <div class="mp-eyebrow">Storage Architecture</div>
+            <div class="mp-title">Micro-Partitioning</div>
+            <div class="mp-sub">Every Snowflake table is automatically divided into immutable, compressed micro-partitions — no tuning, no index design, no manual maintenance.</div>
+
+            <div class="mp-feature">
+              <div class="mp-feature-icon">
+                <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="mp-feature-title">Immutable Columnar Storage</div>
+                <div class="mp-feature-body">Data is stored in 50–500 MB compressed columnar files. DML never overwrites a partition — updates and deletes create new partitions, making the old versions available for Time Travel. No fragmentation, no vacuum, no index rebuild.</div>
+              </div>
+            </div>
+
+            <div class="mp-feature">
+              <div class="mp-feature-icon">
+                <span class="sf-img sf-icon-horizon" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="mp-feature-title">Rich Column-Level Metadata</div>
+                <div class="mp-feature-body">For every column in every micro-partition, Snowflake stores: <b>min/max values</b>, <b>distinct count</b>, <b>null count</b>, and a <b>bloom filter</b>. This metadata lives in the Cloud Services layer — no table scan required to determine partition relevance.</div>
+              </div>
+            </div>
+
+            <div class="mp-feature">
+              <div class="mp-feature-icon">
+                <span class="sf-img sf-icon-speed-2" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="mp-feature-title">Partition Pruning</div>
+                <div class="mp-feature-body">Before any scan, Snowflake compares query predicates against partition metadata. Partitions whose min/max range cannot contain matching rows are skipped entirely. In well-ordered tables, 80–99% of partitions can be pruned — dramatically reducing I/O and compute cost.</div>
+              </div>
+            </div>
+
+            <div class="mp-feature">
+              <div class="mp-feature-icon">
+                <span class="sf-img sf-icon-bcdr" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div>
+                <div class="mp-feature-title">Time Travel &amp; Fail-Safe</div>
+                <div class="mp-feature-body">Because partitions are never overwritten, Snowflake retains previous versions automatically. <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">AT(TIMESTAMP =&gt; ...)</code> or <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">BEFORE(STATEMENT =&gt; ...)</code> queries the table as it was. Fail-Safe extends protection 7 days beyond the Time Travel window for disaster recovery.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════ Right: diagram ════ -->
+          <div class="mp-right">
+            <div class="mp-diag">
+
+              <div class="mp-raw">
+                <div class="mp-raw-title">ORDERS table — 400M rows</div>
+                <div class="mp-raw-sub">Data written across multiple loads and DML operations</div>
+              </div>
+
+              <div class="mp-arrow">&#x2193;</div>
+              <div class="mp-arrow-label">Snowflake organizes automatically at write time</div>
+
+              <div class="mp-partitions">
+                <div class="mp-part pruned">
+                  <div class="mp-part-label">Micro-partition 1</div>
+                  <div class="mp-part-val">Jan 1 – Jan 31</div>
+                  <div class="mp-part-meta">rows: 2.1M &nbsp;·&nbsp; 312 MB<br>status: FULFILLED, PENDING</div>
+                  <div class="mp-part-badge">Pruned</div>
+                </div>
+                <div class="mp-part pruned">
+                  <div class="mp-part-label">Micro-partition 2</div>
+                  <div class="mp-part-val">Feb 1 – Feb 28</div>
+                  <div class="mp-part-meta">rows: 1.9M &nbsp;·&nbsp; 287 MB<br>status: FULFILLED, CANCELLED</div>
+                  <div class="mp-part-badge">Pruned</div>
+                </div>
+                <div class="mp-part scanned">
+                  <div class="mp-part-label">Micro-partition 3</div>
+                  <div class="mp-part-val">Mar 1 – Mar 31</div>
+                  <div class="mp-part-meta">rows: 2.3M &nbsp;·&nbsp; 341 MB<br>status: PENDING, PROCESSING</div>
+                  <div class="mp-part-badge">Scanned</div>
+                </div>
+                <div class="mp-part pruned">
+                  <div class="mp-part-label">Micro-partition 4</div>
+                  <div class="mp-part-val">Apr 1 – Apr 30</div>
+                  <div class="mp-part-meta">rows: 2.0M &nbsp;·&nbsp; 298 MB<br>status: FULFILLED</div>
+                  <div class="mp-part-badge">Pruned</div>
+                </div>
+              </div>
+
+              <div class="mp-query">WHERE order_date BETWEEN '2026-03-01' AND '2026-03-31'</div>
+
+              <div class="mp-result">
+                <span class="mp-result-scanned">1 partition scanned</span>
+                <span style="color:rgba(255,255,255,.2);">·</span>
+                <span class="mp-result-pruned">3 partitions pruned — 75% less I/O</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

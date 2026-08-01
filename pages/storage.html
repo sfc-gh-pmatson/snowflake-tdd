@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Storage — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 2px; }
+
+    .st-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Tab switcher ───────────────────────────────────── */
+    .st-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      border-radius: 100px;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .st-tab {
+      padding: 6px 20px;
+      border-radius: 100px;
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.45);
+      transition: background .18s, color .18s;
+      white-space: nowrap;
+    }
+    .st-tab.active { background: var(--sf-blue); color: #fff; box-shadow: 0 2px 10px rgba(41,181,232,.4); }
+    .st-tab:not(.active):hover { color: rgba(255,255,255,.75); background: rgba(41,181,232,.12); }
+
+    /* ── Tab panels ──────────────────────────────────────── */
+    .st-panel-wrap { width: 100%; max-width: 900px; flex-shrink: 0; }
+    .st-tab-panel { display: none; }
+    .st-tab-panel.active { display: block; }
+
+    /* ── 3-col data type cards ───────────────────────────── */
+    .st-types {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+    }
+
+    /* ── 2×2 architecture cards ──────────────────────────── */
+    .st-arch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+    }
+
+    /* ── Shared card styles ──────────────────────────────── */
+    .st-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+      text-decoration: none;
+    }
+    .st-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .st-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .st-card-head { display: flex; align-items: center; gap: 10px; }
+    .st-card-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .st-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .st-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.45; }
+    .st-card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .st-chip {
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.2);
+      color: var(--sf-blue);
+    }
+
+    /* ── Overlay modal ───────────────────────────────────── */
+    .st-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .st-overlay.open { display: flex; }
+    .st-modal {
+      background: var(--sf-navy);
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 820px; max-width: 92vw; max-height: 74vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .st-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; background: var(--sf-blue); flex-shrink: 0;
+    }
+    .st-modal-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; }
+    .st-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .st-modal-close:hover { background: rgba(255,255,255,.35); }
+    .st-modal-body { flex: 1; overflow-y: auto; padding: 0; background: var(--sf-navy); }
+    .st-text-section {
+      background: #fff;
+      color: var(--sf-ink);
+      padding: 13px 22px;
+      font-size: var(--fs-h5);
+      line-height: 1.7;
+    }
+    .st-text-section b { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/data-load-overview',
+      code:  null,
+      guide: 'https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Storage</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Platform</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Storage</div>
+          <div class="s6-sub" style="text-align:center;">One storage layer for all data types — structured tables, semi-structured JSON, and unstructured files — with automatic micro-partitioning, clustering, and Time Travel built in.</div>
+        </div>
+
+        <div class="st-page content-wrap">
+
+          <!-- Tab switcher -->
+          <div class="st-tabs">
+            <button class="st-tab active" onclick="switchTab('types')">Data Types</button>
+            <button class="st-tab" onclick="switchTab('arch')">Storage Architecture</button>
+          </div>
+
+          <div class="st-panel-wrap">
+
+            <!-- ══ Data Types tab ══ -->
+            <div class="st-tab-panel active" id="tab-types">
+              <div class="st-types">
+
+                <div class="st-card" data-fn="unstructured">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-unstructured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Unstructured Data</div>
+                  </div>
+                  <div class="st-card-desc">Store documents, images, video, audio, and binary files natively alongside structured data. Query file metadata as a table, generate presigned URLs, and run AI extraction — without moving data to a separate system.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">FILES</span>
+                    <span class="st-chip">DIRECTORY TABLE</span>
+                    <span class="st-chip">AI_PARSE_DOCUMENT</span>
+                    <span class="st-chip">Presigned URLs</span>
+                  </div>
+                </div>
+
+                <div class="st-card" data-fn="semi-structured">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-semi-struct" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Semi-Structured</div>
+                  </div>
+                  <div class="st-card-desc">Native VARIANT type stores JSON, Avro, Parquet, ORC, and XML without a fixed schema. Query nested fields with dot notation, flatten arrays into rows, and auto-detect column structure — all in standard SQL.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">VARIANT</span>
+                    <span class="st-chip">FLATTEN</span>
+                    <span class="st-chip">INFER_SCHEMA</span>
+                    <span class="st-chip">dot notation</span>
+                  </div>
+                </div>
+
+                <div class="st-card" data-fn="structured">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Structured Data</div>
+                  </div>
+                  <div class="st-card-desc">Full ANSI SQL typed columns with constraints, views, and Time Travel. Every table is automatically micro-partitioned and columnar — no tuning required. Secure views, materialized views, and transactional DML included.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">Typed columns</span>
+                    <span class="st-chip">Constraints</span>
+                    <span class="st-chip">Time Travel</span>
+                    <span class="st-chip">Secure views</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ══ Storage Architecture tab ══ -->
+            <div class="st-tab-panel" id="tab-arch">
+              <div class="st-arch">
+
+                <a class="st-card" href="./storage-micropartitions.html">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-sf-tables" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Micro-Partitioning</div>
+                  </div>
+                  <div class="st-card-desc">All Snowflake tables are automatically divided into immutable, compressed micro-partitions of 50–500 MB. Snowflake stores rich column-level metadata (min/max, distinct count, bloom filter) for each partition, enabling aggressive pruning without manual maintenance.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">Immutable</span>
+                    <span class="st-chip">Columnar</span>
+                    <span class="st-chip">Partition pruning</span>
+                    <span class="st-chip">Zero maintenance</span>
+                  </div>
+                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;">Deep dive &#x2192;</div>
+                </a>
+
+                <a class="st-card" href="./storage-clustering.html">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-warehouse" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Clustering &amp; Search Optimization</div>
+                  </div>
+                  <div class="st-card-desc">Define cluster keys to co-locate frequently filtered columns in the same micro-partitions. Automatic Reclustering keeps large tables tidy as data ages. Search Optimization Service accelerates equality and range lookups without changing queries.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">CLUSTER BY</span>
+                    <span class="st-chip">Auto-recluster</span>
+                    <span class="st-chip">Search Optimization</span>
+                  </div>
+                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;">Deep dive &#x2192;</div>
+                </a>
+
+                <div class="st-card" data-fn="internal-stages">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-servers" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">Internal Stages</div>
+                  </div>
+                  <div class="st-card-desc">Snowflake-managed temporary and permanent file storage for data loading, transformation outputs, and pipeline intermediates. Three types: user stage (personal), table stage (bound to a table), and named stage (reusable, governed).</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">@~ user</span>
+                    <span class="st-chip">@%table</span>
+                    <span class="st-chip">Named stage</span>
+                    <span class="st-chip">PUT / GET</span>
+                  </div>
+                </div>
+
+                <div class="st-card" data-fn="external-stages">
+                  <div class="st-card-head">
+                    <div class="st-card-icon">
+                      <span class="sf-img sf-icon-cloud" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="st-card-title">External Stages</div>
+                  </div>
+                  <div class="st-card-desc">Reference data in S3, Azure Blob, or GCS without loading it into Snowflake. Use a Storage Integration to decouple credentials from stage definitions. Query files in-place with external tables or load on-demand with COPY INTO.</div>
+                  <div class="st-card-chips">
+                    <span class="st-chip">S3 · Azure · GCS</span>
+                    <span class="st-chip">Storage Integration</span>
+                    <span class="st-chip">External Tables</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div><!-- /st-panel-wrap -->
+
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="st-overlay" id="st-overlay">
+    <div class="st-modal">
+      <div class="st-modal-header">
+        <span class="st-modal-title" id="st-modal-title"></span>
+        <button class="st-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="st-modal-body" id="st-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.st-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.st-tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+      document.getElementById(`tab-${name}`).classList.add('active');
+      closeModal();
+    }
+
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const code = body => `<div class="mlf-code-block" style="border-radius:0;padding:18px 22px;">${body}</div>`;
+    const text = body => `<div class="st-text-section">${body}</div>`;
+
+    const PANELS = {
+
+      unstructured: {
+        title: 'Unstructured Data — FILES & Directory Tables',
+        body: code(`${cm('-- ── Create a stage with DIRECTORY TABLE enabled ─────────────────────')}
+${k('CREATE OR REPLACE STAGE')} ${id('docs_stage')}
+  ${id('DIRECTORY')} ${p('=')} ${p('(')}${id('ENABLE')} ${p('=')} ${k('TRUE')}${p(')')}
+  ${id('ENCRYPTION')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${str("'SNOWFLAKE_SSE'")}${p(')')}${p(';')}
+
+${cm('-- ── Query file metadata as a table ──────────────────────────────────')}
+${k('SELECT')}
+  ${id('relative_path')}${p(',')}
+  ${id('size')}${p(',')}
+  ${id('last_modified')}${p(',')}
+  ${id('file_url')}
+${k('FROM')} ${id('DIRECTORY')}${p('(')}${p('@')}${id('docs_stage')}${p(')')}
+${k('WHERE')} ${id('relative_path')} ${k('LIKE')} ${str("'%.pdf'")}
+${k('ORDER BY')} ${id('last_modified')} ${k('DESC')}${p(';')}
+
+${cm('-- ── AI extraction on staged documents ───────────────────────────────')}
+${k('SELECT')}
+  ${id('relative_path')}${p(',')}
+  ${f('SNOWFLAKE')}${p('.')}${f('CORTEX')}${p('.')}${f('AI_PARSE_DOCUMENT')}${p('(')}
+    ${f('BUILD_SCOPED_FILE_URL')}${p('(')}${id('@docs_stage')}${p(',')} ${id('relative_path')}${p(')')}${p(',')}
+    ${str("'LAYOUT'")}${p(',')}
+    ${p('{')}"mode"${p(':')} ${str('"DOCUMENT"')}${p('}')}
+  ${p(')')} ${k('AS')} ${id('extraction')}
+${k('FROM')} ${id('DIRECTORY')}${p('(')}${p('@')}${id('docs_stage')}${p(')')}${p(';')}
+
+${cm('-- ── Generate a presigned URL for serving a file ─────────────────────')}
+${k('SELECT')} ${f('GET_PRESIGNED_URL')}${p('(')}${id('@docs_stage')}${p(',')} ${str("'contracts/q4-sow.pdf'")}${p(',')} ${n('3600')}${p(')')}${p(';')}
+${cm('-- Returns a time-limited HTTPS URL — valid for 3600 seconds')}`)
+      },
+
+      'semi-structured': {
+        title: 'Semi-Structured Data — VARIANT & FLATTEN',
+        body: code(`${cm('-- ── Store raw JSON in a VARIANT column (schema-on-read) ─────────────')}
+${k('CREATE OR REPLACE TABLE')} ${id('events')} ${p('(')}
+  ${id('event_id')}  ${id('NUMBER')} ${k('AUTOINCREMENT')}${p(',')}
+  ${id('received_at')} ${id('TIMESTAMP_NTZ')} ${k('DEFAULT')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(',')}
+  ${id('payload')}   ${id('VARIANT')}             ${cm('-- raw JSON lands here')}
+${p(')')}${p(';')}
+
+${cm('-- ── Dot notation: navigate nested fields ─────────────────────────────')}
+${k('SELECT')}
+  ${id('payload')}${p(':')}${id('event_type')}${p('::VARCHAR')}          ${k('AS')} ${id('event_type')}${p(',')}
+  ${id('payload')}${p(':')}${id('user')}${p('.')}${id('id')}${p('::NUMBER')}           ${k('AS')} ${id('user_id')}${p(',')}
+  ${id('payload')}${p(':')}${id('user')}${p('.')}${id('location')}${p('.')}${id('city')}${p('::VARCHAR')} ${k('AS')} ${id('city')}${p(',')}
+  ${id('payload')}${p(':')}${id('properties')}${p('[')}${n('0')}${p(']')}${p('::VARCHAR')}      ${k('AS')} ${id('first_tag')}
+${k('FROM')} ${id('events')}${p(';')}
+
+${cm('-- ── FLATTEN: expand an array into individual rows ────────────────────')}
+${k('SELECT')}
+  ${id('e')}${p('.')}${id('event_id')}${p(',')}
+  ${id('tag')}${p('.')}${id('value')}${p('::VARCHAR')} ${k('AS')} ${id('tag')}
+${k('FROM')} ${id('events')} ${id('e')}${p(',')}
+  ${id('LATERAL')} ${f('FLATTEN')}${p('(')}${id('input')} ${p('=>')} ${id('e')}${p('.')}${id('payload')}${p(':')}${id('tags')}${p(')')} ${id('tag')}${p(';')}
+
+${cm('-- ── Auto-detect schema from Parquet / JSON files ────────────────────')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('TABLE')}${p('(')}
+  ${f('INFER_SCHEMA')}${p('(')}
+    ${id('LOCATION')} ${p('=>')} ${id('@raw_stage/events/')}${p(',')}
+    ${id('FILE_FORMAT')} ${p('=>')} ${str("'parquet_fmt'")}
+  ${p(')')}
+${p(')')}${p(';')}
+${cm('-- Returns: column_name, type, nullable — ready to paste into CREATE TABLE')}`)
+      },
+
+      structured: {
+        title: 'Structured Data — Tables, Views & Constraints',
+        body: code(`${cm('-- ── Create a fully typed table with constraints ─────────────────────')}
+${k('CREATE OR REPLACE TABLE')} ${id('orders')} ${p('(')}
+  ${id('order_id')}    ${id('NUMBER')}${p('(')}${n('18')}${p(',0)')}  ${k('NOT NULL')} ${k('PRIMARY KEY')}${p(',')}
+  ${id('customer_id')} ${id('NUMBER')}${p('(')}${n('18')}${p(',0)')}  ${k('NOT NULL')} ${k('REFERENCES')} ${id('customers')}${p('(')}${id('id')}${p(')')}${p(',')}
+  ${id('order_date')}  ${id('DATE')}             ${k('NOT NULL')}${p(',')}
+  ${id('total_amt')}   ${id('NUMBER')}${p('(')}${n('18')}${p(',2)')}  ${k('NOT NULL')} ${k('CHECK')} ${p('(')}${id('total_amt')} ${p('>=')} ${n('0')}${p(')')}${p(',')}
+  ${id('status')}      ${id('VARCHAR')}${p('(')}${n('20')}${p(')')}   ${k('DEFAULT')} ${str("'pending'")}
+${p(')')}
+${id('DATA_RETENTION_TIME_IN_DAYS')} ${p('=')} ${n('90')}${p(';')}
+
+${cm('-- ── Secure view — prevents query introspection ───────────────────────')}
+${k('CREATE OR REPLACE SECURE VIEW')} ${id('orders_by_region')} ${k('AS')}
+${k('SELECT')} ${id('o')}${p('.*')}${p(',')} ${id('c')}${p('.')}${id('region')}
+${k('FROM')} ${id('orders')} ${id('o')} ${k('JOIN')} ${id('customers')} ${id('c')} ${k('ON')} ${id('o')}${p('.')}${id('customer_id')} ${p('=')} ${id('c')}${p('.')}${id('id')}${p(';')}
+
+${cm('-- ── Materialized view — pre-computed, auto-refreshed ────────────────')}
+${k('CREATE OR REPLACE MATERIALIZED VIEW')} ${id('mv_daily_revenue')} ${k('AS')}
+${k('SELECT')} ${f('DATE_TRUNC')}${p('(')}${str("'day'")}${p(',')} ${id('order_date')}${p(')')} ${k('AS')} ${id('day')}${p(',')} ${f('SUM')}${p('(')}${id('total_amt')}${p(')')} ${k('AS')} ${id('revenue')}
+${k('FROM')} ${id('orders')} ${k('GROUP BY')} ${n('1')}${p(';')}
+
+${cm('-- ── Time Travel: query data as of any point in the retention window ──')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+  ${id('AT')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-01 00:00:00'")}${p(')')}${p(';')}
+
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+  ${id('BEFORE')} ${p('(')}${id('STATEMENT')} ${p('=>')} ${str("'<query_id>'")}${p(')')}${p(';')}`)
+      },
+
+      micropartitions: {
+        title: 'Micro-Partitioning — How Snowflake Stores Data',
+        body: code(`${cm('-- Every Snowflake table is automatically divided into micro-partitions.')}
+${cm('-- 50–500 MB compressed, columnar, immutable — created on INSERT/LOAD.')}
+${cm('-- Rich per-column metadata enables pruning without scanning data.')}
+
+${cm('-- ── Check partition metadata and clustering quality ─────────────────')}
+${k('SELECT')} ${f('SYSTEM$CLUSTERING_INFORMATION')}${p('(')}${str("'ANALYTICS.PUBLIC.ORDERS'")}${p(',')} ${str("'(ORDER_DATE, STATUS)'")}${p(')')}${p(';')}
+${cm('-- Returns: partition_count, average_depth, average_overlaps,')}
+${cm('--          total_partition_count — lower depth = better pruning')}
+
+${cm('-- ── See how many partitions a query scans ────────────────────────────')}
+${k('EXPLAIN')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+${k('WHERE')} ${id('order_date')} ${k('BETWEEN')} ${str("'2026-01-01'")} ${k('AND')} ${str("'2026-03-31'")}
+  ${k('AND')} ${id('status')} ${p('=')} ${str("'fulfilled'")}${p(';')}
+${cm('-- Look for "pruned_partitions" vs "total_partitions" in the plan output')}
+
+${cm('-- ── Partition metadata stored per micro-partition ────────────────────')}
+${cm('-- Per column per partition Snowflake tracks:')}
+${cm('--   • min / max values          → range pruning')}
+${cm('--   • distinct value count      → join optimization')}
+${cm('--   • null count                → nullable checks')}
+${cm('--   • bloom filter              → equality pruning')}
+${cm('--   • column size (compressed)  → scan cost estimation')}
+${cm('')}
+${cm('-- ── Immutability = safe Time Travel & Fail-Safe ─────────────────────')}
+${cm('-- DML never overwrites partitions — old versions are retained.')}
+${cm('-- Time Travel can restore data up to 90 days (Enterprise).')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')} ${id('AT')} ${p('(')}${id('OFFSET')} ${p('=>')} ${p('-')}${n('3600')}${p(')')}${p(';')}
+${cm('-- 1 hour ago — no restore command needed, just add AT()')}`)
+      },
+
+      clustering: {
+        title: 'Clustering & Search Optimization',
+        body: code(`${cm('-- ── When to cluster: large tables frequently filtered on a few columns ─')}
+${cm('-- Good candidates: date/time columns, region/category enums, tenant IDs.')}
+${cm('-- NOT needed for small tables or append-only logs — micro-partitions')}
+${cm('-- already handle most pruning automatically.')}
+
+${cm('-- ── Define a cluster key ─────────────────────────────────────────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('CLUSTER BY')} ${p('(')}${id('order_date')}${p(',')} ${id('region')}${p(')')}${p(';')}
+
+${cm('-- ── Automatic Reclustering keeps the key effective as data grows ─────')}
+${cm('-- Snowflake monitors clustering depth and triggers reclustering')}
+${cm('-- serverlessly in the background. No manual maintenance needed.')}
+
+${cm('-- ── Check if reclustering is helping ────────────────────────────────')}
+${k('SELECT')} ${f('SYSTEM$CLUSTERING_INFORMATION')}${p('(')}${str("'ANALYTICS.PUBLIC.ORDERS'")}${p(')')}${p(';')}
+
+${cm('-- ── Search Optimization Service: equality + range point lookups ─────')}
+${cm('-- Best for: high-cardinality columns where users filter by exact value.')}
+${cm('-- Example: customer_id, order_id, email, session_id')}
+${k('ALTER TABLE')} ${id('orders')} ${k('ADD SEARCH OPTIMIZATION ON')}
+  ${id('EQUALITY')}${p('(')}${id('customer_id')}${p(',')} ${id('order_id')}${p(')')}${p(',')}
+  ${id('SUBSTRING')}${p('(')}${id('notes')}${p(')')}${p(';')}
+${cm('-- Snowflake builds access paths offline — queries are unchanged')}
+
+${cm('-- ── Monitor search optimization usage ───────────────────────────────')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('SEARCH_OPTIMIZATION_HISTORY')}
+${k('WHERE')} ${id('TABLE_NAME')} ${p('=')} ${str("'ORDERS'")}
+${k('ORDER BY')} ${id('START_TIME')} ${k('DESC')} ${k('LIMIT')} ${n('10')}${p(';')}`)
+      },
+
+      'internal-stages': {
+        title: 'Internal Stages — Snowflake-Managed File Storage',
+        body: code(`${cm('-- ── The three internal stage types ──────────────────────────────────')}
+${cm('-- @~              : User stage — personal, auto-created for every user')}
+${cm('-- @%tablename     : Table stage — auto-created, bound to table lifetime')}
+${cm('-- @my_stage       : Named stage — explicit, governed, reusable')}
+
+${cm('-- ── Create a named stage with encryption and file format ─────────────')}
+${k('CREATE OR REPLACE FILE FORMAT')} ${id('csv_fmt')}
+  ${id('TYPE')} ${p('=')} ${id('CSV')}
+  ${id('SKIP_HEADER')} ${p('=')} ${n('1')}
+  ${id('FIELD_OPTIONALLY_ENCLOSED_BY')} ${p('=')} ${str('"\\""')}
+  ${id('NULL_IF')} ${p('=')} ${p('(')}${str("'NULL'")}${p(',')} ${str("''")}${p(')')}${p(';')}
+
+${k('CREATE OR REPLACE STAGE')} ${id('pipeline_stage')}
+  ${id('FILE_FORMAT')} ${p('=')} ${id('csv_fmt')}
+  ${id('ENCRYPTION')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${str("'SNOWFLAKE_SSE'")}${p(')')}${p(';')}
+
+${cm('-- ── Upload from your local machine (Snowflake CLI or SnowSQL) ────────')}
+${cm('-- $ snow sql -q "PUT file:///data/orders.csv @pipeline_stage"')}
+${cm('-- Or: PUT file://~/data/orders.csv @pipeline_stage AUTO_COMPRESS=TRUE;')}
+
+${cm('-- ── List files in a stage ────────────────────────────────────────────')}
+${k('LIST')} ${id('@pipeline_stage')}${p(';')}
+${k('LIST')} ${id('@~')}${p(';')}               ${cm('-- your user stage')}
+${k('LIST')} ${id('@%orders')}${p(';')}          ${cm('-- orders table stage')}
+
+${cm('-- ── Load, then clean up ──────────────────────────────────────────────')}
+${k('COPY INTO')} ${id('raw')}${p('.')}${id('orders')} ${k('FROM')} ${id('@pipeline_stage')} ${id('PURGE')} ${p('=')} ${k('TRUE')}${p(';')}
+${cm('-- PURGE = TRUE removes staged files after successful load')}
+
+${cm('-- ── Download a file back to local ───────────────────────────────────')}
+${cm('-- $ snow sql -q "GET @pipeline_stage/results.csv file:///tmp/"')}`)
+      },
+
+      'external-stages': {
+        title: 'External Stages — S3, Azure, GCS',
+        body: code(`${cm('-- ── Step 1: Storage Integration decouples credentials from stages ─────')}
+${cm('-- Create once per cloud account. All stages share it.')}
+${k('CREATE OR REPLACE STORAGE INTEGRATION')} ${id('s3_int')}
+  ${id('TYPE')} ${p('=')} ${id('EXTERNAL_STAGE')}
+  ${id('STORAGE_PROVIDER')} ${p('=')} ${id('S3')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}
+  ${id('STORAGE_ALLOWED_LOCATIONS')} ${p('=')} ${p('(')}${str("'s3://my-bucket/data/'")}${p(')')}${p(';')}
+
+${cm('-- ── Step 2: Create the external stage ──────────────────────────────')}
+${k('CREATE OR REPLACE STAGE')} ${id('s3_data_stage')}
+  ${id('URL')} ${p('=')} ${str("'s3://my-bucket/data/'")}
+  ${id('STORAGE_INTEGRATION')} ${p('=')} ${id('s3_int')}
+  ${id('FILE_FORMAT')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${id('PARQUET')}${p(')')}${p(';')}
+
+${cm('-- ── List and load ───────────────────────────────────────────────────')}
+${k('LIST')} ${id('@s3_data_stage')}${p(';')}
+
+${k('COPY INTO')} ${id('raw')}${p('.')}${id('events')}
+${k('FROM')} ${id('@s3_data_stage/events/2026/07/')}
+${id('PATTERN')} ${p('=')} ${str("'.*\\.parquet'")}${p(';')}
+
+${cm('-- ── External Table: query S3 in-place without loading ───────────────')}
+${k('CREATE OR REPLACE EXTERNAL TABLE')} ${id('ext_events')}
+  ${k('USING TEMPLATE')} ${p('(')}
+    ${k('SELECT')} ${id('ARRAY_AGG')}${p('(')}${id('OBJECT_CONSTRUCT')}${p('(*)')}${p(')')}
+    ${k('FROM')} ${id('TABLE')}${p('(')}${f('INFER_SCHEMA')}${p('(')}
+      ${id('LOCATION')} ${p('=>')} ${id('@s3_data_stage')}${p(',')}
+      ${id('FILE_FORMAT')} ${p('=>')} ${str("'parquet_fmt'")}
+    ${p(')')}${p(')')}
+  ${p(')')}
+  ${id('LOCATION')} ${p('=')} ${id('@s3_data_stage')}
+  ${id('AUTO_REFRESH')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- AUTO_REFRESH = TRUE registers S3 event notifications automatically')}
+${cm('-- so the external table stays current as new files land.')}`)
+      }
+    };
+
+    function showModal(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('st-modal-title').textContent = data.title;
+      document.getElementById('st-modal-body').innerHTML = data.body;
+      document.getElementById('st-overlay').classList.add('open');
+      document.querySelectorAll('.st-card[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+    function closeModal() {
+      document.getElementById('st-overlay').classList.remove('open');
+      document.querySelectorAll('.st-card').forEach(c => c.classList.remove('active'));
+    }
+    document.querySelectorAll('.st-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showModal(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('st-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+  </script>
+
+</body>
+</html>

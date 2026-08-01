@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Clustering &amp; Search Optimization — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 2px; }
+
+    .cs-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Tab switcher ───────────────────────────────────── */
+    .cs-tabs {
+      display: flex; gap: 6px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      border-radius: 100px;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .cs-tab {
+      padding: 6px 20px; border-radius: 100px;
+      font-size: var(--fs-h5); font-weight: 700;
+      cursor: pointer; border: none;
+      background: transparent; color: rgba(255,255,255,.45);
+      transition: background .18s, color .18s; white-space: nowrap;
+    }
+    .cs-tab.active { background: var(--sf-blue); color: #fff; box-shadow: 0 2px 10px rgba(41,181,232,.4); }
+    .cs-tab:not(.active):hover { color: rgba(255,255,255,.75); background: rgba(41,181,232,.12); }
+
+    /* ── Tab panels ──────────────────────────────────────── */
+    .cs-panel-wrap { width: 100%; max-width: 900px; flex-shrink: 0; }
+    .cs-tab-panel { display: none; }
+    .cs-tab-panel.active { display: block; }
+
+    /* ── "When to use" banner ────────────────────────────── */
+    .cs-when {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 9px;
+    }
+    .cs-when-card {
+      flex: 1;
+      border-radius: 8px;
+      border: 1.5px solid rgba(41,181,232,.2);
+      background: var(--sf-blue-dark);
+      padding: 10px 14px;
+    }
+    .cs-when-label { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sf-blue); margin-bottom: 4px; }
+    .cs-when-item { display: flex; align-items: flex-start; gap: 6px; font-size: var(--fs-h5); color: rgba(255,255,255,.65); line-height: 1.45; padding: 2px 0; }
+    .cs-when-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sf-blue); flex-shrink: 0; margin-top: 6px; }
+
+    /* ── Feature cards in 2-col grid ─────────────────────── */
+    .cs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; width: 100%; }
+    .cs-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .cs-card:hover { border-color: var(--sf-blue); box-shadow: 0 4px 14px rgba(41,181,232,.22); transform: translateY(-2px); }
+    .cs-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .cs-card-head { display: flex; align-items: center; gap: 10px; }
+    .cs-card-icon {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .cs-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .cs-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.45; }
+    .cs-card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .cs-chip {
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      background: rgba(41,181,232,.07); border: 1px solid rgba(41,181,232,.2); color: var(--sf-blue);
+    }
+
+    /* ── Overlay modal ───────────────────────────────────── */
+    .cs-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .cs-overlay.open { display: flex; }
+    .cs-modal {
+      background: var(--sf-navy); border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 820px; max-width: 92vw; max-height: 74vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5); overflow: hidden;
+    }
+    .cs-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; background: var(--sf-blue); flex-shrink: 0;
+    }
+    .cs-modal-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; }
+    .cs-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cs-modal-close:hover { background: rgba(255,255,255,.35); }
+    .cs-modal-body { flex: 1; overflow-y: auto; padding: 0; }
+    .cs-text-section { background: #fff; color: var(--sf-ink); padding: 12px 22px; font-size: var(--fs-h5); line-height: 1.7; }
+    .cs-text-section b { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-clustering-keys',
+      code:  null,
+      guide: 'https://docs.snowflake.com/en/user-guide/search-optimization-service',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./storage.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Clustering &amp; Search Optimization</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Storage Architecture</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Clustering &amp; Search Optimization</div>
+          <div class="s6-sub" style="text-align:center;">Two complementary techniques for accelerating queries on large tables — automatic clustering for range scans, and the Search Optimization Service for point lookups.</div>
+        </div>
+
+        <div class="cs-page content-wrap">
+
+          <!-- Tab switcher -->
+          <div class="cs-tabs">
+            <button class="cs-tab active" onclick="switchTab('clustering')">Clustering</button>
+            <button class="cs-tab" onclick="switchTab('sos')">Search Optimization Service</button>
+          </div>
+
+          <div class="cs-panel-wrap">
+
+            <!-- ══ Clustering tab ══ -->
+            <div class="cs-tab-panel active" id="tab-clustering">
+
+              <div class="cs-when">
+                <div class="cs-when-card">
+                  <div class="cs-when-label">Use Clustering when</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Table is &gt;1 TB and queries always filter on the same 1–2 columns (date, region, tenant)</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Data is inserted out of order relative to your filter columns</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>You see high partition scan counts despite reasonable predicates</div>
+                </div>
+                <div class="cs-when-card">
+                  <div class="cs-when-label">Skip Clustering when</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Table is &lt;500 GB — micro-partitioning already prunes well</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Queries filter on many different columns with no dominant pattern</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Table is append-only with natural time-order (already well-clustered)</div>
+                </div>
+              </div>
+
+              <div class="cs-cards">
+                <div class="cs-card" data-fn="cluster-key">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-structured" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Choosing a Cluster Key</div>
+                  </div>
+                  <div class="cs-card-desc">Pick columns that appear most often in WHERE clauses and have moderate-to-high cardinality. Low-cardinality columns (e.g. boolean) provide little benefit; too-high cardinality (UUID) spreads rows too thin.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">CLUSTER BY</span><span class="cs-chip">cardinality</span><span class="cs-chip">filter patterns</span></div>
+                </div>
+                <div class="cs-card" data-fn="auto-recluster">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-speed-2" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Automatic Reclustering</div>
+                  </div>
+                  <div class="cs-card-desc">Once a cluster key is defined, Snowflake monitors clustering depth and triggers reclustering serverlessly in the background as DML causes disorder. No manual ALTER or rebuild commands needed.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">Serverless</span><span class="cs-chip">Background</span><span class="cs-chip">Zero maintenance</span></div>
+                </div>
+                <div class="cs-card" data-fn="cluster-monitor">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Monitoring Clustering Depth</div>
+                  </div>
+                  <div class="cs-card-desc">SYSTEM$CLUSTERING_INFORMATION returns average depth and average overlaps. Lower depth = better pruning. Track reclustering credit consumption via AUTOMATIC_CLUSTERING_HISTORY.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">SYSTEM$CLUSTERING_INFORMATION</span><span class="cs-chip">avg_depth</span></div>
+                </div>
+                <div class="cs-card" data-fn="cluster-cost">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-cost" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Clustering Cost Model</div>
+                  </div>
+                  <div class="cs-card-desc">Reclustering consumes serverless credits proportional to the data volume reorganized. Balance reclustering savings (less scan cost) against reclustering spend. High-churn tables may recluster frequently; append-heavy tables rarely need it.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">Serverless credits</span><span class="cs-chip">ROI analysis</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ══ SOS tab ══ -->
+            <div class="cs-tab-panel" id="tab-sos">
+
+              <div class="cs-when">
+                <div class="cs-when-card">
+                  <div class="cs-when-label">Use Search Optimization when</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Queries look up individual rows by high-cardinality key (email, order_id, user_id)</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Equality or range predicates on columns that are NOT the cluster key</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>ILIKE / LIKE substring searches on large text columns</div>
+                </div>
+                <div class="cs-when-card">
+                  <div class="cs-when-label">vs. Clustering</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>Clustering = range scans on ordered columns (date ranges, regions)</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>SOS = point lookups on any column, independent of physical order</div>
+                  <div class="cs-when-item"><div class="cs-when-dot"></div>They complement each other — a table can have both</div>
+                </div>
+              </div>
+
+              <div class="cs-cards">
+                <div class="cs-card" data-fn="sos-equality">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-sql" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Equality &amp; Range Lookups</div>
+                  </div>
+                  <div class="cs-card-desc">SOS builds access paths for equality (=, IN) and range (&lt;, &gt;, BETWEEN) predicates on high-cardinality columns. Queries are unchanged — Snowflake automatically uses the access path when it helps.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">EQUALITY(...)</span><span class="cs-chip">RANGE(...)</span><span class="cs-chip">Transparent</span></div>
+                </div>
+                <div class="cs-card" data-fn="sos-substring">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-semi-struct" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Substring &amp; VARIANT Search</div>
+                  </div>
+                  <div class="cs-card-desc">Enable substring search for LIKE '%term%' and ILIKE patterns on text columns. Also supports equality lookups on VARIANT sub-field values without full JSON extraction on every row.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">SUBSTRING(...)</span><span class="cs-chip">LIKE / ILIKE</span><span class="cs-chip">VARIANT paths</span></div>
+                </div>
+                <div class="cs-card" data-fn="sos-setup">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-data-eng" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Setup &amp; Management</div>
+                  </div>
+                  <div class="cs-card-desc">One ALTER TABLE command enables SOS on specific columns and access types. Snowflake builds the access paths offline — no table lock, no impact to queries during build. Disable per-column to control storage cost.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">ALTER TABLE</span><span class="cs-chip">ADD SEARCH OPTIMIZATION ON</span></div>
+                </div>
+                <div class="cs-card" data-fn="sos-monitor">
+                  <div class="cs-card-head">
+                    <div class="cs-card-icon">
+                      <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="cs-card-title">Monitoring &amp; Cost</div>
+                  </div>
+                  <div class="cs-card-desc">SOS builds access paths incrementally, consuming serverless credits. Monitor build progress and query acceleration via SEARCH_OPTIMIZATION_HISTORY and EXPLAIN plans — look for "Search Optimization: YES" in the plan output.</div>
+                  <div class="cs-card-chips"><span class="cs-chip">SEARCH_OPTIMIZATION_HISTORY</span><span class="cs-chip">EXPLAIN</span></div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /cs-panel-wrap -->
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="cs-overlay" id="cs-overlay">
+    <div class="cs-modal">
+      <div class="cs-modal-header">
+        <span class="cs-modal-title" id="cs-modal-title"></span>
+        <button class="cs-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="cs-modal-body" id="cs-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.cs-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.cs-tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+      document.getElementById(`tab-${name}`).classList.add('active');
+      closeModal();
+    }
+
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+    const code = b => `<div class="mlf-code-block" style="border-radius:0;padding:18px 22px;">${b}</div>`;
+    const text = b => `<div class="cs-text-section">${b}</div>`;
+
+    const PANELS = {
+      'cluster-key': {
+        title: 'Choosing a Cluster Key',
+        body: code(`${cm('-- ── Define a cluster key on ORDER_DATE and REGION ──────────────────')}
+${k('ALTER TABLE')} ${id('analytics')}${p('.')}${id('orders')} ${k('CLUSTER BY')} ${p('(')}${id('order_date')}${p(',')} ${id('region')}${p(')')}${p(';')}
+
+${cm('-- ── Why these columns? ──────────────────────────────────────────────')}
+${cm('-- ORDER_DATE: date-range filters appear in ~90% of queries')}
+${cm('-- REGION:     always co-filtered with date — reduces partitions further')}
+${cm('')}
+${cm('-- ── What NOT to cluster on ─────────────────────────────────────────')}
+${cm('-- ❌  is_active BOOLEAN   — only 2 values, no pruning benefit')}
+${cm('-- ❌  customer_id UUID    — too high cardinality, rows spread thin')}
+${cm('-- ❌  notes VARCHAR       — free text, no consistent filter pattern')}
+${cm('')}
+${cm('-- ── Expressions in cluster keys ────────────────────────────────────')}
+${cm('-- Use TRUNCATE or DATE_TRUNC to reduce cardinality on a timestamp:')}
+${k('ALTER TABLE')} ${id('events')} ${k('CLUSTER BY')} ${p('(')}${f('DATE_TRUNC')}${p('(')}${str("'month'")}${p(',')} ${id('event_at')}${p(')')}${p(',')} ${id('region')}${p(')')}${p(';')}
+${cm('-- Groups by month rather than individual seconds — better pruning')}
+
+${cm('-- ── Drop a cluster key (stops reclustering, does not reshuffle) ─────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('DROP CLUSTERING KEY')}${p(';')}`)
+      },
+
+      'auto-recluster': {
+        title: 'Automatic Reclustering',
+        body: code(`${cm('-- Automatic Reclustering runs serverlessly in the background.')}
+${cm('-- It is enabled by default when you define a cluster key.')}
+${cm('')}
+${cm('-- ── Suspend reclustering (e.g. during a large bulk load) ───────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('SUSPEND RECLUSTER')}${p(';')}
+
+${cm('-- ── Resume after the load is complete ──────────────────────────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('RESUME RECLUSTER')}${p(';')}
+
+${cm('-- ── View reclustering activity and credit consumption ───────────────')}
+${k('SELECT')}
+  ${id('start_time')}${p(',')}
+  ${id('end_time')}${p(',')}
+  ${id('table_name')}${p(',')}
+  ${id('credits_used')}${p(',')}
+  ${id('num_bytes_reclustered')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('AUTOMATIC_CLUSTERING_HISTORY')}
+${k('WHERE')} ${id('table_name')} ${p('=')} ${str("'ORDERS'")}
+  ${k('AND')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(')')}
+${k('ORDER BY')} ${id('start_time')} ${k('DESC')}${p(';')}
+
+${cm('-- ── How reclustering works internally ───────────────────────────────')}
+${cm('-- Snowflake reads the most poorly-clustered partitions,')}
+${cm('-- sorts them by the cluster key,')}
+${cm('-- and writes new, well-ordered micro-partitions.')}
+${cm('-- The old partitions are retired (available for Time Travel).')}
+${cm('-- Queries run throughout — no table lock at any point.')}`)
+      },
+
+      'cluster-monitor': {
+        title: 'Monitoring Clustering Depth',
+        body: code(`${cm('-- ── SYSTEM$CLUSTERING_INFORMATION — understand table clustering quality ─')}
+${k('SELECT')} ${f('SYSTEM$CLUSTERING_INFORMATION')}${p('(')}${str("'ANALYTICS.PUBLIC.ORDERS'")}${p(')')}${p(';')}
+${cm('-- Returns JSON with key metrics:')}
+${cm('--   "cluster_by_keys":     "LINEAR(ORDER_DATE, REGION)"')}
+${cm('--   "total_partition_count": 1248')}
+${cm('--   "total_constant_partition_count": 42')}
+${cm('--   "average_overlaps":    1.4   ← lower is better, 0 = perfect')}
+${cm('--   "average_depth":       1.8   ← lower is better, 1.0 = ideal')}
+${cm('--   "partition_depth_histogram": { "00000":42, "00001":840, ... }')}
+
+${cm('')}
+${cm('-- ── Check clustering on specific keys ───────────────────────────────')}
+${k('SELECT')} ${f('SYSTEM$CLUSTERING_INFORMATION')}${p('(')}${str("'ANALYTICS.PUBLIC.ORDERS'")}${p(',')} ${str("'(ORDER_DATE)'")}${p(')')}${p(';')}
+
+${cm('-- ── Interpret the depth histogram ──────────────────────────────────')}
+${cm('-- Depth 1 = partition data is found in exactly 1 micro-partition')}
+${cm('--          (ideal: row values appear contiguously)')}
+${cm('-- Depth > 3 = significant overlap — consider reclustering')}
+${cm('')}
+${cm('-- ── Explain plan to see actual pruning ──────────────────────────────')}
+${k('EXPLAIN')}
+${k('SELECT')} ${f('COUNT')}${p('(*)')} ${k('FROM')} ${id('orders')}
+${k('WHERE')} ${id('order_date')} ${k('BETWEEN')} ${str("'2026-01-01'")} ${k('AND')} ${str("'2026-03-31'")}
+  ${k('AND')} ${id('region')} ${p('=')} ${str("'EMEA'")}${p(';')}
+${cm('-- Output includes: pruned_partitions = X, partitions_scanned = Y')}`)
+      },
+
+      'cluster-cost': {
+        title: 'Clustering Cost Model',
+        body: code(`${cm('-- ── Reclustering costs serverless credits. Break-even analysis: ─────')}
+${cm('-- Cost of reclustering = serverless credits × cloud region rate')}
+${cm('-- Benefit = (partitions_pruned × avg_partition_scan_cost) × query_frequency')}
+${cm('')}
+${cm('-- ── Query reclustering spend over the last 30 days ─────────────────')}
+${k('SELECT')}
+  ${id('table_name')}${p(',')}
+  ${f('SUM')}${p('(')}${id('credits_used')}${p(')')} ${k('AS')} ${id('total_credits')}${p(',')}
+  ${f('SUM')}${p('(')}${id('num_bytes_reclustered')}${p(')')} ${p('/')} ${n('1073741824')} ${k('AS')} ${id('gb_reclustered')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('AUTOMATIC_CLUSTERING_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(')')}
+${k('GROUP BY')} ${n('1')}
+${k('ORDER BY')} ${id('total_credits')} ${k('DESC')}${p(';')}
+
+${cm('-- ── Compare against query savings ───────────────────────────────────')}
+${k('SELECT')}
+  ${id('query_id')}${p(',')}
+  ${id('partitions_scanned')}${p(',')}
+  ${id('partitions_total')}${p(',')}
+  ${f('ROUND')}${p('(')}${n('100')} ${p('*')} ${p('(')}${n('1')} ${p('-')} ${id('partitions_scanned')}${p('/')}${id('partitions_total')}${p(')')}${p(',')} ${n('1')}${p(')')} ${k('AS')} ${id('pct_pruned')}${p(',')}
+  ${id('total_elapsed_time')} ${p('/')} ${n('1000')} ${k('AS')} ${id('elapsed_sec')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('QUERY_HISTORY')}
+${k('WHERE')} ${id('query_text')} ${k('ILIKE')} ${str("'%orders%'")}
+  ${k('AND')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('7')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('ORDER BY')} ${id('pct_pruned')} ${k('DESC')} ${k('LIMIT')} ${n('20')}${p(';')}`)
+      },
+
+      'sos-equality': {
+        title: 'Equality & Range — Search Optimization Service',
+        body: code(`${cm('-- ── Enable equality + range search on high-cardinality lookup columns ─')}
+${k('ALTER TABLE')} ${id('orders')}
+  ${k('ADD SEARCH OPTIMIZATION ON')}
+    ${id('EQUALITY')}${p('(')}${id('order_id')}${p(',')} ${id('customer_id')}${p(',')} ${id('external_ref')}${p(')')}${p(',')}
+    ${id('RANGE')}${p('(')}${id('total_amt')}${p(',')} ${id('created_at')}${p(')')}${p(';')}
+
+${cm('-- ── Queries that benefit (no query changes needed) ──────────────────')}
+${cm('-- Point lookup by ID:')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')} ${k('WHERE')} ${id('order_id')} ${p('=')} ${n('9182736')}${p(';')}
+
+${cm('-- IN list with multiple values:')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+${k('WHERE')} ${id('customer_id')} ${k('IN')} ${p('(')}${n('42')}${p(',')} ${n('91')}${p(',')} ${n('204')}${p(')')}${p(';')}
+
+${cm('-- Range on amount:')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+${k('WHERE')} ${id('total_amt')} ${k('BETWEEN')} ${n('1000')} ${k('AND')} ${n('5000')}
+  ${k('AND')} ${id('status')} ${p('=')} ${str("'PENDING'")}${p(';')}
+
+${cm('-- ── EXPLAIN shows whether SOS is used ───────────────────────────────')}
+${k('EXPLAIN')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')} ${k('WHERE')} ${id('order_id')} ${p('=')} ${n('9182736')}${p(';')}
+${cm('-- Look for: "search_optimization: True" in the plan output')}`)
+      },
+
+      'sos-substring': {
+        title: 'Substring & VARIANT — Search Optimization Service',
+        body: code(`${cm('-- ── Enable substring search for LIKE / ILIKE patterns ──────────────')}
+${k('ALTER TABLE')} ${id('customers')}
+  ${k('ADD SEARCH OPTIMIZATION ON')}
+    ${id('SUBSTRING')}${p('(')}${id('email')}${p(',')} ${id('company_name')}${p(',')} ${id('notes')}${p(')')}${p(';')}
+
+${cm('-- Now these queries use the SOS access path:')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('customers')} ${k('WHERE')} ${id('email')} ${k('LIKE')} ${str("'%@snowflake.com'")}${p(';')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('customers')} ${k('WHERE')} ${id('company_name')} ${k('ILIKE')} ${str("'%snowflake%'")}${p(';')}
+
+${cm('')}
+${cm('-- ── VARIANT path search: equality on nested JSON fields ─────────────')}
+${k('ALTER TABLE')} ${id('events')}
+  ${k('ADD SEARCH OPTIMIZATION ON')}
+    ${id('EQUALITY')}${p('(')}${id('payload')}${p(':')}${id('user_id')}${p(',')} ${id('payload')}${p(':')}${id('session_id')}${p(')')}${p(';')}
+
+${cm('-- Query nested JSON without scanning all VARIANT data:')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('events')}
+${k('WHERE')} ${id('payload')}${p(':')}${id('user_id')} ${p('=')} ${n('42')}${p(';')}
+
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('events')}
+${k('WHERE')} ${id('payload')}${p(':')}${id('session_id')} ${p('=')} ${str("'sess_abc123'")}${p(';')}
+
+${cm('-- ── DESCRIBE to see which optimizations are active ──────────────────')}
+${k('DESCRIBE SEARCH OPTIMIZATION ON')} ${id('events')}${p(';')}
+${cm('-- Returns: expression_id, method, target, active, bytes (access path size)')}`)
+      },
+
+      'sos-setup': {
+        title: 'Search Optimization — Setup & Management',
+        body: code(`${cm('-- ── Add multiple optimization types in one command ─────────────────')}
+${k('ALTER TABLE')} ${id('orders')}
+  ${k('ADD SEARCH OPTIMIZATION ON')}
+    ${id('EQUALITY')}${p('(')}${id('order_id')}${p(',')} ${id('customer_id')}${p(')')}${p(',')}
+    ${id('RANGE')}${p('(')}${id('total_amt')}${p(')')}${p(',')}
+    ${id('SUBSTRING')}${p('(')}${id('notes')}${p(')')}${p(';')}
+
+${cm('-- ── Describe current access paths ──────────────────────────────────')}
+${k('DESCRIBE SEARCH OPTIMIZATION ON')} ${id('orders')}${p(';')}
+${cm('-- Returns: method, target_column, active, expression_id, bytes')}
+
+${cm('-- ── Drop a specific access path to control storage cost ────────────')}
+${k('ALTER TABLE')} ${id('orders')}
+  ${k('DROP SEARCH OPTIMIZATION ON')} ${id('SUBSTRING')}${p('(')}${id('notes')}${p(')')}${p(';')}
+
+${cm('-- ── Drop all access paths on the table ─────────────────────────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('DROP SEARCH OPTIMIZATION')}${p(';')}
+
+${cm('-- ── Storage cost: access paths live alongside the table ─────────────')}
+${cm('-- Typically 1–5% of table storage size (highly compressible).')}
+${cm('-- Maintained incrementally — no full rebuild on DML.')}
+
+${cm('-- ── INFORMATION_SCHEMA: check which tables have SOS enabled ─────────')}
+${k('SELECT')} ${id('table_name')}${p(',')} ${id('search_optimization')}${p(',')} ${id('search_optimization_bytes')}
+${k('FROM')} ${id('INFORMATION_SCHEMA')}${p('.')}${id('TABLES')}
+${k('WHERE')} ${id('search_optimization')} ${p('=')} ${str("'ON'")}
+  ${k('AND')} ${id('table_schema')} ${p('=')} ${str("'PUBLIC'")}${p(';')}`)
+      },
+
+      'sos-monitor': {
+        title: 'Search Optimization — Monitoring & Cost',
+        body: code(`${cm('-- ── View SOS build history and credit consumption ──────────────────')}
+${k('SELECT')}
+  ${id('start_time')}${p(',')}
+  ${id('end_time')}${p(',')}
+  ${id('table_name')}${p(',')}
+  ${id('credits_used')}${p(',')}
+  ${id('num_bytes_updated')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('SEARCH_OPTIMIZATION_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(')')}
+${k('ORDER BY')} ${id('start_time')} ${k('DESC')}${p(';')}
+
+${cm('-- ── EXPLAIN: confirm SOS is being used by a query ──────────────────')}
+${k('EXPLAIN')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')} ${k('WHERE')} ${id('customer_id')} ${p('=')} ${n('9182736')}${p(';')}
+${cm('-- Plan output includes:')}
+${cm('-- "search_optimization": "True"   ← SOS used')}
+${cm('-- "pruned_partitions": 1245')}
+${cm('-- "partitions_scanned": 3')}
+
+${cm('')}
+${cm('-- ── Query history: measure actual latency impact ─────────────────────')}
+${k('SELECT')}
+  ${id('query_id')}${p(',')}
+  ${id('query_text')}${p(',')}
+  ${id('total_elapsed_time')} ${p('/')} ${n('1000')} ${k('AS')} ${id('elapsed_sec')}${p(',')}
+  ${id('partitions_scanned')}${p(',')}
+  ${id('partitions_total')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('QUERY_HISTORY')}
+${k('WHERE')} ${id('query_text')} ${k('ILIKE')} ${str("'%customer_id%'")}
+  ${k('AND')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('7')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('ORDER BY')} ${id('total_elapsed_time')} ${k('ASC')} ${k('LIMIT')} ${n('10')}${p(';')}`)
+      }
+    };
+
+    function showModal(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('cs-modal-title').textContent = data.title;
+      document.getElementById('cs-modal-body').innerHTML = data.body;
+      document.getElementById('cs-overlay').classList.add('open');
+      document.querySelectorAll('.cs-card[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+    function closeModal() {
+      document.getElementById('cs-overlay').classList.remove('open');
+      document.querySelectorAll('.cs-card').forEach(c => c.classList.remove('active'));
+    }
+    document.querySelectorAll('.cs-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showModal(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('cs-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+  </script>
+
+</body>
+</html>

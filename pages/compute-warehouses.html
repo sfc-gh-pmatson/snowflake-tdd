@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Virtual Warehouses &#8212; Snowflake Compute</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .cwh-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px 10px;
+      min-height: 0;
+    }
+    .cwh-inner {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cwh-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 2px;
+      flex-shrink: 0;
+    }
+    /* Foundation cards */
+    .cwh-row { display: flex; gap: 10px; flex-shrink: 0; }
+    .cwh-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cwh-card-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px; font-weight: 800;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    .cwh-card-title { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-navy); }
+    .cwh-card-text  { font-size: var(--fs-h6); color: rgba(5,13,26,.68); line-height: 1.5; }
+    .cwh-credit-row {
+      display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;
+    }
+    .cwh-credit-chip {
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      background: var(--sf-blue-dark); color: #fff;
+      letter-spacing: .3px;
+    }
+    /* Caching section */
+    .cwh-cache-row { display: flex; gap: 10px; flex-shrink: 0; }
+    .cwh-cache-card {
+      flex: 1;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cwh-cache-card--result   { background: var(--sf-blue);      }
+    .cwh-cache-card--data     { background: var(--sf-blue-dark);  }
+    .cwh-cache-card--metadata { background: var(--sf-card2); border: 1.5px solid rgba(41,181,232,.25); }
+    .cwh-cache-title { font-size: var(--fs-h5); font-weight: 700; color: #fff; }
+    .cwh-cache-stat  { font-size: var(--fs-h3); font-weight: 800; color: #fff; margin: 2px 0; }
+    .cwh-cache-text  { font-size: var(--fs-h6); color: rgba(255,255,255,.75); line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The Virtual Warehouse is Snowflake\'s compute unit. Unlike traditional data warehouses, compute is completely separated from storage — you can run ten different warehouses against the same data tables at the same time with zero resource contention.</p>
+
+<h3>Isolation Model</h3>
+<ul>
+  <li>Every warehouse is a private, isolated cluster of compute nodes</li>
+  <li>Multiple warehouses share the same underlying data without interfering with each other</li>
+  <li>A BI warehouse running Tableau queries never impacts a concurrent ETL warehouse loading data</li>
+</ul>
+
+<h3>Auto-Suspend / Auto-Resume</h3>
+<ul>
+  <li>Warehouses suspend automatically after a configurable idle timeout (minimum 1 minute)</li>
+  <li>They resume instantly (2-3 seconds) when a new query arrives</li>
+  <li>Credits are only consumed while the warehouse is actively running — no idle cost</li>
+  <li>This is the core of Snowflake\'s pay-per-use model</li>
+</ul>
+
+<h3>Caching Tiers</h3>
+<ul>
+  <li><strong>Result Cache:</strong> Identical query in last 24 hours? Returned instantly at zero credit cost</li>
+  <li><strong>Data Cache:</strong> Frequently accessed micro-partitions cached on warehouse local SSD. Dramatically reduces remote storage reads</li>
+  <li><strong>Metadata Cache:</strong> Row counts, MIN/MAX, NULL counts answered without touching data at all</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have workloads that run on a schedule vs. ad-hoc? (Good auto-suspend candidates)</li>
+  <li>Are you running mixed workloads — BI, ETL, and ML — on the same cluster today?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/warehouses-overview',
+      code:  null,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_snowflake/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./compute.html" class="btn-back">&#8592; Compute</a>
+      <span class="nav-label">Virtual Warehouse Fundamentals</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Compute</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Virtual Warehouses</div>
+          <div class="s6-sub" style="text-align:center;">Compute decoupled from storage &#8212; pay only for what you run.</div>
+        </div>
+
+        <div class="cwh-page">
+          <div class="cwh-inner">
+
+          <!-- Foundation row -->
+          <div class="cwh-section-label">Foundation</div>
+          <div class="cwh-row">
+            <div class="cwh-card">
+              <div class="cwh-card-icon">=</div>
+              <div class="cwh-card-title">Isolation Model</div>
+              <div class="cwh-card-text">Compute is fully decoupled from storage. Multiple warehouses can query the same data simultaneously with zero resource contention &#8212; BI, ETL, and AI workloads never fight over resources.</div>
+            </div>
+            <div class="cwh-card">
+              <div class="cwh-card-icon" style="background:var(--sf-blue-dark);">&#9654;</div>
+              <div class="cwh-card-title">Auto-Suspend &amp; Resume</div>
+              <div class="cwh-card-text">Warehouses suspend after idle timeout (min 1 min) and resume in ~2 seconds. Credits consumed only while running &#8212; zero idle cost. The foundation of Snowflake&#8217;s pay-per-use model.</div>
+            </div>
+            <div class="cwh-card">
+              <div class="cwh-card-icon" style="background:var(--sf-blue-mid);">&#9776;</div>
+              <div class="cwh-card-title">Credit Rates</div>
+              <div class="cwh-card-text">Credits per hour by size:</div>
+              <div class="cwh-credit-row">
+                <span class="cwh-credit-chip">XS&nbsp;1</span>
+                <span class="cwh-credit-chip">S&nbsp;2</span>
+                <span class="cwh-credit-chip">M&nbsp;4</span>
+                <span class="cwh-credit-chip">L&nbsp;8</span>
+                <span class="cwh-credit-chip">XL&nbsp;16</span>
+                <span class="cwh-credit-chip">2XL&nbsp;32</span>
+                <span class="cwh-credit-chip">3XL&nbsp;64</span>
+                <span class="cwh-credit-chip">4XL&nbsp;128</span>
+                <span class="cwh-credit-chip">6XL&nbsp;512</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Caching row -->
+          <div class="cwh-section-label">Caching Tiers</div>
+          <div class="cwh-cache-row">
+            <div class="cwh-cache-card cwh-cache-card--result">
+              <div class="cwh-cache-title">Result Cache</div>
+              <div class="cwh-cache-stat">24 hrs</div>
+              <div class="cwh-cache-text">Identical queries returned instantly with <strong>zero credits</strong>. Shared across all users. Automatic &#8212; no configuration required.</div>
+            </div>
+            <div class="cwh-cache-card cwh-cache-card--data">
+              <div class="cwh-cache-title">Data Cache</div>
+              <div class="cwh-cache-stat">Local SSD</div>
+              <div class="cwh-cache-text">Frequently accessed micro-partitions cached on warehouse nodes. Reduces remote storage I/O. Stays warm while warehouse is running.</div>
+            </div>
+            <div class="cwh-cache-card cwh-cache-card--metadata">
+              <div class="cwh-cache-title">Metadata Cache</div>
+              <div class="cwh-cache-stat">0 Credits</div>
+              <div class="cwh-cache-text">Row counts, MIN/MAX values, NULL counts answered from metadata &#8212; no data scan required. Enables aggressive partition pruning.</div>
+            </div>
+          </div>
+
+          </div><!-- /cwh-inner -->
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Clean Rooms — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .dcr-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%; max-width: 900px;
+      padding: 8px 0 4px;
+    }
+    .dcr-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .dcr-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .dcr-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .dcr-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-blue); margin-bottom: 4px;
+    }
+    .dcr-card.active .dcr-card-label { color: var(--sf-light); }
+    .dcr-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+    .dcr-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .dcr-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .dcr-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .dcr-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .dcr-panel-explain p { margin-bottom: 10px; }
+    .dcr-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .dcr-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Data Clean Rooms solve a very specific and very common problem: two organizations want to run analytics on the intersection of their data, but neither can share their raw records with the other. Classic example: a retailer and an ad network want to measure campaign attribution — did the customers who saw the ad actually buy? The retailer has purchase data, the ad network has impression data. With a DCR, they can compute the overlap and attribution without either party ever seeing the other's customer records.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>No raw data exposure:</strong> The DCR returns only aggregate results. Individual records are never visible to the other party — enforced by the clean room template, not just policy.</li>
+  <li><strong>Built on Native Apps:</strong> Snowflake DCR is implemented as a Native App — the analysis logic is deployed into both parties' accounts, governed by Snowflake's security boundary.</li>
+  <li><strong>Template-driven:</strong> Approved analyses are defined in Jinja templates. Neither party can run arbitrary SQL against the other's data — only pre-approved queries.</li>
+  <li><strong>Key verticals:</strong> Advertising/media measurement, healthcare research, financial data consortiums, retail-bank partnerships.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are there partner organizations you want to do joint analytics with but can't share raw data?</li>
+  <li>Do you have marketing attribution use cases that require matching your customer data against an ad platform's impression data?</li>
+  <li>Are there regulatory constraints (HIPAA, GDPR) that prevent direct data sharing with research partners?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/cleanrooms/introduction',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Data Clean Rooms</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Applications &amp; Collaboration</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Data Clean Rooms</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Data Clean Rooms</div>
+          <div class="s6-sub" style="text-align:center;">Collaborate on sensitive data without exposing raw records. Privacy-preserving joint analytics across organizational boundaries.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="dcr-grid">
+            <div class="dcr-card" onclick="showPanel(0)">
+              <div class="dcr-card-label">DCR Architecture</div>
+              <div class="dcr-card-desc">Built on Snowflake Native Apps. Analysis logic runs in both parties' accounts — raw data never crosses the boundary.</div>
+            </div>
+            <div class="dcr-card" onclick="showPanel(1)">
+              <div class="dcr-card-label">Audience Overlap</div>
+              <div class="dcr-card-desc">Compute audience overlap between two organizations' customer sets without either party exposing their raw records.</div>
+            </div>
+            <div class="dcr-card" onclick="showPanel(2)">
+              <div class="dcr-card-label">Attribution Analysis</div>
+              <div class="dcr-card-desc">Measure ad campaign attribution by joining impression data with purchase data — governed, aggregate results only.</div>
+            </div>
+            <div class="dcr-card" onclick="showPanel(3)">
+              <div class="dcr-card-label">Templates</div>
+              <div class="dcr-card-desc">Pre-approved Jinja query templates define exactly what analyses can run. No arbitrary SQL on partner data.</div>
+            </div>
+            <div class="dcr-card" onclick="showPanel(4)">
+              <div class="dcr-card-label">Privacy Controls</div>
+              <div class="dcr-card-desc">Minimum aggregation thresholds and differential privacy noise prevent re-identification from aggregate results.</div>
+            </div>
+            <div class="dcr-card" onclick="showPanel(5)">
+              <div class="dcr-card-label">Activation</div>
+              <div class="dcr-card-desc">Export matched audience segments for ad targeting or activation — without exposing the underlying match list.</div>
+            </div>
+          </div>
+
+          <div class="dcr-panel" id="dcr-panel">
+            <div class="dcr-panel-code" id="dcr-code">-- Select a card above to explore Data Clean Room concepts</div>
+            <div class="dcr-panel-explain" id="dcr-explain">
+              <h4>Data Clean Rooms</h4>
+              <p>Click any card above to see explanations and SQL examples for each aspect of Snowflake Data Clean Rooms.</p>
+              <p>Clean Rooms enable two parties to compute the intersection of their data without either party ever seeing the other's raw records — enforced by architecture, not just policy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const items = [
+    {
+      label: 'DCR Architecture',
+      code: `${cm('-- Snowflake DCR is built on Native Apps Framework')}\n${cm('-- Both parties install the DCR Native App into their account')}\n\n${cm('-- Provider (data owner) side:')}\n${cm('-- 1. Install the DCR provider app from Marketplace')}\n${cm('-- 2. Register the clean room with partner account')}\n${cm('-- 3. Define which columns are available for analysis')}\n${cm('-- 4. Approve analysis templates the consumer can run')}\n\n${cm('-- Consumer side:')}\n${cm('-- 1. Install the DCR consumer app from Marketplace')}\n${cm('-- 2. Connect to the provider\'s clean room')}\n${cm('-- 3. Run only approved templates against the shared data')}\n${cm('-- 4. Receive aggregate results — never raw provider records')}\n\n${cm('-- The clean room enforces:')}\n${cm('--  • Only approved SQL templates can run')}\n${cm('--  • Minimum k-anonymity thresholds (e.g. n >= 25)')}\n${cm('--  • No raw row access to either party\'s data')}\n${cm('--  • Full audit log of all analyses run')}\n\n${cm('-- Both parties\' compute runs inside their own accounts')}\n${cm('-- Results are aggregated before crossing the boundary')}`,
+      title: 'DCR Architecture',
+      html: `<p>Snowflake Data Clean Rooms are built on the <strong>Native Apps Framework</strong> — both the provider and consumer install the DCR application into their respective Snowflake accounts.</p>
+<ul>
+  <li>The clean room is a governed compute environment where pre-approved queries can run across data from both parties — neither party runs arbitrary SQL against the other's data</li>
+  <li>Raw records never leave either party's account. The join happens inside the clean room compute; only aggregate results are returned.</li>
+  <li>Every analysis is logged — full audit trail of what ran, when, who initiated it, and what was returned</li>
+  <li>The architecture is symmetric: both parties maintain control over their data and can revoke access at any time</li>
+</ul>
+<p>Think of it as a governed intersection engine: you bring your customer data, they bring theirs, the clean room computes what you both agreed to compute, and each party gets their aggregate results.</p>`
+    },
+    {
+      label: 'Audience Overlap',
+      code: `${cm('-- Audience overlap: how many customers do we share?')}\n${cm('-- Both parties have hashed email as a join key')}\n\n${cm('-- This is the template that runs inside the clean room:')}\n${cm('-- (Jinja template notation)')}\n${cm('-- {% set min_count = 25 %}  -- k-anonymity threshold')}\n\n${k('SELECT')}\n  ${str("'overlap_count'")} ${k('AS')} metric${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} value\n${k('FROM')} provider_data.customers p\n${k('JOIN')} consumer_data.customers c\n  ${k('ON')} p.hashed_email ${p('=')} c.hashed_email\n\n${k('UNION')} ${k('ALL')}\n\n${k('SELECT')}\n  ${str("'provider_only_count'")} ${k('AS')} metric${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} value\n${k('FROM')} provider_data.customers p\n${k('WHERE')} ${k('NOT')} ${k('EXISTS')} ${p('(')}\n  ${k('SELECT')} ${p('1')} ${k('FROM')} consumer_data.customers c\n  ${k('WHERE')} c.hashed_email ${p('=')} p.hashed_email\n${p(')')};\n\n${cm('-- Results returned: aggregate counts only')}\n${cm('-- No individual customer identifiers are ever exposed')}`,
+      title: 'Audience Overlap',
+      html: `<p><strong>Audience overlap</strong> is the most common DCR use case: two organizations measure how many customers they share — without showing each other their customer lists.</p>
+<ul>
+  <li>The join key is typically a hashed or tokenized identifier (hashed email, privacy-preserving ID) — not raw PII</li>
+  <li>The clean room runs the join internally and returns only counts: total overlap, provider-only, consumer-only</li>
+  <li>Minimum k-anonymity thresholds (e.g. minimum 25 records in any result cell) prevent inference attacks on small groups</li>
+  <li>Common use case: retailer + bank, retailer + ad network, publisher + advertiser</li>
+</ul>
+<p>Before DCR, this analysis required either raw data exchange (legal/privacy risk) or a costly third-party identity resolution vendor. DCR moves the computation into the Snowflake security boundary — no third party, no raw exposure.</p>`
+    },
+    {
+      label: 'Attribution Analysis',
+      code: `${cm('-- Attribution: did ad impressions drive purchases?')}\n${cm('-- Ad network has impression data; retailer has purchase data')}\n\n${cm('-- Template running inside the clean room:')}\n${k('SELECT')}\n  i.campaign_id${p(',')}\n  i.ad_format${p(',')}\n  ${f('COUNT')}${p('(DISTINCT')} i.user_hashed_id${p(')')} ${k('AS')} reached_users${p(',')}\n  ${f('COUNT')}${p('(DISTINCT')} p.user_hashed_id${p(')')} ${k('AS')} converted_users${p(',')}\n  ${f('ROUND')}${p('(')}\n    ${f('COUNT')}${p('(DISTINCT')} p.user_hashed_id${p(')')} ${p('*')} ${p('100.0')}\n    ${p('/')} ${f('NULLIF')}${p('(')}${f('COUNT')}${p('(DISTINCT')} i.user_hashed_id${p(')')}${p(',')}\n    ${p('0')}${p(')')}${p(',')}\n    ${p('2')}\n  ${p(')')} ${k('AS')} conversion_rate_pct\n${k('FROM')} adnet_data.impressions i\n${k('LEFT')} ${k('JOIN')} retailer_data.purchases p\n  ${k('ON')} i.user_hashed_id ${p('=')} p.user_hashed_id\n  ${k('AND')} p.purchase_date ${k('BETWEEN')}\n      i.impression_date\n      ${k('AND')} ${f('DATEADD')}${p('(')}'day'${p(',')}\n      ${p('14')}${p(',')}\n      i.impression_date${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1,2')}\n${k('HAVING')} reached_users ${p('>=')} ${p('25')};`,
+      title: 'Attribution Analysis',
+      html: `<p><strong>Attribution analysis</strong> is the canonical advertising DCR use case: measure whether users exposed to an ad subsequently converted (purchased, signed up, installed), with results reported at aggregate campaign level.</p>
+<ul>
+  <li>The ad network has impression data with hashed user IDs; the retailer has purchase data with the same hashed IDs</li>
+  <li>The clean room joins them on the shared identifier, computes conversion rates per campaign/ad format, and returns aggregate results</li>
+  <li>The retailer never learns which specific users saw which ads; the ad network never learns which specific users purchased — only aggregate attribution metrics are returned</li>
+  <li>The <code>HAVING reached_users >= 25</code> clause is enforced by the template to prevent single-user inference</li>
+</ul>
+<p>This replaces the "pixel-based" tracking that's increasingly blocked by browsers and iOS — direct, privacy-preserving measurement without third-party cookies.</p>`
+    },
+    {
+      label: 'Templates',
+      code: `${cm('-- DCR templates are Jinja SQL with governed parameters')}\n${cm('-- Templates are approved by the provider before consumers can run them')}\n\n${cm('-- Example template definition (Jinja notation):')}\n${cm('-- name: audience_overlap_by_segment')}\n${cm('-- description: Compute overlap counts by consumer segment')}\n${cm('-- parameters:')}\n${cm('--   segment_column: string  # consumer chooses which column')}\n${cm('--   min_threshold: integer  # minimum k-anonymity')}\n\n${k('SELECT')}\n  c${p('.')}${p('{{')}\n  ${id('segment_column')}\n  ${p('}}')}${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} overlap_count\n${k('FROM')} provider_data.customers pr\n${k('JOIN')} consumer_data.customers c\n  ${k('ON')} pr.hashed_id ${p('=')} c.hashed_id\n${k('GROUP')} ${k('BY')} ${p('1')}\n${k('HAVING')} ${f('COUNT')}${p('(*)')} ${p('>=')} ${p('{{')}\n  ${id('min_threshold')}\n${p('}}')}\n\n${cm('-- Provider approves which columns consumer can pass as segment_column')}\n${cm('-- Consumer cannot inject arbitrary SQL into the template')}\n${cm('-- Only pre-validated column names from an approved list are accepted')}`,
+      title: 'Templates',
+      html: `<p><strong>Templates</strong> are the governance layer of a Snowflake DCR — Jinja-based SQL query definitions that the provider approves, and that define the exact shape of analyses the consumer can run.</p>
+<ul>
+  <li>Consumers can only run templates the provider has approved — they cannot write arbitrary SQL against provider data</li>
+  <li>Template parameters are restricted: column name parameters must be from an approved list, numeric thresholds have min/max constraints</li>
+  <li>This prevents SQL injection-style attacks where a consumer tries to encode row-level data in aggregates</li>
+  <li>Templates are versioned and audited — the provider can update or revoke templates at any time</li>
+</ul>
+<p>Templates are the key differentiator from a simple secure share: a secure share allows arbitrary SELECT against the shared object; a clean room template restricts to pre-approved analytical patterns. This is the governance primitive that enables regulated data collaboration.</p>`
+    },
+    {
+      label: 'Privacy Controls',
+      code: `${cm('-- k-anonymity: suppress results with fewer than k records')}\n${cm('-- Applied via HAVING clause in every template')}\n${k('HAVING')} ${f('COUNT')}${p('(*)')} ${p('>=')} ${p('25')};\n\n${cm('-- Differential privacy: add calibrated noise to counts')}\n${cm('-- Prevents reconstruction even from multiple aggregate queries')}\n${k('SELECT')}\n  segment${p(',')}\n  ${f('COUNT')}${p('(*)')} ${p('+')} ${f('ROUND')}${p('(')}\n    ${f('NORMAL')}${p('(')}\n      ${p('0')}${p(',')}\n      ${p('10.0')} ${cm('-- noise scale proportional to sensitivity')}\n    ${p(')')}\n  ${p(')')} ${k('AS')} noisy_count\n${k('FROM')} matched_users\n${k('GROUP')} ${k('BY')} ${p('1')};\n\n${cm('-- Snowflake DCR also supports:')}\n${cm('--  • Column suppression (exclude PII columns from results)')}\n${cm('--  • Row limit per result set (prevent full-table reconstruction)')}\n${cm('--  • Query rate limiting (prevent brute-force enumeration)')}\n${cm('--  • Audit logging of every query and result')}`,
+      title: 'Privacy Controls',
+      html: `<p>Snowflake DCR has multiple layers of privacy enforcement to prevent re-identification of individuals from aggregate results:</p>
+<ul>
+  <li><strong>k-Anonymity thresholds</strong>: any aggregate result with fewer than k records (typically 25) is suppressed. Prevents "single person" queries from returning data.</li>
+  <li><strong>Differential privacy</strong>: calibrated statistical noise is added to count-based results. Even with multiple queries, an attacker cannot reconstruct individual records from the noise pattern.</li>
+  <li><strong>Column suppression</strong>: templates can be configured to exclude specific columns (e.g. precise location, date of birth) from result sets</li>
+  <li><strong>Query rate limits</strong>: limits on how many queries a consumer can run per day prevent brute-force enumeration attacks</li>
+</ul>
+<p>These controls are enforced by the clean room application — not by policy or honor system. The provider approves the privacy parameters when approving a template, and they cannot be overridden by the consumer at runtime.</p>`
+    },
+    {
+      label: 'Activation',
+      code: `${cm('-- Activation: use matched audience for ad targeting')}\n${cm('-- WITHOUT exposing the underlying match list')}\n\n${cm('-- Provider approves an activation template:')}\n${cm('-- This creates a segment in the consumer\'s account')}\n${cm('-- containing only the CONSUMER\'s IDs for matched records')}\n\n${k('CREATE')} ${k('TABLE')} consumer_data.activated_segments.q4_campaign\n${k('AS')}\n${k('SELECT')}\n  c.consumer_user_id${p(',')}\n  ${str("'HIGH_VALUE_OVERLAP'")} ${k('AS')} segment_name${p(',')}\n  ${f('CURRENT_TIMESTAMP')}${p('()')} ${k('AS')} segment_created_at\n${k('FROM')} provider_data.customers pr\n${k('JOIN')} consumer_data.customers c\n  ${k('ON')} pr.hashed_email ${p('=')} c.hashed_email\n${k('JOIN')} provider_data.high_value_segment hvs\n  ${k('ON')} pr.customer_id ${p('=')} hvs.customer_id\n${k('HAVING')} ${f('COUNT')}${p('(*)')} ${p('>=')} ${p('1000')};\n\n${cm('-- The consumer gets back only THEIR OWN user IDs')}\n${cm('-- for users who matched — not any provider attributes')}\n${cm('-- Consumer can push this segment to DSP for activation')}\n${cm('-- Provider never sees which consumer IDs were matched')}`,
+      title: 'Activation',
+      html: `<p><strong>Activation</strong> is the action layer of a DCR: after computing audience overlap or attribution, use the matched audience for downstream marketing actions — ad targeting, email campaigns, look-alike modeling — without either party exposing their underlying match data.</p>
+<ul>
+  <li>The consumer receives their <em>own</em> user IDs for matched records — not the provider's. They know "these 5,000 of my users matched the provider's high-value segment" but nothing about the provider's data</li>
+  <li>The provider knows the aggregate size of the matched segment but not which specific consumer IDs were in it</li>
+  <li>The consumer can push this segment to a DSP, CDP, or email platform for activation — it's just a list of their own user IDs</li>
+  <li>Minimum segment size thresholds (e.g. 1,000 users) prevent activation of micro-segments that could enable inference</li>
+</ul>
+<p>Activation is the use case that drives the commercial value of DCR: it's not just "interesting analytics" — it's a closed-loop system that goes from match → measurement → activation without breaking privacy guarantees.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.dcr-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('dcr-code').innerHTML = items[i].code;
+    document.getElementById('dcr-explain').innerHTML = `<h4>${items[i].title}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

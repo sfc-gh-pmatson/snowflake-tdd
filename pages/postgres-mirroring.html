@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Postgres Data Mirroring — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    /* ── Two-column layout ──────────────────────────────────── */
+    .pm-layout {
+      display: flex;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Left: pillars ────────────────────────────────────── */
+    .pm-left {
+      width: 44%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+      gap: 0;
+    }
+    .pm-eyebrow {
+      font-size: var(--fs-h6);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(41,181,232,.7);
+      margin-bottom: 4px;
+    }
+    .pm-title {
+      font-size: var(--fs-h1);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 4px;
+    }
+    .pm-sub {
+      font-size: var(--fs-h4);
+      color: rgba(255,255,255,.45);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .pm-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .pm-feature:last-child { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .pm-feature-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .pm-feature-text { flex: 1; }
+    .pm-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .pm-feature-body { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+
+    /* ── Right: diagram ──────────────────────────────────── */
+    .pm-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .pm-right::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .pm-diagram {
+      width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-data-mirroring',
+      code:  null,
+      guide: 'https://www.snowflake.com/en/developers/guides/snowflake-postgres-mirror-to-snowflake/',
+      blog:  'https://www.snowflake.com/en/blog/engineering/postgres-to-snowflake-replication-mirroring/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./snowflake-postgres.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Postgres Data Mirroring</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-pvpr">Public Preview</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="pm-layout content-wrap">
+
+          <!-- ════ Left ════ -->
+          <div class="pm-left">
+            <div class="pm-eyebrow">Snowflake Postgres</div>
+            <div class="pm-title">Data Mirroring</div>
+            <div class="pm-sub">Always-on, automatic replication from Postgres to Snowflake. Set it up once — tables stay in sync, schema changes included, forever.</div>
+
+            <div class="pm-feature">
+              <div class="pm-feature-icon">
+                <span class="sf-img sf-icon-data-eng" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="pm-feature-text">
+                <div class="pm-feature-title">Push-Based CDC — Not Pull</div>
+                <div class="pm-feature-body">A <code style="font-size:10px;background:rgba(41,181,232,.12);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snowflake_cdc</code> Postgres extension continuously pushes change batches into Iceberg change logs on object storage. No external connector to manage, no snapshots that can conflict with changes.</div>
+              </div>
+            </div>
+
+            <div class="pm-feature">
+              <div class="pm-feature-icon">
+                <span class="sf-img sf-icon-sql" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="pm-feature-text">
+                <div class="pm-feature-title">Simple Setup with CREATE MIRROR</div>
+                <div class="pm-feature-body">One SQL command replicates an entire Postgres database — or specific schemas. Schema changes (ADD COLUMN, DROP TABLE) replicate automatically with no manual intervention.</div>
+              </div>
+            </div>
+
+            <div class="pm-feature">
+              <div class="pm-feature-icon">
+                <span class="sf-img sf-icon-speed-2" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="pm-feature-text">
+                <div class="pm-feature-title">Live Views — Sub-Minute Lag</div>
+                <div class="pm-feature-body">Live views merge unapplied change batches with the base table on-the-fly. Queries see data within seconds of commit — even if batches haven't been applied yet. Filter and aggregation pushdown keeps live view queries fast.</div>
+              </div>
+            </div>
+
+            <div class="pm-feature">
+              <div class="pm-feature-icon">
+                <span class="sf-img sf-icon-transactions" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="pm-feature-text">
+                <div class="pm-feature-title">Transactional Consistency</div>
+                <div class="pm-feature-body">Snowflake applies all tables forward in one transaction — exactly to a Postgres transaction boundary. Foreign keys and join correctness are preserved. Insert-heavy workloads are fast because inserts are appended, never upserted.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ════ Right: diagram ════ -->
+          <div class="pm-right">
+            <img class="pm-diagram" src="../Images/Postgres Data Mirroring.png" alt="Postgres Data Mirroring architecture diagram">
+          </div>
+
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

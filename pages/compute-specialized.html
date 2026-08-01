@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Specialized Compute &#8212; Snowflake</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .csp-page {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8px 20px 10px; min-height: 0;
+    }
+    .csp-inner {
+      width: 100%; max-width: 900px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .csp-cards { display: flex; gap: 10px; flex: 1; min-height: 0; }
+    .csp-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .csp-card-header {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .csp-card-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; margin-bottom: 2px;
+    }
+    .csp-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-navy); }
+    .csp-card-sub   { font-size: var(--fs-h6); color: rgba(5,13,26,.6); line-height: 1.4; }
+    .csp-card-body  {
+      padding: 12px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      background: rgba(5,13,26,.03);
+      border-top: 1px solid rgba(5,13,26,.08);
+      flex: 1;
+    }
+    .csp-fact {
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .csp-fact-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .csp-fact-text { font-size: var(--fs-h6); color: rgba(5,13,26,.72); line-height: 1.5; }
+    .csp-code-chip {
+      display: inline-block; padding: 2px 8px; border-radius: 5px;
+      font-family: monospace; font-size: 10px; font-weight: 600;
+      background: rgba(2,160,249,.1); color: var(--code-base);
+      border: 1px solid rgba(2,160,249,.2);
+    }
+    /* header bg per card */
+    .csp-card:nth-child(1) .csp-card-header { background: var(--sf-blue); }
+    .csp-card:nth-child(1) .csp-card-tag    { color: rgba(255,255,255,.8); }
+    .csp-card:nth-child(1) .csp-card-title  { color: #fff; }
+    .csp-card:nth-child(1) .csp-card-sub    { color: rgba(255,255,255,.8); }
+    .csp-card:nth-child(1) .csp-fact-dot    { background: var(--sf-blue); }
+
+    .csp-card:nth-child(2) .csp-card-header { background: var(--sf-blue-dark); }
+    .csp-card:nth-child(2) .csp-card-tag    { color: rgba(255,255,255,.7); }
+    .csp-card:nth-child(2) .csp-card-title  { color: #fff; }
+    .csp-card:nth-child(2) .csp-card-sub    { color: rgba(255,255,255,.75); }
+    .csp-card:nth-child(2) .csp-fact-dot    { background: var(--sf-blue-dark); }
+
+    .csp-card:nth-child(3) .csp-card-header { background: var(--sf-blue-mid); }
+    .csp-card:nth-child(3) .csp-card-tag    { color: rgba(255,255,255,.7); }
+    .csp-card:nth-child(3) .csp-card-title  { color: #fff; }
+    .csp-card:nth-child(3) .csp-card-sub    { color: rgba(255,255,255,.8); }
+    .csp-card:nth-child(3) .csp-fact-dot    { background: var(--sf-blue-mid); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Beyond standard warehouse sizing, Snowflake has three specialized compute features that address specific performance and workload scenarios without requiring customers to manage separate infrastructure.</p>
+
+<h3>Positioning</h3>
+<ul>
+  <li><strong>Adaptive Warehouses (Gen2):</strong> This is the new default for all warehouses. The warehouse auto-tunes itself for mixed query patterns using QTM and MQPL settings. Most customers benefit immediately just by using a Gen2 warehouse &#8212; no config required.</li>
+  <li><strong>Query Acceleration Service (QAS):</strong> Best for dashboards with a mix of fast queries and occasional large scan queries (the \u201clong tail\u201d problem). QAS handles the large scans on serverless compute so the warehouse isn&#39;t bogged down. Pay only when QAS kicks in.</li>
+  <li><strong>Snowpark-Optimized:</strong> A separate warehouse type with 16x more memory per node. Required for training ML models, running PyTorch/XGBoost on large datasets, or heavy Snowpark Python UDFs that need to hold large objects in memory.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have a mix of fast and slow queries hitting the same warehouse? (QAS candidate)</li>
+  <li>Are you training ML models or running heavy Python on Snowflake? (Snowpark-Optimized candidate)</li>
+  <li>Are you on Gen1 warehouses still? (Adaptive/Gen2 upgrade conversation)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/warehouses-gen2',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./compute.html" class="btn-back">&#8592; Compute</a>
+      <span class="nav-label">Specialized Compute</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Compute</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Specialized Compute</div>
+          <div class="s6-sub" style="text-align:center;">Purpose-built warehouse types for demanding workloads &#8212; no separate infrastructure required.</div>
+        </div>
+
+        <div class="csp-page">
+          <div class="csp-inner">
+          <div class="csp-cards">
+
+            <!-- Adaptive Warehouses -->
+            <div class="csp-card">
+              <div class="csp-card-header">
+                <span class="csp-card-tag">Gen2 Default</span>
+                <div class="csp-card-title">Adaptive Warehouses</div>
+                <div class="csp-card-sub">Auto-tunes for mixed workloads without manual resizing</div>
+              </div>
+              <div class="csp-card-body">
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text"><span class="csp-code-chip">QUERY_THROUGHPUT_MULTIPLIER</span> (1&#8211;3&#215;) boosts parallel query throughput within the same warehouse</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text"><span class="csp-code-chip">MAX_QUERY_PERFORMANCE_LEVEL</span> (1&#8211;10) caps resources allocated to a single query &#8212; prevents one query from starving others</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Automatically selected as the default warehouse type. No migration required for new warehouses.</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Ideal for mixed BI + ad-hoc workloads where query complexity varies widely.</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Upgrade from Gen1: check with <span class="csp-code-chip">SHOW WAREHOUSES</span> — the <code style="font-family:monospace;font-size:10px;">type</code> column shows generation. Recreate existing warehouses to get Gen2. All new warehouses are Gen2 by default.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- QAS -->
+            <div class="csp-card">
+              <div class="csp-card-header">
+                <span class="csp-card-tag">Serverless Offload</span>
+                <div class="csp-card-title">Query Acceleration Service</div>
+                <div class="csp-card-sub">Offloads large scan portions to serverless compute on demand</div>
+              </div>
+              <div class="csp-card-body">
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Large scans offloaded to Snowflake-managed serverless compute &#8212; warehouse stays available for other queries</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text"><span class="csp-code-chip">QUERY_ACCELERATION_MAX_SCALE_FACTOR</span> caps how many serverless credits a query can consume (default: 8)</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Eligible queries automatically detected &#8212; no per-query configuration. Billed per QAS credit-second on top of warehouse credits.</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Best for: dashboards with unpredictable large scan queries, exploratory analytics, long-tail query patterns.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Snowpark-Optimized -->
+            <div class="csp-card">
+              <div class="csp-card-header">
+                <span class="csp-card-tag">ML &amp; Python</span>
+                <div class="csp-card-title">Snowpark-Optimized</div>
+                <div class="csp-card-sub">16&#215; memory-to-compute ratio for memory-intensive workloads</div>
+              </div>
+              <div class="csp-card-body">
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Standard warehouses have a fixed compute-to-memory ratio. Snowpark-Optimized provides <strong>16&#215; more memory per node</strong> &#8212; critical for ML model training.</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Created with <span class="csp-code-chip">WAREHOUSE_TYPE = SNOWPARK-OPTIMIZED</span></div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Required for: PyTorch / XGBoost training on large datasets, heavy Snowpark Python UDFs, ML feature engineering with large in-memory objects.</div>
+                </div>
+                <div class="csp-fact">
+                  <div class="csp-fact-dot"></div>
+                  <div class="csp-fact-text">Separate from standard warehouses &#8212; dedicate one warehouse to ML workloads, keep BI on standard.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          </div><!-- /csp-inner -->
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

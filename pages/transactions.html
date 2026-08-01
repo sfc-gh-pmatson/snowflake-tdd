@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake for Transactions &#8212; TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Tab strip ─────────────────────────────────────────── */
+    .txn-tabs {
+      display: flex; gap: 8px; padding: 4px 0 0 20px;
+      flex-shrink: 0; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+    }
+    .txn-tab {
+      padding: 4px 18px; border-radius: 100px;
+      border: 1.5px solid rgba(41,181,232,.4);
+      color: rgba(255,255,255,.55);
+      cursor: pointer; font-size: var(--fs-h6); font-weight: 700;
+      background: transparent; transition: all .15s; user-select: none;
+    }
+    .txn-tab:hover { border-color: var(--sf-blue); color: #fff; }
+    .txn-tab.active { background: var(--sf-blue); border-color: var(--sf-blue); color: #fff; }
+
+    /* ── Panel & split ─────────────────────────────────────── */
+    .txn-panel { display: none; flex: 1; flex-direction: column; min-height: 0; }
+    .txn-panel.active { display: flex; }
+
+    .txn-split {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; overflow: hidden;
+      border-radius: 10px; margin: 8px 20px;
+    }
+    .txn-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .txn-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .txn-title {
+      font-size: var(--fs-h1); font-weight: 800; color: #fff;
+      line-height: 1.15; margin-bottom: 6px;
+    }
+    .txn-sub {
+      font-size: var(--fs-h4); color: rgba(255,255,255,.45);
+      margin-bottom: 14px; line-height: 1.5;
+    }
+    .txn-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .txn-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .txn-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .txn-feature-text { flex: 1; }
+    .txn-feature-title {
+      font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px;
+    }
+    .txn-feature-body {
+      font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5;
+    }
+    .txn-quote {
+      margin-top: 10px; padding: 10px 14px;
+      background: rgba(41,181,232,.07); border-left: 3px solid var(--sf-blue);
+      border-radius: 0 8px 8px 0; flex-shrink: 0;
+    }
+    .txn-quote-text {
+      font-size: var(--fs-h6); color: rgba(255,255,255,.75); line-height: 1.5; font-style: italic;
+    }
+    .txn-quote-attr {
+      font-size: 9px; font-weight: 700; letter-spacing: .5px;
+      color: rgba(41,181,232,.7); margin-top: 5px;
+    }
+    .txn-quote-stat {
+      font-size: var(--fs-h5); font-weight: 800; color: var(--sf-blue); margin-top: 3px;
+    }
+
+    /* ── Right panel ───────────────────────────────────────── */
+    .txn-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .txn-right::before {
+      content: '';
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* ── Postgres architecture diagram ─────────────────────── */
+    .txn-arch {
+      width: 100%; position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .txn-arch-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; color: rgba(41,181,232,.6); text-align: center;
+    }
+    .txn-arch-row { display: flex; gap: 8px; }
+    .txn-arch-box {
+      flex: 1; padding: 8px 12px; border-radius: 9px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .txn-arch-box-title { font-size: var(--fs-h5); font-weight: 700; color: #fff; }
+    .txn-arch-box-sub   { font-size: 10px; color: rgba(255,255,255,.55); }
+    .txn-arch-arrow { text-align: center; color: rgba(41,181,232,.5); font-size: 18px; line-height: 1; }
+    .txn-arch-center {
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--sf-blue); text-align: center;
+    }
+    .txn-arch-center-title { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
+    .txn-arch-center-sub   { font-size: var(--fs-h6); color: rgba(255,255,255,.8); margin-top: 3px; }
+    .txn-arch-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(74,222,128,.15); border: 1px solid rgba(74,222,128,.4);
+      color: #4ade80; font-size: 9px; font-weight: 700;
+      padding: 2px 9px; border-radius: 100px; margin-top: 6px;
+    }
+    .txn-arch-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+    /* ── Unistore / Hybrid Tables diagram ──────────────────── */
+    .txn-uni {
+      width: 100%; position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .txn-uni-tables { display: flex; gap: 8px; }
+    .txn-uni-table {
+      flex: 1; padding: 10px 12px; border-radius: 9px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .txn-uni-table-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+    .txn-uni-table-name { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
+    .txn-uni-table-meta { font-size: var(--fs-h6); color: rgba(255,255,255,.6); }
+    .txn-uni-join {
+      padding: 10px 14px; border-radius: 9px;
+      background: var(--code-bg); font-family: monospace; font-size: 11px; line-height: 1.8;
+      text-align: left;
+    }
+    .txn-uni-result {
+      padding: 9px 14px; border-radius: 9px;
+      background: var(--sf-card2); border: 1.5px solid rgba(41,181,232,.3);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .txn-uni-result-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+      color: rgba(41,181,232,.8); white-space: nowrap;
+    }
+    .txn-uni-result-text { font-size: var(--fs-h6); color: rgba(255,255,255,.7); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake for Transactions ends the era of database sprawl. Instead of running separate systems for OLTP, analytics, and AI — each requiring ETL pipelines to move data between them — everything runs on one platform with one security model and one copy of the data.</p>
+
+<h3>Two Products</h3>
+<ul>
+  <li><strong>Snowflake Postgres:</strong> The world\'s most popular database, running on Snowflake. Migrate existing Postgres apps with zero code changes. Same drivers, same SQL, same tooling. Enterprise SLA (99.95% uptime), high availability, and 10 days of free continuous backups. Transactional data is immediately available for analytics and AI — no pipelines required.</li>
+  <li><strong>Unistore (Hybrid Tables):</strong> Row-store tables inside Snowflake, optimized for point lookups and high-concurrency writes. Join Hybrid Tables with regular Snowflake tables in a single SQL statement. Retire your OLTP database and the ETL jobs that fed your data warehouse.</li>
+</ul>
+
+<h3>Key Differentiators</h3>
+<ul>
+  <li><strong>No Pipeline Tax:</strong> Data doesn\'t need to move. One platform means no ETL, no sync jobs, no stale copies.</li>
+  <li><strong>One Governance Model:</strong> RBAC, masking policies, and lineage apply equally to transactional and analytical data.</li>
+  <li><strong>AI-Ready:</strong> Transactional data is immediately available to Cortex AI for real-time inference and agents.</li>
+</ul>
+
+<h3>When to Use Which</h3>
+<ul>
+  <li>Running a full Postgres app (app server, APIs, CRUD operations)? → <strong>Snowflake Postgres</strong></li>
+  <li>Need OLTP-style fast lookups and high-concurrency writes inside Snowflake? → <strong>Unistore / Hybrid Tables</strong></li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How many databases does your current architecture have — OLTP, data warehouse, reporting?</li>
+  <li>How often is transactional data stale in your analytics environment?</li>
+  <li>What does the ETL pipeline between your transaction database and Snowflake cost to maintain?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-hybrid.html',
+      code:  'https://quickstarts.snowflake.com/guide/getting-started-with-hybrid-tables/',
+      guide: 'https://www.snowflake.com/en/developers/guides/getting-started-with-snowflake-postgres/',
+      blog:  'https://www.snowflake.com/en/blog/streamline-data-movement-snowflake-postgres/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake Transactions</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide" style="align-items:center;">
+
+        <div class="s6-top" style="width:100%;align-self:stretch;">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Platform</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake for Transactions</div>
+          <div class="s6-sub" style="text-align:center;">Unify transactions, analytics, and AI on one platform &#8212; no ETL, no data movement, no pipeline tax.</div>
+        </div>
+
+        <div class="txn-tabs">
+          <div class="txn-tab active" onclick="switchTab('postgres')">Snowflake Postgres</div>
+          <div class="txn-tab" onclick="switchTab('unistore')">Unistore (Hybrid Tables)</div>
+        </div>
+
+        <!-- ── Snowflake Postgres ────────────────────────────── -->
+        <div id="tab-postgres" class="txn-panel active">
+          <div class="txn-split">
+            <div class="txn-left">
+              <div class="txn-eyebrow">Snowflake Postgres</div>
+              <div class="txn-title">The world&#8217;s most popular database,<br>now on Snowflake</div>
+              <div class="txn-sub">Zero code changes. Enterprise SLA. AI-ready from day one.</div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon">&#9654;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">Zero Migration Friction</div>
+                  <div class="txn-feature-body">Migrate Postgres apps with zero code changes. Same drivers, same SQL dialect, same tooling &#8212; just point at Snowflake instead.</div>
+                </div>
+              </div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon" style="background:var(--sf-blue-dark);">&#9632;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">Enterprise SLA</div>
+                  <div class="txn-feature-body">99.95% uptime SLA, high availability, 10 days of free continuous backups. Self-managed keys and private network connectivity included.</div>
+                </div>
+              </div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon" style="background:var(--sf-blue-mid);">&#9733;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">AI-Ready Instantly</div>
+                  <div class="txn-feature-body">Transactional data is immediately available for analytics and Cortex AI &#8212; no pipelines, no copies, no sync jobs.</div>
+                </div>
+              </div>
+              <div class="txn-quote">
+                <div class="txn-quote-text">&#8220;Snowflake Postgres handles thousands of updates per minute, managing complex workflow states and applying fine-grained locking &#8212; easily.&#8221;</div>
+                <div class="txn-quote-attr">Mike Willett &#183; Head of Data Platform, SimCorp</div>
+                <div class="txn-quote-stat">10&#215; Faster disk operations vs prior Postgres solution</div>
+              </div>
+            </div>
+            <div class="txn-right">
+              <div class="txn-arch">
+                <div class="txn-arch-label">Architecture</div>
+                <div class="txn-arch-row">
+                  <div class="txn-arch-box" style="background:rgba(255,255,255,.06);border:1.5px solid rgba(41,181,232,.2);">
+                    <div class="txn-arch-box-title">Postgres Apps</div>
+                    <div class="txn-arch-box-sub">Same drivers &amp; SQL</div>
+                  </div>
+                  <div class="txn-arch-box" style="background:rgba(255,255,255,.06);border:1.5px solid rgba(41,181,232,.2);">
+                    <div class="txn-arch-box-title">API / App Layer</div>
+                    <div class="txn-arch-box-sub">Zero code changes</div>
+                  </div>
+                </div>
+                <div class="txn-arch-arrow">&#x2193;</div>
+                <div class="txn-arch-center">
+                  <div class="txn-arch-center-title">Snowflake Postgres</div>
+                  <div class="txn-arch-center-sub">Row-store &#183; ACID &#183; pg-compatible &#183; 99.95% SLA</div>
+                  <div class="txn-arch-badge"><span class="txn-arch-badge-dot"></span>GA &nbsp;&#183;&nbsp; Generally Available</div>
+                </div>
+                <div class="txn-arch-arrow">&#x2193;</div>
+                <div class="txn-arch-row">
+                  <div class="txn-arch-box" style="background:rgba(0,89,163,.3);border:1.5px solid rgba(41,181,232,.3);">
+                    <div class="txn-arch-box-title">Analytics</div>
+                    <div class="txn-arch-box-sub">Same data, no ETL</div>
+                  </div>
+                  <div class="txn-arch-box" style="background:rgba(0,89,163,.3);border:1.5px solid rgba(41,181,232,.3);">
+                    <div class="txn-arch-box-title">Cortex AI</div>
+                    <div class="txn-arch-box-sub">Real-time inference</div>
+                  </div>
+                  <div class="txn-arch-box" style="background:rgba(0,89,163,.3);border:1.5px solid rgba(41,181,232,.3);">
+                    <div class="txn-arch-box-title">Snowflake CoCo</div>
+                    <div class="txn-arch-box-sub">Instant context</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Unistore / Hybrid Tables ──────────────────────── -->
+        <div id="tab-unistore" class="txn-panel">
+          <div class="txn-split">
+            <div class="txn-left">
+              <div class="txn-eyebrow">Unistore &#183; Hybrid Tables</div>
+              <div class="txn-title">One SQL statement.<br>Two data worlds.</div>
+              <div class="txn-sub">Join transactional and analytical data inline &#8212; retire separate databases and the ETL jobs that connected them.</div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon">&#8853;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">One JOIN, No ETL</div>
+                  <div class="txn-feature-body">Hybrid Tables are row-store tables inside Snowflake, optimized for point lookups and high-concurrency writes. Join them with regular Snowflake tables in standard SQL &#8212; no pipeline required.</div>
+                </div>
+              </div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon" style="background:var(--sf-blue-dark);">&#9654;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">No Pipeline Tax</div>
+                  <div class="txn-feature-body">Keep app and workflow state synced with analytics automatically. One governance model, one security layer, one source of truth for transactional and analytical data.</div>
+                </div>
+              </div>
+              <div class="txn-feature">
+                <div class="txn-feature-icon" style="background:var(--sf-blue-mid);">&#128274;</div>
+                <div class="txn-feature-text">
+                  <div class="txn-feature-title">Unified Governance</div>
+                  <div class="txn-feature-body">Masking policies, row-level access, lineage, and RBAC apply equally to Hybrid Tables and regular tables. No separate security model.</div>
+                </div>
+              </div>
+              <div class="txn-quote">
+                <div class="txn-quote-text">&#8220;Hybrid Tables just made everything much simpler for us. We reduced our architectural footprint, centralized our data on one platform and accomplished jobs that were previously unachievable.&#8221;</div>
+                <div class="txn-quote-attr">Ron Stiffler &#183; Chief Architect, MarketWise</div>
+                <div class="txn-quote-stat">50% Less infrastructure &amp; development for data ingestion</div>
+              </div>
+            </div>
+            <div class="txn-right">
+              <div class="txn-uni">
+                <div class="txn-arch-label">Hybrid Table Architecture</div>
+                <div class="txn-uni-tables">
+                  <div class="txn-uni-table" style="background:rgba(0,89,163,.35);border:1.5px solid rgba(41,181,232,.4);">
+                    <div class="txn-uni-table-tag" style="color:var(--sf-blue);">Hybrid Table</div>
+                    <div class="txn-uni-table-name">orders</div>
+                    <div class="txn-uni-table-meta">Row-store &#183; OLTP-optimized</div>
+                    <div class="txn-uni-table-meta">Point lookups &lt; 10ms</div>
+                  </div>
+                  <div class="txn-uni-table" style="background:rgba(41,181,232,.1);border:1.5px solid rgba(41,181,232,.25);">
+                    <div class="txn-uni-table-tag" style="color:rgba(41,181,232,.8);">Snowflake Table</div>
+                    <div class="txn-uni-table-name">order_history</div>
+                    <div class="txn-uni-table-meta">Columnar &#183; Analytics-optimized</div>
+                    <div class="txn-uni-table-meta">Petabyte-scale</div>
+                  </div>
+                </div>
+                <div class="txn-uni-join">
+                  <span class="code-kw">SELECT</span> <span class="code-id">o.order_id</span><span class="code-punc">,</span> <span class="code-id">h.lifetime_value</span><br>
+                  <span class="code-kw">FROM</span> &nbsp;<span class="code-id">orders</span> <span class="code-id">o</span><br>
+                  <span class="code-kw">JOIN</span> &nbsp;<span class="code-id">order_history</span> <span class="code-id">h</span><br>
+                  &nbsp;&nbsp;<span class="code-kw">ON</span> <span class="code-id">o.customer_id</span> <span class="code-punc">=</span> <span class="code-id">h.customer_id</span><br>
+                  <span class="code-kw">WHERE</span> <span class="code-id">o.status</span> <span class="code-punc">=</span> <span class="code-str">'pending'</span><span class="code-punc">;</span>
+                </div>
+                <div class="txn-uni-result">
+                  <span class="txn-uni-result-label">Result</span>
+                  <span class="txn-uni-result-text">Real-time transactional + historical analytical data &#8212; one query, zero ETL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(id) {
+      document.querySelectorAll('.txn-tab').forEach((t, i) => {
+        const ids = ['postgres', 'unistore'];
+        t.classList.toggle('active', ids[i] === id);
+      });
+      document.querySelectorAll('.txn-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+  </script>
+</body>
+</html>

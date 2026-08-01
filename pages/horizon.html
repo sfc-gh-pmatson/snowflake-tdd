@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Horizon Catalog &#8212; Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hor-page {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6px 16px 12px; min-height: 0;
+    }
+    .hor-gov-wrapper {
+      width: 100%; max-width: 900px;
+      border: 3px solid var(--sf-blue); border-radius: 10px;
+      overflow: visible; display: flex; flex-direction: column;
+    }
+    /* Layer rows */
+    .hor-layer {
+      display: flex; align-items: stretch;
+      overflow: hidden;
+    }
+    .hor-layer:first-child { border-radius: 7px 7px 0 0; }
+    .hor-layer:last-child  { border-radius: 0 0 7px 7px; }
+    .hor-layer + .hor-layer { border-top: 1px solid rgba(255,255,255,.08); }
+    .hor-label {
+      width: 72px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--fs-h6); font-weight: 800; letter-spacing: 1.5px;
+      text-transform: uppercase; writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      border-right: 1px solid rgba(255,255,255,.12);
+    }
+    .hor-body {
+      flex: 1; display: flex; align-items: center;
+      gap: 8px; padding: 10px 12px; flex-wrap: nowrap;
+    }
+    .hor-block {
+      flex: 1; display: flex; flex-direction: column; gap: 3px;
+      padding: 9px 13px; border-radius: 8px;
+      text-decoration: none; border: 1.5px solid transparent;
+      transition: box-shadow .15s, transform .13s;
+    }
+    .hor-block:hover { transform: translateY(-2px); }
+    .hor-title { font-size: var(--fs-h5); font-weight: 700; }
+    .hor-sub   { font-size: var(--fs-h6); line-height: 1.35; }
+
+    /* DISCOVER row */
+    .hor-layer--discover { background: var(--sf-blue); }
+    .hor-layer--discover .hor-label { color: rgba(255,255,255,.8); }
+    .hor-block--discover {
+      background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.25);
+    }
+    .hor-block--discover:hover { box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+    .hor-block--discover .hor-title { color: #fff; font-size: var(--fs-h4); }
+    .hor-block--discover .hor-sub   { color: rgba(255,255,255,.8); }
+
+    /* MONITOR row */
+    .hor-layer--monitor { background: var(--sf-blue-dark); }
+    .hor-layer--monitor .hor-label { color: rgba(255,255,255,.7); }
+    .hor-block--monitor {
+      background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2);
+    }
+    .hor-block--monitor:hover { box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+    .hor-block--monitor .hor-title { color: #fff; }
+    .hor-block--monitor .hor-sub   { color: rgba(255,255,255,.65); }
+
+    /* PROTECT row */
+    .hor-layer--protect {
+      background: var(--sf-card2); border-top: 1px solid rgba(41,181,232,.2);
+    }
+    .hor-layer--protect .hor-label { color: rgba(41,181,232,.7); border-right-color: rgba(41,181,232,.15); }
+    .hor-block--protect {
+      background: var(--sf-card); border-color: rgba(41,181,232,.25);
+    }
+    .hor-block--protect:hover { box-shadow: 0 4px 14px rgba(41,181,232,.2); }
+    .hor-block--protect .hor-title { color: #fff; }
+    .hor-block--protect .hor-sub   { color: rgba(255,255,255,.55); }
+    .hor-block--protect-wide { flex: 1.6; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake Horizon Catalog is the governance, discovery, and context layer that runs across the entire Snowflake platform. Every table, column, and data asset is covered by a single governance model — the same policies that apply to a human analyst apply to an AI agent.</p>
+<h3>Three Layers</h3>
+<ul>
+  <li><strong>Discover:</strong> Search across all data assets. Apply tags that propagate governance downstream. Automatically classify sensitive data (PII, PHI) and apply policies without manual work.</li>
+  <li><strong>Monitor:</strong> Column-level lineage across Snowflake and external systems. Data Metric Functions measure freshness, completeness, uniqueness on a schedule. Trust Center runs CIS benchmarks and threat detection continuously.</li>
+  <li><strong>Protect:</strong> RBAC, network policies, MFA, SSO, Tri-Secret Secure (customer-managed keys), and OAuth. Five data policy types — masking, row access, projection, aggregation, and tokenization — all defined once and enforced everywhere.</li>
+</ul>
+<h3>Key Differentiators</h3>
+<ul>
+  <li>One governance model applies to both humans AND AI agents</li>
+  <li>Policies follow data through Iceberg and external catalogs via REST Catalog interop</li>
+  <li>AI Guardrails redact PII from agent outputs before they reach users</li>
+  <li>Tag-based policy inheritance: tag once, governance follows automatically</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you currently enforce data access controls across BI, ETL, and AI tools?</li>
+  <li>Do you have PII/PHI classification in place? Is it automated or manual?</li>
+  <li>Does your security team have visibility into what AI agents are accessing?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/snowflake-horizon',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Horizon Catalog</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Horizon Catalog</div>
+          <div class="s6-sub" style="text-align:center;">Govern and find data and AI assets across Snowflake and external catalogs &#8212; every answer is traceable and trusted.</div>
+        </div>
+
+        <div class="hor-page">
+          <div class="hor-gov-wrapper">
+
+            <!-- DISCOVER row -->
+            <div class="hor-layer hor-layer--discover">
+              <div class="hor-label">Discover</div>
+              <div class="hor-body">
+                <a href="./horizon-search.html" class="hor-block hor-block--discover">
+                  <span class="hor-title">Search</span>
+                  <span class="hor-sub">Find any data asset in plain language across Snowflake and external catalogs</span>
+                </a>
+                <a href="./horizon-tagging.html" class="hor-block hor-block--discover">
+                  <span class="hor-title">Tagging</span>
+                  <span class="hor-sub">Apply tags that propagate governance policies automatically downstream</span>
+                </a>
+                <a href="./horizon-classification.html" class="hor-block hor-block--discover">
+                  <span class="hor-title">Classification</span>
+                  <span class="hor-sub">Auto-detect PII, PHI, and sensitive data using ML classifiers</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- MONITOR row -->
+            <div class="hor-layer hor-layer--monitor">
+              <div class="hor-label">Monitor</div>
+              <div class="hor-body">
+                <a href="./horizon-lineage.html" class="hor-block hor-block--monitor">
+                  <span class="hor-title">Lineage</span>
+                  <span class="hor-sub">Column-level lineage across Snowflake, external DBs, and BI tools</span>
+                </a>
+                <a href="./horizon-dmf.html" class="hor-block hor-block--monitor">
+                  <span class="hor-title">Data Quality (DMFs)</span>
+                  <span class="hor-sub">Scheduled freshness, completeness, and uniqueness checks with alerting</span>
+                </a>
+                <a href="./horizon-trust.html" class="hor-block hor-block--monitor">
+                  <span class="hor-title">Trust Center</span>
+                  <span class="hor-sub">CIS benchmarks, security scanners, and threat intelligence built in</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- PROTECT row -->
+            <div class="hor-layer hor-layer--protect">
+              <div class="hor-label">Protect</div>
+              <div class="hor-body">
+                <a href="./horizon-access.html" class="hor-block hor-block--protect hor-block--protect-wide">
+                  <span class="hor-title">Access Control</span>
+                  <span class="hor-sub">RBAC &#183; Network Policies &#183; MFA &#183; SSO &#183; Tri-Secret Secure &#183; OAuth</span>
+                </a>
+                <a href="./horizon-policies.html" class="hor-block hor-block--protect">
+                  <span class="hor-title">Data Protection Policies</span>
+                  <span class="hor-sub">Masking &#183; Row Access &#183; Projection &#183; Aggregation &#183; Tokenization</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

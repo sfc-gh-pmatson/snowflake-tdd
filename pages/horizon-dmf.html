@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Quality (DMFs) &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hsp-layout {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; margin: 0 20px;
+    }
+    .hsp-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .hsp-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .hsp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .hsp-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 16px; line-height: 1.5; }
+    .hsp-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .hsp-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .hsp-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .hsp-feature-text { flex: 1; }
+    .hsp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .hsp-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+    .hsp-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hsp-right::before {
+      content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .hsp-code {
+      width: 100%; background: var(--code-bg); border-radius: 10px;
+      padding: 16px 18px; font-family: monospace; font-size: 11px;
+      line-height: 1.85; position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Data Metric Functions (DMFs) are Snowflake\'s native data quality monitoring layer. They run on a schedule inside Snowflake compute, measure quality at the column or table level, and store results in a queryable table. No external data quality tool required.</p>
+<h3>Key Points</h3>
+<ul>
+  <li>Built-in DMFs cover the 80% case &#8212; freshness, nulls, uniqueness, row count, duplicates</li>
+  <li>Custom DMFs handle domain-specific rules: referential integrity, valid ZIP codes, date ranges</li>
+  <li>Results are stored in SNOWFLAKE.LOCAL schema &#8212; query them with SQL or build dashboards</li>
+  <li>Pair with Snowflake Alerts for automated notification when quality drops below threshold</li>
+  <li>DMF compute runs serverless &#8212; no warehouse needed, billed per execution</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you monitor data quality today &#8212; Great Expectations, dbt tests, custom scripts?</li>
+  <li>How quickly do you detect when a pipeline produces null or stale data?</li>
+  <li>Do your data consumers have SLA expectations on freshness?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/data-quality-intro',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Data Quality (DMFs)</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide" style="align-items:center;">
+        <div class="s6-top" style="width:100%;align-self:stretch;">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Metric Functions</div>
+          <div class="s6-sub" style="text-align:center;">Measure, monitor, and alert on data quality &#8212; built in, scheduled, no external tools.</div>
+        </div>
+        <div class="hsp-layout">
+          <div class="hsp-left">
+            <div class="hsp-eyebrow">Horizon Catalog &#183; Monitor</div>
+            <div class="hsp-title">Measure quality,<br>automatically</div>
+            <div class="hsp-sub">Attach freshness, null, uniqueness, and custom quality checks to any table &#8212; on a schedule, inside Snowflake.</div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon">&#9989;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Built-in Metric Functions</div>
+                <div class="hsp-feature-body">Snowflake ships ready-to-use DMFs: <code style="font-family:monospace;font-size:10px;">FRESHNESS</code>, <code style="font-family:monospace;font-size:10px;">NULL_COUNT</code>, <code style="font-family:monospace;font-size:10px;">UNIQUE_COUNT</code>, <code style="font-family:monospace;font-size:10px;">ROW_COUNT</code>, <code style="font-family:monospace;font-size:10px;">DUPLICATE_COUNT</code>. Attach them to any table &#8212; no custom code required.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#128221;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Custom DMFs</div>
+                <div class="hsp-feature-body">Write your own <code style="font-family:monospace;font-size:10px;">CREATE DATA METRIC FUNCTION</code> in SQL or Python to measure domain-specific quality: referential integrity, business rules, format validation.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9201;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Scheduled &amp; Alertable</div>
+                <div class="hsp-feature-body">Set a schedule per table. Results land in <code style="font-family:monospace;font-size:10px;">SNOWFLAKE.LOCAL.DATA_QUALITY_MONITORING_RESULTS</code>. Combine with Snowflake Alerts to notify on threshold breaches.</div>
+              </div>
+            </div>
+          </div>
+          <div class="hsp-right">
+            <div class="hsp-code">
+              <span class="code-comment">-- Attach built-in DMFs to a table</span><br>
+              <span class="code-kw">ALTER TABLE</span> <span class="code-id">orders</span><br>
+              &nbsp;&nbsp;<span class="code-kw">ADD</span> <span class="code-fn">DATA METRIC FUNCTION</span><br>
+              &nbsp;&nbsp;<span class="code-id">SNOWFLAKE.CORE.NULL_COUNT</span><br>
+              &nbsp;&nbsp;<span class="code-kw">ON</span> <span class="code-punc">(</span><span class="code-id">customer_id</span><span class="code-punc">)</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- Set a quality check schedule (15 min)</span><br>
+              <span class="code-kw">ALTER TABLE</span> <span class="code-id">orders</span><br>
+              &nbsp;&nbsp;<span class="code-kw">SET</span> <span class="code-fn">DATA_METRIC_SCHEDULE</span> <span class="code-punc">=</span> <span class="code-str">'15 MINUTE'</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- Query results</span><br>
+              <span class="code-kw">SELECT</span> <span class="code-id">table_name</span><span class="code-punc">,</span> <span class="code-id">metric_name</span><span class="code-punc">,</span><br>
+              &nbsp;&nbsp;<span class="code-id">value</span><span class="code-punc">,</span> <span class="code-id">measurement_time</span><br>
+              <span class="code-kw">FROM</span><br>
+              &nbsp;&nbsp;<span class="code-id">SNOWFLAKE.LOCAL.DATA_QUALITY_MONITORING_RESULTS</span><br>
+              <span class="code-kw">ORDER BY</span> <span class="code-id">measurement_time</span> <span class="code-kw">DESC</span><span class="code-punc">;</span>
+            </div>
+          </div>
+        </div>
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake Compute — TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    .cmp-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px 10px;
+      min-height: 0;
+    }
+    .cmp-inner {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Layer row ─────────────────────────────────────────── */
+    .cmp-layer {
+      display: flex;
+      align-items: stretch;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .cmp-label {
+      width: 72px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--fs-h6);
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      border-right: 1px solid rgba(255,255,255,.15);
+    }
+    .cmp-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+    .cmp-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: box-shadow .15s, transform .13s;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+    }
+    .cmp-block:hover { transform: translateY(-2px); }
+    .cmp-title { font-size: var(--fs-h5); font-weight: 700; }
+    .cmp-sub   { font-size: var(--fs-h6); line-height: 1.35; }
+
+    /* ── BASICS layer ──────────────────────────────────────── */
+    .cmp-layer--basics { background: var(--sf-blue); }
+    .cmp-layer--basics .cmp-label { color: rgba(255,255,255,.8); }
+    .cmp-block--basics {
+      flex: 1;
+      background: rgba(255,255,255,.18);
+      border-color: rgba(255,255,255,.3);
+    }
+    .cmp-block--basics:hover { box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+    .cmp-block--basics .cmp-title { color: #fff; font-size: var(--fs-h4); }
+    .cmp-block--basics .cmp-sub   { color: rgba(255,255,255,.8); }
+
+    /* ── SCALE layer ───────────────────────────────────────── */
+    .cmp-layer--scale { background: var(--sf-blue-dark); }
+    .cmp-layer--scale .cmp-label { color: rgba(255,255,255,.7); }
+    .cmp-block--scale {
+      flex: 1;
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.2);
+    }
+    .cmp-block--scale:hover { box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+    .cmp-block--scale .cmp-title { color: #fff; }
+    .cmp-block--scale .cmp-sub   { color: rgba(255,255,255,.65); }
+
+    /* ── SPECIALIZED layer ─────────────────────────────────── */
+    .cmp-layer--special { background: var(--sf-card2); border: 1.5px solid rgba(41,181,232,.2); }
+    .cmp-layer--special .cmp-label { color: rgba(41,181,232,.7); border-right-color: rgba(41,181,232,.15); }
+    .cmp-block--special {
+      flex: 1;
+      background: var(--sf-card);
+      border-color: rgba(41,181,232,.25);
+    }
+    .cmp-block--special:hover { box-shadow: 0 4px 14px rgba(41,181,232,.2); }
+    .cmp-block--special .cmp-title { color: #fff; }
+    .cmp-block--special .cmp-sub   { color: rgba(255,255,255,.55); }
+
+    /* ── SERVERLESS layer ──────────────────────────────────── */
+    .cmp-layer--serverless { background: var(--sf-card); border: 1.5px solid rgba(41,181,232,.15); }
+    .cmp-layer--serverless .cmp-label { color: rgba(41,181,232,.6); border-right-color: rgba(41,181,232,.12); }
+    .cmp-block--serverless {
+      flex: 1;
+      background: rgba(255,255,255,.04);
+      border-color: rgba(41,181,232,.2);
+    }
+    .cmp-block--serverless:hover { box-shadow: 0 4px 14px rgba(41,181,232,.15); }
+    .cmp-block--serverless .cmp-title { color: #fff; }
+    .cmp-block--serverless .cmp-sub   { color: rgba(255,255,255,.5); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake\'s compute model is fundamentally different from traditional data warehouses. Compute is fully decoupled from storage, which means you can run as many virtual warehouses as you need against the same data simultaneously — no resource contention, no data copying.</p>
+
+<h3>Key Differentiators</h3>
+<ul>
+  <li><strong>Pay only for what you use:</strong> Warehouses suspend automatically when idle and resume in seconds. Customers stop paying the moment queries stop running.</li>
+  <li><strong>Three scaling levers:</strong> Scale Up (bigger warehouse for complex queries), Scale Across (multi-cluster for concurrency), Scale Out (workload isolation across separate warehouses).</li>
+  <li><strong>Specialized compute:</strong> Adaptive Warehouses (Gen2) auto-tune for mixed workloads. QAS offloads large scans to serverless. Snowpark-Optimized warehouses provide 16x memory for ML.</li>
+  <li><strong>Serverless by default:</strong> Tasks, Snowpipe, Cortex AI functions, and Search Optimization run on Snowflake-managed compute — no warehouse required, billed per second.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What are your primary compute workloads — BI queries, ETL, ML training, or AI inference?</li>
+  <li>Do you have concurrency problems (too many users hitting the same warehouse) or query performance problems (individual slow queries)?</li>
+  <li>How do you currently manage and attribute compute costs to different teams?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/warehouses',
+      code:  null,
+      guide: 'https://quickstarts.snowflake.com/guide/getting_started_with_snowflake/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake Compute</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Compute</div>
+          <div class="s6-sub" style="text-align:center;">Elastic, governed, and purpose-built compute for every workload &#8212; pay only for what you run.</div>
+        </div>
+
+        <div class="cmp-page">
+          <div class="cmp-inner">
+
+          <!-- BASICS -->
+          <div class="cmp-layer cmp-layer--basics">
+            <div class="cmp-label">Basics</div>
+            <div class="cmp-body">
+              <a href="./compute-warehouses.html" class="cmp-block cmp-block--basics">
+                <span class="cmp-title">Virtual Warehouse Fundamentals</span>
+                <span class="cmp-sub">Isolation model &#183; Auto-suspend/resume &#183; Caching &#183; Credit math</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- SCALE -->
+          <div class="cmp-layer cmp-layer--scale">
+            <div class="cmp-label">Scale</div>
+            <div class="cmp-body">
+              <a href="./compute-scaling.html" class="cmp-block cmp-block--scale">
+                <span class="cmp-title">Scale Up</span>
+                <span class="cmp-sub">Bigger T-shirt for complex queries</span>
+              </a>
+              <a href="./compute-scaling.html" class="cmp-block cmp-block--scale">
+                <span class="cmp-title">Scale Across</span>
+                <span class="cmp-sub">Multi-cluster for concurrency</span>
+              </a>
+              <a href="./compute-scaling.html" class="cmp-block cmp-block--scale">
+                <span class="cmp-title">Scale Out</span>
+                <span class="cmp-sub">Workload isolation per warehouse</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- SPECIALIZED -->
+          <div class="cmp-layer cmp-layer--special">
+            <div class="cmp-label">Specialized</div>
+            <div class="cmp-body">
+              <a href="./compute-specialized.html" class="cmp-block cmp-block--special">
+                <span class="cmp-title">Adaptive Warehouses</span>
+                <span class="cmp-sub">Gen2 auto-tuning for mixed workloads</span>
+              </a>
+              <a href="./compute-specialized.html" class="cmp-block cmp-block--special">
+                <span class="cmp-title">Query Acceleration</span>
+                <span class="cmp-sub">Serverless offload for large scans</span>
+              </a>
+              <a href="./compute-specialized.html" class="cmp-block cmp-block--special">
+                <span class="cmp-title">Snowpark-Optimized</span>
+                <span class="cmp-sub">16&#215; memory for ML &amp; Python</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- SERVERLESS -->
+          <div class="cmp-layer cmp-layer--serverless">
+            <div class="cmp-label">Serverless</div>
+            <div class="cmp-body">
+              <a href="./compute-serverless.html" class="cmp-block cmp-block--serverless">
+                <span class="cmp-title">Serverless Tasks</span>
+                <span class="cmp-sub">Scheduled &amp; triggered pipelines</span>
+              </a>
+              <a href="./compute-serverless.html" class="cmp-block cmp-block--serverless">
+                <span class="cmp-title">Snowpipe &amp; Streaming</span>
+                <span class="cmp-sub">Continuous ingestion, sub-second latency</span>
+              </a>
+              <a href="./compute-serverless.html" class="cmp-block cmp-block--serverless">
+                <span class="cmp-title">Cortex AI Compute</span>
+                <span class="cmp-sub">LLM inference, search indexing</span>
+              </a>
+              <a href="./compute-serverless.html" class="cmp-block cmp-block--serverless">
+                <span class="cmp-title">Search Optimization</span>
+                <span class="cmp-sub">Point-lookup acceleration</span>
+              </a>
+            </div>
+          </div>
+
+          </div><!-- /cmp-inner -->
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

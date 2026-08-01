@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake Postgres — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    .pg-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Use-case tiles ─────────────────────────────────────── */
+    .pg-uses {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 880px;
+      flex-shrink: 0;
+    }
+    .pg-use {
+      flex: 1;
+      background: var(--sf-blue-dark);
+      border: 1.5px solid rgba(41,181,232,.2);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pg-use-title { font-size: var(--fs-h5); font-weight: 700; color: #e8f4fd; margin-bottom: 1px; }
+    .pg-use-sub { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.3; }
+
+    /* ── Feature cards ──────────────────────────────────────── */
+    .pg-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+      max-width: 880px;
+      flex-shrink: 0;
+    }
+    .pg-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+      text-decoration: none;
+    }
+    .pg-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .pg-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .pg-card-head { display: flex; align-items: center; gap: 10px; }
+    .pg-card-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pg-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .pg-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.45; }
+    .pg-card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pg-chip {
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.2);
+      color: var(--sf-blue);
+    }
+    .pg-card-deepdive { font-size: 9px; font-weight: 700; color: var(--sf-blue); letter-spacing: .3px; }
+
+    /* ── Overlay modal ───────────────────────────────────────── */
+    .pg-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .pg-overlay.open { display: flex; }
+    .pg-panel {
+      background: var(--sf-navy);
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 780px; max-width: 92vw; max-height: 72vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .pg-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; background: var(--sf-blue); flex-shrink: 0;
+    }
+    .pg-panel-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; flex: 1; }
+    .pg-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pg-panel-close:hover { background: rgba(255,255,255,.35); }
+    .pg-panel-body { flex: 1; overflow-y: auto; padding: 16px 22px 20px; background: var(--sf-navy); }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-data-mirroring',
+      code:  null,
+      guide: 'https://www.snowflake.com/en/developers/guides/sync-data-from-postgres-to-snowflake-with-iceberg-and-pg-lake/',
+      blog:  'https://www.snowflake.com/en/blog/engineering/postgres-to-snowflake-replication-mirroring/',
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake Postgres</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Platform</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Postgres</div>
+          <div class="s6-sub" style="text-align:center;">The world's most popular open source database — now on Snowflake. Run apps, replicate to analytics in seconds, and build AI on fresh transactional data. One platform, one bill.</div>
+        </div>
+
+        <div class="pg-page content-wrap">
+
+          <!-- Use-case tiles -->
+          <div class="pg-uses">
+            <div class="pg-use">
+              <span class="sf-img sf-icon-server" style="width:22px;height:22px;flex-shrink:0;"></span>
+              <div>
+                <div class="pg-use-title">Operational Store</div>
+                <div class="pg-use-sub">Run apps &amp; transactions on production-grade Postgres</div>
+              </div>
+            </div>
+            <div class="pg-use">
+              <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;flex-shrink:0;"></span>
+              <div>
+                <div class="pg-use-title">Real-Time Analytics</div>
+                <div class="pg-use-sub">Fresh transactional data ready for analysis in seconds</div>
+              </div>
+            </div>
+            <div class="pg-use">
+              <span class="sf-img sf-icon-ai" style="width:22px;height:22px;flex-shrink:0;"></span>
+              <div>
+                <div class="pg-use-title">Modern AI Development</div>
+                <div class="pg-use-sub">Unified architecture for transactions and large-scale AI</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Four product cards -->
+          <div class="pg-cards">
+
+            <div class="pg-card" data-fn="pipelines">
+              <div class="pg-card-head">
+                <div class="pg-card-icon">
+                  <span class="sf-img sf-icon-data-eng" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="pg-card-title">Build Freely Without Pipelines</div>
+              </div>
+              <div class="pg-card-desc">Sync transactional data to analytics automatically — no extra tools to stitch together. Write from Postgres directly into Iceberg, or let Data Mirroring handle it. Data is available for apps, agents, and dashboards the moment it's created.</div>
+              <div class="pg-card-chips">
+                <span class="pg-chip">pg_lake</span>
+                <span class="pg-chip">Zero-ETL</span>
+                <span class="pg-chip">Iceberg write</span>
+              </div>
+            </div>
+
+            <div class="pg-card" data-fn="platform">
+              <div class="pg-card-head">
+                <div class="pg-card-icon">
+                  <span class="sf-img sf-icon-platform" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="pg-card-title">Get One Platform for All Your Data</div>
+              </div>
+              <div class="pg-card-desc">Administer your entire data estate in one place — Postgres alongside Snowflake warehouses, Iceberg tables, Cortex AI, and ML workloads. One security perimeter, one governance model, one bill.</div>
+              <div class="pg-card-chips">
+                <span class="pg-chip">One bill</span>
+                <span class="pg-chip">Unified governance</span>
+                <span class="pg-chip">Horizon Catalog</span>
+              </div>
+            </div>
+
+            <div class="pg-card" data-fn="scale">
+              <div class="pg-card-head">
+                <div class="pg-card-icon">
+                  <span class="sf-img sf-icon-concurrency" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="pg-card-title">Scale Your Mission-Critical Apps and AI</div>
+              </div>
+              <div class="pg-card-desc">Protect data within one security perimeter with global compliance support. Automated HA and failover keep apps running. Self-managed keys and private connectivity meet enterprise security requirements. Build agents over Postgres with Cortex AI — no extra infra.</div>
+              <div class="pg-card-chips">
+                <span class="pg-chip">High availability</span>
+                <span class="pg-chip">Self-managed keys</span>
+                <span class="pg-chip">Private connectivity</span>
+                <span class="pg-chip">Cortex AI</span>
+              </div>
+            </div>
+
+            <a class="pg-card" href="./postgres-mirroring.html">
+              <div class="pg-card-head">
+                <div class="pg-card-icon">
+                  <span class="sf-img sf-icon-data-eng" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="pg-card-title">Mirror Your Data Without Middleware</div>
+              </div>
+              <div class="pg-card-desc">Always-on, automatic replication from Postgres to Snowflake. Configure once — tables stay in sync continuously including schema changes. Push-based CDC via a Postgres extension; no external connectors, no snapshots that conflict.</div>
+              <div class="pg-card-chips">
+                <span class="pg-chip" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25);color:#b45309;">Public Preview</span>
+                <span class="pg-chip">CREATE MIRROR</span>
+                <span class="pg-chip">Live Views</span>
+              </div>
+              <div class="pg-card-deepdive">Deep dive &#x2192;</div>
+            </a>
+
+          </div>
+
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="pg-overlay" id="pg-overlay">
+    <div class="pg-panel">
+      <div class="pg-panel-header">
+        <span class="pg-panel-title" id="pg-panel-title"></span>
+        <button class="pg-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="pg-panel-body">
+        <div class="mlf-code-block" id="pg-panel-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      pipelines: {
+        title: 'Build Freely Without Pipelines — pg_lake',
+        body: `${cm('-- pg_lake: write from Postgres to Iceberg in the same SQL transaction.')}
+${cm('-- No ETL tools, no connectors, no polling. Data lands in Snowflake on COMMIT.')}
+
+${cm('-- ── On the Postgres side ───────────────────────────────────────────────')}
+${k('BEGIN')}${p(';')}
+${k('DELETE FROM')} ${id('operational_orders')}
+  ${k('WHERE')} ${id('status')} ${p('=')} ${str('"fulfilled"')} ${k('AND')} ${id('updated_at')} ${p('<')} ${f('NOW')}${p('()')} ${p('-')} ${id('INTERVAL')} ${str('"30 days"')}${p(';')}
+${k('INSERT INTO')} ${id('iceberg')}${p('.')}${id('analytics')}${p('.')}${id('fulfilled_orders')}
+  ${k('SELECT')} ${p('*')} ${k('FROM')} ${id('operational_orders')} ${k('WHERE')} ${id('status')} ${p('=')} ${str('"fulfilled"')}${p(';')}
+${k('COMMIT')}${p(';')}
+${cm('-- Both changes committed atomically. Snowflake sees them immediately.')}
+
+${cm('-- ── Create catalog integration in Snowflake ────────────────────────────')}
+${k('CREATE OR REPLACE CATALOG INTEGRATION')} ${id('pg_lake_catalog')}
+  ${id('CATALOG_SOURCE')} ${p('=')} ${id('SNOWFLAKE_POSTGRES')}
+  ${id('CATALOG_NAMESPACE')} ${p('=')} ${str('"iceberg"')}
+  ${id('TABLE_FORMAT')} ${p('=')} ${id('ICEBERG')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── Auto-discover all pg_lake tables as a catalog-linked database ───────')}
+${k('CREATE DATABASE')} ${id('pg_analytics')}
+  ${k('FROM')} ${id('SHARE')} ${id('pg_lake_catalog')}${p(';')}
+
+${cm('-- Query directly — no COPY INTO, no pipeline:')}
+${k('SELECT')} ${f('COUNT')}${p('(*)')}${p(',')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')}
+${k('FROM')} ${id('pg_analytics')}${p('.')}${id('analytics')}${p('.')}${id('fulfilled_orders')}
+${k('WHERE')} ${id('fulfilled_at')} ${p('>=')} ${f('CURRENT_DATE')}${p(';')}`
+      },
+      platform: {
+        title: 'One Platform for All Your Data',
+        body: `${cm('-- Snowflake Postgres sits inside Snowflake — same RBAC, same governance.')}
+
+${cm('-- ── Manage Postgres instances alongside Snowflake warehouses ───────────')}
+${k('SHOW')} ${id('POSTGRES INSTANCES')}${p(';')}
+${cm('-- Returns: name, status, compute size, storage, HA config, region')}
+
+${k('CREATE POSTGRES INSTANCE')} ${id('prod_pg')}
+  ${id('COMPUTE_POOL')} ${p('=')} ${id('POSTGRES_GOLDEN_EAGLE_POOL')}
+  ${id('STORAGE_QUOTA_GB')} ${p('=')} ${n('500')}
+  ${id('VERSION')} ${p('=')} ${str('"16"')}${p(';')}
+
+${cm('-- ── Unified role-based access across Postgres and Snowflake ────────────')}
+${cm('-- The same Snowflake role can control access to Postgres and analytics tables.')}
+${k('GRANT')} ${id('USAGE')} ${k('ON')} ${id('POSTGRES INSTANCE')} ${id('prod_pg')}
+  ${k('TO ROLE')} ${id('APP_DEVELOPER')}${p(';')}
+
+${cm('-- ── Horizon Catalog: lineage from Postgres to Snowflake ────────────────')}
+${cm('-- Once Postgres data lands in Snowflake (via Mirroring or pg_lake),')}
+${cm('-- Horizon Catalog tracks column-level lineage automatically.')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('OBJECT_DEPENDENCIES')}
+${k('WHERE')} ${id('referenced_object_name')} ${p('=')} ${str('"ORDERS"')}
+  ${k('AND')} ${id('referenced_object_domain')} ${p('=')} ${str('"Table"')}${p(';')}`
+      },
+      scale: {
+        title: 'Scale Mission-Critical Apps and AI',
+        body: `${cm('-- ── High Availability: automated replication and failover ─────────────')}
+${k('ALTER POSTGRES INSTANCE')} ${id('prod_pg')} ${k('SET')}
+  ${id('HIGH_AVAILABILITY')} ${p('=')} ${k('TRUE')}
+  ${id('STANDBY_REGIONS')} ${p('=')} ${p('(')}${str('"us-east-1"')}${p(')')}${p(';')}
+
+${cm('-- ── Advanced security: self-managed encryption keys ────────────────────')}
+${cm('-- Snowflake Postgres supports Tri-Secret Secure:')}
+${cm('-- Snowflake key + Customer key + Customer-controlled KMS = data stays yours')}
+${k('ALTER POSTGRES INSTANCE')} ${id('prod_pg')} ${k('SET')}
+  ${id('KMS_KEY_ID')} ${p('=')} ${str('"arn:aws:kms:us-west-2:123456:key/abc123"')}${p(';')}
+
+${cm('-- ── Private network connectivity ────────────────────────────────────────')}
+${cm('-- Access Postgres over a private endpoint — traffic never leaves your VPC.')}
+${k('ALTER POSTGRES INSTANCE')} ${id('prod_pg')} ${k('SET')}
+  ${id('PRIVATE_LINK_ENABLED')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── Cortex AI on live Postgres data ─────────────────────────────────────')}
+${k('SELECT')}
+  ${id('t')}${p('.')}${id('ticket_id')}${p(',')}
+  ${f('SNOWFLAKE')}${p('.')}${f('CORTEX')}${p('.')}${f('COMPLETE')}${p('(')}
+    ${str('"claude-sonnet-4-5"')}${p(',')}
+    ${str('"Classify urgency and suggest next action: "')} ${p('||')} ${id('t')}${p('.')}${id('description')}
+  ${p(')')} ${k('AS')} ${id('triage')}
+${k('FROM')} ${id('MIRROR')}${p('.')}${id('my_mirror')}${p('.')}${id('public')}${p('.')}${id('tickets_live_view')} ${id('t')}
+${k('WHERE')} ${id('t')}${p('.')}${id('status')} ${p('=')} ${str('"open"')}
+${k('ORDER BY')} ${id('t')}${p('.')}${id('created_at')} ${k('DESC')} ${k('LIMIT')} ${n('50')}${p(';')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('pg-panel-title').textContent = data.title;
+      document.getElementById('pg-panel-body').innerHTML = data.body;
+      document.getElementById('pg-overlay').classList.add('open');
+      document.querySelectorAll('.pg-card[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+    function closePanel() {
+      document.getElementById('pg-overlay').classList.remove('open');
+      document.querySelectorAll('.pg-card').forEach(c => c.classList.remove('active'));
+    }
+    document.querySelectorAll('.pg-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+    document.getElementById('pg-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

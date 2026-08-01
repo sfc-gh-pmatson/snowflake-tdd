@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Serverless Compute &#8212; Snowflake</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .csv-page {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8px 20px 10px; min-height: 0;
+    }
+    .csv-inner {
+      width: 100%; max-width: 900px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .csv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+    .csv-card {
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .csv-card-head {
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
+    .csv-card-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .csv-card-title { font-size: var(--fs-h4); font-weight: 700; color: #fff; }
+    .csv-card-body {
+      flex: 1; padding: 10px 14px;
+      background: #fff;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .csv-fact {
+      display: flex; gap: 7px; align-items: flex-start;
+    }
+    .csv-fact-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .csv-fact-text { font-size: var(--fs-h6); color: rgba(5,13,26,.72); line-height: 1.5; }
+    .csv-billing {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 9px; font-weight: 700; letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-top: auto; align-self: flex-start;
+    }
+
+    /* Card colors */
+    .csv-card:nth-child(1) .csv-card-head { background: var(--sf-blue); }
+    .csv-card:nth-child(1) .csv-fact-dot  { background: var(--sf-blue); }
+    .csv-card:nth-child(1) .csv-billing   { background: rgba(41,181,232,.1); border: 1px solid rgba(41,181,232,.4); color: var(--sf-blue); }
+
+    .csv-card:nth-child(2) .csv-card-head { background: var(--sf-blue-dark); }
+    .csv-card:nth-child(2) .csv-fact-dot  { background: var(--sf-blue-dark); }
+    .csv-card:nth-child(2) .csv-billing   { background: rgba(0,89,163,.1); border: 1px solid rgba(0,89,163,.4); color: var(--sf-blue-dark); }
+
+    .csv-card:nth-child(3) .csv-card-head { background: var(--sf-blue-mid); }
+    .csv-card:nth-child(3) .csv-fact-dot  { background: var(--sf-blue-mid); }
+    .csv-card:nth-child(3) .csv-billing   { background: rgba(26,140,196,.1); border: 1px solid rgba(26,140,196,.4); color: var(--sf-blue-mid); }
+
+    .csv-card:nth-child(4) .csv-card-head { background: var(--sf-card2); border: 1.5px solid rgba(41,181,232,.3); }
+    .csv-card:nth-child(4) .csv-fact-dot  { background: var(--sf-blue); }
+    .csv-card:nth-child(4) .csv-billing   { background: rgba(41,181,232,.1); border: 1px solid rgba(41,181,232,.4); color: var(--sf-blue); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>An important Snowflake concept that many customers miss: a growing share of Snowflake features run on <em>Snowflake-managed serverless compute</em> &#8212; not user-managed virtual warehouses. These services auto-scale, auto-suspend, and bill per second with zero idle cost. Customers often don&#39;t realize these exist as a separate billing line.</p>
+
+<h3>Why It Matters</h3>
+<ul>
+  <li>No warehouse sizing, no auto-suspend configuration, no cluster management</li>
+  <li>Snowflake handles capacity and scaling internally</li>
+  <li>Perfect for event-driven and scheduled workloads where warehouse overhead is wasteful</li>
+  <li>Often cheaper for bursty workloads than keeping a warehouse running</li>
+</ul>
+
+<h3>Key Services</h3>
+<ul>
+  <li><strong>Serverless Tasks:</strong> Run SQL or Snowpark on a schedule or triggered by a stream. No warehouse = no idle credits. Only pay while code is running.</li>
+  <li><strong>Snowpipe / Streaming:</strong> Snowpipe handles file-triggered ingestion (S3 events, GCS notifications). Snowpipe Streaming handles SDK-pushed event data at sub-second latency &#8212; critical for IoT, clickstreams, CDC.</li>
+  <li><strong>Cortex AI Compute:</strong> COMPLETE, CLASSIFY, EXTRACT, SUMMARIZE &#8212; all serverless. No warehouse needed for LLM inference. Billed per token.</li>
+  <li><strong>Search Optimization Service:</strong> Maintains equality and range search indexes on table columns. Background serverless job &#8212; customers just enable it per column and point lookups get fast.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are you running scheduled SQL pipelines with a warehouse that sits idle most of the day? (Serverless Tasks candidate)</li>
+  <li>Do you have streaming or event-driven data sources? (Snowpipe Streaming)</li>
+  <li>Are you doing LLM inference today outside of Snowflake? (Cortex AI Compute)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tasks-intro',
+      code:  'https://github.com/Snowflake-Labs/sfguide-getting-started-snowpipe-streaming',
+      guide: 'https://quickstarts.snowflake.com/guide/data_engineering_pipelines_with_snowpark_python/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./compute.html" class="btn-back">&#8592; Compute</a>
+      <span class="nav-label">Serverless Compute</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Compute</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Serverless Compute</div>
+          <div class="s6-sub" style="text-align:center;">Snowflake-managed compute &#8212; no warehouse required, auto-scaling, billed per second.</div>
+        </div>
+
+        <div class="csv-page">
+          <div class="csv-inner">
+          <div class="csv-grid">
+
+            <!-- Serverless Tasks -->
+            <div class="csv-card">
+              <div class="csv-card-head">
+                <div class="csv-card-icon">&#9654;</div>
+                <div class="csv-card-title">Serverless Tasks</div>
+              </div>
+              <div class="csv-card-body">
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">SQL or Snowpark procedures run on a cron schedule or triggered by a stream with new data</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Snowflake auto-scales compute for the task &#8212; no warehouse sizing or auto-suspend config</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Task graphs (DAGs) for multi-step pipelines with dependencies. Serverless finalizer tasks for cleanup.</div>
+                </div>
+                <div class="csv-billing">Billed per credit-second of execution</div>
+              </div>
+            </div>
+
+            <!-- Snowpipe -->
+            <div class="csv-card">
+              <div class="csv-card-head">
+                <div class="csv-card-icon">&#8659;</div>
+                <div class="csv-card-title">Snowpipe &amp; Streaming</div>
+              </div>
+              <div class="csv-card-body">
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text"><strong>Snowpipe:</strong> File-triggered micro-batch ingestion from cloud storage (S3, GCS, Azure Blob). Auto-ingest via storage event notifications.</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text"><strong>Snowpipe Streaming:</strong> SDK-based row-level ingestion with sub-second latency. Ideal for IoT, CDC, clickstreams, financial events.</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Both are fully serverless &#8212; no warehouse dedicated to ingestion</div>
+                </div>
+                <div class="csv-billing">Billed per file processed / per row ingested</div>
+              </div>
+            </div>
+
+            <!-- Cortex AI -->
+            <div class="csv-card">
+              <div class="csv-card-head">
+                <div class="csv-card-icon">&#9733;</div>
+                <div class="csv-card-title">Cortex AI Compute</div>
+              </div>
+              <div class="csv-card-body">
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">LLM inference functions (COMPLETE, CLASSIFY, EXTRACT, SUMMARIZE, SENTIMENT, TRANSLATE) run serverless &#8212; no GPU warehouse needed</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Cortex Search indexing, Cortex Analyst query processing, and Document AI all use managed serverless compute</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Run directly in SQL: <code style="font-family:monospace;font-size:10px;">SELECT SNOWFLAKE.CORTEX.COMPLETE(...)</code></div>
+                </div>
+                <div class="csv-billing">Billed per token / per function call</div>
+              </div>
+            </div>
+
+            <!-- Search Optimization -->
+            <div class="csv-card">
+              <div class="csv-card-head">
+                <div class="csv-card-icon">&#128269;</div>
+                <div class="csv-card-title">Search Optimization Service</div>
+              </div>
+              <div class="csv-card-body">
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Maintains equality, range, and substring search indexes on table columns. Eliminates full-table scans for point-lookup queries.</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Background serverless maintenance job keeps indexes current as data changes</div>
+                </div>
+                <div class="csv-fact">
+                  <div class="csv-fact-dot"></div>
+                  <div class="csv-fact-text">Enabled per-table or per-column: <code style="font-family:monospace;font-size:10px;">ALTER TABLE t ADD SEARCH OPTIMIZATION</code></div>
+                </div>
+                <div class="csv-billing">Billed per compute-hour of maintenance</div>
+              </div>
+            </div>
+
+          </div>
+          </div><!-- /csv-inner -->
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

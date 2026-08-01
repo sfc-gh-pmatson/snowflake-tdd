@@ -15,6 +15,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 0 16px 8px;
       gap: 10px;
       overflow-y: auto;
@@ -163,7 +164,28 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake's Database Change Management (DCM) brings infrastructure-as-code discipline to database schema management. Teams define Snowflake objects — tables, schemas, roles, warehouses — in declarative YAML manifests, check them into source control, and let DCM handle the diff and apply. No more manual DDL scripts, no more schema drift between environments.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Declarative by design:</strong> Define the desired state of your Snowflake objects in YAML. DCM figures out what needs to be created, altered, or dropped — you never write migration scripts.</li>
+  <li><strong>Three-environment pattern:</strong> Dev → Staging → Production with explicit promotion gates. DCM tracks state separately per environment so changes are validated before they reach production.</li>
+  <li><strong>Version-controlled:</strong> Manifests live in Git alongside application code. Schema changes go through the same PR review process as any other code change.</li>
+  <li><strong>Built-in RBAC:</strong> DCM applies role-based access control to objects automatically — no manual GRANT statements scattered across migration files.</li>
+  <li><strong>CI/CD integration:</strong> Works with GitHub Actions and the Snowflake CLI. Schema changes can be validated, previewed, and deployed in a pipeline.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you manage schema changes across dev, staging, and production Snowflake environments today?</li>
+  <li>Do you have schema drift — where dev and prod environments have gotten out of sync?</li>
+  <li>Are your data engineers part of a software engineering team that uses Git and CI/CD?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  null,
@@ -223,7 +245,7 @@
               <div class="dcm-compare-label">Declarative (DCM)</div>
               <div class="dcm-compare-item">
                 <div class="dcm-compare-dot"></div>
-                Describe desired state in <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">manifest.yml</code> — DCM figures out the diff
+                Desired state in <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">manifest.yml</code> — DCM diffs &amp; applies
               </div>
               <div class="dcm-compare-item">
                 <div class="dcm-compare-dot"></div>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Tagging &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hsp-layout {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; margin: 0 20px;
+    }
+    .hsp-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .hsp-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .hsp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .hsp-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 16px; line-height: 1.5; }
+    .hsp-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .hsp-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .hsp-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .hsp-feature-text { flex: 1; }
+    .hsp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .hsp-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+    .hsp-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hsp-right::before {
+      content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .hsp-code {
+      width: 100%; background: var(--code-bg); border-radius: 10px;
+      padding: 16px 18px; font-family: monospace; font-size: 11px;
+      line-height: 1.85; position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Tagging is the foundation of Horizon Catalog governance. Rather than applying policies column by column, customers create a tag taxonomy (Confidential, PII, Internal, etc.) and then policies propagate automatically to every tagged object. This scales governance to thousands of tables without manual policy assignment.</p>
+<h3>Key Points</h3>
+<ul>
+  <li>Tags are first-class Snowflake objects — queryable, versioned, governed by RBAC</li>
+  <li>Tag propagation: table tag → columns; column tag → query results</li>
+  <li>Tag-based policy inheritance is the most scalable governance pattern — tag once, enforce everywhere</li>
+  <li>CoCo can classify and tag objects from a plain-language prompt: "tag all email columns as PII"</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have a data classification taxonomy today?</li>
+  <li>How many columns have PII today — do you know?</li>
+  <li>Is governance applied manually, per column, or systematically?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/object-tagging',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Tagging</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Tagging</div>
+          <div class="s6-sub" style="text-align:center;">Tag data assets once &#8212; policies propagate automatically to every tagged column, everywhere.</div>
+        </div>
+
+        <div class="hsp-layout">
+          <div class="hsp-left">
+            <div class="hsp-eyebrow">Horizon Catalog &#183; Tagging</div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon">&#127991;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">System &amp; Custom Tags</div>
+                <div class="hsp-feature-body">Snowflake provides built-in system tags (e.g. <code style="font-size:10px;font-family:monospace;">SNOWFLAKE.CORE.SENSITIVITY</code>) and lets you create custom tags with <code style="font-size:10px;font-family:monospace;">CREATE TAG</code> for your own classification taxonomy.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#11107;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Tag Propagation</div>
+                <div class="hsp-feature-body">Tags set on a table inherit to all columns by default. Column tags propagate to query results. Tags flow through views and joins &#8212; governance follows data, not just objects.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#128274;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Policy Inheritance</div>
+                <div class="hsp-feature-body">Masking and row-access policies can be bound to a tag rather than a column. Tag a column &#8220;PII&#8221; and the masking policy applies automatically &#8212; to every column with that tag, everywhere.</div>
+              </div>
+            </div>
+          </div>
+          <div class="hsp-right">
+            <div class="hsp-code">
+              <span class="code-comment">-- Create a custom sensitivity tag</span><br>
+              <span class="code-kw">CREATE</span> <span class="code-fn">TAG</span> <span class="code-id">governance.tags.pii</span><br>
+              &nbsp;&nbsp;<span class="code-fn">ALLOWED_VALUES</span> <span class="code-str">'email'</span><span class="code-punc">,</span> <span class="code-str">'ssn'</span><span class="code-punc">,</span> <span class="code-str">'phone'</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- Apply tag to a column</span><br>
+              <span class="code-kw">ALTER</span> <span class="code-id">TABLE</span> <span class="code-id">customers</span><br>
+              &nbsp;&nbsp;<span class="code-fn">MODIFY COLUMN</span> <span class="code-id">email</span><br>
+              &nbsp;&nbsp;<span class="code-kw">SET TAG</span> <span class="code-id">governance.tags.pii</span> <span class="code-punc">=</span> <span class="code-str">'email'</span><span class="code-punc">;</span><br>
+              <br>
+              <span class="code-comment">-- Bind masking policy via tag (tag-based policy)</span><br>
+              <span class="code-kw">ALTER</span> <span class="code-fn">MASKING POLICY</span> <span class="code-id">mask_pii</span><br>
+              &nbsp;&nbsp;<span class="code-kw">SET TAG</span> <span class="code-id">governance.tags.pii</span><span class="code-punc">;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

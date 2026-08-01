@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Trust Center &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hsp-layout {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; margin: 0 20px;
+    }
+    .hsp-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .hsp-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .hsp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .hsp-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 16px; line-height: 1.5; }
+    .hsp-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .hsp-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .hsp-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .hsp-feature-text { flex: 1; }
+    .hsp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .hsp-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+    .hsp-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hsp-right::before {
+      content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .hsp-code {
+      width: 100%; background: var(--code-bg); border-radius: 10px;
+      padding: 16px 18px; font-family: monospace; font-size: 11px;
+      line-height: 1.85; position: relative; z-index: 1;
+    }
+    .hsp-diagram-img {
+      width: 100%; max-height: 100%; object-fit: contain;
+      border-radius: 8px; position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Trust Center is Snowflake\'s built-in security monitoring product. It runs continuously, checks your account against CIS benchmarks, detects known threat actors and leaked credentials, and now includes an AI governance panel showing every agent and its policy status.</p>
+<h3>Key Points</h3>
+<ul>
+  <li>No setup required &#8212; scanners run automatically and populate findings in SNOWFLAKE.TRUST_CENTER.FINDINGS</li>
+  <li>Three scanner types: Security Essentials (CIS), Threat Intelligence (known bad actors), AI Security (agent governance)</li>
+  <li>Findings are queryable via SQL &#8212; customers can build their own security dashboards or pipe findings to SIEM tools</li>
+  <li>AI Security scanner is new: shows every Cortex Agent, its MCP tools, caller grants, and AI Guardrail status</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Does your security team have visibility into Snowflake configuration today?</li>
+  <li>Are you running CIS benchmarks for Snowflake manually?</li>
+  <li>Do you have AI agents in production &#8212; does your security team know what tools they can call?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Trust Center</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide" style="align-items:center;">
+        <div class="s6-top" style="width:100%;align-self:stretch;">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Trust Center</div>
+          <div class="s6-sub" style="text-align:center;">Continuous security scanning, CIS benchmarks, and AI governance &#8212; built into the platform.</div>
+        </div>
+        <div class="hsp-layout">
+          <div class="hsp-left">
+            <div class="hsp-eyebrow">Horizon Catalog &#183; Monitor</div>
+            <div class="hsp-title">Continuous security<br>out of the box</div>
+            <div class="hsp-sub">Automated CIS benchmarks, threat intelligence, and AI agent governance &#8212; no agent to deploy.</div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon">&#128737;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Always-On Transparency</div>
+                <div class="hsp-feature-body">A centralized, self-serve view into Snowflake&#8217;s security controls, compliance certifications, and privacy posture &#8212; so audits and reviews move faster.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#128202;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Proactive Risk &amp; Security Posture</div>
+                <div class="hsp-feature-body">Real-time visibility into platform security, incidents, and remediation, aligned to Snowflake&#8217;s secure-by-design and shared responsibility model.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9672;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Enterprise-grade Reliability</div>
+                <div class="hsp-feature-body">Clear insight into platform health, availability, and resilience &#8212; giving teams confidence to run mission-critical data and AI workloads.</div>
+              </div>
+            </div>
+          </div>
+          <div class="hsp-right">
+            <img class="hsp-diagram-img" src="../Images/Trust Center.png" alt="Trust Center diagram"/></div>
+    </div>
+  </div>
+</body>
+</html>

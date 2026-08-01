@@ -201,6 +201,7 @@
     /* ── Interactive Tables / Warehouses icons ─────────── */
     /* NOTE: sf-icon-interactive-table reuses Dynamic_Tables SVG — backlog item to replace with a dedicated icon */
     .sf-icon-interactive-table  { background-image: url('sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
+    .sf-icon-dynamic-tables     { background-image: url('sf-icons/Snowflake_ICON_Dynamic_Tables.svg'); }
     .sf-icon-concurrency        { background-image: url('sf-icons/Snowflake_ICON_Concurrency.svg'); }
     .sf-icon-pricing            { background-image: url('sf-icons/Snowflake_ICON_Pricing.svg'); }
     .sf-icon-kafka              { background-image: url('sf-icons/Snowflake_ICON_Kafka_Connectors.svg'); }
@@ -261,6 +262,7 @@
       overflow: hidden;
     }
     .slide-canvas.with-nav { margin-top: 42px; height: calc(100% - 42px); }
+    .slide-canvas.with-nav .s6-top { padding-top: 18px; }
 
     /* ── SHARED SLIDE BASE ───────────────────────────────────── */
     .sf-slide {
@@ -408,6 +410,46 @@
     .s6-footer span {
       font-size: var(--fs-h6);
       color: rgba(255,255,255,.3);
+    }
+    /* ── Shared slide-up code panel (ml-functions, CoWork, reusable) ── */
+    .mlf-code-panel {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 920px;
+      background: var(--sf-navy);
+      border-top: 3px solid var(--sf-blue);
+      border-radius: 12px 12px 0 0;
+      padding: 14px 24px 18px;
+      transition: transform .25s ease;
+      z-index: 100;
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+    .mlf-code-panel.open { transform: translateX(-50%) translateY(0); }
+    .mlf-code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .mlf-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
+    .mlf-code-close {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
+      color: var(--sf-blue); font-size: 15px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mlf-code-close:hover { background: rgba(41,181,232,.3); }
+
+    /* ── Shared code block (used by panel/overlay code viewers) ── */
+    .mlf-code-block {
+      background: var(--code-bg);
+      color: rgba(255,255,255,.85);
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h6);
+      line-height: 1.75;
+      border-radius: 8px;
+      padding: 12px 16px;
+      white-space: pre-wrap;
+      overflow-x: auto;
     }
     .resource-btn {
       display: flex;

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake Tables — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 2px; }
+
+    .nt-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 8px 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Table type tiles ─────────────────────────────── */
+    .nt-types {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 12px;
+      margin-bottom: 9px;
+    }
+    .nt-type {
+      background: var(--sf-blue-dark);
+      border: 1.5px solid rgba(41,181,232,.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .nt-type-label { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sf-blue); }
+    .nt-type-title { font-size: var(--fs-h4); font-weight: 800; color: #e8f4fd; }
+    .nt-type-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-h6); }
+    .nt-type-key { color: rgba(255,255,255,.45); }
+    .nt-type-val { font-weight: 700; color: rgba(255,255,255,.75); font-family: 'SF Mono', ui-monospace, monospace; font-size: 9px; }
+    .nt-type-val.yes { color: #4ade80; }
+    .nt-type-val.no { color: rgba(255,255,255,.3); }
+
+    /* ── Feature cards ──────────────────────────────────── */
+    .nt-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; width: 100%; max-width: 900px; }
+    .nt-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .nt-card:hover { border-color: var(--sf-blue); box-shadow: 0 4px 14px rgba(41,181,232,.22); transform: translateY(-2px); }
+    .nt-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .nt-card-head { display: flex; align-items: center; gap: 10px; }
+    .nt-card-icon {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .nt-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .nt-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.45; }
+    .nt-card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .nt-chip {
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      background: rgba(41,181,232,.07); border: 1px solid rgba(41,181,232,.2); color: var(--sf-blue);
+    }
+
+    /* ── Overlay modal ───────────────────────────────────── */
+    .nt-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .nt-overlay.open { display: flex; }
+    .nt-modal {
+      background: var(--sf-navy); border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 820px; max-width: 92vw; max-height: 74vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5); overflow: hidden;
+    }
+    .nt-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; background: var(--sf-blue); flex-shrink: 0;
+    }
+    .nt-modal-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; }
+    .nt-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nt-modal-close:hover { background: rgba(255,255,255,.35); }
+    .nt-modal-body { flex: 1; overflow-y: auto; padding: 0; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/sql-reference/sql/create-table',
+      code:  null,
+      guide: 'https://docs.snowflake.com/en/user-guide/tables-temp-transient',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Snowflake Tables</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Storage</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Native Tables</div>
+          <div class="s6-sub" style="text-align:center;">Columnar, micro-partitioned, always-compressed — with zero-copy cloning, Time Travel, MERGE, and full ANSI SQL built in. No indexes, no partitioning keys, no vacuuming required.</div>
+        </div>
+
+        <div class="nt-page content-wrap">
+
+          <!-- Table type comparison tiles -->
+          <div class="nt-types">
+            <div class="nt-type">
+              <div class="nt-type-label">Standard</div>
+              <div class="nt-type-title">Permanent</div>
+              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val yes">0–90 days</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val yes">7 days</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val yes">Yes</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Full</span></div>
+            </div>
+            <div class="nt-type">
+              <div class="nt-type-label">Reduced overhead</div>
+              <div class="nt-type-title">Transient</div>
+              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val">0–1 day</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val no">None</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val yes">Yes</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Reduced</span></div>
+            </div>
+            <div class="nt-type">
+              <div class="nt-type-label">Session-scoped</div>
+              <div class="nt-type-title">Temporary</div>
+              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val">0–1 day</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val no">None</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val no">No</span></div>
+              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Minimal</span></div>
+            </div>
+          </div>
+
+          <!-- All feature cards in one grid -->
+          <div class="nt-cards">
+
+                <div class="nt-card" data-fn="ddl">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-structured" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">DDL &amp; Data Types</div>
+                  </div>
+                  <div class="nt-card-desc">Full ANSI type system: numeric, string, date/time, semi-structured (VARIANT/OBJECT/ARRAY), boolean, and binary. CTAS for instant table creation from queries, column defaults, expressions, and inline data type conversions.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">NUMBER</span><span class="nt-chip">VARCHAR</span><span class="nt-chip">VARIANT</span><span class="nt-chip">TIMESTAMP_NTZ</span><span class="nt-chip">CTAS</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="table-props">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-horizon" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">Table Properties</div>
+                  </div>
+                  <div class="nt-card-desc">Configure DATA_RETENTION_TIME_IN_DAYS per table for Time Travel. Enable CHANGE_TRACKING for stream-based CDC. Add TAG-based classification for Horizon governance. Set COMMENT for catalog documentation.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">DATA_RETENTION_TIME</span><span class="nt-chip">CHANGE_TRACKING</span><span class="nt-chip">TAG</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="constraints">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-security-gov" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">Constraints</div>
+                  </div>
+                  <div class="nt-card-desc">NOT NULL is enforced. UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are informational (NOVALIDATE, RELY) — used for documentation and query optimizer hints, not runtime enforcement. Define them for lineage tools, BI tools, and semantic models.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">NOT NULL</span><span class="nt-chip">PRIMARY KEY</span><span class="nt-chip">FOREIGN KEY</span><span class="nt-chip">RELY</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="timetravel">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-bcdr" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">Time Travel &amp; Fail-Safe</div>
+                  </div>
+                  <div class="nt-card-desc">Query any table as it existed at a past timestamp, offset, or query ID — without restoring a backup. UNDROP TABLE recovers a dropped table within the retention window. Fail-Safe extends 7 days beyond Time Travel for Snowflake-assisted recovery.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">AT(TIMESTAMP)</span><span class="nt-chip">BEFORE(STATEMENT)</span><span class="nt-chip">UNDROP</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="dml">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-sql" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">DML — Insert, Update, Delete</div>
+                  </div>
+                  <div class="nt-card-desc">Full ANSI DML with Snowflake extensions: INSERT OVERWRITE for full replace, multi-table INSERT, UPDATE FROM a source set, DELETE with USING for join-based deletes, and TRUNCATE for instant reset without logging overhead.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">INSERT OVERWRITE</span><span class="nt-chip">UPDATE FROM</span><span class="nt-chip">DELETE USING</span><span class="nt-chip">TRUNCATE</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="clone">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-data-mesh" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">Zero-Copy Clone</div>
+                  </div>
+                  <div class="nt-card-desc">CREATE TABLE ... CLONE is a metadata-only operation — no data is copied at clone time. Clones share underlying micro-partitions with the source. New writes to either side diverge independently. Clone entire databases or schemas in milliseconds.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">Instant</span><span class="nt-chip">No data copy</span><span class="nt-chip">AT(TIMESTAMP)</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="merge">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-data-eng" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">MERGE — Upsert Patterns</div>
+                  </div>
+                  <div class="nt-card-desc">MERGE INTO handles upserts, SCD Type 1 and Type 2 patterns, and conditional logic in a single atomic operation. Supports multiple WHEN MATCHED clauses with different conditions and WHEN NOT MATCHED BY SOURCE for delete-from-target.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">MERGE INTO</span><span class="nt-chip">WHEN MATCHED</span><span class="nt-chip">SCD Type 1/2</span></div>
+                </div>
+
+                <div class="nt-card" data-fn="change-tracking">
+                  <div class="nt-card-head">
+                    <div class="nt-card-icon">
+                      <span class="sf-img sf-icon-streams" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="nt-card-title">Change Tracking</div>
+                  </div>
+                  <div class="nt-card-desc">Enable CHANGE_TRACKING on any table to capture row-level inserts, updates, and deletes. Query changes directly with CHANGES(INFORMATION =&gt; DEFAULT) or consume them via Streams for downstream pipeline triggers.</div>
+                  <div class="nt-card-chips"><span class="nt-chip">CHANGE_TRACKING</span><span class="nt-chip">CHANGES()</span><span class="nt-chip">Streams CDC</span></div>
+                </div>
+
+          </div><!-- /nt-cards -->
+        </div><!-- /nt-page -->
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="nt-overlay" id="nt-overlay">
+    <div class="nt-modal">
+      <div class="nt-modal-header">
+        <span class="nt-modal-title" id="nt-modal-title"></span>
+        <button class="nt-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="nt-modal-body" id="nt-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+    const code = b => `<div class="mlf-code-block" style="border-radius:0;padding:18px 22px;">${b}</div>`;
+
+    const PANELS = {
+
+      ddl: {
+        title: 'DDL & Data Types',
+        body: code(`${cm('-- ── Create a permanent table with common data types ─────────────────')}
+${k('CREATE OR REPLACE TABLE')} ${id('analytics')}${p('.')}${id('orders')} ${p('(')}
+  ${cm('-- Numeric')}
+  ${id('order_id')}      ${id('NUMBER')}${p('(')}${n('18')}${p(',0)')}   ${k('NOT NULL')}${p(',')}
+  ${id('total_amt')}     ${id('NUMBER')}${p('(')}${n('18')}${p(',2)')}   ${k('DEFAULT')} ${n('0.00')}${p(',')}
+  ${id('quantity')}      ${id('INT')}${p(',')}
+  ${cm('-- String')}
+  ${id('status')}        ${id('VARCHAR')}${p('(')}${n('20')}${p(')')}    ${k('DEFAULT')} ${str("'pending'")}${p(',')}
+  ${id('notes')}         ${id('TEXT')}${p(',')}
+  ${cm('-- Date/Time')}
+  ${id('order_date')}    ${id('DATE')}             ${k('NOT NULL')}${p(',')}
+  ${id('created_at')}    ${id('TIMESTAMP_NTZ')}    ${k('DEFAULT')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(',')}
+  ${cm('-- Semi-structured')}
+  ${id('metadata')}      ${id('VARIANT')}${p(',')}
+  ${id('tags')}          ${id('ARRAY')}${p(',')}
+  ${cm('-- Boolean')}
+  ${id('is_flagged')}    ${id('BOOLEAN')}          ${k('DEFAULT')} ${k('FALSE')}
+${p(')')}
+${id('DATA_RETENTION_TIME_IN_DAYS')} ${p('=')} ${n('30')}
+${id('COMMENT')} ${p('=')} ${str("'Core orders table — source of truth for revenue analytics'")}${p(';')}
+
+${cm('-- ── CTAS: create from a query (inherits column types) ───────────────')}
+${k('CREATE OR REPLACE TABLE')} ${id('orders_q1')} ${k('AS')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+${k('WHERE')} ${f('DATE_TRUNC')}${p('(')}${str("'quarter'")}${p(',')} ${id('order_date')}${p(')')} ${p('=')} ${str("'2026-01-01'")}${p(';')}
+
+${cm('-- ── Create a transient table (no Fail-Safe, max 1-day Time Travel) ──')}
+${k('CREATE TRANSIENT TABLE')} ${id('staging')}${p('.')}${id('orders_stg')} ${k('LIKE')} ${id('analytics')}${p('.')}${id('orders')}${p(';')}
+
+${cm('-- ── Create a temporary table (dropped at session end) ───────────────')}
+${k('CREATE TEMPORARY TABLE')} ${id('temp_dedup')} ${k('AS')}
+${k('SELECT DISTINCT')} ${p('*')} ${k('FROM')} ${id('raw')}${p('.')}${id('orders_inbox')}${p(';')}`)
+      },
+
+      clone: {
+        title: 'Zero-Copy Clone',
+        body: code(`${cm('-- ── Clone a table — metadata operation, completes in milliseconds ────')}
+${k('CREATE TABLE')} ${id('orders_backup')} ${k('CLONE')} ${id('orders')}${p(';')}
+${cm('-- No data is copied — both tables share the same micro-partitions.')}
+${cm('-- New writes to either table diverge independently (copy-on-write).')}
+
+${cm('-- ── Clone as of a specific timestamp (Time Travel clone) ────────────')}
+${k('CREATE TABLE')} ${id('orders_before_migration')} ${k('CLONE')} ${id('orders')}
+  ${id('AT')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-01 09:00:00'")}${p(')')}${p(';')}
+
+${cm('-- ── Clone as of before a specific statement ran ─────────────────────')}
+${k('CREATE TABLE')} ${id('orders_pre_delete')} ${k('CLONE')} ${id('orders')}
+  ${id('BEFORE')} ${p('(')}${id('STATEMENT')} ${p('=>')} ${str("'<query_id>'")}${p(')')}${p(';')}
+
+${cm('-- ── Clone an entire schema — all tables, views, stages ──────────────')}
+${k('CREATE SCHEMA')} ${id('analytics_v2')} ${k('CLONE')} ${id('analytics')}${p(';')}
+
+${cm('-- ── Clone an entire database ────────────────────────────────────────')}
+${k('CREATE DATABASE')} ${id('prod_snapshot_20260801')} ${k('CLONE')} ${id('analytics_db')}${p(';')}
+${cm('-- Common pattern: daily clone for safe data exploration and testing.')}
+
+${cm('-- ── Verify clone shares partitions (storage cost = 0 at clone time) ─')}
+${k('SELECT')} ${id('table_name')}${p(',')} ${id('active_bytes')}${p(',')} ${id('time_travel_bytes')}
+${k('FROM')} ${id('INFORMATION_SCHEMA')}${p('.')}${id('TABLE_STORAGE_METRICS')}
+${k('WHERE')} ${id('table_name')} ${k('IN')} ${p('(')}${str("'ORDERS'")}${p(',')} ${str("'ORDERS_BACKUP'")}${p(')')}${p(';')}
+${cm('-- Both show 0 active_bytes owned until they diverge')}`)
+      },
+
+      constraints: {
+        title: 'Constraints',
+        body: code(`${cm('-- ── NOT NULL is enforced at write time ──────────────────────────────')}
+${k('CREATE TABLE')} ${id('orders')} ${p('(')}
+  ${id('order_id')}    ${id('NUMBER')}    ${k('NOT NULL')} ${k('PRIMARY KEY')}${p(',')}
+  ${id('customer_id')} ${id('NUMBER')}    ${k('NOT NULL')}${p(',')}
+  ${id('total_amt')}   ${id('NUMBER')}${p('(')}${n('18')}${p(',2)')} ${k('NOT NULL')} ${k('CHECK')} ${p('(')}${id('total_amt')} ${p('>=')} ${n('0')}${p(')')}${p(',')}
+  ${id('status')}      ${id('VARCHAR')}${p('(')}${n('20')}${p(')')}
+${p(')')}${p(';')}
+
+${cm('-- ── PRIMARY KEY and FOREIGN KEY are informational (not enforced) ─────')}
+${cm('-- They document relationships for BI tools, semantic models, and lineage.')}
+${k('ALTER TABLE')} ${id('orders')} ${k('ADD CONSTRAINT')} ${id('fk_customer')}
+  ${k('FOREIGN KEY')} ${p('(')}${id('customer_id')}${p(')')} ${k('REFERENCES')} ${id('customers')}${p('(')}${id('id')}${p(')')}
+  ${id('NOT ENFORCED')} ${id('RELY')}${p(';')}
+${cm('-- RELY = optimizer trusts this constraint for join elimination')}
+${cm('-- NOT ENFORCED = Snowflake does not check on insert/update')}
+
+${cm('-- ── UNIQUE constraint — informational ───────────────────────────────')}
+${k('ALTER TABLE')} ${id('customers')} ${k('ADD CONSTRAINT')} ${id('uq_email')}
+  ${k('UNIQUE')} ${p('(')}${id('email')}${p(')')} ${id('NOT ENFORCED')} ${id('NOVALIDATE')}${p(';')}
+${cm('-- NOVALIDATE = does not scan existing data when constraint is added')}
+
+${cm('-- ── View all constraints on a table ─────────────────────────────────')}
+${k('SHOW')} ${id('PRIMARY KEYS')} ${k('IN TABLE')} ${id('orders')}${p(';')}
+${k('SHOW')} ${id('IMPORTED KEYS')} ${k('IN TABLE')} ${id('orders')}${p(';')}
+${k('SHOW')} ${id('UNIQUE KEYS')} ${k('IN TABLE')} ${id('customers')}${p(';')}`)
+      },
+
+      'table-props': {
+        title: 'Table Properties',
+        body: code(`${cm('-- ── Time Travel retention — override the account/schema default ─────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('SET')} ${id('DATA_RETENTION_TIME_IN_DAYS')} ${p('=')} ${n('90')}${p(';')}
+${cm('-- 0 = disabled, 1 = default for most editions, up to 90 (Enterprise)')}
+
+${cm('-- ── Enable Change Tracking for Streams and CHANGES() queries ────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('SET')} ${id('CHANGE_TRACKING')} ${p('=')} ${k('TRUE')}${p(';')}
+${cm('-- Required before creating a Stream on this table')}
+
+${cm('-- ── Tag a table for Horizon classification ───────────────────────────')}
+${k('ALTER TABLE')} ${id('customers')}
+  ${k('SET TAG')} ${id('SNOWFLAKE')}${p('.')}${id('CORE')}${p('.')}${id('PRIVACY_CATEGORY')} ${p('=')} ${str("'IDENTIFIER'")}${p(';')}
+
+${cm('-- ── Set a table comment visible in Snowsight catalog ────────────────')}
+${k('ALTER TABLE')} ${id('orders')}
+  ${k('SET COMMENT')} ${p('=')} ${str("'Source-of-truth orders table. Owner: data engineering. SLA: 99.9%'")}${p(';')}
+
+${cm('-- ── Configure default sorting (reduce recluster need) ───────────────')}
+${k('ALTER TABLE')} ${id('events')} ${k('SET')} ${id('DEFAULT_DDL_COLLATION')} ${p('=')} ${str("'en-ci'")}${p(';')}
+
+${cm('-- ── View table properties ───────────────────────────────────────────')}
+${k('SHOW')} ${id('TABLES')} ${k('LIKE')} ${str("'orders'")} ${k('IN SCHEMA')} ${id('analytics')}${p('.')}${id('public')}${p(';')}
+${k('DESCRIBE TABLE')} ${id('analytics')}${p('.')}${id('public')}${p('.')}${id('orders')}${p(';')}`)
+      },
+
+      dml: {
+        title: 'DML — Insert, Update, Delete, Truncate',
+        body: code(`${cm('-- ── INSERT: standard and overwrite ──────────────────────────────────')}
+${k('INSERT INTO')} ${id('orders')} ${p('(')}${id('order_id')}${p(',')} ${id('customer_id')}${p(',')} ${id('total_amt')}${p(')')}
+${k('VALUES')} ${p('(')}${n('1001')}${p(',')} ${n('42')}${p(',')} ${n('149.99')}${p(')')}${p(',')} ${p('(')}${n('1002')}${p(',')} ${n('17')}${p(',')} ${n('84.50')}${p(')')}${p(';')}
+
+${cm('-- INSERT OVERWRITE: replace all rows atomically (common for daily loads)')}
+${k('INSERT OVERWRITE INTO')} ${id('analytics')}${p('.')}${id('revenue_daily')}
+${k('SELECT')} ${f('DATE_TRUNC')}${p('(')}${str("'day'")}${p(',')} ${id('created_at')}${p(')')}${p(',')} ${f('SUM')}${p('(')}${id('total_amt')}${p(')')}
+${k('FROM')} ${id('orders')} ${k('GROUP BY')} ${n('1')}${p(';')}
+
+${cm('-- ── UPDATE with FROM (join-based update) ───────────────────────────')}
+${k('UPDATE')} ${id('orders')} ${id('o')}
+${k('SET')} ${id('o')}${p('.')}${id('status')} ${p('=')} ${str("'fulfilled'")}${p(',')} ${id('o')}${p('.')}${id('fulfilled_at')} ${p('=')} ${f('CURRENT_TIMESTAMP')}${p('()')}
+${k('FROM')} ${id('fulfillment_events')} ${id('f')}
+${k('WHERE')} ${id('o')}${p('.')}${id('order_id')} ${p('=')} ${id('f')}${p('.')}${id('order_id')}
+  ${k('AND')} ${id('f')}${p('.')}${id('event_type')} ${p('=')} ${str("'SHIPPED'")}${p(';')}
+
+${cm('-- ── DELETE with USING (join-based delete) ───────────────────────────')}
+${k('DELETE FROM')} ${id('orders')} ${k('USING')} ${id('cancelled_orders')} ${id('c')}
+${k('WHERE')} ${id('orders')}${p('.')}${id('order_id')} ${p('=')} ${id('c')}${p('.')}${id('order_id')}${p(';')}
+
+${cm('-- ── TRUNCATE: instantly empties the table (no Time Travel after) ────')}
+${k('TRUNCATE TABLE')} ${id('staging')}${p('.')}${id('orders_inbox')}${p(';')}
+${cm('-- Faster than DELETE — drops and recreates the table metadata.')}
+${cm('-- No WHERE clause, no partial deletes. Committed immediately.')}`)
+      },
+
+      merge: {
+        title: 'MERGE — Upsert & SCD Patterns',
+        body: code(`${cm('-- ── Basic upsert (SCD Type 1): update if exists, insert if new ────')}
+${k('MERGE INTO')} ${id('customers')} ${id('t')}
+${k('USING')} ${id('customers_updates')} ${id('s')}
+  ${k('ON')} ${id('t')}${p('.')}${id('customer_id')} ${p('=')} ${id('s')}${p('.')}${id('customer_id')}
+${k('WHEN MATCHED AND')} ${id('t')}${p('.')}${id('updated_at')} ${p('<')} ${id('s')}${p('.')}${id('updated_at')} ${k('THEN')}
+  ${k('UPDATE SET')}
+    ${id('t')}${p('.')}${id('email')}      ${p('=')} ${id('s')}${p('.')}${id('email')}${p(',')}
+    ${id('t')}${p('.')}${id('plan_tier')} ${p('=')} ${id('s')}${p('.')}${id('plan_tier')}${p(',')}
+    ${id('t')}${p('.')}${id('updated_at')} ${p('=')} ${id('s')}${p('.')}${id('updated_at')}
+${k('WHEN NOT MATCHED THEN')}
+  ${k('INSERT')} ${p('(')}${id('customer_id')}${p(',')} ${id('email')}${p(',')} ${id('plan_tier')}${p(',')} ${id('created_at')}${p(',')} ${id('updated_at')}${p(')')}
+  ${k('VALUES')} ${p('(')}${id('s')}${p('.')}${id('customer_id')}${p(',')} ${id('s')}${p('.')}${id('email')}${p(',')} ${id('s')}${p('.')}${id('plan_tier')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(',')} ${id('s')}${p('.')}${id('updated_at')}${p(')')}${p(';')}
+
+${cm('')}
+${cm('-- ── SCD Type 2: expire old row and insert new version ───────────────')}
+${cm('-- Step 1: close the current row')}
+${k('MERGE INTO')} ${id('customers_history')} ${id('t')}
+${k('USING')} ${id('customers_updates')} ${id('s')}
+  ${k('ON')} ${id('t')}${p('.')}${id('customer_id')} ${p('=')} ${id('s')}${p('.')}${id('customer_id')} ${k('AND')} ${id('t')}${p('.')}${id('is_current')} ${p('=')} ${k('TRUE')}
+${k('WHEN MATCHED THEN UPDATE SET')}
+  ${id('t')}${p('.')}${id('valid_to')} ${p('=')} ${f('CURRENT_DATE')}${p(',')} ${id('t')}${p('.')}${id('is_current')} ${p('=')} ${k('FALSE')}${p(';')}
+${cm('-- Step 2: insert the new version')}
+${k('INSERT INTO')} ${id('customers_history')} ${k('SELECT')} ${id('s')}${p('.*')}${p(',')} ${f('CURRENT_DATE')} ${k('AS')} ${id('valid_from')}${p(',')} ${k('NULL')} ${k('AS')} ${id('valid_to')}${p(',')} ${k('TRUE')} ${k('AS')} ${id('is_current')} ${k('FROM')} ${id('customers_updates')} ${id('s')}${p(';')}
+
+${cm('')}
+${cm('-- ── Delete matched rows, update non-matched-by-source ───────────────')}
+${k('MERGE INTO')} ${id('active_sessions')} ${id('t')}
+${k('USING')} ${id('ended_sessions')} ${id('s')} ${k('ON')} ${id('t')}${p('.')}${id('session_id')} ${p('=')} ${id('s')}${p('.')}${id('session_id')}
+${k('WHEN MATCHED THEN DELETE')}${p(';')}`)
+      },
+
+      timetravel: {
+        title: 'Time Travel & Fail-Safe',
+        body: code(`${cm('-- ── Query a table as of a specific timestamp ────────────────────────')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+  ${id('AT')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-31 12:00:00'")}${p(')')}${p(';')}
+
+${cm('-- ── Query as of N seconds ago ────────────────────────────────────────')}
+${k('SELECT')} ${f('COUNT')}${p('(*)')} ${k('FROM')} ${id('orders')}
+  ${id('AT')} ${p('(')}${id('OFFSET')} ${p('=>')} ${p('-')}${n('3600')}${p(')')}${p(';')} ${cm('-- 1 hour ago')}
+
+${cm('-- ── Query the state before a specific query ran ──────────────────────')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+  ${id('BEFORE')} ${p('(')}${id('STATEMENT')} ${p('=>')} ${str("'<query_id>'")}${p(')')}${p(';')}
+
+${cm('-- ── Recover accidentally deleted rows ───────────────────────────────')}
+${k('INSERT INTO')} ${id('orders')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}
+  ${id('BEFORE')} ${p('(')}${id('STATEMENT')} ${p('=>')} ${str("'<delete_query_id>'")}${p(')')}
+${k('MINUS')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')}${p(';')}
+
+${cm('-- ── UNDROP: restore a dropped table within retention window ─────────')}
+${k('DROP TABLE')} ${id('orders_backup')}${p(';')}           ${cm('-- oops')}
+${k('UNDROP TABLE')} ${id('orders_backup')}${p(';')}         ${cm('-- restored')}
+
+${cm('-- ── Fail-Safe: 7-day recovery window beyond Time Travel ─────────────')}
+${cm('-- Cannot be accessed by user queries — only via Snowflake Support.')}
+${cm('-- Protects against hardware failures and extreme data loss scenarios.')}
+${cm('-- Monitor storage consumption from Time Travel + Fail-Safe retained data:')}
+${k('SELECT')} ${id('table_name')}${p(',')} ${id('active_bytes')}${p(',')} ${id('time_travel_bytes')}${p(',')} ${id('failsafe_bytes')}
+${k('FROM')} ${id('INFORMATION_SCHEMA')}${p('.')}${id('TABLE_STORAGE_METRICS')}
+${k('WHERE')} ${id('table_schema')} ${p('=')} ${str("'PUBLIC'")} ${k('ORDER BY')} ${id('failsafe_bytes')} ${k('DESC')}${p(';')}`)
+      },
+
+      'change-tracking': {
+        title: 'Change Tracking & CDC',
+        body: code(`${cm('-- ── Enable change tracking on the source table ─────────────────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('SET')} ${id('CHANGE_TRACKING')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── CHANGES(): query row-level changes in a time range ──────────────')}
+${k('SELECT')} ${p('*')}
+${k('FROM')} ${id('orders')}
+  ${id('CHANGES')}${p('(')}${id('INFORMATION')} ${p('=>')} ${id('DEFAULT')}${p(')')}
+  ${id('AT')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-31 00:00:00'")}${p(')')}
+  ${id('END')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-31 23:59:59'")}${p(')')}${p(';')}
+${cm('-- Returns all rows with system columns:')}
+${cm('-- METADATA$ACTION: INSERT | DELETE')}
+${cm('-- METADATA$ISUPDATE: TRUE if this row is part of an update')}
+${cm('-- METADATA$ROW_ID: unique row identifier across versions')}
+
+${cm('')}
+${cm('-- ── Stream-based CDC (preferred for pipeline triggers) ──────────────')}
+${k('CREATE OR REPLACE STREAM')} ${id('orders_cdc')}
+  ${k('ON TABLE')} ${id('orders')}
+  ${id('APPEND_ONLY')} ${p('=')} ${k('FALSE')}${p(';')}
+
+${cm('-- Consume the stream in a task:')}
+${k('SELECT')}
+  ${id('order_id')}${p(',')}
+  ${id('METADATA')}${p('$')}${id('ACTION')} ${k('AS')} ${id('change_type')}${p(',')}
+  ${id('METADATA')}${p('$')}${id('ISUPDATE')} ${k('AS')} ${id('is_update')}${p(',')}
+  ${id('total_amt')}${p(',')} ${id('status')}
+${k('FROM')} ${id('orders_cdc')}
+${k('WHERE')} ${id('METADATA')}${p('$')}${id('ACTION')} ${p('=')} ${str("'INSERT'")}${p(';')}
+
+${cm('-- ── Verify change tracking is enabled and active ────────────────────')}
+${k('SHOW')} ${id('TABLES')} ${k('LIKE')} ${str("'orders'")}${p(';')}
+${cm('-- Look for change_tracking = ON in the output')}`)
+      }
+    };
+
+    function showModal(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('nt-modal-title').textContent = data.title;
+      document.getElementById('nt-modal-body').innerHTML = data.body;
+      document.getElementById('nt-overlay').classList.add('open');
+      document.querySelectorAll('.nt-card[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+    function closeModal() {
+      document.getElementById('nt-overlay').classList.remove('open');
+      document.querySelectorAll('.nt-card').forEach(c => c.classList.remove('active'));
+    }
+    document.querySelectorAll('.nt-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showModal(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('nt-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+  </script>
+</body>
+</html>

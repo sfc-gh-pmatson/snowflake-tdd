@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>GPU Compute — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    .gpu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%; max-width: 900px;
+      padding: 8px 0 4px;
+    }
+    .gpu-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(245,158,11,.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .gpu-card:hover { border-color: #F59E0B; transform: translateY(-2px); }
+    .gpu-card.active { border-color: #F59E0B; background: rgba(245,158,11,.1); }
+    .gpu-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: #F59E0B; margin-bottom: 4px;
+    }
+    .gpu-card.active .gpu-card-label { color: #fcd34d; }
+    .gpu-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+
+    .gpu-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(245,158,11,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .gpu-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .gpu-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .gpu-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .gpu-panel-explain p { margin-bottom: 10px; }
+    .gpu-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .gpu-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>GPU compute on Snowflake is the story of bringing GPU-powered workloads inside the data security boundary — instead of extracting data to a separate ML platform that has GPUs. There are two GPU surfaces: SPCS Compute Pools (you manage the container and model) and Cortex-managed GPU (fine-tuning, Notebook Container Runtime — Snowflake manages the GPU for you). The key message is that you don't need to choose between "easy but limited" Cortex AI and "powerful but complex" bring-your-own GPU. You can use both, and they share the same governance, data access, and billing boundary.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>SPCS GPU Pools:</strong> NVIDIA A10G cards (XS = 1 GPU, S = 1 GPU, M = 4 GPU, L = 8 GPU). You containerize your model and deploy it. Full control, full responsibility.</li>
+  <li><strong>Cortex Fine-Tuning:</strong> Fully managed — provide training data as a table, pick a base model, call FINETUNE(). GPU infrastructure is invisible. Best for customizing Cortex LLMs on your own domain data.</li>
+  <li><strong>Notebook Container Runtime:</strong> Attach a GPU compute pool to a Snowflake Notebook. Data scientists get a Jupyter-like environment with GPU access and direct access to Snowflake tables — no data export needed.</li>
+  <li><strong>Snowpark-Optimized:</strong> CPU-based but high-memory (16× RAM). Use when you need large memory for ML training or heavy Python UDFs — not GPU, but often the right answer before going to SPCS.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are your data scientists currently pulling data out of Snowflake into SageMaker or Vertex AI to run GPU workloads? What's the data freshness and governance overhead?</li>
+  <li>Do you have domain-specific terminology (product names, internal jargon, industry acronyms) where a general-purpose LLM underperforms? (Fine-tuning candidate)</li>
+  <li>Are you building real-time inference services that need sub-100ms latency? (SPCS GPU service with persistent endpoint)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,
+      code:  null,
+      guide: 'https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-finetuning',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">GPU Compute</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Compute</span>
+            <span class="slide-tag" style="background:rgba(245,158,11,.15);color:#F59E0B;">GPU &amp; Accelerated</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">GPU Compute</div>
+          <div class="s6-sub" style="text-align:center;">ML training, inference, fine-tuning, and GPU notebooks — inside the Snowflake security boundary. No data movement required.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="gpu-grid">
+            <div class="gpu-card" onclick="showPanel(0)">
+              <div class="gpu-card-label">GPU Compute Pools</div>
+              <div class="gpu-card-desc">NVIDIA A10G nodes (XS → L) for containerized ML workloads. Your model, your runtime, inside Snowflake.</div>
+            </div>
+            <div class="gpu-card" onclick="showPanel(1)">
+              <div class="gpu-card-label">ML Model Serving</div>
+              <div class="gpu-card-desc">Deploy custom models as persistent SPCS service endpoints. Call from SQL via service functions — no API keys, no egress.</div>
+            </div>
+            <div class="gpu-card" onclick="showPanel(2)">
+              <div class="gpu-card-label">Cortex Fine-Tuning</div>
+              <div class="gpu-card-desc">Fully managed LLM fine-tuning on your own data. Provide a training table, pick a base model, call FINETUNE() — no GPU ops required.</div>
+            </div>
+            <div class="gpu-card" onclick="showPanel(3)">
+              <div class="gpu-card-label">Notebook Container Runtime</div>
+              <div class="gpu-card-desc">Attach GPU compute pools to Snowflake Notebooks. Interactive ML development with direct access to Snowflake tables — no data export.</div>
+            </div>
+            <div class="gpu-card" onclick="showPanel(4)">
+              <div class="gpu-card-label">Distributed Training</div>
+              <div class="gpu-card-desc">Multi-node GPU training via Snowpark ML MLJob. Scale PyTorch and XGBoost training across multiple GPU nodes without managing infrastructure.</div>
+            </div>
+            <div class="gpu-card" onclick="showPanel(5)">
+              <div class="gpu-card-label">Snowpark-Optimized <span style="font-size:0.7em;color:rgba(255,255,255,.4);font-weight:400;">* CPU</span></div>
+              <div class="gpu-card-desc">16× more memory per node vs standard warehouses. Heavy Python UDFs, large in-memory ML — CPU-based but the bridge before full GPU SPCS.</div>
+            </div>
+          </div>
+
+          <div class="gpu-panel" id="gpu-panel">
+            <div class="gpu-panel-code" id="gpu-code">-- Select a card above to explore GPU compute options</div>
+            <div class="gpu-panel-explain" id="gpu-explain">
+              <h4>GPU Compute on Snowflake</h4>
+              <p>Click any card above to see SQL examples and explanations.</p>
+              <p>Snowflake offers two GPU surfaces: <strong>fully managed</strong> (Cortex Fine-Tuning, Notebook Container Runtime) where Snowflake handles the GPU, and <strong>self-managed</strong> (SPCS GPU Pools) where you containerize and deploy your own model.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+  const py = s => `<span style="color:#c8d3e0">${s}</span>`;
+
+  const items = [
+    {
+      label: 'GPU Compute Pools',
+      code: `${cm('-- Create a GPU compute pool')}\n${k('CREATE')} ${k('COMPUTE')} ${k('POOL')} ml_inference_pool\n  ${k('MIN_NODES')} ${p('=')} ${p('1')}\n  ${k('MAX_NODES')} ${p('=')} ${p('3')}\n  ${k('INSTANCE_FAMILY')} ${p('=')} ${id('GPU_NV_S')}\n  ${k('AUTO_SUSPEND_SECS')} ${p('=')} ${p('300')};\n\n${cm('-- GPU Instance Families (AWS us-east-1):')}\n${cm('-- GPU_NV_XS:  1× A10G,  16 GB RAM,  24 GB VRAM  — dev/test')}\n${cm('-- GPU_NV_S:   1× A10G,  32 GB RAM,  24 GB VRAM  — single-GPU inference')}\n${cm('-- GPU_NV_M:   4× A10G, 128 GB RAM,  96 GB VRAM  — multi-GPU / larger models')}\n${cm('-- GPU_NV_L:   8× A10G, 256 GB RAM, 192 GB VRAM  — LLM training / Mixtral / Llama 70B')}\n\n${cm('-- CPU pools also available for CPU-intensive containers:')}\n${cm('-- CPU_X64_XS / CPU_X64_S / CPU_X64_M / CPU_X64_L / CPU_X64_XL / HIGHMEM_X64_S/M/L')}\n\n${cm('-- Monitor pool status and billing')}\n${k('SHOW')} ${k('COMPUTE')} ${k('POOLS')};\n\n${k('SELECT')} compute_pool_name${p(',')}\n       instance_family${p(',')}\n       ${f('SUM')}${p('(')}credits_used${p(')')} ${k('AS')} credits\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('compute_pool_billing_history')}\n${k('WHERE')} start_time ${p('>')} ${f('DATEADD')}${p('(')}'day'${p(',')}-30${p(',')}'${id('CURRENT_TIMESTAMP')}'${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1,2')}\n${k('ORDER')} ${k('BY')} credits ${k('DESC')};`,
+      html: `<p><strong>GPU Compute Pools</strong> are the infrastructure layer for SPCS GPU workloads. Each pool is a set of NVIDIA GPU nodes that auto-suspend and auto-resume like virtual warehouses.</p>
+<ul>
+  <li><strong>GPU_NV_XS</strong>: 1 GPU, cheapest — use for development and light inference testing</li>
+  <li><strong>GPU_NV_S</strong>: 1 GPU with double the CPU/RAM — production single-GPU inference services</li>
+  <li><strong>GPU_NV_M</strong>: 4 GPUs, 96 GB VRAM — serve 7B–13B parameter models, multi-model serving</li>
+  <li><strong>GPU_NV_L</strong>: 8 GPUs, 192 GB VRAM — LLM training, Llama 70B, Mixtral 8x7B inference</li>
+</ul>
+<p>Pools auto-suspend after <code>AUTO_SUSPEND_SECS</code> of idle time and auto-resume when a service starts. Billed per node-second while active. Availability varies by cloud region.</p>`
+    },
+    {
+      label: 'ML Model Serving',
+      code: `${cm('-- 1. Push container image to Snowflake image registry')}\n${cm('--    docker push sfsenorthamerica-pmat-aws1.registry.snowflakecomputing.com/')}\n${cm('--    demo/public/images/my_model:v2')}\n\n${cm('-- 2. Create the service on a GPU pool')}\n${k('CREATE')} ${k('SERVICE')} ml.classifier_svc\n  ${k('IN')} ${k('COMPUTE')} ${k('POOL')} ml_inference_pool\n  ${k('FROM')} ${k('SPECIFICATION')} ${p('$$')}\n    spec:\n      containers:\n      ${p('-')} name: model\n        image: /demo/public/images/my_model:v2\n        resources:\n          requests: { nvidia.com/gpu: ${p('"1"')} }\n          limits:   { nvidia.com/gpu: ${p('"1"')} }\n      endpoints:\n      ${p('-')} name: predict\n        port: ${p('8080')}\n        public: false\n  ${p('$$')};\n\n${cm('-- 3. Expose as a SQL function')}\n${k('CREATE')} ${k('OR')} ${k('REPLACE')} ${k('FUNCTION')} ml.classify${p('(')}txt ${k('VARCHAR')}${p(')')}\n  ${k('RETURNS')} ${k('VARIANT')}\n  ${k('SERVICE')} ${p('=')} ml.classifier_svc\n  ${k('ENDPOINT')} ${p('=')} predict;\n\n${cm('-- 4. Call from SQL — no API key, no egress')}\n${k('SELECT')} review_id${p(',')} ml.classify${p('(')}review_text${p(')')} ${k('AS')} label\n${k('FROM')} customer_reviews\n${k('LIMIT')} ${p('1000')};`,
+      html: `<p>SPCS lets you deploy any containerized model as a <strong>persistent SQL-callable endpoint</strong> inside Snowflake. The model runs warm — no cold start per query — and is invoked via a service function just like a UDF.</p>
+<ul>
+  <li>Build and push your Docker image to Snowflake's private image registry (<code>snow://registry</code>). No external registry needed.</li>
+  <li>The service spec declares GPU requirements, ports, and environment. Snowflake schedules the container on your compute pool.</li>
+  <li><code>CREATE FUNCTION ... SERVICE = ... ENDPOINT = ...</code> makes the model callable from any SQL context</li>
+  <li>Private endpoints are SQL-only; public endpoints get a resolvable HTTPS URL for external callers</li>
+</ul>
+<p>Use cases: domain-specific classifiers, custom embedding models, vision models, fine-tuned LLMs you've built yourself. Your data never leaves the Snowflake security boundary.</p>`
+    },
+    {
+      label: 'Cortex Fine-Tuning',
+      code: `${cm('-- FINETUNE: fully managed LLM fine-tuning on your own data')}\n${cm('-- No GPU ops — Snowflake manages the infrastructure')}\n\n${cm('-- Training data must have: prompt + completion columns')}\n${k('CREATE')} ${k('TABLE')} training.support_examples ${k('AS')}\n${k('SELECT')}\n  ${str("'Summarize this support ticket: '")} ${p('||')} ticket_text ${k('AS')} prompt${p(',')}\n  summary ${k('AS')} completion\n${k('FROM')} support_tickets\n${k('WHERE')} human_verified ${p('=')} ${k('TRUE')}\n  ${k('AND')} ${f('LENGTH')}${p('(')}summary${p(')')} ${p('>')} ${p('20')};\n\n${cm('-- Start fine-tuning job (async)')}\n${k('SELECT')} ${f('SNOWFLAKE.CORTEX.FINETUNE')}${p('(')}\n  ${str("'CREATE'")}${p(',')}\n  ${str("'my_support_model'")}${p(',')}\n  ${str("'mistral-7b'")}${p(',')}\n  ${str("'SELECT prompt, completion FROM training.support_examples'")}${p(',')}\n  ${p('{')} ${str("'validation_data'")}${p(':')} ${str("'SELECT prompt, completion FROM training.validation_examples'")} ${p('}')}\n${p(')')};\n\n${cm('-- Check job status')}\n${k('SELECT')} ${f('SNOWFLAKE.CORTEX.FINETUNE')}${p('(')}\n  ${str("'DESCRIBE'")}${p(',')}\n  ${str("'my_support_model'")}\n${p(')')};\n\n${cm('-- Use fine-tuned model just like any Cortex model')}\n${k('SELECT')} ${f('SNOWFLAKE.CORTEX.COMPLETE')}${p('(')}\n  ${str("'my_support_model'")}${p(',')}\n  ${str("'Summarize this ticket: '")} ${p('||')} ticket_text\n${p(')')} ${k('AS')} summary\n${k('FROM')} new_tickets;`,
+      html: `<p><strong>Cortex Fine-Tuning</strong> is fully managed LLM customization — you provide a training table, pick a base model, and call <code>FINETUNE()</code>. Snowflake handles all GPU provisioning, training, and model storage.</p>
+<ul>
+  <li>Supported base models: <code>mistral-7b</code>, <code>mixtral-8x7b</code>, <code>llama3-8b</code>, <code>llama3-70b</code>, others</li>
+  <li>Training data format: a SELECT that returns <code>prompt</code> and <code>completion</code> columns. Standard SQL — no JSON schemas, no dataset upload.</li>
+  <li>Fine-tuned model is stored in your account and callable via <code>CORTEX.COMPLETE('my_model_name', ...)</code> — identical syntax to built-in models</li>
+  <li>Optional validation set for tracking loss; job runs async and you poll status with <code>FINETUNE('DESCRIBE', ...)</code></li>
+</ul>
+<p>Best for: domain-specific terminology, consistent output format, specialized tasks where the base model underperforms. Much cheaper than hosting a fine-tuned model on your own GPU — and zero infrastructure to manage.</p>`
+    },
+    {
+      label: 'Notebook Container Runtime',
+      code: `${cm('-- SQL: create and attach GPU pool to the notebook')}\n${k('CREATE')} ${k('COMPUTE')} ${k('POOL')} notebook_gpu\n  ${k('MIN_NODES')} ${p('=')} ${p('1')} ${k('MAX_NODES')} ${p('=')} ${p('1')}\n  ${k('INSTANCE_FAMILY')} ${p('=')} ${id('GPU_NV_S')};\n${cm('-- Then: Notebook → Settings → Runtime → Container Runtime → select pool')}\n\n${cm('# Verify GPU access in a Python cell')}\n${k('import')} ${id('torch')}\n${f('print')}${p('(')}${id('torch')}.${id('cuda')}.${f('is_available')}${p('()')}${p(')')}   ${cm('# True')}\n${f('print')}${p('(')}${id('torch')}.${id('cuda')}.${f('get_device_name')}${p('(0)')}${p(')')} ${cm('# NVIDIA A10G')}\n\n${cm('# Pull Snowflake data directly into the notebook')}\n${k('from')} ${id('snowflake')}.${id('snowpark')}.${id('context')} ${k('import')} ${f('get_active_session')}\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str("'my_db.ml.features'")}${p(')')}.${f('to_pandas')}${p('()')}\n\n${cm('# GPU-accelerated XGBoost training')}\n${k('import')} ${id('xgboost')} ${k('as')} ${id('xgb')}\n${id('model')} ${p('=')} ${id('xgb')}.${f('XGBClassifier')}${p('(')}tree_method${p('=')}${str("'gpu_hist'")}${p(')')}\n${id('model')}.${f('fit')}${p('(')}${id('X_train')}${p(',')} ${id('y_train')}${p(')')}\n\n${cm('# Log to Snowflake Model Registry')}\n${k('from')} ${id('snowflake')}.${id('ml')}.${id('registry')} ${k('import')} ${id('Registry')}\n${id('reg')} ${p('=')} ${id('Registry')}${p('(')}session${p('=')}${id('session')}${p(')')}\n${id('reg')}.${f('log_model')}${p('(')}${id('model')}${p(',')} model_name${p('=')}${str("'xgb_churn'")}${p(',')} version_name${p('=')}${str("'v1'")}${p(')')}`,
+      html: `<p><strong>Notebook Container Runtime</strong> gives data scientists an interactive GPU environment with direct access to Snowflake data — no data export, no separate ML platform, no SSH into EC2.</p>
+<ul>
+  <li>Attach a GPU compute pool to a Snowflake Notebook in Snowsight settings. The notebook runs in a container on that pool.</li>
+  <li>Full Python environment — install any package with <code>!pip install</code>. Pre-installed: PyTorch, XGBoost, scikit-learn, Snowpark ML, HuggingFace Transformers.</li>
+  <li><code>get_active_session()</code> gives a live Snowpark session — pull data directly from Snowflake tables into pandas or PyTorch DataLoaders without staging or exporting</li>
+  <li>After training, log the model to the Snowflake Model Registry with <code>Registry.log_model()</code> — version it, deploy it as a service, or call it from SQL</li>
+</ul>
+<p>This is the answer to "our data scientists use SageMaker Studio because they need GPU notebooks." Notebook Container Runtime puts the GPU next to the data, eliminating the extract-train-load cycle.</p>`
+    },
+    {
+      label: 'Distributed Training',
+      code: `${cm('# Install: pip install snowflake-ml-python')}\n${k('from')} ${id('snowflake')}.${id('ml')}.${id('jobs')} ${k('import')} ${id('MLJob')}\n${k('from')} ${id('snowflake')}.${id('snowpark')}.${id('context')} ${k('import')} ${f('get_active_session')}\n\n${cm('# Training function — runs on every worker node')}\n${k('def')} ${f('train_worker')}${p('()')}:\n    ${k('import')} ${id('torch')}.${id('distributed')} ${k('as')} ${id('dist')}\n    ${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n\n    ${cm('# Each worker pulls its own shard directly from Snowflake')}\n    ${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str("'ml.training_features'")}${p(')')}.${f('sample')}${p('(')}${p('0.25')}${p(')')}.${f('to_pandas')}${p('()')}\n\n    ${cm('# Standard PyTorch DDP — no Snowflake-specific changes needed')}\n    ${k('import')} ${id('torch')}\n    ${id('model')} ${p('=')} ${f('MyModel')}${p('()')}.${f('cuda')}${p('()')}\n    ${id('model')} ${p('=')} ${id('torch')}.${id('nn')}.${id('parallel')}.${f('DistributedDataParallel')}${p('(')}${id('model')}${p(')')}\n    ${cm('# ... train ...')}\n\n${cm('# Submit: 4 GPU nodes, each running train_worker()')}\n${id('job')} ${p('=')} ${id('MLJob')}.${f('create')}${p('(')}\n    compute_pool ${p('=')} ${str("'ml_pool_gpu_m'")}${p(',')}\n    num_instances ${p('=')} ${p('4')}${p(',')}\n    entry_point ${p('=')} ${id('train_worker')}${p(',')}\n    stage ${p('=')} ${str("'@ml.artifacts'")}\n${p(')')}\n${id('job')}.${f('wait')}${p('()')}\n${f('print')}${p('(')}${id('job')}.${id('status')}${p(')')}`,
+      html: `<p><strong>Distributed Training with MLJob</strong> (Snowpark ML) lets you run multi-node GPU training jobs across a Snowflake compute pool — without managing distributed infrastructure yourself.</p>
+<ul>
+  <li>Submit a Python training function as an MLJob with <code>num_instances</code> — Snowflake launches that many container replicas and wires them together for distributed training</li>
+  <li>Each worker has direct Snowpark session access to Snowflake tables — data sharding happens in SQL, not in a distributed file system</li>
+  <li>Compatible with PyTorch DDP, Horovod, and Ray — standard distributed training frameworks work unchanged</li>
+  <li>Results (model artifacts, checkpoints) are written to Snowflake stages or the Model Registry, keeping everything inside the security boundary</li>
+</ul>
+<p>Use for: training models larger than fit on a single GPU node, reducing training time on large datasets by parallelizing across nodes, or fine-tuning LLMs on proprietary data with more control than <code>FINETUNE()</code> allows.</p>`
+    },
+    {
+      label: 'Snowpark-Optimized',
+      code: `${cm('-- Snowpark-Optimized: 16× RAM, CPU-based')}\n${cm('-- The right first step before going to full GPU SPCS')}\n\n${k('CREATE')} ${k('WAREHOUSE')} heavy_python_wh\n  ${k('WAREHOUSE_SIZE')} ${p('=')} ${k('MEDIUM')}\n  ${k('WAREHOUSE_TYPE')} ${p('=')} ${str("'SNOWPARK-OPTIMIZED'")}\n  ${k('AUTO_SUSPEND')} ${p('=')} ${p('120')};\n\n${cm('-- Memory per node by size:')}\n${cm('-- Standard XL:             32 GB')}\n${cm('-- Snowpark-Optimized XL:  512 GB  (16×)')}\n\n${cm('-- Use for: training ML models in vectorized Python UDFs')}\n${k('CREATE')} ${k('OR')} ${k('REPLACE')} ${k('FUNCTION')} ml.train_segment_model${p('(')}df ${id('DATAFRAME')}${p(')')}\n${k('RETURNS')} ${id('DATAFRAME')}\n${k('LANGUAGE')} ${k('PYTHON')}\n${k('RUNTIME_VERSION')} ${p('=')} ${str("'3.11'")}\n${k('HANDLER')} ${p('=')} ${str("'train_and_return_metrics'")}\n${k('PACKAGES')} ${p('=')} ${p('(')}'xgboost'${p(',')}'scikit-learn'${p(',')}'pandas'${p(')')};\n\n${cm('-- Run on Snowpark-Optimized to hold large feature matrices in memory')}\n${k('USE')} ${k('WAREHOUSE')} heavy_python_wh;\n\n${k('SELECT')} ${p('*')} ${k('FROM')} ${f('TABLE')}${p('(')}\n  ml.train_segment_model${p('(')}${k('TABLE')}${p('(')}ml.features${p(')')})${p(')')};`,
+      html: `<p><strong>Snowpark-Optimized Warehouses</strong> are CPU-based but provide 16× more RAM per node than standard warehouses. They're the right choice when Python UDFs or ML training run out of memory — before resorting to full GPU SPCS containers.</p>
+<ul>
+  <li>A Snowpark-Optimized Medium has 256 GB RAM vs 16 GB on a standard Medium. XL has 512 GB.</li>
+  <li>Declare with <code>WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED'</code> — same SQL, same auto-suspend/resume behavior as standard warehouses</li>
+  <li>Use when: XGBoost/sklearn training on large feature matrices, vectorized Python UDFs that load large lookup tables or model artifacts, heavy Snowpark DataFrame operations</li>
+  <li>Not GPU-accelerated — if you need <code>torch.cuda</code> or RAPIDS cuDF, you need SPCS GPU pools</li>
+</ul>
+<p>Decision guide: OOM errors in Python UDFs → try Snowpark-Optimized first. If still slow/OOM, or need CUDA → move to SPCS GPU compute pool.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.gpu-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('gpu-code').innerHTML = items[i].code;
+    document.getElementById('gpu-explain').innerHTML = `<h4>${items[i].label}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

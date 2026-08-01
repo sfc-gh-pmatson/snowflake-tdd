@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Data Engineering — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 2px; }
+
+    .de-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Tab switcher ───────────────────────────────────── */
+    .de-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      border-radius: 100px;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .de-tab {
+      padding: 6px 20px;
+      border-radius: 100px;
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.45);
+      transition: background .18s, color .18s;
+      white-space: nowrap;
+    }
+    .de-tab.active {
+      background: var(--sf-blue);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(41,181,232,.4);
+    }
+    .de-tab:not(.active):hover { color: rgba(255,255,255,.75); background: rgba(41,181,232,.12); }
+
+    /* ── Tab content panels ──────────────────────────────── */
+    .de-panel-wrap { width: 100%; max-width: 900px; flex-shrink: 0; }
+    .de-tab-panel { display: none; }
+    .de-tab-panel.active { display: block; }
+
+    /* ── Feature cards ──────────────────────────────────── */
+    .de-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+    }
+    .de-card {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+      text-decoration: none;
+    }
+    .de-card:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .de-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .de-card-head { display: flex; align-items: center; gap: 10px; }
+    .de-card-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .de-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .de-card-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.55); line-height: 1.45; }
+    .de-card-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .de-chip {
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.2);
+      color: var(--sf-blue);
+    }
+    .de-card-deepdive { font-size: 9px; font-weight: 700; color: var(--sf-blue); letter-spacing: .3px; }
+
+    /* ── Overlay modal ───────────────────────────────────── */
+    .de-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .de-overlay.open { display: flex; }
+    .de-modal {
+      background: var(--sf-navy);
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 820px; max-width: 92vw; max-height: 74vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .de-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; background: var(--sf-blue); flex-shrink: 0;
+    }
+    .de-modal-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; }
+    .de-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .de-modal-close:hover { background: rgba(255,255,255,.35); }
+    .de-modal-body { flex: 1; overflow-y: auto; padding: 0; background: var(--sf-navy); }
+    .de-modal-text-section {
+      background: #fff;
+      color: var(--sf-ink);
+      padding: 13px 22px;
+      font-size: var(--fs-h5);
+      line-height: 1.7;
+    }
+    .de-modal-text-section b { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/dynamic-tables-intro',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Data Engineering</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Platform</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Engineering on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;">Ingest from any source, transform declaratively, orchestrate without external tools — one engine, one platform, zero data movement.</div>
+        </div>
+
+        <div class="de-page content-wrap">
+
+          <!-- Tab switcher -->
+          <div class="de-tabs">
+            <button class="de-tab active" onclick="switchTab('ingest')">Ingestion</button>
+            <button class="de-tab" onclick="switchTab('transform')">Transformation &amp; Pipelines</button>
+          </div>
+
+          <div class="de-panel-wrap">
+
+            <!-- ══ Ingestion tab ══ -->
+            <div class="de-tab-panel active" id="tab-ingest">
+              <div class="de-cards">
+
+                <div class="de-card" data-fn="copy-into">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">COPY INTO</div>
+                  </div>
+                  <div class="de-card-desc">Bulk-load files from internal or external stages into Snowflake tables. Supports CSV, JSON, Parquet, Avro, ORC, and XML. Transform data on load, validate before committing, and track load history to prevent duplicates.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">Bulk load</span>
+                    <span class="de-chip">Multi-format</span>
+                    <span class="de-chip">Load history</span>
+                  </div>
+                </div>
+
+                <div class="de-card" data-fn="snowpipe">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-pipe" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Snowpipe</div>
+                  </div>
+                  <div class="de-card-desc">Serverless, event-driven file ingestion from cloud storage. Create a pipe with AUTO_INGEST — files land in S3, Azure Blob, or GCS and are automatically loaded the moment they arrive.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">AUTO_INGEST</span>
+                    <span class="de-chip">S3 · Azure · GCS</span>
+                    <span class="de-chip">Serverless</span>
+                  </div>
+                </div>
+
+                <div class="de-card" data-fn="openflow">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-connected" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Openflow</div>
+                  </div>
+                  <div class="de-card-desc">Snowflake-native data integration built on Apache NiFi. 200+ pre-built connectors for databases, SaaS, files, and APIs — with full CDC support from Oracle, MySQL, SQL Server, and Postgres. No-code pipeline builder, runs on SPCS.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">200+ connectors</span>
+                    <span class="de-chip">CDC</span>
+                    <span class="de-chip">No-code</span>
+                    <span class="de-chip">NiFi-based</span>
+                  </div>
+                </div>
+
+                <div class="de-card" data-fn="streaming">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-data-eng" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Snowpipe Streaming</div>
+                  </div>
+                  <div class="de-card-desc">Sub-second, row-level ingestion via SDK — no staging files required. Push rows directly into Snowflake channels and query them within milliseconds of commit. Built for Kafka, CDC, and IoT workloads.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">Sub-second</span>
+                    <span class="de-chip">Channels</span>
+                    <span class="de-chip">Kafka · CDC · IoT</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ══ Transformation & Pipelines tab ══ -->
+            <div class="de-tab-panel" id="tab-transform">
+              <div class="de-cards">
+
+                <div class="de-card" data-fn="dynamic-tables">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-dynamic-tables" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Dynamic Tables</div>
+                  </div>
+                  <div class="de-card-desc">The declarative pipeline primitive — write a SELECT query, set a TARGET_LAG, and Snowflake handles scheduling, dependency tracking, and incremental refresh. Chain tables to build multi-step pipelines in pure SQL.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">Declarative</span>
+                    <span class="de-chip">TARGET_LAG</span>
+                    <span class="de-chip">INCREMENTAL</span>
+                  </div>
+                </div>
+
+                <div class="de-card" data-fn="streams-tasks">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-streams" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Streams &amp; Tasks</div>
+                  </div>
+                  <div class="de-card-desc">Streams capture row-level change data (inserts, updates, deletes) on any table. Tasks trigger SQL or Snowpark execution on a schedule or when a stream has data — chain tasks with AFTER to build DAGs without an external orchestrator.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">CDC</span>
+                    <span class="de-chip">DAGs</span>
+                    <span class="de-chip">Event-driven</span>
+                    <span class="de-chip">Serverless</span>
+                  </div>
+                </div>
+
+                <div class="de-card" data-fn="dbt">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-data-mesh" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">dbt in Snowflake</div>
+                  </div>
+                  <div class="de-card-desc">Run dbt projects as native Snowflake objects — no external orchestration or dbt Cloud subscription needed. Deploy with <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snow dbt</code>, schedule with Tasks, and execute with a single SQL statement.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">EXECUTE DBT PROJECT</span>
+                    <span class="de-chip">snow dbt deploy</span>
+                    <span class="de-chip">Task-scheduled</span>
+                  </div>
+                </div>
+
+                <a class="de-card" href="./snowpark.html">
+                  <div class="de-card-head">
+                    <div class="de-card-icon">
+                      <span class="sf-img sf-icon-python" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                    </div>
+                    <div class="de-card-title">Snowpark</div>
+                  </div>
+                  <div class="de-card-desc">Write DataFrame transformation pipelines in Python, Java, or Scala — running on Snowflake compute with no data leaving the platform. Build UDFs, UDTFs, and stored procedures natively.</div>
+                  <div class="de-card-chips">
+                    <span class="de-chip">Python</span>
+                    <span class="de-chip">Java / Scala</span>
+                    <span class="de-chip">No data movement</span>
+                  </div>
+                  <div class="de-card-deepdive">Deep dive &#x2192;</div>
+                </a>
+
+              </div>
+            </div>
+
+          </div><!-- /de-panel-wrap -->
+
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="de-overlay" id="de-overlay">
+    <div class="de-modal">
+      <div class="de-modal-header">
+        <span class="de-modal-title" id="de-modal-title"></span>
+        <button class="de-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="de-modal-body">
+        <div id="de-modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Tab switching ─────────────────────────────────────────────────── */
+    function switchTab(name) {
+      document.querySelectorAll('.de-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.de-tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+      document.getElementById(`tab-${name}`).classList.add('active');
+      closeModal();
+    }
+
+    /* ── Syntax helpers ───────────────────────────────────────────────── */
+    const k  = s => `<span class="code-kw">${s}</span>`;
+    const f  = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p  = s => `<span class="code-punc">${s}</span>`;
+    const n  = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    /* ── Modal content ────────────────────────────────────────────────── */
+    const PANELS = {
+
+      snowpipe: {
+        title: 'Snowpipe — Event-Driven File Ingestion',
+        body: `${cm('-- ── 1. Create a stage pointing at the cloud storage bucket ─────────')}
+${k('CREATE OR REPLACE STAGE')} ${id('raw_events_stage')}
+  ${id('URL')} ${p('=')} ${str("'s3://my-data-bucket/events/'")}
+  ${id('CREDENTIALS')} ${p('=')} ${p('(')}${id('AWS_ROLE')} ${p('=')} ${str("'arn:aws:iam::123456:role/sf-role'")}${p(')')}
+  ${id('FILE_FORMAT')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${id('JSON')} ${id('STRIP_OUTER_ARRAY')} ${p('=')} ${k('TRUE')}${p(')')}${p(';')}
+
+${cm('-- ── 2. Create the pipe with AUTO_INGEST ─────────────────────────────')}
+${cm('--    Snowflake configures an SQS notification on the S3 bucket.')}
+${cm('--    Files arriving in the prefix are loaded within ~1 minute.')}
+${k('CREATE OR REPLACE PIPE')} ${id('events_pipe')}
+  ${id('AUTO_INGEST')} ${p('=')} ${k('TRUE')}
+${k('AS')}
+  ${k('COPY INTO')} ${id('raw')}${p('.')}${id('events')}
+  ${k('FROM')} ${p('(')}${k('SELECT')} ${f('METADATA')}${p('$')}${id('FILENAME')}${p(',')} ${p('$')}${n('1')} ${k('FROM')} ${id('@raw_events_stage')}${p(')')}
+  ${id('FILE_FORMAT')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${id('JSON')}${p(')')}${p(';')}
+
+${cm('-- ── 3. Wire up the SQS ARN returned by SHOW PIPES to the S3 bucket ──')}
+${k('SHOW PIPES')} ${k('LIKE')} ${str("'events_pipe'")}${p(';')}
+${cm('-- Copy notification_channel value → S3 bucket Event Notifications')}
+
+${cm('-- ── 4. Monitor pipe status and backlog ───────────────────────────────')}
+${k('SELECT')} ${f('SYSTEM$PIPE_STATUS')}${p('(')}${str("'events_pipe'")}${p(')')}${p(';')}
+
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('TABLE')}${p('(')}${f('INFORMATION_SCHEMA.COPY_HISTORY')}${p('(')}
+  ${id('TABLE_NAME')} ${p('=>')} ${str("'raw.events'")}${p(',')}
+  ${id('START_TIME')} ${p('=>')} ${f('DATEADD')}${p('(')}${str("'hour'")}${p(',')} ${p('-')}${n('1')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p('()')}${p(')')}
+${p(')')}${p(')')}
+${k('ORDER BY')} ${id('last_load_time')} ${k('DESC')}${p(';')}`
+      },
+
+      streaming: {
+        title: 'Snowpipe Streaming — Sub-Second Row Ingestion',
+        body: `${cm('-- Snowpipe Streaming bypasses staging files entirely.')}
+${cm('-- Rows land in Snowflake via channels — queryable within milliseconds.')}
+${cm('-- Used by Kafka Connector, CDC pipelines, and real-time IoT workloads.')}
+
+${cm('# ── Python SDK ─────────────────────────────────────────────────────────')}
+${k('from')} ${id('snowflake.ingest')} ${k('import')} ${id('SnowflakeStreamingIngestClient')}
+
+${cm('# Create client — uses key-pair or OAuth credentials from conn_params')}
+${id('client')} ${p('=')} ${f('SnowflakeStreamingIngestClient')}${p('(')}${str("'my_ingest_client'")}${p(', ')}${id('conn_params')}${p(')')}
+
+${cm('# Open a channel — one per producer thread is recommended')}
+${id('channel')} ${p('=')} ${id('client')}${p('.')}${f('open_channel')}${p('(')}
+    ${id('channel_name')}${p('=')}${str("'events_ch_001'")}${p(', ')}${id('database')}${p('=')}${str("'RAW'")}${p(',')}
+    ${id('schema')}${p('=')}${str("'PUBLIC'")}${p(', ')}${id('table')}${p('=')}${str("'EVENTS'")}\n${p(')')}
+
+${cm('# Insert rows — committed atomically, visible to queries immediately')}
+${id('response')} ${p('=')} ${id('channel')}${p('.')}${f('insert_rows')}${p('([')}
+    ${p('{')}${str("'event_id'")}${p(': ')}${str("'e-001'")}${p(', ')}${str("'user_id'")}${p(': ')}${n('42')}${p(', ')}${str("'event'")}${p(': ')}${str("'page_view'")}${p(', ')}${str("'ts'")}${p(': ')}${str("'2026-07-31T10:00:00Z'")}${p('}')}${p(',')}
+    ${p('{')}${str("'event_id'")}${p(': ')}${str("'e-002'")}${p(', ')}${str("'user_id'")}${p(': ')}${n('17')}${p(', ')}${str("'event'")}${p(': ')}${str("'click'")}${p(', ')}           ${str("'ts'")}${p(': ')}${str("'2026-07-31T10:00:01Z'")}${p('}')}
+${p('])')}
+
+${cm('# Offset token for exactly-once delivery guarantees')}
+${f('print')}${p('(')}${str("'Committed offset:'")}${p(', ')}${id('response')}${p('.')}${f('get_offsetToken')}${p('()')}${p(')')}
+${id('channel')}${p('.')}${f('close')}${p('()')}
+
+${cm('-- ── Monitor streaming channel lag in SQL ────────────────────────────')}
+${k('SELECT')} ${id('channel_name')}${p(',')} ${id('committed_offset')}${p(',')} ${id('lag_seconds')}
+${k('FROM')} ${id('INFORMATION_SCHEMA')}${p('.')}${id('STREAMING_CHANNELS')}
+${k('WHERE')} ${id('table_name')} ${p('=')} ${str("'EVENTS'")}
+${k('ORDER BY')} ${id('lag_seconds')} ${k('DESC')}${p(';')}`
+      },
+
+      openflow: {
+        title: 'Openflow — Snowflake-Native Data Integration',
+        mixed: true,
+        body: `<div class="de-modal-text-section">Openflow is Snowflake&apos;s managed integration platform (built on Apache NiFi). Configured via Snowsight UI or the Snowflake REST API. Connectors run on SPCS &mdash; no infrastructure to manage.</div><div class="mlf-code-block" style="border-radius:0;padding:12px 22px;">${cm('-- ── Set up a CDC connector for MySQL → Snowflake')}
+${cm('-- 1. Create a compute pool for Openflow (one time):')}
+${k('CREATE COMPUTE POOL')} ${id('OPENFLOW_POOL')}
+  ${id('MIN_NODES')} ${p('=')} ${n('1')}  ${id('MAX_NODES')} ${p('=')} ${n('3')}
+  ${id('INSTANCE_FAMILY')} ${p('=')} ${id('CPU_X64_S')}${p(';')}</div><div class="de-modal-text-section"><b>In Snowsight:</b> Data &rarr; Pipelines &rarr; Openflow<br>Select connector type: <b>MySQL CDC</b><br>Configure source: host, port, database, credentials<br>Configure target: Snowflake database / schema<br>Openflow creates the connector service and starts replicating</div><div class="mlf-code-block" style="border-radius:0;padding:12px 22px;">${cm('-- ── Monitor connector status ─────────────────────────────────────────')}
+${k('SHOW')} ${id('OPENFLOW CONNECTORS')}${p(';')}
+${cm('-- Returns: name, status, source type, target, last run, error (if any)')}
+
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('OPENFLOW')}${p('.')}${id('INFORMATION_SCHEMA')}${p('.')}${id('CONNECTOR_METRICS')}
+${k('WHERE')} ${id('connector_name')} ${p('=')} ${str("'mysql_cdc_connector'")}
+${k('ORDER BY')} ${id('metric_time')} ${k('DESC')} ${k('LIMIT')} ${n('20')}${p(';')}</div><div class="de-modal-text-section"><b>Databases:</b> MySQL, PostgreSQL, Oracle, SQL Server, MongoDB, DB2<br><b>SaaS:</b> Salesforce, Workday, SAP, ServiceNow, NetSuite, HubSpot<br><b>Files:</b> S3, Azure Blob, GCS, SFTP, FTP, SharePoint<br><b>Streaming:</b> Kafka, Kinesis, Event Hubs, Pub/Sub<br><b>APIs:</b> REST, SOAP, GraphQL (custom flows)<br><br>CDC modes: Log-based (binlog / redo log) or timestamp-based polling<br>Schema evolution: auto-detects and propagates column changes</div>`
+      },
+
+      'copy-into': {
+        title: 'COPY INTO — Bulk File Loading',
+        body: `${cm('-- ── Load CSV from an internal stage ────────────────────────────────')}
+${k('COPY INTO')} ${id('raw')}${p('.')}${id('orders')}
+${k('FROM')} ${id('@my_stage/orders/')}
+${id('FILE_FORMAT')} ${p('=')} ${p('(')}
+  ${id('TYPE')} ${p('=')} ${id('CSV')}
+  ${id('SKIP_HEADER')} ${p('=')} ${n('1')}
+  ${id('FIELD_OPTIONALLY_ENCLOSED_BY')} ${p('=')} ${str("'\"'")}
+  ${id('DATE_FORMAT')} ${p('=')} ${str("'YYYY-MM-DD'")}
+  ${id('NULL_IF')} ${p('=')} ${p('(')}${str("'NULL'")}${p(',')} ${str("''")}${p(')')}
+${p(')')}
+${id('ON_ERROR')} ${p('=')} ${id('SKIP_FILE')}${p(';')}
+
+${cm('-- ── Load Parquet from S3 with a transformation ──────────────────────')}
+${k('COPY INTO')} ${id('raw')}${p('.')}${id('events')}${p('(')}${id('event_id')}${p(',')} ${id('user_id')}${p(',')} ${id('event_type')}${p(',')} ${id('ts')}${p(')')}
+${k('FROM')} ${p('(')}
+  ${k('SELECT')}
+    ${p('$')}${n('1')}${p(':')}${id('event_id')}${p('::VARCHAR')}${p(',')}
+    ${p('$')}${n('1')}${p(':')}${id('user_id')}${p('::NUMBER')}${p(',')}
+    ${f('UPPER')}${p('(')}${p('$')}${n('1')}${p(':')}${id('event_type')}${p('::VARCHAR')}${p(')')}${p(',')}
+    ${p('$')}${n('1')}${p(':')}${id('ts')}${p('::TIMESTAMP_NTZ')}
+  ${k('FROM')} @s3_stage/${id('events/')}
+${p(')')}
+${id('FILE_FORMAT')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${id('PARQUET')}${p(')')}${p(';')}
+
+${cm('-- ── Validate before committing (VALIDATION_MODE) ────────────────────')}
+${k('COPY INTO')} ${id('raw')}${p('.')}${id('orders')}
+${k('FROM')} ${id('@my_stage')}
+${id('FILE_FORMAT')} ${p('=')} ${p('(')}${id('TYPE')} ${p('=')} ${id('CSV')} ${id('SKIP_HEADER')} ${p('=')} ${n('1')}${p(')')}
+${id('VALIDATION_MODE')} ${p('=')} ${id('RETURN_ERRORS')}${p(';')}
+${cm('-- Returns all rows that would fail — nothing is written to the table')}
+
+${cm('-- ── Check load history to avoid duplicates ───────────────────────────')}
+${k('SELECT')} ${id('file_name')}${p(',')} ${id('status')}${p(',')} ${id('rows_loaded')}${p(',')} ${id('last_load_time')}
+${k('FROM')} ${id('TABLE')}${p('(')}${f('INFORMATION_SCHEMA.LOAD_HISTORY')}${p('(')}
+  ${id('TABLE_NAME')} ${p('=>')} ${str("'RAW.ORDERS'")}
+${p(')')}${p(')')}
+${k('ORDER BY')} ${id('last_load_time')} ${k('DESC')} ${k('LIMIT')} ${n('10')}${p(';')}`
+      },
+
+      'dynamic-tables': {
+        title: 'Dynamic Tables — Declarative Pipelines',
+        body: `${cm('-- ── Build a 3-layer pipeline — each table is a SELECT, nothing else ──')}
+
+${cm('-- Layer 1: Clean raw events (refresh every 2 minutes)')}
+${k('CREATE OR REPLACE DYNAMIC TABLE')} ${id('dt_events_clean')}
+  ${id('TARGET_LAG')} ${p('=')} ${str("'2 minutes'")}
+  ${id('WAREHOUSE')}  ${p('=')} ${id('transform_wh')}
+  ${id('REFRESH_MODE')} ${p('=')} ${id('INCREMENTAL')}
+${k('AS')}
+${k('SELECT')}
+  ${id('event_id')}${p(',')} ${id('user_id')}${p(',')}
+  ${f('UPPER')}${p('(')}${id('event_type')}${p(')')} ${k('AS')} ${id('event_type')}${p(',')}
+  ${id('ts')} ${k('AS')} ${id('event_at')}
+${k('FROM')} ${id('raw')}${p('.')}${id('events')}
+${k('WHERE')} ${id('event_id')} ${k('IS NOT NULL')}${p(';')}
+
+${cm('-- Layer 2: Enrich with user attributes (refresh every 5 min)')}
+${k('CREATE OR REPLACE DYNAMIC TABLE')} ${id('dt_events_enriched')}
+  ${id('TARGET_LAG')} ${p('=')} ${str("'5 minutes'")}
+  ${id('WAREHOUSE')}  ${p('=')} ${id('transform_wh')}
+  ${id('REFRESH_MODE')} ${p('=')} ${id('INCREMENTAL')}
+${k('AS')}
+${k('SELECT')} ${id('e')}${p('.*')}${p(',')} ${id('u')}${p('.')}${id('country')}${p(',')} ${id('u')}${p('.')}${id('plan_tier')}
+${k('FROM')} ${id('dt_events_clean')} ${id('e')}
+  ${k('JOIN')} ${id('dim_users')} ${id('u')} ${k('ON')} ${id('e')}${p('.')}${id('user_id')} ${p('=')} ${id('u')}${p('.')}${id('id')}${p(';')}
+
+${cm('-- Layer 3: Daily KPI aggregate (DOWNSTREAM = only when needed)')}
+${k('CREATE OR REPLACE DYNAMIC TABLE')} ${id('dt_kpis_daily')}
+  ${id('TARGET_LAG')} ${p('=')} ${id('DOWNSTREAM')}
+  ${id('WAREHOUSE')}  ${p('=')} ${id('transform_wh')}
+${k('AS')}
+${k('SELECT')}
+  ${f('DATE_TRUNC')}${p('(')}${str("'day'")}${p(',')} ${id('event_at')}${p(')')} ${k('AS')} ${id('day')}${p(',')}
+  ${id('event_type')}${p(',')} ${id('country')}${p(',')} ${id('plan_tier')}${p(',')}
+  ${f('COUNT_DISTINCT')}${p('(')}${id('user_id')}${p(')')} ${k('AS')} ${id('dau')}
+${k('FROM')} ${id('dt_events_enriched')}
+${k('GROUP BY')} ${n('1')}${p(',')} ${n('2')}${p(',')} ${n('3')}${p(',')} ${n('4')}${p(';')}
+
+${cm('-- Monitor the pipeline DAG and freshness')}
+${k('SELECT')} ${id('name')}${p(',')} ${id('state')}${p(',')} ${id('target_lag_sec')}${p(',')} ${id('last_completed_refresh')}
+${k('FROM')} ${id('INFORMATION_SCHEMA')}${p('.')}${id('DYNAMIC_TABLES')}
+${k('WHERE')} ${id('name')} ${k('LIKE')} ${str("'DT_%'")} ${k('ORDER BY')} ${id('name')}${p(';')}`
+      },
+
+      'streams-tasks': {
+        title: 'Streams & Tasks — CDC + DAG Orchestration',
+        body: `${cm('-- ── Stream: capture every change (insert / update / delete) ─────────')}
+${k('CREATE OR REPLACE STREAM')} ${id('orders_cdc')}
+  ${k('ON TABLE')} ${id('raw')}${p('.')}${id('orders')}
+  ${id('APPEND_ONLY')} ${p('=')} ${k('FALSE')}${p(';')}
+${cm('-- Adds system columns: METADATA$ACTION, METADATA$ISUPDATE, METADATA$ROW_ID')}
+
+${cm('-- ── Task 1: process stream when data arrives ──────────────────────────')}
+${k('CREATE OR REPLACE TASK')} ${id('process_orders')}
+  ${id('WAREHOUSE')}  ${p('=')} ${id('transform_wh')}
+  ${id('SCHEDULE')}   ${p('=')} ${str("'1 MINUTE'")}
+  ${k('WHEN')} ${f('SYSTEM$STREAM_HAS_DATA')}${p('(')}${str("'orders_cdc'")}${p(')')}
+${k('AS')}
+  ${k('MERGE INTO')} ${id('curated')}${p('.')}${id('orders')} ${id('t')}
+  ${k('USING')} ${id('orders_cdc')} ${id('s')} ${k('ON')} ${id('t')}${p('.')}${id('order_id')} ${p('=')} ${id('s')}${p('.')}${id('order_id')}
+  ${k('WHEN MATCHED AND')} ${id('s')}${p('.')}${id('METADATA')}${p('$')}${id('ACTION')} ${p('=')} ${str("'DELETE'")} ${k('THEN DELETE')}
+  ${k('WHEN MATCHED')} ${k('THEN UPDATE SET')} ${id('t')}${p('.')}${id('status')} ${p('=')} ${id('s')}${p('.')}${id('status')}${p(',')} ${id('t')}${p('.')}${id('updated_at')} ${p('=')} ${id('s')}${p('.')}${id('updated_at')}
+  ${k('WHEN NOT MATCHED AND')} ${id('s')}${p('.')}${id('METADATA')}${p('$')}${id('ACTION')} ${p('=')} ${str("'INSERT'")} ${k('THEN INSERT')}
+    ${p('(')}${id('order_id')}${p(',')} ${id('customer_id')}${p(',')} ${id('total')}${p(',')} ${id('status')}${p(',')} ${id('created_at')}${p(')')}
+    ${k('VALUES')} ${p('(')}${id('s')}${p('.')}${id('order_id')}${p(',')} ${id('s')}${p('.')}${id('customer_id')}${p(',')} ${id('s')}${p('.')}${id('total')}${p(',')} ${id('s')}${p('.')}${id('status')}${p(',')} ${id('s')}${p('.')}${id('created_at')}${p(')')}${p(';')}
+
+${cm('-- ── Task 2: aggregate daily revenue — runs AFTER Task 1 (DAG) ────────')}
+${k('CREATE OR REPLACE TASK')} ${id('aggregate_revenue')}
+  ${id('WAREHOUSE')} ${p('=')} ${id('transform_wh')}
+  ${id('AFTER')} ${id('process_orders')}
+${k('AS')}
+  ${k('INSERT INTO')} ${id('analytics')}${p('.')}${id('revenue_daily')}
+  ${k('SELECT')} ${f('DATE_TRUNC')}${p('(')}${str("'day'")}${p(',')} ${id('created_at')}${p(')')}${p(',')} ${f('SUM')}${p('(')}${id('total')}${p(')')}
+  ${k('FROM')} ${id('curated')}${p('.')}${id('orders')} ${k('WHERE')} ${f('DATE')}${p('(')}${id('created_at')}${p(')')} ${p('=')} ${f('CURRENT_DATE')}
+  ${k('GROUP BY')} ${n('1')}${p(';')}
+
+${cm('-- ── Resume tasks (root first) ────────────────────────────────────────')}
+${k('ALTER TASK')} ${id('aggregate_revenue')} ${k('RESUME')}${p(';')}
+${k('ALTER TASK')} ${id('process_orders')} ${k('RESUME')}${p(';')}`
+      },
+
+      dbt: {
+        title: 'dbt in Snowflake — Native dbt Projects',
+        body: `${cm('-- dbt projects run as native Snowflake objects — no dbt Cloud needed.')}
+${cm('-- Deploy from the Snowflake CLI, execute via SQL, schedule with Tasks.')}
+${cm('')}
+${cm('# ── Deploy from your local project ───────────────────────────────────')}
+${cm('# snow dbt deploy --project-name analytics_project \\')}
+${cm('#   --connection prod \\')}
+${cm('#   --database ANALYTICS_DB --schema DBT_PROJECTS')}
+${cm('')}
+${cm('-- ── Run the project: select specific models ──────────────────────────')}
+${k('EXECUTE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}
+  ${id('ARGS')} ${p('=')} ${str("'run --select staging+ --target prod'")}${p(';')}
+
+${cm('-- ── Run with environment override ───────────────────────────────────')}
+${k('EXECUTE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}
+  ${id('ARGS')} ${p('=')} ${str("'run --target prod'")}
+  ${id('ENVIRONMENT')} ${p('=')} ${str("'production'")}
+  ${id('ENV_VARS')} ${p('=')} ${p('(')}${str("'DBT_DATABASE'")} ${p('=')} ${str("'ANALYTICS_DB_PROD'")}${p(')')}${p(';')}
+
+${cm('-- ── Test the project ─────────────────────────────────────────────────')}
+${k('EXECUTE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}
+  ${id('ARGS')} ${p('=')} ${str("'test --select staging --target prod'")}${p(';')}
+
+${cm('-- ── Schedule with a Snowflake Task (6-hour cadence) ─────────────────')}
+${k('CREATE OR ALTER TASK')} ${id('run_analytics_dbt')}
+  ${id('WAREHOUSE')} ${p('=')} ${id('transform_wh')}
+  ${id('SCHEDULE')}  ${p('=')} ${str("'6 HOURS'")}
+${k('AS')}
+  ${k('EXECUTE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}
+    ${id('ARGS')} ${p('=')} ${str("'run --target prod'")}${p(';')}
+
+${k('CREATE OR ALTER TASK')} ${id('test_analytics_dbt')}
+  ${id('WAREHOUSE')} ${p('=')} ${id('transform_wh')}
+  ${id('AFTER')} ${id('run_analytics_dbt')}
+${k('AS')}
+  ${k('EXECUTE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}
+    ${id('ARGS')} ${p('=')} ${str("'test --target prod'")}${p(';')}
+
+${cm('-- ── Manage the project object ────────────────────────────────────────')}
+${k('SHOW DBT PROJECTS')} ${k('IN SCHEMA')} ${id('ANALYTICS_DB.DBT_PROJECTS')}${p(';')}
+${k('DESCRIBE DBT PROJECT')} ${id('ANALYTICS_DB.DBT_PROJECTS.ANALYTICS_PROJECT')}${p(';')}`
+      }
+    };
+
+    function showModal(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('de-modal-title').textContent = data.title;
+      const bodyEl = document.getElementById('de-modal-body');
+      bodyEl.innerHTML = data.mixed
+        ? data.body
+        : `<div class="mlf-code-block" style="border-radius:0;padding:18px 22px;">${data.body}</div>`;
+      document.getElementById('de-overlay').classList.add('open');
+      document.querySelectorAll('.de-card[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+    function closeModal() {
+      document.getElementById('de-overlay').classList.remove('open');
+      document.querySelectorAll('.de-card').forEach(c => c.classList.remove('active'));
+    }
+    document.querySelectorAll('.de-card[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showModal(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('de-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+  </script>
+
+</body>
+</html>

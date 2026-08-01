@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Access Control &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hac-page {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6px 16px 10px; min-height: 0;
+    }
+    .hac-grid {
+      width: 100%; max-width: 900px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .hac-card {
+      background: #fff; border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .hac-card-head {
+      padding: 10px 14px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .hac-card-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; margin-bottom: 2px;
+    }
+    .hac-card-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-navy); }
+    .hac-card-sub   { font-size: var(--fs-h6); color: rgba(5,13,26,.6); line-height: 1.4; }
+    .hac-card-body  {
+      padding: 10px 14px; flex: 1;
+      background: rgba(5,13,26,.02); border-top: 1px solid rgba(5,13,26,.08);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .hac-fact { font-size: var(--fs-h6); color: rgba(5,13,26,.7); line-height: 1.45; }
+    .hac-code {
+      margin-top: 6px; padding: 7px 10px; border-radius: 7px;
+      background: var(--code-bg); font-family: monospace; font-size: 10px; line-height: 1.7;
+    }
+    /* Card header colors */
+    .hac-card:nth-child(1) .hac-card-head { background: var(--sf-blue); }
+    .hac-card:nth-child(1) .hac-card-tag  { color: rgba(255,255,255,.8); }
+    .hac-card:nth-child(1) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(1) .hac-card-sub   { color: rgba(255,255,255,.8); }
+
+    .hac-card:nth-child(2) .hac-card-head { background: var(--sf-blue-dark); }
+    .hac-card:nth-child(2) .hac-card-tag  { color: rgba(255,255,255,.7); }
+    .hac-card:nth-child(2) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(2) .hac-card-sub   { color: rgba(255,255,255,.75); }
+
+    .hac-card:nth-child(3) .hac-card-head { background: var(--sf-blue-mid); }
+    .hac-card:nth-child(3) .hac-card-tag  { color: rgba(255,255,255,.7); }
+    .hac-card:nth-child(3) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(3) .hac-card-sub   { color: rgba(255,255,255,.8); }
+
+    .hac-card:nth-child(4) .hac-card-head { background: var(--sf-blue); }
+    .hac-card:nth-child(4) .hac-card-tag  { color: rgba(255,255,255,.8); }
+    .hac-card:nth-child(4) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(4) .hac-card-sub   { color: rgba(255,255,255,.8); }
+
+    .hac-card:nth-child(5) .hac-card-head { background: var(--sf-blue-dark); }
+    .hac-card:nth-child(5) .hac-card-tag  { color: rgba(255,255,255,.7); }
+    .hac-card:nth-child(5) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(5) .hac-card-sub   { color: rgba(255,255,255,.75); }
+
+    .hac-card:nth-child(6) .hac-card-head { background: var(--sf-blue-mid); }
+    .hac-card:nth-child(6) .hac-card-tag  { color: rgba(255,255,255,.7); }
+    .hac-card:nth-child(6) .hac-card-title { color: #fff; }
+    .hac-card:nth-child(6) .hac-card-sub   { color: rgba(255,255,255,.8); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Access Control in Snowflake is handled through a layered model: RBAC controls what objects a role can access, Network Policies restrict which networks can connect, Authentication Policies enforce MFA and identity requirements, and Tri-Secret Secure adds a customer-controlled encryption key on top of Snowflake\'s encryption.</p>
+<h3>Key Points</h3>
+<ul>
+  <li><strong>RBAC:</strong> Every Snowflake operation requires a privilege. Roles are hierarchical — ACCOUNTADMIN owns everything, SYSADMIN manages objects, and custom roles give least-privilege access to specific data.</li>
+  <li><strong>Network Policies:</strong> Allowlist specific IP ranges. Can be attached at the account level or per user. Critical for enterprise deployments requiring network-level isolation.</li>
+  <li><strong>MFA:</strong> Enforced via Authentication Policies. Can require MFA for all users, specific roles, or specific client types.</li>
+  <li><strong>Tri-Secret Secure:</strong> Snowflake\'s encryption + customer-managed key = two keys required to decrypt. If customer revokes key, data becomes immediately inaccessible — even to Snowflake.</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have a requirement for customer-managed encryption keys?</li>
+  <li>Is MFA required for all data platform access in your organization?</li>
+  <li>Do you use SSO/IdP today — Okta, Azure AD, Ping?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/security-access-control-overview',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Access Control</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Access Control</div>
+          <div class="s6-sub" style="text-align:center;">One security model across all data &#8212; roles, network, identity, and encryption.</div>
+        </div>
+
+        <div class="hac-page">
+          <div class="hac-grid">
+
+            <!-- RBAC -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Role-Based</span>
+                <div class="hac-card-title">RBAC</div>
+                <div class="hac-card-sub">Hierarchical privilege model for all Snowflake objects</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">Every operation requires a privilege. Roles are granted to users and other roles. Column-level, row-level, and object-level access all controlled through one model.</div>
+                <div class="hac-code">
+                  <span class="code-kw">GRANT</span> <span class="code-fn">SELECT</span> <span class="code-kw">ON</span> <span class="code-id">TABLE</span> <span class="code-id">orders</span><br>
+                  &nbsp;&nbsp;<span class="code-kw">TO ROLE</span> <span class="code-id">analyst_role</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Network Policies -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Network</span>
+                <div class="hac-card-title">Network Policies</div>
+                <div class="hac-card-sub">Restrict connections by IP address or CIDR range</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">Allowlist and denylist by IP range. Attach at account level or per-user. Blocks all connections from unauthorized networks before authentication.</div>
+                <div class="hac-code">
+                  <span class="code-kw">CREATE NETWORK POLICY</span> <span class="code-id">corp_only</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">ALLOWED_IP_LIST</span> <span class="code-punc">=</span> <span class="code-punc">(</span><span class="code-str">'10.0.0.0/8'</span><span class="code-punc">)</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- MFA -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Identity</span>
+                <div class="hac-card-title">MFA</div>
+                <div class="hac-card-sub">Enforce multi-factor authentication via policy</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">Authentication Policies enforce MFA for all users, specific roles, or specific client types. TOTP-based. Also controls allowed authentication methods (password, keypair, SSO, OAuth).</div>
+                <div class="hac-code">
+                  <span class="code-kw">CREATE AUTHENTICATION POLICY</span> <span class="code-id">require_mfa</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">MFA_ENROLLMENT</span> <span class="code-punc">=</span> <span class="code-str">REQUIRED</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SSO -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Identity</span>
+                <div class="hac-card-title">SSO / SAML</div>
+                <div class="hac-card-sub">Federated identity via SAML 2.0 with any IdP</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">Integrate with Okta, Azure AD, Ping Identity, OneLogin. JIT user provisioning. No password sync. Same session as corporate IdP &#8212; revoke at the IdP to immediately cut access.</div>
+                <div class="hac-code">
+                  <span class="code-kw">CREATE SECURITY INTEGRATION</span> <span class="code-id">okta_sso</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">TYPE</span> <span class="code-punc">=</span> <span class="code-str">SAML2</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">SAML2_ISSUER</span> <span class="code-punc">=</span> <span class="code-str">'https://okta.com/...'</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tri-Secret Secure -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Encryption</span>
+                <div class="hac-card-title">Tri-Secret Secure</div>
+                <div class="hac-card-sub">Customer-managed encryption key via cloud KMS</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">Your KMS key + Snowflake key = both required to decrypt. Supports AWS KMS, Azure Key Vault, GCP KMS. Revoke your key and data is immediately inaccessible &#8212; even to Snowflake employees.</div>
+                <div class="hac-code">
+                  <span class="code-comment">-- Configured via account-level setting</span><br>
+                  <span class="code-comment">-- + KMS integration in your cloud console</span><br>
+                  <span class="code-kw">ALTER ACCOUNT</span> <span class="code-kw">SET</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">TRI_SECRET_SECURE</span> <span class="code-punc">=</span> <span class="code-kw">TRUE</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- OAuth -->
+            <div class="hac-card">
+              <div class="hac-card-head">
+                <span class="hac-card-tag">Identity</span>
+                <div class="hac-card-title">OAuth</div>
+                <div class="hac-card-sub">Delegated access for BI tools and custom apps</div>
+              </div>
+              <div class="hac-card-body">
+                <div class="hac-fact">OAuth 2.0 for Tableau, Power BI, Streamlit, and custom integrations. Users authenticate via their IdP; tools receive a scoped access token. No credential embedding in BI configs.</div>
+                <div class="hac-code">
+                  <span class="code-kw">CREATE SECURITY INTEGRATION</span> <span class="code-id">tableau_oauth</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">TYPE</span> <span class="code-punc">=</span> <span class="code-str">OAUTH</span><br>
+                  &nbsp;&nbsp;<span class="code-fn">OAUTH_CLIENT</span> <span class="code-punc">=</span> <span class="code-str">TABLEAU_DESKTOP</span><span class="code-punc">;</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

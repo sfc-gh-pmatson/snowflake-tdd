@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Well-Architected Framework — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page ───────────────────────────────────────────────── */
+    .waf-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 4px;
+    }
+
+    /* ── Intro strip ─────────────────────────────────────────── */
+    .waf-intro {
+      width: 100%;
+      max-width: 900px;
+      background: var(--sf-blue-dark);
+      border: 1.5px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .waf-intro-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .waf-intro-title { font-size: var(--fs-h4); font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .waf-intro-body { font-size: var(--fs-h5); color: rgba(255,255,255,.55); line-height: 1.45; }
+
+    /* ── Five pillars ────────────────────────────────────────── */
+    .waf-pillars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 900px;
+      flex-shrink: 0;
+    }
+    .waf-pillar {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .waf-pillar:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .waf-pillar.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .waf-pillar-num {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: rgba(41,181,232,.6);
+      text-transform: uppercase;
+    }
+    .waf-pillar-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .waf-pillar-title { font-size: var(--fs-h4); font-weight: 800; color: var(--sf-ink); line-height: 1.2; }
+    .waf-pillar-desc { font-size: var(--fs-h6); color: rgba(7,21,37,.52); line-height: 1.4; }
+    .waf-pillar--link {
+      text-decoration: none;
+      justify-content: center;
+    }
+    .waf-pillar-deepdive {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--sf-blue);
+      letter-spacing: .3px;
+    }
+
+    /* ── Lenses ──────────────────────────────────────────────── */
+    .waf-lenses {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+      max-width: 900px;
+      flex-shrink: 0;
+    }
+    .waf-lens {
+      background: rgba(41,181,232,.04);
+      border: 1.5px solid rgba(41,181,232,.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .waf-lens-icon {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      background: rgba(41,181,232,.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .waf-lens-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--sf-blue);
+      margin-bottom: 2px;
+    }
+    .waf-lens-title { font-size: var(--fs-h4); font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .waf-lens-body { font-size: var(--fs-h5); color: rgba(255,255,255,.5); line-height: 1.45; }
+
+    /* ── CoCo Skill CTA ─────────────────────────────────────── */
+    .waf-coco-cta {
+      width: 100%;
+      max-width: 900px;
+      background: linear-gradient(135deg, rgba(41,181,232,.12) 0%, rgba(41,181,232,.04) 100%);
+      border: 1.5px solid rgba(41,181,232,.35);
+      border-radius: 12px;
+      padding: 13px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: border-color .17s, box-shadow .17s;
+    }
+    .waf-coco-cta:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 16px rgba(41,181,232,.2);
+    }
+    .waf-coco-badge {
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: var(--sf-blue);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #fff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .waf-coco-text { flex: 1; }
+    .waf-coco-title { font-size: var(--fs-h4); font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .waf-coco-body { font-size: var(--fs-h5); color: rgba(255,255,255,.5); }
+    .waf-coco-arrow { font-size: 20px; color: var(--sf-blue); flex-shrink: 0; }
+    .waf-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.65);
+      z-index: 900;
+      align-items: center;
+      justify-content: center;
+    }
+    .waf-overlay.open { display: flex; }
+    .waf-panel {
+      background: var(--sf-navy);
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 780px;
+      max-width: 92vw;
+      max-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .waf-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px;
+      background: var(--sf-blue);
+      flex-shrink: 0;
+    }
+    .waf-panel-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; flex: 1; }
+    .waf-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .waf-panel-close:hover { background: rgba(255,255,255,.35); }
+    .waf-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 22px 20px;
+      background: var(--sf-navy);
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The Snowflake Well-Architected Framework (WAF) is the prescriptive architectural standard for deploying Snowflake at enterprise scale. It defines five pillars and specialized industry lenses that translate proven best practices into a unified operating model — giving customers a clear rubric for assessing their deployment and prioritizing improvements.</p>
+
+<h3>Five Pillars</h3>
+<ul>
+  <li><strong>Operational Excellence:</strong> Automation, observability, and incident response — running Snowflake like a production engineering team.</li>
+  <li><strong>Security:</strong> Authentication, network policies, encryption, key management, and zero-trust patterns for enterprise deployments.</li>
+  <li><strong>Reliability:</strong> BCDR, failover, replication, and multi-region architectures that meet enterprise SLA requirements.</li>
+  <li><strong>Performance Efficiency:</strong> Warehouse sizing, caching, clustering, search optimization, and query tuning — getting the most out of Snowflake compute.</li>
+  <li><strong>Cost Optimization:</strong> Resource monitors, budgets, storage tiering, and FinOps discipline for controlling spend at scale.</li>
+</ul>
+
+<h3>Key Points</h3>
+<ul>
+  <li>WAF reviews are a PS-led engagement, but the framework is freely available as a self-assessment tool.</li>
+  <li>Each pillar has prescriptive checklists and Snowflake SQL diagnostic queries customers can run on their own accounts.</li>
+  <li>Industry lenses (Financial Services, Healthcare, Retail) add sector-specific guidance on top of the five pillars.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Have you done a formal review of your Snowflake architecture against best practices?</li>
+  <li>Which pillar is your team most concerned about — security, cost, or performance?</li>
+  <li>Do you have a clear picture of your current BCDR posture for Snowflake?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://www.snowflake.com/en/product/use-cases/well-architected-framework/',
+      code:  'https://github.com/Snowflake-Labs/coco-skills/tree/main/skills/well-architected-framework-assessment',
+      guide: 'https://www.snowflake.com/en/developers/guides/security-and-governance/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Well-Architected Framework</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Well-Architected Framework</div>
+          <div class="s6-sub" style="text-align:center;">The prescriptive architectural standard for enterprises deploying Snowflake at scale — five pillars and specialized lenses that translate proven best practices into a unified operating model.</div>
+        </div>
+
+        <div class="waf-page content-wrap">
+
+          <!-- Intro strip -->
+          <div class="waf-intro">
+            <div class="waf-intro-icon">
+              <span class="sf-img sf-icon-platform" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
+            </div>
+            <div>
+              <div class="waf-intro-title">Built from thousands of Snowflake deployments</div>
+              <div class="waf-intro-body">Expert guidance and validated playbooks organized around Snowflake's Shared Responsibility Model — each pillar maps directly to specific platform configurations, not generic cloud infrastructure advice.</div>
+            </div>
+          </div>
+
+          <!-- Five pillars -->
+          <div class="waf-pillars">
+
+            <div class="waf-pillar" data-fn="security">
+              <div class="waf-pillar-num">Pillar 1</div>
+              <div class="waf-pillar-icon">
+                <span class="sf-img sf-icon-security-gov" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="waf-pillar-title">Security</div>
+              <div class="waf-pillar-desc">RBAC, data policies, network controls, and a compliance-supporting foundation</div>
+            </div>
+
+            <div class="waf-pillar" data-fn="opex">
+              <div class="waf-pillar-num">Pillar 2</div>
+              <div class="waf-pillar-icon">
+                <span class="sf-img sf-icon-process" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="waf-pillar-title">Operational Excellence</div>
+              <div class="waf-pillar-desc">Observability, automation, and continuously improving systems</div>
+            </div>
+
+            <div class="waf-pillar" data-fn="reliability">
+              <div class="waf-pillar-num">Pillar 3</div>
+              <div class="waf-pillar-icon">
+                <span class="sf-img sf-icon-concurrency" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="waf-pillar-title">Reliability</div>
+              <div class="waf-pillar-desc">High availability, fault tolerance, data protection, and recovery</div>
+            </div>
+
+            <div class="waf-pillar" data-fn="performance">
+              <div class="waf-pillar-num">Pillar 4</div>
+              <div class="waf-pillar-icon">
+                <span class="sf-img sf-icon-speed-2" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="waf-pillar-title">Performance</div>
+              <div class="waf-pillar-desc">Responsive, cost-optimized workloads and streamlined operations</div>
+            </div>
+
+            <a href="./cost-management.html" class="waf-pillar waf-pillar--link">
+              <div class="waf-pillar-num">Pillar 5</div>
+              <div class="waf-pillar-icon">
+                <span class="sf-img sf-icon-pricing" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
+              </div>
+              <div class="waf-pillar-title">Cost Optimization</div>
+              <div class="waf-pillar-desc">Resource monitors, consumption dashboards, and right-sizing</div>
+              <div class="waf-pillar-deepdive">Deep dive &#x2192;</div>
+            </a>
+
+          </div>
+
+          <!-- Lenses -->
+          <div class="waf-lenses">
+            <div class="waf-lens">
+              <div class="waf-lens-icon">
+                <span class="sf-img sf-icon-ai" style="width:16px;height:16px;"></span>
+              </div>
+              <div>
+                <div class="waf-lens-label">Specialized Lens</div>
+                <div class="waf-lens-title">AI &amp; Data Governance</div>
+                <div class="waf-lens-body">Built-in AI governance, lineage, and security that let you scale AI confidently — without additional tooling or added risk to your data.</div>
+              </div>
+            </div>
+            <div class="waf-lens">
+              <div class="waf-lens-icon">
+                <span class="sf-img sf-icon-connected" style="width:16px;height:16px;"></span>
+              </div>
+              <div>
+                <div class="waf-lens-label">Specialized Lens</div>
+                <div class="waf-lens-title">Open &amp; Interoperable</div>
+                <div class="waf-lens-body">Run seamlessly across clouds with open, integrated architectures — Iceberg, Spark, Delta Direct — without sacrificing governance, performance, or cost control.</div>
+              </div>
+            </div>
+          </div><!-- /lenses -->
+
+          <!-- CoCo Skill CTA -->
+          <a class="waf-coco-cta" href="https://github.com/Snowflake-Labs/coco-skills/tree/main/skills/well-architected-framework-assessment" target="_blank" rel="noopener noreferrer">
+            <div class="waf-coco-badge">CoCo Skill</div>
+            <div class="waf-coco-text">
+              <div class="waf-coco-title">Run a live WAF assessment in Snowflake CoCo</div>
+              <div class="waf-coco-body">The WAF Assessment skill evaluates your Snowflake account against all five pillars and generates a prioritized remediation plan.</div>
+            </div>
+            <div class="waf-coco-arrow">&#x2192;</div>
+          </a>
+
+        </div><!-- /waf-page -->
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="waf-overlay" id="waf-overlay">
+    <div class="waf-panel">
+      <div class="waf-panel-header">
+        <span class="waf-panel-title" id="waf-panel-title"></span>
+        <button class="waf-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="waf-panel-body">
+        <div class="mlf-code-block" id="waf-panel-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      security: {
+        title: 'Security — RBAC, Policies & Network Controls',
+        body: `${cm('-- ── Role-Based Access Control ─────────────────────────────────────────')}
+${cm('-- Follow functional role → access role hierarchy')}
+${k('CREATE ROLE')} ${id('ANALYST')}${p(';')}
+${k('CREATE ROLE')} ${id('ANALYTICS_DB_RO_RL')}${p(';')}              ${cm('-- access role: read-only on one schema')}
+${k('GRANT SELECT ON ALL TABLES IN SCHEMA')} ${id('ANALYTICS.PUBLIC')} ${k('TO ROLE')} ${id('ANALYTICS_DB_RO_RL')}${p(';')}
+${k('GRANT ROLE')} ${id('ANALYTICS_DB_RO_RL')} ${k('TO ROLE')} ${id('ANALYST')}${p(';')}   ${cm('-- functional role inherits access role')}
+
+${cm('-- ── Masking Policy (column-level security) ─────────────────────────────')}
+${k('CREATE OR REPLACE MASKING POLICY')} ${id('pii_mask')}
+  ${k('AS')} ${p('(')}${id('val')} ${id('STRING')}${p(')')} ${k('RETURNS')} ${id('STRING')} ${p('->')}
+    ${k('CASE WHEN')} ${f('CURRENT_ROLE')}${p('()')} ${k('IN')} ${p('(')}${str("'DATA_ENGINEER'")}${p(',')} ${str("'ADMIN'")}${p(')')}
+      ${k('THEN')} ${id('val')}
+    ${k('ELSE')} ${f('SHA2')}${p('(')}${id('val')}${p(')')}
+    ${k('END')}${p(';')}
+
+${k('ALTER TABLE')} ${id('customers')} ${k('MODIFY COLUMN')} ${id('email')}
+  ${k('SET MASKING POLICY')} ${id('pii_mask')}${p(';')}
+
+${cm('-- ── Network Policy ─────────────────────────────────────────────────────')}
+${k('CREATE OR REPLACE NETWORK POLICY')} ${id('corp_vpn_only')}
+  ${id('ALLOWED_IP_LIST')} ${p('=')} ${p('(')}${str("'10.0.0.0/8'")}${p(',')} ${str("'172.16.0.0/12'")}${p(')')}${p(';')}
+
+${k('ALTER ACCOUNT')} ${k('SET')} ${id('NETWORK_POLICY')} ${p('=')} ${id('corp_vpn_only')}${p(';')}`
+      },
+      opex: {
+        title: 'Operational Excellence — Observability & Automation',
+        body: `${cm('-- ── Automated task monitoring: alert on task failure ───────────────────')}
+${k('CREATE OR REPLACE TASK')} ${id('monitor_failed_tasks')}
+  ${id('WAREHOUSE')} ${p('=')} ${id('MONITORING_WH')}
+  ${id('SCHEDULE')} ${p('=')} ${str("'USING CRON 0 * * * * UTC'")}
+${k('AS')}
+  ${k('SELECT')} ${f('SYSTEM$SEND_EMAIL')}${p('(')}
+    ${str("'ops_alerts'")}${p(',')}
+    ${str("'ops-team@company.com'")}${p(',')}
+    ${str("'Snowflake Task Failure Alert'")}${p(',')}
+    ${p('(')}${k('SELECT')} ${f('LISTAGG')}${p('(')}${id('name')} ${p('||')} ${str("' failed at '")} ${p('||')} ${f('TO_VARCHAR')}${p('(')}${id('scheduled_time')}${p(')')}${p(',')} ${str("'\\n'")}${p(')')}
+     ${k('FROM')} ${id('TABLE')}${p('(')}${f('INFORMATION_SCHEMA.TASK_HISTORY')}${p('(')})
+     ${k('WHERE')} ${id('state')} ${p('=')} ${str("'FAILED'")}
+     ${k('AND')} ${id('scheduled_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'hour'")}${p(',')} ${p('-')}${n('1')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p(')')}${p(')')}
+  ${p(')')}${p(';')}
+
+${cm('-- ── DMFs: Data quality monitoring ─────────────────────────────────────')}
+${k('CREATE OR REPLACE DATA METRIC FUNCTION')} ${id('MY_SCHEMA')}${p('.')}${id('null_check')}
+  ${k('ON TABLE')} ${id('MY_TABLE')}${p('(')}${id('COLUMN_NAME')} ${id('STRING')}${p(')')}
+  ${k('RETURNS')} ${id('NUMBER')} ${k('AS')}
+  ${str("'SELECT COUNT_IF(COLUMN_NAME IS NULL) FROM MY_TABLE'")}${p(';')}
+
+${k('ALTER TABLE')} ${id('MY_TABLE')} ${k('SET')} ${id('DATA_METRIC_SCHEDULE')} ${p('=')} ${str("'USING CRON 0 6 * * * UTC'")}${p(';')}
+
+${cm('-- ── Access History: audit who touched sensitive data ───────────────────')}
+${k('SELECT')} ${id('query_start_time')}${p(',')} ${id('user_name')}${p(',')} ${id('direct_objects_accessed')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('ACCESS_HISTORY')}
+${k('WHERE')} ${f('ARRAY_CONTAINS')}${p('(')}${str("'CUSTOMERS'")}${p('::')}${id('VARIANT')}${p(',')} ${id('base_objects_accessed')}${p(')')}
+${k('ORDER BY')} ${id('query_start_time')} ${k('DESC')} ${k('LIMIT')} ${n('50')}${p(';')}`
+      },
+      reliability: {
+        title: 'Reliability — Failover, Replication & Data Protection',
+        body: `${cm('-- ── Failover Group: multi-region HA ───────────────────────────────────')}
+${k('CREATE FAILOVER GROUP')} ${id('production_fg')}
+  ${id('OBJECT_TYPES')} ${p('=')} ${id('DATABASES')}${p(',')} ${id('WAREHOUSES')}${p(',')} ${id('ROLES')}
+  ${id('ALLOWED_DATABASES')} ${p('=')} ${id('ANALYTICS_DB')}${p(',')} ${id('SALES_DB')}
+  ${id('ALLOWED_ACCOUNTS')} ${p('=')} ${id('MYORG')}${p('.')}${id('DR_ACCOUNT')}
+  ${id('REPLICATION_SCHEDULE')} ${p('=')} ${str("'10 MINUTE'")}${p(';')}
+
+${cm('-- ── Time Travel: recover accidentally deleted data ──────────────────────')}
+${cm('-- Data retained for up to 90 days (Enterprise edition)')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('orders')} ${k('AT')} ${p('(')}${id('TIMESTAMP')} ${p('=>')} ${str("'2026-07-30 09:00:00'")}${p(')')}${p(';')}
+
+${cm('-- Restore a dropped table')}
+${k('UNDROP TABLE')} ${id('orders')}${p(';')}
+
+${cm('-- ── Zero-copy clone: environment isolation ─────────────────────────────')}
+${k('CREATE DATABASE')} ${id('ANALYTICS_DB_STAGING')} ${k('CLONE')} ${id('ANALYTICS_DB')}${p(';')}
+${cm('-- Staging environment created instantly, no data copied, no storage cost')}
+${cm('-- Changes in staging do not affect production')}
+
+${cm('-- ── Fail-safe: 7-day extra recovery window (Snowflake-managed) ─────────')}
+${cm('-- No configuration needed — Snowflake retains data for 7 days post time-travel')}
+${cm('-- Contact Snowflake Support to restore data from fail-safe period')}`
+      },
+      performance: {
+        title: 'Performance — Optimization & Right-Sizing',
+        body: `${cm('-- ── Identify expensive queries for tuning ──────────────────────────────')}
+${k('SELECT')}
+  ${id('query_id')}${p(',')} ${id('query_text')}${p(',')}
+  ${f('ROUND')}${p('(')}${id('total_elapsed_time')} ${p('/')} ${n('1000')}${p(',')} ${n('2')}${p(')')}  ${k('AS')} ${id('elapsed_sec')}${p(',')}
+  ${f('ROUND')}${p('(')}${id('bytes_spilled_to_local_storage')} ${p('/')} ${f('POWER')}${p('(')}${n('1024')}${p(',')} ${n('3')}${p(')')}${p(',')} ${n('2')}${p(')')} ${k('AS')} ${id('local_spill_gb')}${p(',')}
+  ${id('partitions_scanned')}${p(',')} ${id('partitions_total')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('QUERY_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('7')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+  ${k('AND')} ${id('bytes_spilled_to_local_storage')} ${p('>')} ${n('0')}
+${k('ORDER BY')} ${id('local_spill_gb')} ${k('DESC')} ${k('LIMIT')} ${n('20')}${p(';')}
+
+${cm('-- ── Search Optimization Service: point-lookup acceleration ────────────')}
+${k('ALTER TABLE')} ${id('events')} ${k('ADD SEARCH OPTIMIZATION ON')} ${id('EQUALITY')}${p('(')}${id('user_id')}${p(')')}${p(';')}
+
+${cm('-- ── Automatic Clustering: reduce partition pruning overhead ────────────')}
+${k('ALTER TABLE')} ${id('orders')} ${k('CLUSTER BY')} ${p('(')}${id('order_date')}, ${id('region')}${p(')')}${p(';')}
+
+${cm('-- Check clustering health')}
+${k('SELECT')} ${p('*')} ${k('FROM')} ${id('TABLE')}${p('(')}${f('SYSTEM$CLUSTERING_INFORMATION')}${p('(')}${str("'orders'")}${p(',')} ${str("'(order_date, region)'")}${p(')')}${p(')')}${p(';')}
+
+${cm('-- ── Result cache: queries with same hash reuse cached result ────────────')}
+${cm('-- Cache is used automatically when query, data, and session params match')}
+${cm('-- No credits consumed on a cache hit — check via query profile')}`
+      },
+      cost: {
+        title: 'Cost Optimization — Right-Sizing & Spend Control',
+        body: `${cm('-- ── Auto-suspend idle warehouses (most impactful quick win) ───────────')}
+${k('ALTER WAREHOUSE')} ${id('COMPUTE_WH')} ${k('SET')}
+  ${id('AUTO_SUSPEND')} ${p('=')} ${n('60')}       ${cm('-- suspend after 60 seconds idle')}
+  ${id('AUTO_RESUME')} ${p('=')} ${k('TRUE')}${p(';')}
+
+${cm('-- ── Right-size: find warehouses running at <10% utilization ────────────')}
+${k('SELECT')}
+  ${id('warehouse_name')}${p(',')}
+  ${f('AVG')}${p('(')}${id('avg_running')}${p(')')}       ${k('AS')} ${id('avg_concurrent_queries')}${p(',')}
+  ${f('AVG')}${p('(')}${id('warehouse_size')}${p(')')}    ${k('AS')} ${id('warehouse_size')}${p(',')}
+  ${f('SUM')}${p('(')}${id('credits_used')}${p(')')}       ${k('AS')} ${id('total_credits_30d')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('WAREHOUSE_LOAD_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('GROUP BY')} ${n('1')}
+${k('HAVING')} ${f('AVG')}${p('(')}${id('avg_running')}${p(')')} ${p('<')} ${n('1')}   ${cm('-- usually has <1 concurrent query')}
+${k('ORDER BY')} ${id('total_credits_30d')} ${k('DESC')}${p(';')}
+
+${cm('-- ── Storage lifecycle: archive cold data ───────────────────────────────')}
+${k('CREATE OR REPLACE STORAGE LIFECYCLE POLICY')} ${id('archive_old_logs')}
+  ${k('ON TABLE')} ${id('raw_logs')}
+  ${k('WHEN')} ${f('SYSTEM$DATE_DIFF')}${p('(')}${str("'day'")}${p(',')} ${id('log_date')}${p(',')} ${f('CURRENT_DATE')}${p(')')} ${p('>')} ${n('90')}
+  ${k('THEN')} ${id('ARCHIVE')}${p(';')}
+
+${cm('-- ── Cloud services optimization ────────────────────────────────────────')}
+${cm('-- Cloud services > 10% of compute credits = opportunity to reduce')}
+${k('SELECT')} ${f('DATE')}${p('(')}${id('start_time')}${p(')')} ${k('AS')} ${id('day')}${p(',')}
+  ${f('SUM')}${p('(')}${id('credits_used_cloud_services')}${p(')')} / ${f('SUM')}${p('(')}${id('credits_used')}${p(')')} ${k('AS')} ${id('cloud_pct')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('WAREHOUSE_METERING_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('GROUP BY')} ${n('1')} ${k('HAVING')} ${id('cloud_pct')} ${p('>')} ${n('0.1')}
+${k('ORDER BY')} ${id('cloud_pct')} ${k('DESC')}${p(';')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('waf-panel-title').textContent = data.title;
+      document.getElementById('waf-panel-body').innerHTML = data.body;
+      document.getElementById('waf-overlay').classList.add('open');
+      document.querySelectorAll('.waf-pillar').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('waf-overlay').classList.remove('open');
+      document.querySelectorAll('.waf-pillar').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.waf-pillar[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+    document.getElementById('waf-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

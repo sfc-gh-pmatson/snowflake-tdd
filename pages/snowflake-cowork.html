@@ -206,35 +206,54 @@
       box-shadow: 0 4px 14px rgba(0,89,163,.35);
     }
 
-    /* ── Code / prompt panel ────────────────────────────────── */
-    .cw-code-panel {
-      position: fixed;
-      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-      width: 100%; max-width: 920px;
+    /* ── Overlay modal ──────────────────────────────── */
+    .cw-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(5,13,26,.65); z-index: 900;
+      align-items: center; justify-content: center;
+    }
+    .cw-overlay.open { display: flex; }
+    .cw-modal {
       background: var(--sf-navy);
-      border-top: 3px solid var(--sf-blue);
-      border-radius: 12px 12px 0 0;
-      padding: 14px 24px 18px;
-      transition: transform .25s ease;
-      z-index: 100;
-      max-height: 44vh;
-      overflow-y: auto;
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 860px; max-width: 92vw; max-height: 74vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
     }
-    .cw-code-panel.open { transform: translateX(-50%) translateY(0); }
-    .cw-code-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+    .cw-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px; background: var(--sf-blue); flex-shrink: 0;
     }
-    .cw-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
-    .cw-code-close {
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(41,181,232,.15); border: none; cursor: pointer;
-      color: var(--sf-blue); font-size: 15px;
+    .cw-modal-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; }
+    .cw-modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
       display: flex; align-items: center; justify-content: center;
     }
-    .cw-code-close:hover { background: rgba(41,181,232,.3); }
+    .cw-modal-close:hover { background: rgba(255,255,255,.35); }
+    .cw-modal-body { flex: 1; overflow: hidden; display: flex; }
+    .cw-modal-code {
+      flex: 3; overflow-y: auto;
+      background: var(--code-bg);
+      padding: 16px 20px;
+      font-family: 'SF Mono','Fira Code',ui-monospace,monospace;
+      font-size: var(--fs-h6); line-height: 1.75;
+      color: rgba(255,255,255,.85); white-space: pre-wrap;
+    }
+    .cw-modal-explain {
+      flex: 2; overflow-y: auto;
+      padding: 16px 20px;
+      background: #fff;
+      color: var(--sf-ink);
+      font-size: var(--fs-h5); line-height: 1.6;
+    }
+    .cw-modal-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .cw-modal-explain p { margin-bottom: 10px; }
+    .cw-modal-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .cw-modal-explain li { margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -478,13 +497,18 @@
     </div>
   </div>
 
-  <!-- Prompt / code panel (slides up on card click) -->
-  <div class="cw-code-panel" id="cw-code-panel">
-    <div class="cw-code-header">
-      <span class="cw-code-title" id="cw-code-title"></span>
-      <button class="cw-code-close" onclick="closePanel()">&#10005;</button>
+  <!-- Overlay modal -->
+  <div class="cw-overlay" id="cw-overlay">
+    <div class="cw-modal">
+      <div class="cw-modal-header">
+        <span class="cw-modal-title" id="cw-modal-title"></span>
+        <button class="cw-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="cw-modal-body">
+        <div class="cw-modal-code" id="cw-modal-code"></div>
+        <div class="cw-modal-explain" id="cw-modal-explain"></div>
+      </div>
     </div>
-    <div class="mlf-code-block" id="cw-code-block"></div>
   </div>
 
   <script>
@@ -499,6 +523,7 @@
     const PANELS = {
       personal: {
         title: 'Personal Agent',
+        explain: `<h4>Personal Agent</h4><p>CoWork&#39;s Personal Agent is the intelligent router between you and your data. Ask any business question in plain language — it figures out which sub-agent, tool, or data source to invoke.</p><ul><li><strong>Auto-routing:</strong> Sales questions → Sales Agent (Salesforce + A360); finance queries → Finance Agent (Snowflake tables); document searches → Cortex Search.</li><li><strong>Memory:</strong> Remembers context within and across conversations. Follow-up questions build on prior context without re-explaining the situation.</li><li><strong>Works across contexts:</strong> Snowflake data, Salesforce CRM, SharePoint, email, Slack — routed automatically by question type.</li></ul>`,
         code: `${cm('Example questions you can ask CoWork directly:')}
 
 ${str('"What are my top 5 accounts by consumption risk this month?"')}
@@ -518,6 +543,7 @@ ${str('"Add churn risk score to each row"')}  ${cm('← context from prior analy
       },
       research: {
         title: 'Autonomous Agents',
+        explain: `<h4>Autonomous Agents</h4><p>Two modes for different analytical challenges:</p><ul><li><strong>Deep Research:</strong> Multi-step investigation across structured data (CRM, Snowflake), unstructured data (transcripts, PDFs), and web signals. Produces a fully-cited synthesis — not a single-source answer.</li><li><strong>Analytical Search:</strong> Quantitative queries over large unstructured corpora — &quot;what % of contracts contain X?&quot; Returns aggregate answers with document-level citations and confidence scores.</li></ul><p>Benchmark: +52.2% relative improvement vs single-agent systems on the CoWork Hybrid Deep Research Benchmark.</p>`,
         code: `${cm('Deep Research — multi-source, multi-step, fully cited')}
 
 ${str('"Why did EMEA pipeline drop 18% in Q3? Investigate across"')}
@@ -541,6 +567,7 @@ ${cm('  on CoWork Hybrid Deep Research Benchmark')}`
       },
       automations: {
         title: 'Automations',
+        explain: `<h4>Automations</h4><p>Schedule recurring briefings in plain language. CoWork creates the automation, runs it on schedule under your RBAC, and delivers a structured AI analysis — not just a raw data pull.</p><ul><li>Each brief includes: what changed, why it matters, and suggested next steps</li><li>Clickable context: each insight opens a live CoWork conversation with full brief context preserved</li><li>RBAC enforced per subscription — each recipient sees only data they&#39;re entitled to</li><li>Full audit trail and per-subscription cost visibility</li></ul>`,
         code: `${cm('Set a briefing in plain language — no forms, no code:')}
 
 ${str('"Every Monday at 8 AM, send me a pipeline health brief."')}
@@ -569,6 +596,7 @@ ${cm('  Full audit trail of every delivered brief')}`
       },
       artifacts: {
         title: 'Live Artifacts',
+        explain: `<h4>Live Artifacts</h4><p>Create charts and tables in conversation — backed by live Snowflake queries, auto-refreshing on schedule. Share one link; every viewer gets their own RBAC-filtered view of the same data.</p><ul><li>No static screenshots — artifacts update from the source on schedule</li><li>Viewers can ask follow-up questions on any artifact in natural language</li><li>Built in CoCo (Python + SQL), deployed to CoWork for business user access</li><li>Teams build on each other&#39;s work without rebuilding analyses from scratch</li></ul>`,
         code: `${cm('Create a live chart in conversation:')}
 
 ${str('"Create a chart: weekly active accounts by region, last 90 days."')}
@@ -595,6 +623,7 @@ ${str('"Show me the same chart but for enterprise accounts only"')}`
       },
       eval: {
         title: 'Evaluation & Monitoring',
+        explain: `<h4>Evaluation &amp; Monitoring</h4><p>Enterprise-grade observability for agentic workloads. Trace every reasoning step, measure quality, and gate deployments on agent quality scores.</p><ul><li><strong>GPA Metrics:</strong> Goal (intent understood?) + Plan (right tools?) + Action (correct output?) — three-dimensional quality scoring per interaction</li><li><strong>Custom LLM Judges:</strong> Define domain-specific criteria (e.g. &quot;cites CRM data for all revenue figures&quot;). Scored automatically on every interaction.</li><li><strong>CI/CD:</strong> Programmatic access via REST API. Block deployments if GPA drops below threshold.</li><li>All trace data resides in your Snowflake account — no external logging service</li></ul>`,
         code: `${cm('Goal-Plan-Action (GPA) Metrics — track agent quality end-to-end')}
 
 ${cm('GPA measures three dimensions per interaction:')}
@@ -625,6 +654,7 @@ ${cm('  Agentic debugging: replay any session to find failure points')}`
       },
       deploy: {
         title: 'Deploy Insights Anywhere',
+        explain: `<h4>Deploy Insights Anywhere</h4><p>CoWork agents expose four integration surfaces — meet users where they already work:</p><ul><li><strong>REST API:</strong> Standard HTTP POST to <code>/api/v2/cortex/agent:run</code>. Streaming and async modes. Works from any app or custom UI.</li><li><strong>MCP Server:</strong> Add CoWork as a tool in CoCo Desktop, Claude, or any MCP-compatible client. RBAC-governed, returns cited answers.</li><li><strong>A2A:</strong> External agents call CoWork sub-agents directly. Each hop governs data access via Snowflake RBAC.</li><li><strong>Packaged Agent Profiles:</strong> Pre-configure skills, tools, and settings once — roll out to entire teams without per-user setup.</li></ul>`,
         code: `${cm('CoWork insights can be deployed to any surface:')}
 
 ${cm('── Cortex Agents REST API ──────────────────────────────')}
@@ -654,25 +684,29 @@ ${cm('  Override per-user with role-based Agent Settings')}`
       }
     };
 
-    function showPanel(fn) {
+    function openModal(fn) {
       const data = PANELS[fn];
       if (!data) return;
-      document.getElementById('cw-code-title').textContent = data.title;
-      document.getElementById('cw-code-block').innerHTML = data.code;
-      document.getElementById('cw-code-panel').classList.add('open');
+      document.getElementById('cw-modal-title').textContent = data.title;
+      document.getElementById('cw-modal-code').innerHTML = data.code;
+      document.getElementById('cw-modal-explain').innerHTML = data.explain;
+      document.getElementById('cw-overlay').classList.add('open');
       document.querySelectorAll('.cw-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
     }
 
-    function closePanel() {
-      document.getElementById('cw-code-panel').classList.remove('open');
+    function closeModal() {
+      document.getElementById('cw-overlay').classList.remove('open');
       document.querySelectorAll('.cw-card').forEach(c => c.classList.remove('active'));
     }
 
     document.querySelectorAll('.cw-card[data-fn]').forEach(card => {
-      card.addEventListener('click', () => showPanel(card.dataset.fn));
+      card.addEventListener('click', () => openModal(card.dataset.fn));
     });
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('cw-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
   </script>
 
 </body>

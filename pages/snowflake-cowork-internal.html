@@ -211,7 +211,28 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>This slide shows Snowflake's own deployment of CoWork — RAVEN, the AI Sales Agent built on CoWork for Snowflake's 6,000 GTM employees. It's a powerful proof point: Snowflake isn't just selling CoWork, they're running their entire sales intelligence operation on it. RAVEN is Snow-on-Snow at scale.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Snow-on-Snow:</strong> Snowflake's own sales team uses the same product they sell. RAVEN is CoWork deployed internally — not a prototype, it's in production for the global GTM org.</li>
+  <li><strong>Scale:</strong> 6,000 sales, SE, and marketing employees get real-time account intelligence, meeting prep, and opportunity insights through RAVEN.</li>
+  <li><strong>Data sources:</strong> RAVEN is grounded in Salesforce CRM, Gong call transcripts, Snowflake account usage data, external signals, and internal knowledge bases — all unified in Snowflake.</li>
+  <li><strong>Use cases:</strong> Pre-call briefings, account health scoring, competitor intelligence, risk flags, renewal signals — all surfaced through natural language conversation.</li>
+  <li><strong>Validation:</strong> The same governance, observability, and data quality features that Snowflake sells to customers power RAVEN internally. Snowflake is the reference customer.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How does your sales or GTM team currently get account intelligence before a customer meeting?</li>
+  <li>What data sources would you want a sales agent to have access to — CRM, call transcripts, usage data?</li>
+  <li>Is a "Snow-on-Snow" deployment story compelling for your internal stakeholders?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/user-guide/snowflake-cortex/aisql',

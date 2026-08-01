@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cost Management &amp; FinOps — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Page ───────────────────────────────────────────────── */
+    .cm-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 8px;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      margin-top: 6px;
+    }
+
+    /* ── KPI strip ──────────────────────────────────────────── */
+    .cm-kpis {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 900px;
+      flex-shrink: 0;
+    }
+    .cm-kpi {
+      flex: 1;
+      background: var(--sf-blue-dark);
+      border: 1.5px solid rgba(41,181,232,.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cm-kpi-value {
+      font-size: var(--fs-h2);
+      font-weight: 800;
+      color: var(--sf-blue);
+      line-height: 1.1;
+    }
+    .cm-kpi-label {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.5);
+      line-height: 1.3;
+    }
+
+    /* ── Pillar cards ───────────────────────────────────────── */
+    .cm-pillars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      width: 100%;
+      max-width: 900px;
+      flex-shrink: 0;
+    }
+    .cm-pillar {
+      background: #fff;
+      border: 2px solid rgba(41,181,232,.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      transition: border-color .17s, box-shadow .17s, transform .15s;
+    }
+    .cm-pillar:hover {
+      border-color: var(--sf-blue);
+      box-shadow: 0 4px 14px rgba(41,181,232,.22);
+      transform: translateY(-2px);
+    }
+    .cm-pillar.active {
+      border-color: var(--sf-blue);
+      box-shadow: 0 0 0 3px rgba(41,181,232,.2);
+    }
+    .cm-pillar-head { display: flex; align-items: center; gap: 10px; }
+    .cm-pillar-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .cm-pillar-title { font-size: var(--fs-h3); font-weight: 800; color: var(--sf-ink); }
+    .cm-pillar-desc { font-size: var(--fs-h5); color: rgba(7,21,37,.58); line-height: 1.45; }
+    .cm-pillar-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .cm-chip {
+      padding: 2px 8px; border-radius: 100px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.2);
+      font-size: 9px; font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      color: var(--sf-blue);
+    }
+
+    /* ── Slide-up panel ─────────────────────────────────────── */
+    .cm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,.65);
+      z-index: 900;
+      align-items: center;
+      justify-content: center;
+    }
+    .cm-overlay.open { display: flex; }
+    .cm-panel {
+      background: var(--sf-navy);
+      border: 2px solid var(--sf-blue);
+      border-radius: 14px;
+      width: 780px;
+      max-width: 92vw;
+      max-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .cm-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px;
+      background: var(--sf-blue);
+      flex-shrink: 0;
+    }
+    .cm-panel-title { font-size: var(--fs-h3); font-weight: 700; color: #fff; flex: 1; }
+    .cm-panel-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,.2); border: none; cursor: pointer;
+      color: #fff; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cm-panel-close:hover { background: rgba(255,255,255,.35); }
+    .cm-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 22px 20px;
+      background: var(--sf-navy);
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake's FinOps capabilities are built into the platform — no separate cost monitoring tool required. Resource Monitors, Budgets, Query Acceleration Service, and Cost Explorer give customers real-time visibility, automatic guardrails, and optimization recommendations across compute, storage, and serverless services.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Resource Monitors:</strong> Set credit limits on warehouses or at the account level. Automatically suspend, notify, or take action when thresholds are hit — prevents runaway queries from blowing a budget.</li>
+  <li><strong>Budgets:</strong> Org-level and account-level budgets with alerting. Allocate spend by team, project, or cost center using custom budgets and tags.</li>
+  <li><strong>Query Acceleration Service:</strong> Automatically offloads large scans and parallel parts of queries to additional compute — improves performance without upsizing the warehouse.</li>
+  <li><strong>ACCOUNT_USAGE views:</strong> Every credit, storage byte, query, and user action is logged in Snowflake's own ACCOUNT_USAGE schema — query it with SQL to build any cost report you need.</li>
+  <li><strong>Storage Lifecycle Policies:</strong> Move infrequently accessed data to cheaper COOL/COLD tiers automatically without changing queries.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you manage Snowflake costs today — do you have visibility into which teams or workloads are driving spend?</li>
+  <li>Have you had any surprise billing events — runaway queries, unexpected storage growth?</li>
+  <li>Do you do any chargeback or showback to internal teams for Snowflake usage?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/guides-overview-cost',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="nav-label">Cost Management &amp; FinOps</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <!-- Header -->
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Platform</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">FinOps on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;">Built-in cost visibility, automatic performance optimization, proactive budget guardrails, and anomaly detection — without a separate FinOps toolchain.</div>
+        </div>
+
+        <div class="cm-page content-wrap">
+
+          <!-- KPI strip -->
+          <div class="cm-kpis">
+            <div class="cm-kpi">
+              <div class="cm-kpi-value">65%</div>
+              <div class="cm-kpi-label">Cost savings vs Databricks — Travelpass</div>
+            </div>
+            <div class="cm-kpi">
+              <div class="cm-kpi-value">54%</div>
+              <div class="cm-kpi-label">Cost savings vs managed Spark — CTC</div>
+            </div>
+            <div class="cm-kpi">
+              <div class="cm-kpi-value">$800K</div>
+              <div class="cm-kpi-label">Saved annually eliminating data movement — CTC</div>
+            </div>
+            <div class="cm-kpi">
+              <div class="cm-kpi-value">$750K</div>
+              <div class="cm-kpi-label">Saved in salaries &amp; training — NatWest</div>
+            </div>
+          </div>
+
+          <!-- Pillar cards -->
+          <div class="cm-pillars">
+
+            <div class="cm-pillar" data-fn="optima">
+              <div class="cm-pillar-head">
+                <div class="cm-pillar-icon">
+                  <span class="sf-img sf-icon-speed-2" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cm-pillar-title">Snowflake Optima</div>
+              </div>
+              <div class="cm-pillar-desc">A self-optimizing execution engine. Snowflake Optima continuously analyzes workload patterns and automatically tunes query execution — smarter pruning, joins, and scans — with no rewrites or retuning required.</div>
+              <div class="cm-pillar-chips">
+                <span class="cm-chip">Auto-optimization</span>
+                <span class="cm-chip">Query acceleration</span>
+                <span class="cm-chip">Gen2 warehouses</span>
+              </div>
+            </div>
+
+            <div class="cm-pillar" data-fn="interface">
+              <div class="cm-pillar-head">
+                <div class="cm-pillar-icon">
+                  <span class="sf-img sf-icon-analytics" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cm-pillar-title">Cost Management Interface</div>
+              </div>
+              <div class="cm-pillar-desc">A unified view of all Snowflake spend — by warehouse, user, service, or workload — directly in Snowsight and via ACCOUNT_USAGE views. No separate FinOps dashboard required.</div>
+              <div class="cm-pillar-chips">
+                <span class="cm-chip">ACCOUNT_USAGE</span>
+                <span class="cm-chip">Warehouse metering</span>
+                <span class="cm-chip">Storage costs</span>
+              </div>
+            </div>
+
+            <div class="cm-pillar" data-fn="budgets">
+              <div class="cm-pillar-head">
+                <div class="cm-pillar-icon">
+                  <span class="sf-img sf-icon-pricing" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cm-pillar-title">Budgets &amp; Resource Monitors</div>
+              </div>
+              <div class="cm-pillar-desc">Set monthly credit thresholds per workload, team, warehouse, or AI service. Get alerts before overages occur. Automated guardrails suspend or limit activity when thresholds are met.</div>
+              <div class="cm-pillar-chips">
+                <span class="cm-chip">CREATE BUDGET</span>
+                <span class="cm-chip">Resource Monitors</span>
+                <span class="cm-chip">Alert notifications</span>
+              </div>
+            </div>
+
+            <div class="cm-pillar" data-fn="anomaly">
+              <div class="cm-pillar-head">
+                <div class="cm-pillar-icon">
+                  <span class="sf-img sf-icon-eliminate-delays" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                </div>
+                <div class="cm-pillar-title">Anomaly Detection</div>
+              </div>
+              <div class="cm-pillar-desc">Automatically surface when daily consumption drifts above or below expected ranges. Use CoCo to investigate anomalies and get clear root-cause explanations — moving from "what happened?" to "here's why" in seconds.</div>
+              <div class="cm-pillar-chips">
+                <span class="cm-chip">Spend alerts</span>
+                <span class="cm-chip">CoCo root-cause</span>
+                <span class="cm-chip">Drift detection</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Resource bar -->
+        <div class="resource-trigger">
+          <div class="resource-bar"></div>
+        </div>
+
+        <div class="s6-footer">
+          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="cm-overlay" id="cm-overlay">
+    <div class="cm-panel">
+      <div class="cm-panel-header">
+        <span class="cm-panel-title" id="cm-panel-title"></span>
+        <button class="cm-panel-close" onclick="closePanel()">&#x2715;</button>
+      </div>
+      <div class="cm-panel-body">
+        <div class="mlf-code-block" id="cm-panel-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const k = s => `<span class="code-kw">${s}</span>`;
+    const f = s => `<span class="code-fn">${s}</span>`;
+    const id = s => `<span class="code-id">${s}</span>`;
+    const str = s => `<span class="code-str">${s}</span>`;
+    const p = s => `<span class="code-punc">${s}</span>`;
+    const n = s => `<span class="code-num">${s}</span>`;
+    const cm = s => `<span class="code-comment">${s}</span>`;
+
+    const PANELS = {
+      optima: {
+        title: 'Snowflake Optima — Autonomous Query Optimization',
+        body: `${cm('-- Snowflake Optima is always on — no configuration required.')}
+${cm('-- It analyzes patterns and automatically applies optimizations.')}
+
+${cm('-- ── Automatic micro-partition pruning ──────────────────────────────────')}
+${cm('-- Snowflake Optima improves partition pruning beyond static clustering')}
+${k('SELECT')} ${id('order_id')}${p(',')} ${id('customer_id')}${p(',')} ${id('total_amt')}
+${k('FROM')} ${id('sales.orders')}
+${k('WHERE')} ${id('order_date')} ${k('BETWEEN')} ${str("'2026-01-01'")} ${k('AND')} ${str("'2026-03-31'")}
+  ${k('AND')} ${id('region')} ${p('=')} ${str("'APAC'")}${p(';')}
+${cm('-- Optima may reorder predicates and apply dynamic pruning to reduce scan')}
+
+${cm('-- ── Query Acceleration Service (QAS) ──────────────────────────────────')}
+${cm('-- Automatically offloads large, slow-running queries to serverless compute')}
+${k('ALTER WAREHOUSE')} ${id('COMPUTE_WH')} ${k('SET')}
+  ${id('ENABLE_QUERY_ACCELERATION')} ${p('=')} ${k('TRUE')}
+  ${id('QUERY_ACCELERATION_MAX_SCALE_FACTOR')} ${p('=')} ${n('8')}${p(';')}
+
+${cm('-- Check which queries benefited from acceleration')}
+${k('SELECT')} ${id('query_id')}${p(',')} ${id('query_text')}${p(',')} ${id('eligible')}${p(',')} ${id('upper_limit_scale_factor')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('QUERY_ACCELERATION_ELIGIBLE')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('7')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('ORDER BY')} ${id('upper_limit_scale_factor')} ${k('DESC')}
+${k('LIMIT')} ${n('20')}${p(';')}
+
+${cm('-- ── Gen2 warehouse — higher performance, same credit rate ─────────────')}
+${k('CREATE OR REPLACE WAREHOUSE')} ${id('FAST_WH')}
+  ${id('WAREHOUSE_TYPE')} ${p('=')} ${id('STANDARD')}
+  ${id('WAREHOUSE_SIZE')} ${p('=')} ${str("'X-LARGE'")}
+  ${id('AUTO_SUSPEND')} ${p('=')} ${n('60')}
+  ${id('AUTO_RESUME')} ${p('=')} ${k('TRUE')}${p(';')}
+${cm('-- Gen2 is used automatically when available — no explicit flag needed')}`
+      },
+      interface: {
+        title: 'Cost Management Interface — Unified Spend Visibility',
+        body: `${cm('-- ── Credit consumption by warehouse (last 30 days) ────────────────────')}
+${k('SELECT')}
+  ${id('warehouse_name')}${p(',')}
+  ${f('ROUND')}${p('(')}${f('SUM')}${p('(')}${id('credits_used')}${p(')')}${p(',')} ${n('2')}${p(')')}              ${k('AS')} ${id('total_credits')}${p(',')}
+  ${f('ROUND')}${p('(')}${f('SUM')}${p('(')}${id('credits_used_cloud_services')}${p(')')}${p(',')} ${n('2')}${p(')')} ${k('AS')} ${id('cloud_credits')}${p(',')}
+  ${f('ROUND')}${p('(')}${f('AVG')}${p('(')}${id('credits_used_per_hour')}${p(')')}${p(',')} ${n('3')}${p(')')}       ${k('AS')} ${id('avg_credits_per_hr')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('WAREHOUSE_METERING_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p(')')}
+${k('GROUP BY')} ${n('1')}
+${k('ORDER BY')} ${id('total_credits')} ${k('DESC')}${p(';')}
+
+${cm('-- ── Top users by credit consumption ───────────────────────────────────')}
+${k('SELECT')}
+  ${id('user_name')}${p(',')}
+  ${f('COUNT')}${p('(')}${id('query_id')}${p(')')}                           ${k('AS')} ${id('query_count')}${p(',')}
+  ${f('ROUND')}${p('(')}${f('SUM')}${p('(')}${id('credits_used_cloud_services')}${p(')')}${p(',')} ${n('4')}${p(')')} ${k('AS')} ${id('cloud_credits')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('QUERY_HISTORY')}
+${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_TIMESTAMP')}${p(')')}
+${k('GROUP BY')} ${n('1')}
+${k('ORDER BY')} ${id('cloud_credits')} ${k('DESC')}
+${k('LIMIT')} ${n('20')}${p(';')}
+
+${cm('-- ── Storage costs ──────────────────────────────────────────────────────')}
+${k('SELECT')}
+  ${f('DATE_TRUNC')}${p('(')}${str("'month'")}${p(',')} ${id('usage_date')}${p(')')}  ${k('AS')} ${id('month')}${p(',')}
+  ${f('ROUND')}${p('(')}${f('AVG')}${p('(')}${id('storage_bytes')} ${p('+')} ${id('stage_bytes')} ${p('+')} ${id('failsafe_bytes')}${p(')')} ${p('/')} ${f('POWER')}${p('(')}${n('1024')}${p(',')} ${n('3')}${p(')')}${p(',')} ${n('2')}${p(')')} ${k('AS')} ${id('avg_gb')}
+${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('STORAGE_USAGE')}
+${k('WHERE')} ${id('usage_date')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'month'")}${p(',')} ${p('-')}${n('6')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('GROUP BY')} ${n('1')}
+${k('ORDER BY')} ${n('1')}${p(';')}`
+      },
+      budgets: {
+        title: 'Budgets & Resource Monitors — Proactive Spend Control',
+        body: `${cm('-- ── Resource Monitor: suspend a warehouse at a credit limit ───────────')}
+${k('CREATE OR REPLACE RESOURCE MONITOR')} ${id('etl_monthly_limit')}
+  ${id('CREDIT_QUOTA')} ${p('=')} ${n('500')}          ${cm('-- credits per month')}
+  ${id('FREQUENCY')} ${p('=')} ${id('MONTHLY')}
+  ${id('START_TIMESTAMP')} ${p('=')} ${id('IMMEDIATELY')}
+  ${id('NOTIFY_USERS')} ${p('=')} ${p('(')}${id('PMATSON')}${p(',')} ${id('DATA_ENGINEER_LEAD')}${p(')')}
+  ${id('TRIGGERS')}
+    ${k('ON')} ${n('75')} ${id('PERCENT')} ${k('DO')} ${id('NOTIFY')}        ${cm('-- warn at 75%')}
+    ${k('ON')} ${n('90')} ${id('PERCENT')} ${k('DO')} ${id('NOTIFY')}        ${cm('-- warn again at 90%')}
+    ${k('ON')} ${n('100')} ${id('PERCENT')} ${k('DO')} ${id('SUSPEND')}${p(';')}  ${cm('-- suspend at 100%')}
+
+${k('ALTER WAREHOUSE')} ${id('ETL_WH')} ${k('SET')} ${id('RESOURCE_MONITOR')} ${p('=')} ${id('etl_monthly_limit')}${p(';')}
+
+${cm('-- ── Budget object: cover an entire account area ───────────────────────')}
+${k('CREATE OR REPLACE BUDGET')} ${id('TEMP')}${p('.')}${id('PUBLIC')}${p('.')}${id('analytics_team_budget')}
+  ${id('SCHEDULE')} ${p('=')} ${str("'USING CRON 0 0 1 * * UTC'")}  ${cm('-- reset monthly')}
+  ${id('CREDIT_QUOTA')} ${p('=')} ${n('1000')}${p(';')}
+
+${cm('-- Add objects to the budget scope')}
+${k('CALL')} ${id('analytics_team_budget')}${p('!')}${f('ADD_SERVICE_OBJECT')}${p('(')}
+  ${str("'WAREHOUSE'")}${p(',')} ${str("'ANALYTICS_WH'")}${p(')')}${p(';')}
+
+${cm('-- ── Check current budget status ────────────────────────────────────────')}
+${k('CALL')} ${id('analytics_team_budget')}${p('!')}${f('GET_SPENDING_HISTORY')}${p('(')}
+  ${str("'2026-07-01'")}${p(',')} ${str("'2026-07-31'")}${p(')')}${p(';')}
+
+${cm('-- ── Notification integration for Slack/email alerts ───────────────────')}
+${k('CREATE OR REPLACE NOTIFICATION INTEGRATION')} ${id('cost_alerts')}
+  ${id('ENABLED')} ${p('=')} ${k('TRUE')}
+  ${id('TYPE')} ${p('=')} ${id('QUEUE')}
+  ${id('DIRECTION')} ${p('=')} ${id('OUTBOUND')}
+  ${id('NOTIFICATION_PROVIDER')} ${p('=')} ${id('AWS_SNS')}
+  ${id('AWS_SNS_TOPIC_ARN')} ${p('=')} ${str("'arn:aws:sns:us-west-2:123456789:cost-alerts'")}${p(';')}`
+      },
+      anomaly: {
+        title: 'Anomaly Detection — Catch Unusual Spend Early',
+        body: `${cm('-- ── Detect daily credit spikes vs 30-day rolling average ─────────────')}
+${k('WITH')} ${id('daily_usage')} ${k('AS')} ${p('(')}
+  ${k('SELECT')}
+    ${f('DATE')}${p('(')}${id('start_time')}${p(')')}          ${k('AS')} ${id('usage_date')}${p(',')}
+    ${f('SUM')}${p('(')}${id('credits_used')}${p(')')}          ${k('AS')} ${id('daily_credits')}
+  ${k('FROM')} ${id('SNOWFLAKE')}${p('.')}${id('ACCOUNT_USAGE')}${p('.')}${id('WAREHOUSE_METERING_HISTORY')}
+  ${k('WHERE')} ${id('start_time')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('60')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+  ${k('GROUP BY')} ${n('1')}
+${p(')')}${p(',')}
+${id('baseline')} ${k('AS')} ${p('(')}
+  ${k('SELECT')}
+    ${id('usage_date')}${p(',')}
+    ${id('daily_credits')}${p(',')}
+    ${f('AVG')}${p('(')}${id('daily_credits')}${p(')')} ${k('OVER')} ${p('(')}
+      ${k('ORDER BY')} ${id('usage_date')}
+      ${k('ROWS BETWEEN')} ${n('30')} ${k('PRECEDING AND')} ${n('1')} ${k('PRECEDING')}
+    ${p(')')}                                   ${k('AS')} ${id('rolling_avg_30d')}${p(',')}
+    ${f('STDDEV')}${p('(')}${id('daily_credits')}${p(')')} ${k('OVER')} ${p('(')}
+      ${k('ORDER BY')} ${id('usage_date')}
+      ${k('ROWS BETWEEN')} ${n('30')} ${k('PRECEDING AND')} ${n('1')} ${k('PRECEDING')}
+    ${p(')')}                                   ${k('AS')} ${id('rolling_stddev')}
+  ${k('FROM')} ${id('daily_usage')}
+${p(')')}
+${k('SELECT')}
+  ${id('usage_date')}${p(',')}
+  ${f('ROUND')}${p('(')}${id('daily_credits')}${p(',')} ${n('2')}${p(')')}      ${k('AS')} ${id('credits')}${p(',')}
+  ${f('ROUND')}${p('(')}${id('rolling_avg_30d')}${p(',')} ${n('2')}${p(')')}    ${k('AS')} ${id('avg_30d')}${p(',')}
+  ${f('ROUND')}${p('(')}${p('(')}${id('daily_credits')} ${p('-')} ${id('rolling_avg_30d')}${p(')')} ${p('/')} ${id('rolling_stddev')}${p(',')} ${n('2')}${p(')')}
+                                    ${k('AS')} ${id('z_score')}${p(',')}
+  ${k('CASE WHEN')} ${id('daily_credits')} ${p('>')} ${id('rolling_avg_30d')} ${p('+')} ${n('2')} ${p('*')} ${id('rolling_stddev')}
+    ${k('THEN')} ${str("'SPIKE'")}
+    ${k('WHEN')} ${id('daily_credits')} ${p('<')} ${id('rolling_avg_30d')} ${p('-')} ${n('2')} ${p('*')} ${id('rolling_stddev')}
+    ${k('THEN')} ${str("'DROP'")}
+    ${k('ELSE')} ${str("'NORMAL'")} ${k('END')}                   ${k('AS')} ${id('anomaly_flag')}
+${k('FROM')} ${id('baseline')}
+${k('WHERE')} ${id('usage_date')} ${p('>=')} ${f('DATEADD')}${p('(')}${str("'day'")}${p(',')} ${p('-')}${n('30')}${p(',')} ${f('CURRENT_DATE')}${p(')')}
+${k('ORDER BY')} ${id('usage_date')} ${k('DESC')}${p(';')}`
+      }
+    };
+
+    function showPanel(fn) {
+      const data = PANELS[fn];
+      if (!data) return;
+      document.getElementById('cm-panel-title').textContent = data.title;
+      document.getElementById('cm-panel-body').innerHTML = data.body;
+      document.getElementById('cm-overlay').classList.add('open');
+      document.querySelectorAll('.cm-pillar').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+    }
+
+    function closePanel() {
+      document.getElementById('cm-overlay').classList.remove('open');
+      document.querySelectorAll('.cm-pillar').forEach(c => c.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.cm-pillar[data-fn]').forEach(card => {
+      card.addEventListener('click', () => showPanel(card.dataset.fn));
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+    document.getElementById('cm-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closePanel();
+    });
+  </script>
+
+</body>
+</html>

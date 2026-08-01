@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snowflake Marketplace — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .mp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%; max-width: 900px;
+      padding: 8px 0 4px;
+    }
+    .mp-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .mp-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .mp-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .mp-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-blue); margin-bottom: 4px;
+    }
+    .mp-card.active .mp-card-label { color: var(--sf-light); }
+    .mp-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+    .mp-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .mp-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .mp-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .mp-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .mp-panel-explain p { margin-bottom: 10px; }
+    .mp-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .mp-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake Marketplace has 750+ data providers offering live, queryable data sets — weather, demographics, firmographics, financial data, alternative data, and now AI models. The big differentiator: you don't download anything. When you install a Marketplace listing, you get a read-only database in your account backed by the provider's live data. Your warehouse runs the query; you get fresher data than any download-and-load approach, with no pipeline to maintain.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>No downloads:</strong> Marketplace data is always live. Install a listing and query it like a local table — but the data is the provider's actual storage.</li>
+  <li><strong>Native Apps on Marketplace:</strong> Not just data — you can install apps too. Cortex agents, analytics tools, ML models, all in your account.</li>
+  <li><strong>Capacity Drawdown:</strong> Spend your Snowflake contract balance on third-party Marketplace purchases — one vendor, one contract, one invoice.</li>
+  <li><strong>Provider revenue:</strong> If you have data worth monetizing, Marketplace gives you a distribution channel to all Snowflake customers globally.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What external data sources are you paying for today that could be consolidated through Marketplace? (weather, geo-enrichment, firmographics)</li>
+  <li>Do you have a separate vendor contract for each data provider, or would one consolidated purchase through Snowflake help?</li>
+  <li>Do you have data or IP that you could productize and distribute to your own customers or partners through the Marketplace?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/data-marketplace-intro',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Snowflake Marketplace</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Applications &amp; Collaboration</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Marketplace</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake Marketplace</div>
+          <div class="s6-sub" style="text-align:center;">750+ live data sources, AI models, and apps. Install and query directly — no downloads, no pipelines, always fresh.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="mp-grid">
+            <div class="mp-card" onclick="showPanel(0)">
+              <div class="mp-card-label">Browse &amp; Install</div>
+              <div class="mp-card-desc">Discover and install data products, apps, and AI models from the Marketplace UI or programmatically via SQL.</div>
+            </div>
+            <div class="mp-card" onclick="showPanel(1)">
+              <div class="mp-card-label">Data Products</div>
+              <div class="mp-card-desc">750+ live data sets — weather, demographics, firmographics, financial data, alternative data — always fresh, no ETL.</div>
+            </div>
+            <div class="mp-card" onclick="showPanel(2)">
+              <div class="mp-card-label">Native App Listings</div>
+              <div class="mp-card-desc">Install apps that run code inside your account. Analytics tools, AI agents, ML models — governed and isolated.</div>
+            </div>
+            <div class="mp-card" onclick="showPanel(3)">
+              <div class="mp-card-label">AI &amp; Model Listings</div>
+              <div class="mp-card-desc">Access third-party AI models and inference endpoints directly in your Snowflake queries — no API keys required.</div>
+            </div>
+            <div class="mp-card" onclick="showPanel(4)">
+              <div class="mp-card-label">Capacity Drawdown</div>
+              <div class="mp-card-desc">Use your existing Snowflake contract balance to purchase third-party Marketplace listings — one vendor, one invoice.</div>
+            </div>
+            <div class="mp-card" onclick="showPanel(5)">
+              <div class="mp-card-label">Provider Analytics</div>
+              <div class="mp-card-desc">Track listing installs, consumer queries, and revenue through ACCOUNT_USAGE and DATA_SHARING_USAGE views.</div>
+            </div>
+          </div>
+
+          <div class="mp-panel" id="mp-panel">
+            <div class="mp-panel-code" id="mp-code">-- Select a card above to explore Marketplace concepts</div>
+            <div class="mp-panel-explain" id="mp-explain">
+              <h4>Snowflake Marketplace</h4>
+              <p>Click any card above to see SQL examples and explanations for each aspect of Snowflake Marketplace.</p>
+              <p>Marketplace connects data consumers and providers inside Snowflake's security boundary. Data you install from Marketplace is live and queryable — not a downloaded copy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const items = [
+    {
+      label: 'Browse & Install',
+      code: `${cm('-- Find available listings programmatically')}\n${k('SELECT')}\n  listing_name${p(',')}\n  display_name${p(',')}\n  category${p(',')}\n  provider_name\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('marketplace_available_listings')}\n${k('WHERE')} category ${p('=')} ${str('FINANCIAL')}\n${k('ORDER')} ${k('BY')} display_name;\n\n${cm('-- Check installed listings in your account')}\n${k('SELECT')}\n  database_name${p(',')}\n  listing_name${p(',')}\n  provider_account_locator${p(',')}\n  installed_on\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('installed_listings')}\n${k('ORDER')} ${k('BY')} installed_on ${k('DESC')};\n\n${cm('-- After installing via UI, query the shared database directly')}\n${k('SELECT')} ${p('*')}\n${k('FROM')} weather_data.public.daily_observations\n${k('WHERE')} observation_date ${p('>')} ${f('DATEADD')}${p('(')}'day'${p(',')}-30${p(',')}'${id('CURRENT_DATE')}'${p(')')};\n\n${cm('-- The data is live — no ETL, no copy, no lag')}`,
+      title: 'Browse & Install',
+      html: `<p>Marketplace listings can be browsed in Snowsight or queried programmatically. After install, the shared database appears in your account and is queryable like any local table.</p>
+<ul>
+  <li><code>MARKETPLACE_AVAILABLE_LISTINGS</code> in DATA_SHARING_USAGE shows what's available; <code>INSTALLED_LISTINGS</code> shows what you have</li>
+  <li>Installation is self-service via Snowsight's Marketplace tab — no approval or IT ticket required for free listings</li>
+  <li>Paid listings require agreement to terms and may require Snowflake to route payment to the provider</li>
+  <li>Data is immediately queryable after installation — the shared database is backed by the provider's live storage</li>
+</ul>
+<p>The experience is closer to npm install than a data import: one click, and the data is available in your SQL environment.</p>`
+    },
+    {
+      label: 'Data Products',
+      code: `${cm('-- After installing a demographic data listing:')}\n${k('SELECT')}\n  z.zip_code${p(',')}\n  z.state${p(',')}\n  z.median_household_income${p(',')}\n  z.population_density\n${k('FROM')} acxiom_demographics.public.zip_level_demographics z\n${k('JOIN')} my_orders_db.sales.orders o\n  ${k('ON')} o.customer_zip ${p('=')} z.zip_code\n${k('WHERE')} o.order_date ${p('>')} ${f('DATEADD')}${p('(')}'month'${p(',')}-3${p(',')}'${id('CURRENT_DATE')}'${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1,2,3,4')}\n${k('ORDER')} ${k('BY')} ${f('COUNT')}${p('(*)')} ${k('DESC')};\n\n${cm('-- Enrich with weather data from a different listing:')}\n${k('SELECT')}\n  o.order_date${p(',')}\n  o.region${p(',')}\n  ${f('SUM')}${p('(')}o.revenue${p(')')} ${k('AS')} daily_revenue${p(',')}\n  ${f('AVG')}${p('(')}w.avg_temp_f${p(')')} ${k('AS')} avg_temp\n${k('FROM')} my_db.sales.orders o\n${k('JOIN')} weather_source.public.history_day w\n  ${k('ON')} o.zip_code ${p('=')} w.postal_code\n  ${k('AND')} o.order_date ${p('=')} w.date_valid_std\n${k('GROUP')} ${k('BY')} ${p('1,2')};`,
+      title: 'Data Products',
+      html: `<p>Marketplace's 750+ data providers span nearly every category of external data a business needs. Key categories include:</p>
+<ul>
+  <li><strong>Geospatial & Demographics</strong>: zip-level income, population density, foot traffic, POI data</li>
+  <li><strong>Financial & Market Data</strong>: equity prices, options data, economic indicators, credit signals</li>
+  <li><strong>Weather</strong>: historical and forecast weather by postal code — enrich any location-based analysis</li>
+  <li><strong>Firmographic / B2B</strong>: company attributes, tech stack signals, contact data, funding history</li>
+  <li><strong>Alternative Data</strong>: satellite imagery, sentiment data, app usage signals, ad spend tracking</li>
+</ul>
+<p>Because the data is live, you can JOIN directly between your tables and Marketplace data without any ingestion pipeline. The join runs entirely in your warehouse with your compute.</p>`
+    },
+    {
+      label: 'Native App Listings',
+      code: `${cm('-- Native App listings install as APPLICATION objects')}\n${cm('-- After installing a Native App from Marketplace:')}\n\n${cm('-- List installed applications')}\n${k('SHOW')} ${k('APPLICATIONS')};\n\n${cm('-- Applications have their own namespace')}\n${k('DESCRIBE')} ${k('APPLICATION')} my_installed_analytics_app;\n\n${cm('-- Grant the app\'s roles to your users')}\n${k('GRANT')} ${k('APPLICATION')} ${k('ROLE')} my_installed_analytics_app.app_viewer\n  ${k('TO')} ${k('ROLE')} analyst_role;\n\n${cm('-- Call a procedure defined by the app')}\n${k('CALL')} my_installed_analytics_app.core.run_report${p('(')}\n  ${str("'Q4_2025'")}${p(',')}\n  ${str("'NORTH_AMERICA'")}\n${p(')')};\n\n${cm('-- App procedures access YOUR data, not the provider\'s')}\n${cm('-- The provider\'s code runs next to your data')}\n${cm('-- under the permissions you approved at install time')}\n\n${cm('-- Uninstall cleanly removes all app objects')}\n${k('DROP')} ${k('APPLICATION')} my_installed_analytics_app;`,
+      title: 'Native App Listings',
+      html: `<p><strong>Native App listings</strong> on Marketplace install as APPLICATION objects in your account. Unlike data listings (which give you read access to provider data), app listings give you executable code that runs inside your account alongside your own data.</p>
+<ul>
+  <li>Apps install with a clear scope of what they can access — you review and approve the references at install time</li>
+  <li>Application roles define what your users can do with the app; you grant them to your existing Snowflake roles</li>
+  <li>The provider never sees your data — their code runs in your account, governed by your policies</li>
+  <li>Updates are delivered transparently via patches; major version upgrades require your explicit approval</li>
+</ul>
+<p>This is the path for tools like: AI-powered analytics, cost optimization utilities, data quality scanners, vertical industry solutions — shipped as governed, installable apps rather than requiring API integrations or separate SaaS contracts.</p>`
+    },
+    {
+      label: 'AI & Model Listings',
+      code: `${cm('-- Install an AI model listing (e.g. a fine-tuned LLM)')}\n${cm('-- After installation, the model appears as a function:')}\n\n${cm('-- Example: using a Marketplace-installed sentiment model')}\n${k('SELECT')}\n  review_id${p(',')}\n  review_text${p(',')}\n  sentiment_model.public.classify_sentiment${p('(')}review_text${p(')')} ${k('AS')} sentiment\n${k('FROM')} customer_reviews;\n\n${cm('-- Example: using a Marketplace vector embedding model')}\n${k('SELECT')}\n  product_id${p(',')}\n  ${f('VECTOR_COSINE_SIMILARITY')}${p('(')}\n    embedding_model.public.embed_text${p('(')}product_description${p(')')}${p(',')}\n    embedding_model.public.embed_text${p('(')}${p(':')}'search_query'${p(')')}\n  ${p(')')} ${k('AS')} relevance_score\n${k('FROM')} products\n${k('ORDER')} ${k('BY')} relevance_score ${k('DESC')}\n${k('LIMIT')} 20;\n\n${cm('-- AI model listings are first-class Snowflake SQL functions')}\n${cm('-- No API keys, no rate limiting separate from Snowflake')}\n${cm('-- Compute billed to your warehouse or the provider\'s terms')}`,
+      title: 'AI & Model Listings',
+      html: `<p>Marketplace now includes <strong>AI model and inference listings</strong> — third-party models (specialized LLMs, embedding models, domain-specific classifiers) that appear as SQL functions in your account.</p>
+<ul>
+  <li>Models from providers like Mistral, Reka, and specialized AI vendors are available as Marketplace listings</li>
+  <li>Once installed, you call them as UDFs or vectorized functions — no API keys, no separate auth, no external network calls from your SQL</li>
+  <li>This enables model comparison: call a Cortex built-in model and a Marketplace model in the same SELECT, compare outputs side by side</li>
+  <li>Useful for domain-specific tasks where a fine-tuned model (biomedical NLP, legal clause extraction, financial entity recognition) outperforms a general-purpose LLM</li>
+</ul>
+<p>The architecture benefit: your data stays in Snowflake, and specialized AI capabilities come to your data — not the other way around.</p>`
+    },
+    {
+      label: 'Capacity Drawdown',
+      code: `${cm('-- Capacity Drawdown: use your Snowflake contract balance')}\n${cm('-- to purchase Marketplace listings')}\n\n${cm('-- Check available drawdown balance')}\n${k('SELECT')}\n  free_usage_balance${p(',')}\n  capacity_balance${p(',')}\n  on_demand_balance\n${k('FROM')} ${id('snowflake')}.${id('organization_usage')}.${id('remaining_balance_daily')}\n${k('ORDER')} ${k('BY')} date ${k('DESC')}\n${k('LIMIT')} ${p('1')};\n\n${cm('-- After configuring drawdown, Marketplace purchases')}\n${cm('-- are deducted from your Snowflake contract balance')}\n${cm('-- instead of requiring a separate vendor contract')}\n\n${cm('-- View Marketplace spend by listing')}\n${k('SELECT')}\n  listing_name${p(',')}\n  provider_name${p(',')}\n  ${f('SUM')}${p('(')}charges_amount${p(')')} ${k('AS')} total_spend\n${k('FROM')} ${id('snowflake')}.${id('organization_usage')}.${id('marketplace_purchased_listings')}\n${k('WHERE')} start_time ${p('>')} ${f('DATEADD')}${p('(')}'month'${p(',')}-3${p(',')}'${id('CURRENT_TIMESTAMP')}'${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1,2')}\n${k('ORDER')} ${k('BY')} total_spend ${k('DESC')};`,
+      title: 'Capacity Drawdown',
+      html: `<p><strong>Marketplace Capacity Drawdown</strong> lets you use your existing Snowflake contract balance to pay for paid Marketplace listings — consolidating your data vendor spend into a single Snowflake invoice.</p>
+<ul>
+  <li>Instead of negotiating and managing separate vendor contracts for each data provider, you buy once through Snowflake's procurement and use that balance across all Marketplace purchases</li>
+  <li>Applies to both data listings and Native App listings that have paid/usage-based pricing</li>
+  <li>Spend tracked in <code>ORGANIZATION_USAGE.MARKETPLACE_PURCHASED_LISTINGS</code> — full visibility per listing</li>
+  <li>Finance teams get one invoice; procurement teams negotiate one contract; data teams get self-service access to 750+ providers</li>
+</ul>
+<p>This is a significant commercial differentiator in competitive deals: frame Marketplace as "expand your Snowflake investment by activating external data within the same budget."</p>`
+    },
+    {
+      label: 'Provider Analytics',
+      code: `${cm('-- Provider side: who installed your listing and when?')}\n${k('SELECT')}\n  consumer_account_locator${p(',')}\n  consumer_organization${p(',')}\n  installed_on${p(',')}\n  status\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_history')}\n${k('WHERE')} listing_name ${p('=')} ${str("'MY_DATA_PRODUCT'")}\n${k('ORDER')} ${k('BY')} installed_on ${k('DESC')};\n\n${cm('-- How many queries per day on your shared data?')}\n${k('SELECT')}\n  ${f('DATE_TRUNC')}${p('(')}'day'${p(',')}\n  query_date${p(')')} ${k('AS')} query_day${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} queries\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_query_activity')}\n${k('WHERE')} listing_name ${p('=')} ${str("'MY_DATA_PRODUCT'")}\n  ${k('AND')} query_date ${p('>')} ${f('DATEADD')}${p('(')}'month'${p(',')}-1${p(',')}'${id('CURRENT_DATE')}'${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1')}\n${k('ORDER')} ${k('BY')} ${p('1')} ${k('DESC')};\n\n${cm('-- Revenue tracking for paid listings')}\n${k('SELECT')}\n  billing_month${p(',')}\n  listing_name${p(',')}\n  ${f('SUM')}${p('(')}earned_amount${p(')')} ${k('AS')} monthly_revenue\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_revenue_history')}\n${k('GROUP')} ${k('BY')} ${p('1,2')};`,
+      title: 'Provider Analytics',
+      html: `<p>As a listing provider, Snowflake gives you detailed analytics on who is using your listing, query volume, and revenue — all through standard SQL against DATA_SHARING_USAGE views.</p>
+<ul>
+  <li><strong>LISTING_ACCESS_HISTORY</strong>: who installed your listing, when, from which organization</li>
+  <li><strong>LISTING_QUERY_ACTIVITY</strong>: query volume over time — tells you which consumers are active and which went dark</li>
+  <li><strong>LISTING_REVENUE_HISTORY</strong>: for paid listings, monthly earnings by listing</li>
+  <li>Consumer identities are available at the account level — you can't see individual user activity, but you can see which accounts are active</li>
+</ul>
+<p>This is the foundation for a data monetization strategy: publish a listing, track adoption, see which industries and geographies are your heaviest consumers, and use that intelligence to prioritize what to publish next.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.mp-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('mp-code').innerHTML = items[i].code;
+    document.getElementById('mp-explain').innerHTML = `<h4>${items[i].title}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

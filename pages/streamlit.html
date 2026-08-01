@@ -244,7 +244,28 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Streamlit in Snowflake lets teams build and deploy data apps, dashboards, and internal tools directly inside Snowflake — no separate hosting infrastructure, no data movement, no separate auth system. Apps run in Snowflake's compute, governed by Snowflake's RBAC, and deployed with a single command.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero infra:</strong> No Flask server, no EC2 instance, no Kubernetes deployment needed. The app runs in Snowflake's serverless compute and scales automatically.</li>
+  <li><strong>Native data access:</strong> Streamlit apps access Snowflake tables directly through <code>st.connection('snowflake')</code> — no connection strings, no credentials to manage.</li>
+  <li><strong>Governed by RBAC:</strong> Access to the Streamlit app is controlled by Snowflake roles. The app runs with the privileges of the viewer's role — no data over-sharing.</li>
+  <li><strong>Sharing:</strong> Apps can be shared internally via Snowflake's role system, or published to the Snowflake Marketplace as a Native App with Streamlit UI.</li>
+  <li><strong>Python ecosystem:</strong> Full access to pandas, Plotly, Altair, scikit-learn, and any other Python library in the app — plus Snowpark DataFrame API for large-scale computation.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do your analysts or data scientists currently share insights — dashboards, notebooks, ad hoc queries?</li>
+  <li>Do you have internal tools built on Python or Flask that need access to Snowflake data?</li>
+  <li>Is building and hosting BI tools for internal users a pain point today?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/developer-guide/streamlit/about-streamlit',

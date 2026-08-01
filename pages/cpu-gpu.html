@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CPU &amp; GPU Compute — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    .cg-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px 10px;
+      min-height: 0;
+    }
+    .cg-inner {
+      width: 100%; max-width: 900px;
+      display: flex; flex-direction: column;
+      gap: 6px; flex: 1; min-height: 0;
+    }
+
+    /* Section headers */
+    .cg-section-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cg-section-label {
+      font-size: var(--fs-h6); font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      color: rgba(41,181,232,.65);
+      white-space: nowrap;
+    }
+    .cg-section-line {
+      flex: 1; height: 1px;
+      background: rgba(41,181,232,.15);
+    }
+
+    /* Card rows */
+    .cg-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .cg-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .cg-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .cg-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .cg-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-blue); margin-bottom: 3px;
+    }
+    .cg-card.active .cg-card-label { color: var(--sf-light); }
+    .cg-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+
+    /* Inline panel */
+    .cg-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 10px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .cg-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 14px 16px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .cg-panel-explain {
+      flex: 2; padding: 14px 16px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .cg-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 6px; }
+    .cg-panel-explain p { margin-bottom: 8px; }
+    .cg-panel-explain ul { padding-left: 16px; margin-bottom: 8px; }
+    .cg-panel-explain li { margin-bottom: 3px; }
+    .cg-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .cg-badge-cpu { background: rgba(41,181,232,.15); color: var(--sf-blue); }
+    .cg-badge-gpu { background: rgba(245,158,11,.15); color: #F59E0B; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake has two distinct compute planes that often confuse customers: Virtual Warehouses (CPU-based, SQL-optimized) and SPCS Compute Pools (GPU or CPU containers). Virtual Warehouses are the primary compute for all SQL workloads — they auto-suspend, scale horizontally with multi-cluster, and are sized in T-shirt sizes. Compute Pools are container infrastructure that runs arbitrary code: ML training, model serving, APIs, heavy Python — where you need a GPU, persistent processes, or custom runtimes.</p>
+
+<h3>CPU — Virtual Warehouses</h3>
+<ul>
+  <li><strong>Sizing:</strong> XS to 6XL. Each size doubles the credits/hour and the compute resources. Right-size with query profiling — most OLAP queries run fine on M or L.</li>
+  <li><strong>Multi-Cluster (MCW):</strong> Horizontally scales for concurrency, not query size. If you have 500 simultaneous users, MCW spins up additional clusters — not bigger nodes.</li>
+  <li><strong>Serverless:</strong> Snowflake manages sizing automatically. Best for tasks (Snowpipe, dynamic tables, search optimization) — not interactive user queries.</li>
+</ul>
+
+<h3>GPU — SPCS Compute Pools</h3>
+<ul>
+  <li><strong>GPU_NV_S/M/L:</strong> NVIDIA A10G cards for inference. The S (1 GPU) is cost-effective for batch inference; L (8 GPUs) for high-throughput serving.</li>
+  <li><strong>GPU_NV_XS:</strong> Single A10G, lowest cost. Good for dev/test of ML inference services.</li>
+  <li><strong>Use case:</strong> Custom model endpoints, fine-tuning, heavy embedding generation, real-time inference APIs — anything that requires a GPU or a persistent process.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Are your queries queuing? (MCW candidate) Or running slow? (bigger warehouse or clustering)</li>
+  <li>Do you need to run custom ML models that aren't covered by Cortex AI? (GPU compute pool)</li>
+  <li>Are you building low-latency inference APIs? (SPCS service with GPU pool + endpoint)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/warehouses-overview',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">CPU &amp; GPU Compute</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Compute</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Virtual Warehouses &amp; Compute Pools</span>
+          </div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">CPU &amp; GPU Compute</div>
+          <div class="s6-sub" style="text-align:center;">Virtual Warehouses for SQL workloads. GPU Compute Pools for ML training, inference, and containerized services.</div>
+        </div>
+
+        <div class="cg-body">
+          <div class="cg-inner">
+
+            <!-- CPU Section -->
+            <div class="cg-section-row">
+              <span class="cg-section-label">CPU — Virtual Warehouses</span>
+              <div class="cg-section-line"></div>
+            </div>
+            <div class="cg-row">
+              <div class="cg-card" onclick="showPanel(0)">
+                <div class="cg-card-label">Warehouse Sizing</div>
+                <div class="cg-card-desc">XS to 6XL — each size doubles credits/hr and compute. Multi-cluster scales for concurrency, not query size.</div>
+              </div>
+              <div class="cg-card" onclick="showPanel(1)">
+                <div class="cg-card-label">Multi-Cluster (MCW)</div>
+                <div class="cg-card-desc">Horizontally scale for high concurrency. Snowflake spins up additional clusters when queue depth exceeds threshold.</div>
+              </div>
+              <div class="cg-card" onclick="showPanel(2)">
+                <div class="cg-card-label">Serverless Compute</div>
+                <div class="cg-card-desc">Snowflake auto-sizes for tasks, pipelines, and maintenance operations — no warehouse to manage or pre-provision.</div>
+              </div>
+            </div>
+
+            <!-- GPU Section -->
+            <div class="cg-section-row" style="margin-top:2px;">
+              <span class="cg-section-label" style="color:rgba(245,158,11,.7);">GPU — Snowpark Container Services</span>
+              <div class="cg-section-line"></div>
+            </div>
+            <div class="cg-row">
+              <div class="cg-card" onclick="showPanel(3)">
+                <div class="cg-card-label">GPU Compute Pools</div>
+                <div class="cg-card-desc">NVIDIA A10G cards (GPU_NV_XS/S/M/L) for ML inference and training. Persistent container services with custom runtimes.</div>
+              </div>
+              <div class="cg-card" onclick="showPanel(4)">
+                <div class="cg-card-label">ML Model Serving</div>
+                <div class="cg-card-desc">Deploy custom models as low-latency service endpoints inside Snowflake. Call from SQL via service functions.</div>
+              </div>
+              <div class="cg-card" onclick="showPanel(5)">
+                <div class="cg-card-label">Snowpark-Optimized</div>
+                <div class="cg-card-desc">16× more memory per node vs standard warehouses. Required for ML training, heavy Python UDFs, and large in-memory workloads.</div>
+              </div>
+            </div>
+
+            <!-- Inline panel -->
+            <div class="cg-panel" id="cg-panel">
+              <div class="cg-panel-code" id="cg-code">-- Select a card above to explore CPU and GPU compute options</div>
+              <div class="cg-panel-explain" id="cg-explain">
+                <h4>CPU &amp; GPU Compute</h4>
+                <p>Click any card above to see SQL examples and explanations for Snowflake compute options.</p>
+                <p><strong>CPU (Virtual Warehouses)</strong> handle all SQL queries and transformations. <strong>GPU (SPCS Compute Pools)</strong> run containerized workloads — ML training, inference APIs, and custom runtimes.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const items = [
+    {
+      badge: 'cpu',
+      label: 'Warehouse Sizing',
+      code: `${cm('-- Create warehouses at different sizes')}\n${k('CREATE')} ${k('WAREHOUSE')} analytics_wh\n  ${k('WAREHOUSE_SIZE')} ${p('=')} ${k('LARGE')}\n  ${k('AUTO_SUSPEND')} ${p('=')} ${p('60')}\n  ${k('AUTO_RESUME')} ${p('=')} ${k('TRUE')}\n  ${k('INITIALLY_SUSPENDED')} ${p('=')} ${k('TRUE')};\n\n${cm('-- Credits per hour by size:')}\n${cm('-- XS:  1  | S:  2  | M:  4  | L:  8')}\n${cm('-- XL: 16  | 2XL: 32  | 3XL: 64  | 4XL: 128')}\n${cm('-- 5XL: 256  | 6XL: 512')}\n\n${cm('-- Check current warehouse activity')}\n${k('SELECT')}\n  warehouse_name${p(',')}\n  state${p(',')}\n  size${p(',')}\n  running${p(',')}\n  queued${p(',')}\n  is_default\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('warehouse_metering_history')}\n${k('WHERE')} start_time ${p('>')} ${f('DATEADD')}${p('(')}'day'${p(',')}-1${p(',')}'${id('CURRENT_TIMESTAMP')}'${p(')')}\n${k('ORDER')} ${k('BY')} start_time ${k('DESC')};\n\n${cm('-- Resize without stopping in-flight queries')}\n${k('ALTER')} ${k('WAREHOUSE')} analytics_wh\n  ${k('SET')} ${k('WAREHOUSE_SIZE')} ${p('=')} ${k('XLARGE')};`,
+      title: 'Warehouse Sizing',
+      html: `<span class="cg-badge cg-badge-cpu">CPU</span>
+<p>Virtual Warehouses are sized in T-shirt sizes from XS to 6XL. Each step up doubles the credits/hour and the number of compute nodes. Choosing the right size is a balance between query performance and cost.</p>
+<ul>
+  <li><strong>Most OLAP workloads</strong> run well on M or L. Larger is not always faster — diminishing returns for queries that don't parallelize across nodes.</li>
+  <li><strong>AUTO_SUSPEND</strong>: set to 60 seconds for interactive use, shorter (10–30s) for batch jobs to minimize idle cost</li>
+  <li><strong>Resizing is live</strong>: ALTER WAREHOUSE applies to the next query without dropping connections or interrupting in-flight work</li>
+  <li>Use <code>WAREHOUSE_METERING_HISTORY</code> to see actual credit consumption per warehouse and right-size based on real usage</li>
+</ul>`
+    },
+    {
+      badge: 'cpu',
+      label: 'Multi-Cluster (MCW)',
+      code: `${cm('-- Create a multi-cluster warehouse for high concurrency')}\n${k('CREATE')} ${k('WAREHOUSE')} reporting_wh\n  ${k('WAREHOUSE_SIZE')} ${p('=')} ${k('MEDIUM')}\n  ${k('MIN_CLUSTER_COUNT')} ${p('=')} ${p('1')}\n  ${k('MAX_CLUSTER_COUNT')} ${p('=')} ${p('5')}\n  ${k('SCALING_POLICY')} ${p('=')} ${str('STANDARD')}\n  ${k('AUTO_SUSPEND')} ${p('=')} ${p('120')};\n\n${cm('-- ECONOMY policy waits until the cluster is fully loaded')}\n${cm('-- before spinning up — better for bursty batch jobs')}\n${k('ALTER')} ${k('WAREHOUSE')} reporting_wh\n  ${k('SET')} ${k('SCALING_POLICY')} ${p('=')} ${str('ECONOMY')};\n\n${cm('-- Monitor cluster activity and queuing')}\n${k('SELECT')}\n  start_time${p(',')}\n  warehouse_name${p(',')}\n  cluster_number${p(',')}\n  running_queries${p(',')}\n  queued_queries\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('warehouse_load_history')}\n${k('WHERE')} warehouse_name ${p('=')} ${str("'REPORTING_WH'")}\n  ${k('AND')} start_time ${p('>')} ${f('DATEADD')}${p('(')}'day'${p(',')}-1${p(',')}'${id('CURRENT_TIMESTAMP')}'${p(')')}\n${k('ORDER')} ${k('BY')} start_time ${k('DESC')};`,
+      title: 'Multi-Cluster Warehouses',
+      html: `<span class="cg-badge cg-badge-cpu">CPU</span>
+<p><strong>Multi-Cluster Warehouses (MCW)</strong> solve the concurrency problem — not the query-size problem. When many users are querying simultaneously and queries are queueing, MCW spins up additional clusters of the same size to absorb the load.</p>
+<ul>
+  <li>Set MIN and MAX cluster counts. Snowflake auto-scales between them based on queue depth.</li>
+  <li><strong>STANDARD policy</strong>: scales up aggressively as soon as queries queue. Good for interactive dashboards with unpredictable concurrency spikes.</li>
+  <li><strong>ECONOMY policy</strong>: waits until a cluster is fully loaded before scaling. Better for batch jobs where a few extra seconds of queuing is acceptable.</li>
+  <li>Each additional cluster bills the same credits/hour as the base cluster — 5 clusters of a Medium = 5× the credits</li>
+  <li>Use <code>WAREHOUSE_LOAD_HISTORY</code> to see per-cluster utilization and validate your MCW settings</li>
+</ul>`
+    },
+    {
+      badge: 'cpu',
+      label: 'Serverless Compute',
+      code: `${cm('-- Serverless compute powers these Snowflake features:')}\n${cm('-- • Snowpipe (auto-ingest)')}\n${cm('-- • Dynamic Tables (incremental refresh)')}\n${cm('-- • Snowflake Search Optimization Service')}\n${cm('-- • Tasks with SERVERLESS target')}\n${cm('-- • Cortex AI functions (e.g. COMPLETE, EMBED_TEXT)')}\n\n${cm('-- Create a task using serverless compute:')}\n${k('CREATE')} ${k('TASK')} daily_rollup\n  ${k('SCHEDULE')} ${p('=')} ${str('USING CRON 0 2 * * * UTC')}\n  ${k('USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE')} ${p('=')} ${k('MEDIUM')}\n${k('AS')}\n${k('INSERT')} ${k('INTO')} reporting.daily_summary\n${k('SELECT')} ${p('*')} ${k('FROM')} analytics.raw_events\n${k('WHERE')} event_date ${p('=')} ${f('CURRENT_DATE')} ${p('-')} ${p('1')};\n\n${cm('-- No WAREHOUSE clause — Snowflake manages compute automatically')}\n${cm('-- Bills per-second based on actual resource consumption')}\n\n${cm('-- Serverless task credit usage')}\n${k('SELECT')}\n  task_name${p(',')}\n  ${f('SUM')}${p('(')}credits_used${p(')')} ${k('AS')} total_credits\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('serverless_task_history')}\n${k('GROUP')} ${k('BY')} ${p('1')}\n${k('ORDER')} ${k('BY')} total_credits ${k('DESC')};`,
+      title: 'Serverless Compute',
+      html: `<span class="cg-badge cg-badge-cpu">CPU</span>
+<p><strong>Serverless compute</strong> means Snowflake manages warehouse sizing automatically — no warehouse to create, configure, or auto-suspend. You pay per second for actual resource consumption.</p>
+<ul>
+  <li>Used by: Tasks (with USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE), Snowpipe, Dynamic Tables, Search Optimization, Cortex AI functions</li>
+  <li>Snowflake observes the workload and right-sizes — jobs that ran inconsistently on a fixed warehouse often cost less with serverless</li>
+  <li>You can set an initial size hint, but Snowflake may scale up or down from that based on actual query plans</li>
+  <li>Not suited for interactive, user-facing queries where latency matters — there's no pre-warmed cache</li>
+</ul>
+<p>Best pattern: use warehouses for interactive SQL, serverless for scheduled batch and pipeline operations.</p>`
+    },
+    {
+      badge: 'gpu',
+      label: 'GPU Compute Pools',
+      code: `${cm('-- Create a GPU compute pool for ML workloads')}\n${k('CREATE')} ${k('COMPUTE')} ${k('POOL')} ml_inference_pool\n  ${k('MIN_NODES')} ${p('=')} ${p('1')}\n  ${k('MAX_NODES')} ${p('=')} ${p('3')}\n  ${k('INSTANCE_FAMILY')} ${p('=')} ${id('GPU_NV_S')}\n  ${k('AUTO_SUSPEND_SECS')} ${p('=')} ${p('300')};\n\n${cm('-- GPU Instance Families (AWS):')}\n${cm('-- GPU_NV_XS: 1×A10G  (4 vCPU,  16 GB,   1 GPU,  24 GB VRAM)')}\n${cm('-- GPU_NV_S:  1×A10G  (8 vCPU,  32 GB,   1 GPU,  24 GB VRAM)')}\n${cm('-- GPU_NV_M:  4×A10G  (32 vCPU, 128 GB,  4 GPU,  96 GB VRAM)')}\n${cm('-- GPU_NV_L:  8×A10G  (64 vCPU, 256 GB,  8 GPU, 192 GB VRAM)')}\n\n${cm('-- Check compute pool status')}\n${k('SHOW')} ${k('COMPUTE')} ${k('POOLS')} ${k('LIKE')} ${str("'%ml%'")};\n\n${k('DESCRIBE')} ${k('COMPUTE')} ${k('POOL')} ml_inference_pool;\n\n${cm('-- Monitor compute pool usage')}\n${k('SELECT')}\n  compute_pool_name${p(',')}\n  instance_family${p(',')}\n  nodes_running${p(',')}\n  nodes_in_service\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('compute_pool_billing_history')}\n${k('ORDER')} ${k('BY')} start_time ${k('DESC')};`,
+      title: 'GPU Compute Pools',
+      html: `<span class="cg-badge cg-badge-gpu">GPU</span>
+<p><strong>GPU Compute Pools</strong> are the infrastructure layer for Snowpark Container Services (SPCS). They provide NVIDIA GPU nodes for workloads that need GPU acceleration: ML training, large model inference, embedding generation at scale.</p>
+<ul>
+  <li><strong>GPU_NV_XS</strong>: 1 GPU, lowest cost — dev/test and light inference</li>
+  <li><strong>GPU_NV_S</strong>: 1 GPU, double the CPU/RAM — production single-GPU inference</li>
+  <li><strong>GPU_NV_M</strong>: 4 GPUs, 96 GB VRAM — multi-GPU training or large model serving</li>
+  <li><strong>GPU_NV_L</strong>: 8 GPUs, 192 GB VRAM — large model training (LLama 70B, Mixtral)</li>
+</ul>
+<p>GPU pools auto-suspend and auto-resume like virtual warehouses. Billed per node-second while running. CPU_X64_* families are also available for CPU-intensive container workloads.</p>`
+    },
+    {
+      badge: 'gpu',
+      label: 'ML Model Serving',
+      code: `${cm('-- Deploy a custom ML model as a SPCS service endpoint')}\n${k('CREATE')} ${k('SERVICE')} ml.inference_svc\n  ${k('IN')} ${k('COMPUTE')} ${k('POOL')} ml_inference_pool\n  ${k('FROM')} ${k('SPECIFICATION')}\n  ${p('$$')}\n    spec:\n      containers:\n      ${p('-')} name: inference\n        image: /my_db/images/model_server:v3\n        env:\n          MODEL_PATH: /models/my_classifier\n        resources:\n          requests:\n            nvidia.com/gpu: ${p('1')}\n          limits:\n            nvidia.com/gpu: ${p('1')}\n      endpoints:\n      ${p('-')} name: predict\n        port: ${p('8080')}\n        public: false\n  ${p('$$')};\n\n${cm('-- Expose service as a SQL function')}\n${k('CREATE')} ${k('FUNCTION')} ml.classify${p('(')}input ${k('VARCHAR')}${p(')')}\n  ${k('RETURNS')} ${k('VARIANT')}\n  ${k('SERVICE')} ${p('=')} ml.inference_svc\n  ${k('ENDPOINT')} ${p('=')} predict;\n\n${cm('-- Call the custom model from standard SQL')}\n${k('SELECT')} ml.classify${p('(')}review_text${p(')')} ${k('AS')} prediction\n${k('FROM')} customer_reviews;`,
+      title: 'ML Model Serving',
+      html: `<span class="cg-badge cg-badge-gpu">GPU</span>
+<p>SPCS lets you deploy custom ML models as persistent, low-latency service endpoints inside Snowflake — then call them as SQL functions from any query.</p>
+<ul>
+  <li>Your model runs in a container you build and push to Snowflake's image registry. Full control over runtime, dependencies, and hardware allocation.</li>
+  <li><strong>Service functions</strong> bridge SQL and the container: <code>CREATE FUNCTION ... SERVICE = ... ENDPOINT = ...</code> makes your model callable as a UDF</li>
+  <li>The service persists across queries — no cold start per row. GPU stays warm for batch inference.</li>
+  <li>Service endpoints can be public (reachable via URL) or private (SQL-only via service function)</li>
+</ul>
+<p>This is the path for models that Cortex AI doesn't provide: domain-specific fine-tuned models, custom architectures, proprietary IP — all callable from SQL without leaving the Snowflake security boundary.</p>`
+    },
+    {
+      badge: 'cpu',
+      label: 'Snowpark-Optimized',
+      code: `${cm('-- Snowpark-Optimized: 16x more memory per node')}\n${k('CREATE')} ${k('WAREHOUSE')} ml_training_wh\n  ${k('WAREHOUSE_SIZE')} ${p('=')} ${k('MEDIUM')}\n  ${k('WAREHOUSE_TYPE')} ${p('=')} ${str('SNOWPARK-OPTIMIZED')}\n  ${k('AUTO_SUSPEND')} ${p('=')} ${p('120')};\n\n${cm('-- Memory comparison (per node):')}\n${cm('-- Standard Medium:          16 GB RAM')}\n${cm('-- Snowpark-Optimized Medium: 256 GB RAM  (16×)')}\n\n${cm('-- Use for: training ML models in Python UDFs')}\n${cm('-- Use for: XGBoost / sklearn on large datasets')}\n${cm('-- Use for: heavy Snowpark DataFrame transformations')}\n\n${cm('-- Example: vectorized Python UDF that benefits from memory')}\n${k('CREATE')} ${k('FUNCTION')} train_model_udf${p('(')}df ${id('DATAFRAME')}${p(')')}\n${k('RETURNS')} ${id('DATAFRAME')}\n${k('LANGUAGE')} ${k('PYTHON')}\n${k('RUNTIME_VERSION')} ${p('=')} ${str("'3.11'")}\n${k('HANDLER')} ${p('=')} ${str("'train_and_score'")}\n${k('PACKAGES')} ${p('=')} ${p('(')}'xgboost'${p(',')}'scikit-learn'${p(')')};\n\n${cm('-- Run on Snowpark-Optimized to avoid OOM errors')}\n${k('ALTER')} ${k('SESSION')} ${k('SET')}\n  use_cached_result ${p('=')} ${k('FALSE')};\n${k('SELECT')} ${p('*')} ${k('FROM')} ${f('TABLE')}${p('(')}train_model_udf${p('(')}${k('TABLE')}${p('(')}training_features${p(')')})${p(')')};`,
+      title: 'Snowpark-Optimized Warehouses',
+      html: `<span class="cg-badge cg-badge-cpu">CPU</span>
+<p><strong>Snowpark-Optimized Warehouses</strong> are a warehouse type (not size) with 16× more memory per node than standard warehouses. They're CPU-based but memory-optimized — the right choice for Python workloads that hit OOM errors on standard compute.</p>
+<ul>
+  <li>Standard Medium has 16 GB RAM per node. Snowpark-Optimized Medium has 256 GB RAM per node.</li>
+  <li>Required for: training ML models (XGBoost, PyTorch) on large datasets inside Snowpark UDFs</li>
+  <li>Required for: Snowpark Python UDFs that load large model artifacts, embeddings, or lookup tables into memory</li>
+  <li>Not a replacement for GPU — these are CPU cores with large RAM. Use for memory-bound workloads, not GPU-accelerated inference.</li>
+</ul>
+<p>When to choose: if Snowpark Python UDFs or vectorized UDFs are throwing memory errors on standard warehouses, Snowpark-Optimized is the first lever to pull before moving to SPCS GPU containers.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.cg-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('cg-code').innerHTML = items[i].code;
+    document.getElementById('cg-explain').innerHTML = `<h4>${items[i].title}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Native Apps — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+
+    .na-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%; max-width: 900px;
+      padding: 8px 0 4px;
+    }
+    .na-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .na-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .na-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .na-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-blue); margin-bottom: 4px;
+    }
+    .na-card.active .na-card-label { color: var(--sf-light); }
+    .na-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+
+    .na-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+    .na-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .na-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .na-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .na-panel-explain p { margin-bottom: 10px; }
+    .na-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .na-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Native Apps are the most powerful data distribution model Snowflake has built. You ship code — stored procedures, UDFs, Streamlit UIs, even full containerized services — directly into the consumer's Snowflake account. Their data never leaves their account, your logic runs next to their data. It's the opposite of traditional SaaS: instead of pulling customer data to your servers, you push your application to their data.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>App Package:</strong> The provider-side object that bundles all versions and distribution logic. Contains the setup script, manifest, and code staged in Snowflake.</li>
+  <li><strong>Application Roles:</strong> The consumer grants permissions to your app via named application roles — you define what access the app requests, not the consumer's admin.</li>
+  <li><strong>Versioning:</strong> Release channels let you roll out patches incrementally. Push a new patch; consumers on that channel get it automatically.</li>
+  <li><strong>SPCS Integration:</strong> Your app can include containerized microservices — APIs, ML inference, heavy compute — running in the consumer's SPCS environment.</li>
+  <li><strong>Monetization:</strong> List on Snowflake Marketplace with usage-based pricing. Consumers install directly; billing handled by Snowflake.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have IP (models, algorithms, proprietary logic) that you want to deliver to customers without exposing the source?</li>
+  <li>Are customers asking for data products that they can query directly in their own environment?</li>
+  <li>What's the current distribution/update story for your data products — are you shipping copies of data or running ETL pipelines?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/developer-guide/native-apps/native-apps-about',
+      code:  null,
+      guide: 'https://www.snowflake.com/en/developers/guides/getting-started-with-native-apps/',
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Snowflake Native Apps</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Applications &amp; Collaboration</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Native Apps Framework</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake Native Apps</div>
+          <div class="s6-sub" style="text-align:center;">Ship code directly into consumer accounts. Your logic runs next to their data — no data movement, full governance.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="na-grid">
+            <div class="na-card" onclick="showPanel(0)">
+              <div class="na-card-label">App Package</div>
+              <div class="na-card-desc">Provider-side container that bundles versions, code, and distribution logic for your application.</div>
+            </div>
+            <div class="na-card" onclick="showPanel(1)">
+              <div class="na-card-label">Setup Script</div>
+              <div class="na-card-desc">SQL script that runs at install time to create objects in the consumer's account — procedures, views, roles.</div>
+            </div>
+            <div class="na-card" onclick="showPanel(2)">
+              <div class="na-card-label">Application Roles</div>
+              <div class="na-card-desc">Fine-grained access control defined by the provider. Consumers grant app roles to their users — not raw Snowflake privileges.</div>
+            </div>
+            <div class="na-card" onclick="showPanel(3)">
+              <div class="na-card-label">Versioning &amp; Patches</div>
+              <div class="na-card-desc">Release channels let you push updates incrementally. Consumers on auto-upgrade receive patches transparently.</div>
+            </div>
+            <div class="na-card" onclick="showPanel(4)">
+              <div class="na-card-label">Streamlit Frontend</div>
+              <div class="na-card-desc">Embed a Streamlit app inside your Native App — consumers get a full UI running in their account, no hosting required.</div>
+            </div>
+            <div class="na-card" onclick="showPanel(5)">
+              <div class="na-card-label">SPCS Container Apps</div>
+              <div class="na-card-desc">Include containerized microservices (APIs, ML inference) that run in consumer's Snowpark Container Services environment.</div>
+            </div>
+          </div>
+
+          <div class="na-panel" id="na-panel">
+            <div class="na-panel-code" id="na-code">-- Select a card above to explore Native App concepts</div>
+            <div class="na-panel-explain" id="na-explain">
+              <h4>Native Apps Framework</h4>
+              <p>Click any card above to see SQL examples and explanations for each aspect of the Native App Framework.</p>
+              <p>Native Apps let you deploy your application logic directly into consumer Snowflake accounts, where it can access their data with the permissions they grant — without ever moving data out.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const items = [
+    {
+      label: 'App Package',
+      code: `${cm('-- 1. Create the application package (provider side)')}\n${k('CREATE')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('DISTRIBUTION')} ${p('=')} ${str('EXTERNAL')}\n  ${k('COMMENT')} ${p('=')} ${str('Analytics app for Snowflake Marketplace')};\n\n${cm('-- 2. Upload code artifacts to a versioned stage')}\n${k('CREATE')} ${k('STAGE')} my_analytics_pkg.app_code\n  ${k('DIRECTORY')} ${p('=')} ${p('(')} ${k('ENABLE')} ${p('=')} ${k('TRUE')} ${p(')')};\n\n${cm('-- 3. Add a version pointing at your staged code')}\n${k('ALTER')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('ADD')} ${k('VERSION')} v1_0\n  ${k('USING')} ${p('@')}my_analytics_pkg.app_code\n  ${k('LABEL')} ${p('=')} ${str('Version 1.0 — initial release')};\n\n${cm('-- 4. Set the release directive (who gets which version)')}\n${k('ALTER')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('SET')} ${k('DEFAULT')} ${k('RELEASE')} ${k('DIRECTIVE')} ${k('VERSION')} ${p('=')} v1_0\n  ${k('PATCH')} ${p('=')} ${p('0')};`,
+      title: 'App Package',
+      html: `<p>The <strong>APPLICATION PACKAGE</strong> is the provider-side top-level object. It acts as a container for all versions of your app and controls distribution (INTERNAL for testing, EXTERNAL for Marketplace).</p>
+<ul>
+  <li>All code lives in a stage inside the package — SQL scripts, Python files, Streamlit app files</li>
+  <li>Versions are named snapshots of your staged code — consumers stay on their pinned version until you update the release directive</li>
+  <li>A package can have multiple release channels (e.g. <code>STABLE</code> vs <code>BETA</code>) for progressive rollout</li>
+</ul>
+<p>Think of the package like a container image registry, and each version like a tagged image.</p>`
+    },
+    {
+      label: 'Setup Script',
+      code: `${cm('-- setup.sql: runs at install time in the CONSUMER\'s account')}\n${cm('-- This script runs as ACCOUNTADMIN — define objects carefully')}\n\n${cm('-- Create a schema to hold app objects')}\n${k('CREATE')} ${k('SCHEMA')} IF ${k('NOT')} ${k('EXISTS')} ${id('app_schema')};\n\n${cm('-- Create a stored procedure the consumer can call')}\n${k('CREATE')} ${k('OR')} ${k('REPLACE')} ${k('PROCEDURE')} ${id('app_schema')}.run_analysis${p('(')}\n  input_table ${k('VARCHAR')}\n${p(')')}\n${k('RETURNS')} ${k('VARIANT')}\n${k('LANGUAGE')} ${k('PYTHON')}\n${k('RUNTIME_VERSION')} ${p('=')} ${str('3.11')}\n${k('PACKAGES')} ${p('=')} ${p('(')}'snowflake-snowpark-python'${p(')')}\n${k('HANDLER')} ${p('=')} ${str('main.run')}\n${k('IMPORTS')} ${p('=')} ${p('(')}${p('@')}${id('app_schema')}.app_code${p('/main.py')}${p(')')};\n\n${cm('-- Grant execute to an application role')}\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('SCHEMA')} ${id('app_schema')} \n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_viewer;\n${k('GRANT')} ${k('CALL')} ${k('ON')} ${k('PROCEDURE')} ${id('app_schema')}.run_analysis${p('(')}'${k('VARCHAR')}'${p(')')}\n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_viewer;`,
+      title: 'Setup Script',
+      html: `<p>The <strong>setup.sql</strong> is the entry point that runs inside the consumer's account when they install your app. It creates all the objects your app needs — schemas, procedures, views, stages, Streamlit apps.</p>
+<ul>
+  <li>Runs with elevated privileges but <em>inside</em> a dedicated APPLICATION object — not directly in the consumer's account namespace</li>
+  <li>Objects created here are owned by the APPLICATION — not the consumer. They are automatically cleaned up on uninstall.</li>
+  <li>You define APPLICATION ROLEs to control which of your objects consumers can access</li>
+  <li>Consumers reference your app objects via the application name: <code>SELECT * FROM my_app.app_schema.results_view</code></li>
+</ul>
+<p>The manifest.yml declares the setup script location, default privileges, and minimum Snowflake version required.</p>`
+    },
+    {
+      label: 'Application Roles',
+      code: `${cm('-- Define application roles in setup.sql')}\n${k('CREATE')} ${k('APPLICATION')} ${k('ROLE')} ${k('IF')} ${k('NOT')} ${k('EXISTS')} app_admin;\n${k('CREATE')} ${k('APPLICATION')} ${k('ROLE')} ${k('IF')} ${k('NOT')} ${k('EXISTS')} app_viewer;\n\n${cm('-- Grant privileges to each role')}\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('SCHEMA')} core\n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_viewer;\n${k('GRANT')} ${k('SELECT')} ${k('ON')} ${k('VIEW')} core.results_view\n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_viewer;\n${k('GRANT')} ${k('ALL')} ${k('PRIVILEGES')} ${k('ON')} ${k('SCHEMA')} admin_only\n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_admin;\n\n${cm('-- Consumer side: grant app role to a Snowflake role')}\n${cm('-- (this is done by the CONSUMER, not provider)')}\n${k('GRANT')} ${k('APPLICATION')} ${k('ROLE')} my_installed_app.app_viewer\n  ${k('TO')} ${k('ROLE')} analyst_role;\n\n${cm('-- Consumer users with analyst_role can now call procedures')}\n${k('CALL')} my_installed_app.core.run_analysis${p('(')}'sales_data'${p(')')};`,
+      title: 'Application Roles',
+      html: `<p><strong>Application Roles</strong> are the permission boundary between your app and the consumer's Snowflake environment. You define them; the consumer grants them to their own roles.</p>
+<ul>
+  <li>Application roles can only be granted within the context of the installed app — consumers can't escalate them beyond what you defined</li>
+  <li>This lets you ship a multi-tier access model (viewer vs admin) without asking the consumer to configure RBAC manually</li>
+  <li>The consumer's <code>ACCOUNTADMIN</code> grants your app roles to their roles — maintaining audit trail and control on both sides</li>
+  <li>Your procedures and views are accessed via the application name prefix: <code>my_app.schema.object</code></li>
+</ul>
+<p>This is the key security model: you define the access surface; the consumer decides who on their team gets it.</p>`
+    },
+    {
+      label: 'Versioning & Patches',
+      code: `${cm('-- Add a new patch (bug fix) to an existing version')}\n${k('ALTER')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('ADD')} ${k('PATCH')} ${k('FOR')} ${k('VERSION')} v1_0\n  ${k('USING')} ${p('@')}my_analytics_pkg.app_code;\n\n${cm('-- Consumers on DEFAULT directive get patch automatically')}\n${cm('-- Check what patch they\'re on:')}\n${k('SELECT')} package_name${p(',')}\n       version${p(',')}\n       patch${p(',')}\n       installed_on\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('application_instances')}\n${k('WHERE')} package_name ${p('=')} ${str('my_analytics_pkg')};\n\n${cm('-- Create a new major version (v2_0) in parallel')}\n${k('ALTER')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('ADD')} ${k('VERSION')} v2_0\n  ${k('USING')} ${p('@')}my_analytics_pkg.v2_code\n  ${k('LABEL')} ${p('=')} ${str('Version 2.0 — new AI features')};\n\n${cm('-- Move selected consumers to v2_0 only')}\n${k('ALTER')} ${k('APPLICATION')} ${k('PACKAGE')} my_analytics_pkg\n  ${k('MODIFY')} ${k('ACCOUNT')} ${p('(')}${str('consumer_org.consumer_account')}${p(')')}\n  ${k('SET')} ${k('RELEASE')} ${k('DIRECTIVE')} ${k('VERSION')} ${p('=')} v2_0 ${k('PATCH')} ${p('=')} ${p('0')};`,
+      title: 'Versioning & Patches',
+      html: `<p>The Native Apps Framework has a first-class versioning model: <strong>versions</strong> are major releases with potentially breaking changes; <strong>patches</strong> are non-breaking updates that auto-apply to consumers on that version.</p>
+<ul>
+  <li><strong>Release directives</strong> let you control which version and patch each consumer (or group of consumers) is on — like a feature flag at the account level</li>
+  <li>Patches are the primary delivery mechanism for bug fixes and minor improvements — consumers get them without any action required on their side</li>
+  <li>You can run v1 and v2 in production simultaneously while you migrate customers — no big-bang upgrades</li>
+  <li>Use <code>APPLICATION_INSTANCES</code> in ACCOUNT_USAGE to see what version every consumer is running</li>
+</ul>
+<p>This is a significant advantage over traditional SaaS upgrades: controlled, per-consumer rollout with full audit trail.</p>`
+    },
+    {
+      label: 'Streamlit Frontend',
+      code: `${cm('-- manifest.yml: declare the Streamlit as default_streamlit')}\n${cm('# manifest.yml')}\n${cm('# artifacts:')}\n${cm('#   setup_script: setup.sql')}\n${cm('#   default_streamlit: ui/streamlit_app')}\n${cm('#   readme: README.md')}\n\n${cm('-- setup.sql: create the Streamlit object')}\n${k('CREATE')} ${k('STREAMLIT')} ui.streamlit_app\n  ${k('ROOT_LOCATION')} ${p('=')} ${str('@app_code/ui_src')}\n  ${k('MAIN_FILE')} ${p('=')} ${str('app.py')}\n  ${k('QUERY_WAREHOUSE')} ${p('=')} ${id('consumer_wh')};\n\n${cm('-- Grant view access to application role')}\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('STREAMLIT')} ui.streamlit_app\n  ${k('TO')} ${k('APPLICATION')} ${k('ROLE')} app_viewer;\n\n${cm('-- In app.py: connect using session from Native App context')}\n${cm('# import streamlit as st')}\n${cm('# from snowflake.snowpark.context import get_active_session')}\n${cm('# session = get_active_session()  # automatically scoped to app')}\n${cm('# df = session.table("my_app.core.results_view").to_pandas()')}\n${cm('# st.dataframe(df)')}\n`,
+      title: 'Streamlit Frontend',
+      html: `<p>You can embed a <strong>Streamlit app</strong> directly inside your Native App. Consumers open it from the Apps section of Snowsight — they see your UI without any hosting, auth, or infrastructure on their side.</p>
+<ul>
+  <li>Declare it as <code>default_streamlit</code> in manifest.yml — Snowflake opens it automatically when the consumer launches the app</li>
+  <li>The Streamlit session is automatically scoped to the application: <code>get_active_session()</code> returns a session that can only access objects the app has permission to access</li>
+  <li>The consumer's QUERY_WAREHOUSE is used for compute — no provider-side compute costs for the UI</li>
+  <li>Files are staged inside the app package; the consumer never sees your source code</li>
+</ul>
+<p>This is the easiest path to shipping a governed, branded data application: your app + their data + Snowflake's security model.</p>`
+    },
+    {
+      label: 'SPCS Container Apps',
+      code: `${cm('-- setup.sql: declare a container service inside the app')}\n${k('CREATE')} ${k('SERVICE')} ${k('IF')} ${k('NOT')} ${k('EXISTS')} services.ml_inference\n  ${k('IN')} ${k('COMPUTE')} ${k('POOL')} reference${p('(')}${str('ML_COMPUTE_POOL')}${p(')')}\n  ${k('FROM')} ${k('SPECIFICATION')} ${p('$$')}\n    spec:\n      containers:\n      ${p('-')} name: inference_server\n        image: /my_app_db/images/inference:latest\n        env:\n          SNOWFLAKE_WAREHOUSE: ${str('reference(ANALYTICS_WH)')}\n      endpoints:\n      ${p('-')} name: predict\n        port: 8080\n        public: false\n  ${p('$$')}\n  ${k('QUERY_WAREHOUSE')} ${p('=')} reference${p('(')}${str('ANALYTICS_WH')}${p(')')};\n\n${cm('-- The REFERENCES block in manifest.yml declares what the app')}\n${cm('-- needs the consumer to provide (compute pool, warehouse, etc.)')}\n${cm('# configuration:')}\n${cm('#   log_level: INFO')}\n${cm('# references:')}\n${cm('#   - ML_COMPUTE_POOL:')}\n${cm('#       label: "Compute pool for ML inference"')}\n${cm('#       description: "GPU or CPU pool for running inference"')}\n${cm('#       privileges: [USAGE]')}\n${cm('#       object_type: COMPUTE POOL')}\n`,
+      title: 'SPCS Container Apps',
+      html: `<p>Native Apps can include <strong>containerized services</strong> running in Snowpark Container Services (SPCS). This allows you to ship heavy compute — ML inference, APIs, graph processing — that runs in the consumer's cloud environment.</p>
+<ul>
+  <li>Container images are distributed as part of the app package via Snowflake's image registry</li>
+  <li><strong>References</strong> in manifest.yml let you request consumer-provided resources (compute pools, warehouses, external access integrations) without hardcoding them</li>
+  <li>The consumer is prompted to approve these references at install time — they stay in control of their infrastructure costs</li>
+  <li>Your container can call Snowflake SQL via the Snowpark library using the session injected by the SPCS runtime</li>
+</ul>
+<p>This is the path for shipping ML models as governed data products — no API keys, no custom auth, no cloud routing — just a container inside the security boundary.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.na-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('na-code').innerHTML = items[i].code;
+    document.getElementById('na-explain').innerHTML = `<h4>${items[i].title}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

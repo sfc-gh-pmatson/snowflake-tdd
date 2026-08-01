@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Warehouse Scaling &#8212; Snowflake Compute</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+
+    /* ── Split layout ──────────────────────────────────────── */
+    .csc-split {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; overflow: hidden;
+      border-radius: 10px; margin: 8px 20px;
+    }
+    .csc-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+      min-height: 0;
+    }
+
+    /* ── Tab strip (de-style, inside left panel) ───────────── */
+    .csc-tabs {
+      display: flex; gap: 4px;
+      background: rgba(41,181,232,.07);
+      border: 1px solid rgba(41,181,232,.18);
+      border-radius: 100px; padding: 3px;
+      flex-shrink: 0; margin-bottom: 14px;
+      align-self: flex-start;
+    }
+    .csc-tab {
+      padding: 5px 14px; border-radius: 100px;
+      font-size: var(--fs-h6); font-weight: 700;
+      cursor: pointer; border: none;
+      background: transparent; color: rgba(255,255,255,.45);
+      transition: background .18s, color .18s; white-space: nowrap;
+    }
+    .csc-tab.active { background: var(--sf-blue); color: #fff; box-shadow: 0 2px 10px rgba(41,181,232,.4); }
+    .csc-tab:not(.active):hover { color: rgba(255,255,255,.75); background: rgba(41,181,232,.12); }
+
+    /* ── Left content panels ───────────────────────────────── */
+    .csc-lc { display: none; flex-direction: column; flex: 1; min-height: 0; justify-content: center; }
+    .csc-lc.active { display: flex; }
+
+    .csc-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .csc-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .csc-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 12px; line-height: 1.5; }
+
+    .csc-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .csc-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .csc-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .csc-feature-text { flex: 1; }
+    .csc-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .csc-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+
+    /* Size chips */
+    .csc-sizes { display: flex; gap: 5px; flex-wrap: nowrap; margin-bottom: 4px; }
+    .csc-chip {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 5px 10px; border-radius: 8px;
+      background: var(--sf-card); border: 1.5px solid rgba(41,181,232,.25); gap: 1px;
+    }
+    .csc-chip.hi { background: var(--sf-blue); border-color: var(--sf-blue); }
+    .csc-chip .sz { font-size: var(--fs-h5); font-weight: 800; color: #fff; }
+    .csc-chip .cr { font-size: 9px; color: rgba(255,255,255,.6); font-weight: 600; }
+    .csc-chip.hi .cr { color: rgba(255,255,255,.85); }
+
+    .csc-adaptive-tag {
+      display: inline-block; padding: 2px 9px; border-radius: 100px;
+      background: rgba(41,181,232,.12); border: 1px solid rgba(41,181,232,.35);
+      color: var(--sf-blue); font-size: 9px; font-weight: 700;
+      letter-spacing: .4px; margin-top: 6px; text-decoration: none;
+    }
+
+    /* ── Right panel ───────────────────────────────────────── */
+    .csc-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .csc-right::before {
+      content: '';
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .csc-rc { display: none; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column; position: relative; z-index: 1; }
+    .csc-rc.active { display: flex; }
+    .csc-diagram-img { width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+
+    /* ── MCW diagram (Scale Out) ───────────────────────────── */
+    .csc-mcw-diagram { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .csc-mcw-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: rgba(41,181,232,.6); text-align: center; margin-bottom: 2px; }
+    .csc-mcw-wh { border: 1.5px solid rgba(41,181,232,.4); border-radius: 10px; padding: 10px 12px; background: rgba(0,89,163,.25); }
+    .csc-mcw-wh-title { font-size: var(--fs-h6); font-weight: 700; color: rgba(255,255,255,.7); margin-bottom: 8px; text-align: center; }
+    .csc-mcw-clusters { display: flex; gap: 6px; }
+    .csc-mcw-cluster { flex: 1; padding: 6px 8px; border-radius: 7px; background: var(--sf-blue-dark); border: 1px solid rgba(41,181,232,.3); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .csc-mcw-cluster.idle { background: rgba(255,255,255,.05); opacity: .6; }
+    .csc-mcw-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; }
+    .csc-mcw-cluster.idle .csc-mcw-dot { background: rgba(255,255,255,.25); }
+    .csc-mcw-cluster-label { font-size: 9px; font-weight: 700; color: #fff; }
+    .csc-mcw-cluster-q { font-size: 9px; color: rgba(255,255,255,.55); }
+    .csc-mcw-arrows { display: flex; justify-content: space-around; padding: 0 24px; }
+    .csc-mcw-arrow { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .csc-mcw-arrow-line { width: 2px; height: 16px; background: rgba(41,181,232,.4); }
+    .csc-mcw-arrow-head { font-size: 12px; color: rgba(41,181,232,.6); line-height: 1; }
+    .csc-mcw-storage { border: 1.5px solid rgba(41,181,232,.35); border-radius: 10px; padding: 8px 14px; background: rgba(41,181,232,.08); text-align: center; }
+    .csc-mcw-storage-title { font-size: var(--fs-h5); font-weight: 700; color: rgba(41,181,232,.9); margin-bottom: 2px; }
+    .csc-mcw-storage-sub { font-size: var(--fs-h6); color: rgba(255,255,255,.5); }
+    .csc-mcw-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; background: rgba(74,222,128,.15); border: 1px solid rgba(74,222,128,.4); color: #4ade80; font-size: 9px; font-weight: 700; margin-top: 4px; }
+
+    /* ── Workload isolation diagram (Scale Across) ─────────── */
+    .csc-iso-diagram { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .csc-iso-row { display: flex; gap: 8px; }
+    .csc-iso-wh { flex: 1; padding: 8px 12px; border-radius: 9px; display: flex; flex-direction: column; gap: 3px; }
+    .csc-iso-wh-tag { font-size: var(--fs-h6); font-weight: 700; letter-spacing: .5px; text-transform: uppercase; opacity: .85; }
+    .csc-iso-wh-name { font-size: var(--fs-h4); font-weight: 800; color: #fff; }
+    .csc-iso-wh-meta { font-size: var(--fs-h6); color: rgba(255,255,255,.6); }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake gives three scaling levers, each solving a different problem. Scale Across for workload isolation, Scale Up for query complexity, Scale Out for concurrency and adaptive throughput.</p>
+<h3>The Three Levers</h3>
+<ul>
+  <li><strong>Scale Across:</strong> Different teams fighting over the same warehouse? Give each workload its own warehouse. Full isolation of size, cost, and suspension.</li>
+  <li><strong>Scale Up:</strong> Slow single query? Bigger warehouse = more nodes = more parallel processing. Doubling size roughly halves query time at the same credit cost.</li>
+  <li><strong>Scale Out:</strong> Too many concurrent users queueing? Multi-Cluster Warehouses add identical clusters. Adaptive Warehouses auto-tune throughput within a single warehouse.</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/warehouses-multicluster',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./compute.html" class="btn-back">&#8592; Compute</a>
+      <span class="nav-label">Warehouse Scaling</span>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide" style="align-items:center;">
+
+        <div class="s6-top" style="width:100%;align-self:stretch;">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Compute</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Warehouse Scaling</div>
+          <div class="s6-sub" style="text-align:center;">Three levers to match compute to any workload.</div>
+        </div>
+
+        <div class="csc-split">
+
+          <!-- ── Left panel ──────────────────────────────────── -->
+          <div class="csc-left">
+
+            <!-- Tab strip inside left panel -->
+            <div class="csc-tabs">
+              <button class="csc-tab active" onclick="switchTab('across')">Scale Across</button>
+              <button class="csc-tab" onclick="switchTab('up')">Scale Up</button>
+              <button class="csc-tab" onclick="switchTab('out')">Scale Out</button>
+            </div>
+
+            <!-- Scale Across content -->
+            <div class="csc-lc active" id="lc-across">
+              <div class="csc-eyebrow">Scale Across</div>
+              <div class="csc-title">Separate warehouses,<br>isolated workloads</div>
+              <div class="csc-sub">Run different workloads on dedicated warehouses &#8212; independent sizing, cost tracking, and suspension per team.</div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon">&#9632;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">No Resource Contention</div>
+                  <div class="csc-feature-body">BI queries never compete with ETL loads or ML training. Each warehouse is a fully isolated compute cluster against the same shared storage.</div>
+                </div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon" style="background:var(--sf-blue-dark);">&#9881;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Independent Controls</div>
+                  <div class="csc-feature-body">Each warehouse has its own size, auto-suspend config, resource monitor, and RBAC. Suspend ETL overnight without touching BI.</div>
+                </div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon" style="background:var(--sf-blue-mid);">$</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Chargeback Ready</div>
+                  <div class="csc-feature-body">Attribute credits to teams by querying QUERY_HISTORY per warehouse. Pair with resource monitors for per-team budget guardrails.</div>
+                </div>
+              </div>
+              <div style="background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:10px;line-height:1.8;margin-top:8px;flex-shrink:0;">
+                <span class="code-comment">-- Dedicated warehouse per workload</span><br>
+                <span class="code-kw">CREATE WAREHOUSE</span> <span class="code-id">bi_wh</span><br>
+                &nbsp;&nbsp;<span class="code-fn">WAREHOUSE_SIZE</span> <span class="code-punc">=</span> <span class="code-str">'MEDIUM'</span><br>
+                &nbsp;&nbsp;<span class="code-fn">AUTO_SUSPEND</span> <span class="code-punc">=</span> <span class="code-num">300</span><span class="code-punc">;</span><br>
+                <br>
+                <span class="code-kw">CREATE WAREHOUSE</span> <span class="code-id">etl_wh</span><br>
+                &nbsp;&nbsp;<span class="code-fn">WAREHOUSE_SIZE</span> <span class="code-punc">=</span> <span class="code-str">'XLARGE'</span><br>
+                &nbsp;&nbsp;<span class="code-fn">AUTO_SUSPEND</span> <span class="code-punc">=</span> <span class="code-num">60</span><span class="code-punc">;</span>
+              </div>
+            </div>
+
+            <!-- Scale Up content -->
+            <div class="csc-lc" id="lc-up">
+              <div class="csc-eyebrow">Scale Up</div>
+              <div class="csc-title">Bigger T-shirt,<br>faster queries</div>
+              <div class="csc-sub">Match warehouse size to query complexity &#8212; not to user count.</div>
+              <div class="csc-sizes" style="margin-bottom:4px;">
+                <div class="csc-chip"><span class="sz">XS</span><span class="cr">1 cr/hr</span></div>
+                <div class="csc-chip"><span class="sz">S</span><span class="cr">2 cr/hr</span></div>
+                <div class="csc-chip"><span class="sz">M</span><span class="cr">4 cr/hr</span></div>
+                <div class="csc-chip hi"><span class="sz">L</span><span class="cr">8 cr/hr</span></div>
+              </div>
+              <div class="csc-sizes" style="margin-bottom:12px;">
+                <div class="csc-chip"><span class="sz">XL</span><span class="cr">16 cr/hr</span></div>
+                <div class="csc-chip"><span class="sz">2XL</span><span class="cr">32 cr/hr</span></div>
+                <div class="csc-chip"><span class="sz">3XL</span><span class="cr">64 cr/hr</span></div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon" style="background:var(--sf-blue-dark);">&#8801;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Same Cost. 8&#215; Faster.</div>
+                  <div class="csc-feature-body">Doubling the servers halves the runtime &#8212; and you pay <em>per server, per second</em>. Go from XS to L (8&#215; servers) and your query runs 8&#215; faster at the <strong>exact same credit cost</strong>.</div>
+                </div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon">&#9650;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Scale Up &amp; Down Instantly</div>
+                  <div class="csc-feature-body">Resize a running warehouse with a single SQL statement &#8212; no downtime, no migration. Scale up for a heavy batch job, scale back down immediately after.</div>
+                </div>
+              </div>
+              <div style="background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:10px;line-height:1.8;margin-top:8px;flex-shrink:0;">
+                <span class="code-comment">-- Resize takes effect on next query</span><br>
+                <span class="code-kw">ALTER WAREHOUSE</span> <span class="code-id">my_wh</span> <span class="code-kw">SET</span><br>
+                &nbsp;&nbsp;<span class="code-fn">WAREHOUSE_SIZE</span> <span class="code-punc">=</span> <span class="code-str">'LARGE'</span><span class="code-punc">;</span><br>
+                <br>
+                <span class="code-comment">-- Scale back down when done</span><br>
+                <span class="code-kw">ALTER WAREHOUSE</span> <span class="code-id">my_wh</span> <span class="code-kw">SET</span><br>
+                &nbsp;&nbsp;<span class="code-fn">WAREHOUSE_SIZE</span> <span class="code-punc">=</span> <span class="code-str">'SMALL'</span><span class="code-punc">;</span>
+              </div>
+            </div>
+
+            <!-- Scale Out content -->
+            <div class="csc-lc" id="lc-out">
+              <div class="csc-eyebrow">Scale Out</div>
+              <div class="csc-title">More clusters,<br>no queue</div>
+              <div class="csc-sub">Add capacity for concurrency &#8212; through multi-cluster warehouses or adaptive throughput scaling.</div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon">&#9654;&#9654;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Multi-Cluster Warehouses</div>
+                  <div class="csc-feature-body">When users queue, MCW spins up identical clusters automatically. Each cluster handles its own query queue. AUTO mode scales 1&#8211;10 clusters; suspends excess when idle.</div>
+                </div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon" style="background:var(--sf-blue-dark);">&#9737;</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Adaptive Warehouses</div>
+                  <div class="csc-feature-body">Gen2 warehouses auto-tune throughput for mixed workloads using <code style="font-size:10px;font-family:monospace;">QUERY_THROUGHPUT_MULTIPLIER</code> (1&#8211;3&#215;) &#8212; without adding clusters or resizing.</div>
+                  <a href="./compute-specialized.html" class="csc-adaptive-tag">See Specialized Compute &#8594;</a>
+                </div>
+              </div>
+              <div class="csc-feature">
+                <div class="csc-feature-icon" style="background:var(--sf-blue-mid);">$</div>
+                <div class="csc-feature-text">
+                  <div class="csc-feature-title">Credits</div>
+                  <div class="csc-feature-body">Each active MCW cluster bills at the warehouse T-shirt rate. Adaptive scaling adds no extra credit cost &#8212; it&#8217;s built into Gen2.</div>
+                </div>
+              </div>
+              <div style="background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:10px;line-height:1.8;margin-top:8px;flex-shrink:0;">
+                <span class="code-comment">-- Create a multi-cluster warehouse</span><br>
+                <span class="code-kw">CREATE OR REPLACE WAREHOUSE</span> <span class="code-id">analytics_wh</span><br>
+                &nbsp;&nbsp;<span class="code-fn">WAREHOUSE_SIZE</span> <span class="code-punc">=</span> <span class="code-str">'MEDIUM'</span><br>
+                &nbsp;&nbsp;<span class="code-fn">MIN_CLUSTER_COUNT</span> <span class="code-punc">=</span> <span class="code-num">1</span><br>
+                &nbsp;&nbsp;<span class="code-fn">MAX_CLUSTER_COUNT</span> <span class="code-punc">=</span> <span class="code-num">3</span><br>
+                &nbsp;&nbsp;<span class="code-fn">AUTO_SUSPEND</span> <span class="code-punc">=</span> <span class="code-num">60</span><br>
+                &nbsp;&nbsp;<span class="code-fn">SCALING_POLICY</span> <span class="code-punc">=</span> <span class="code-str">'ECONOMY'</span><span class="code-punc">;</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ── Right panel ──────────────────────────────────── -->
+          <div class="csc-right">
+
+            <!-- Scale Across: workload isolation diagram -->
+            <div class="csc-rc active" id="rc-across">
+              <div class="csc-iso-diagram">
+                <div style="font-size:var(--fs-h5);font-weight:700;color:var(--sf-blue);text-align:center;margin-bottom:6px;">Workload Isolation &#8212; One Storage, Many Warehouses</div>
+                <div class="csc-iso-row">
+                  <div class="csc-iso-wh" style="background:rgba(0,89,163,.4);border:1.5px solid rgba(41,181,232,.4);border-radius:9px;">
+                    <div class="csc-iso-wh-tag" style="color:var(--sf-blue);">BI &amp; Reporting</div>
+                    <div class="csc-iso-wh-name">BI_WH</div>
+                    <div class="csc-iso-wh-meta">Size: M &nbsp;&#183;&nbsp; MCW 1&#8211;3</div>
+                  </div>
+                  <div class="csc-iso-wh" style="background:rgba(26,140,196,.35);border:1.5px solid rgba(41,181,232,.35);border-radius:9px;">
+                    <div class="csc-iso-wh-tag" style="color:rgba(41,181,232,.8);">Data Engineering</div>
+                    <div class="csc-iso-wh-name">ETL_WH</div>
+                    <div class="csc-iso-wh-meta">Size: XL &nbsp;&#183;&nbsp; Batch</div>
+                  </div>
+                </div>
+                <div class="csc-mcw-arrows" style="padding:0 16px;">
+                  <div class="csc-mcw-arrow"><div class="csc-mcw-arrow-line"></div><div class="csc-mcw-arrow-head">&#x2193;</div></div>
+                  <div class="csc-mcw-arrow"><div class="csc-mcw-arrow-line"></div><div class="csc-mcw-arrow-head">&#x2193;</div></div>
+                </div>
+                <div class="csc-mcw-storage">
+                  <div class="csc-mcw-storage-title">Snowflake Storage</div>
+                  <div class="csc-mcw-storage-sub">Same tables &#8212; all warehouses share the same data</div>
+                </div>
+                <div class="csc-mcw-arrows" style="padding:0 16px;">
+                  <div class="csc-mcw-arrow"><div class="csc-mcw-arrow-head">&#x2191;</div><div class="csc-mcw-arrow-line"></div></div>
+                  <div class="csc-mcw-arrow"><div class="csc-mcw-arrow-head">&#x2191;</div><div class="csc-mcw-arrow-line"></div></div>
+                </div>
+                <div class="csc-iso-row">
+                  <div class="csc-iso-wh" style="background:rgba(41,181,232,.15);border:1.5px solid rgba(41,181,232,.3);border-radius:9px;">
+                    <div class="csc-iso-wh-tag" style="color:rgba(41,181,232,.7);">AI &amp; ML</div>
+                    <div class="csc-iso-wh-name">ML_WH</div>
+                    <div class="csc-iso-wh-meta">Type: Snowpark-Opt &nbsp;&#183;&nbsp; Size: L</div>
+                  </div>
+                  <div class="csc-iso-wh" style="background:rgba(255,255,255,.05);border:1.5px solid rgba(41,181,232,.2);border-radius:9px;">
+                    <div class="csc-iso-wh-tag" style="color:rgba(255,255,255,.5);">Ad-hoc</div>
+                    <div class="csc-iso-wh-name">ANALYST_WH</div>
+                    <div class="csc-iso-wh-meta">Size: S &nbsp;&#183;&nbsp; Budget capped</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scale Up: image -->
+            <div class="csc-rc" id="rc-up">
+              <img class="csc-diagram-img" src="../Images/Scale Up.png" alt="Scale Up diagram"/>
+            </div>
+
+            <!-- Scale Out: MCW diagram -->
+            <div class="csc-rc" id="rc-out">
+              <img class="csc-diagram-img" src="../Images/Scale Out.png" alt="Scale Out multi-cluster diagram"/>
+            </div>
+
+          </div>
+
+        </div><!-- /csc-split -->
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(id) {
+      const ids = ['across', 'up', 'out'];
+      document.querySelectorAll('.csc-tab').forEach((t, i) => {
+        t.classList.toggle('active', ids[i] === id);
+      });
+      document.querySelectorAll('.csc-lc').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.csc-rc').forEach(p => p.classList.remove('active'));
+      document.getElementById('lc-' + id).classList.add('active');
+      document.getElementById('rc-' + id).classList.add('active');
+    }
+  </script>
+</body>
+</html>

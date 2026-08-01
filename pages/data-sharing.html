@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Zero-ETL Data Sharing — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .ds-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%; max-width: 900px;
+      padding: 8px 0 4px;
+    }
+    .ds-card {
+      background: var(--sf-card);
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s, transform .12s;
+    }
+    .ds-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
+    .ds-card.active { border-color: var(--sf-blue); background: var(--sf-blue-dark); }
+    .ds-card-label {
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: var(--fs-h5); font-weight: 700;
+      color: var(--sf-blue); margin-bottom: 4px;
+    }
+    .ds-card.active .ds-card-label { color: var(--sf-light); }
+    .ds-card-desc { font-size: var(--fs-h6); color: rgba(255,255,255,.5); line-height: 1.4; }
+    .ds-panel {
+      width: 100%; max-width: 900px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .ds-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .ds-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .ds-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .ds-panel-explain p { margin-bottom: 10px; }
+    .ds-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .ds-panel-explain li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Zero-ETL Data Sharing is one of Snowflake's most differentiated capabilities. Traditional data sharing requires extracting, transforming, and loading data into the recipient's system — with all the pipeline complexity, freshness lag, and governance headaches that implies. Snowflake sharing is fundamentally different: the provider creates a share object pointing at live tables, the consumer mounts it as a read-only database, and they query your actual live data with no ETL, no staging, no copies.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Zero copies:</strong> Consumers query your actual storage — no data duplication, always live and consistent.</li>
+  <li><strong>No compute cost to provider:</strong> The consumer's warehouse runs the query. You don't pay for their analytics.</li>
+  <li><strong>Works across clouds and regions:</strong> Replication handles cross-region automatically; consumers query their regional replica.</li>
+  <li><strong>Listings vs Direct Shares:</strong> Direct shares are account-to-account. Listings (Marketplace/Internal) allow self-service discovery and installation.</li>
+  <li><strong>Governance preserved:</strong> Dynamic data masking, row-level security policies can be applied to shared objects.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you currently share data with business partners, customers, or subsidiaries — what's the freshness and maintenance burden?</li>
+  <li>Do you have different teams (finance, marketing, ops) running Snowflake accounts that need the same source data without copying it?</li>
+  <li>Are there partners who would benefit from live access to a subset of your data, governed by your policies?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/data-sharing-intro',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Zero-ETL Data Sharing</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Applications &amp; Collaboration</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Zero-ETL Sharing</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Zero-ETL Data Sharing</div>
+          <div class="s6-sub" style="text-align:center;">Share live data across accounts and clouds without pipelines, copies, or ETL. Consumers query your actual data — always fresh, always governed.</div>
+        </div>
+
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
+          <div class="ds-grid">
+            <div class="ds-card" onclick="showPanel(0)">
+              <div class="ds-card-label">Direct Share</div>
+              <div class="ds-card-desc">Share tables, views, and UDFs directly to another Snowflake account. Point-to-point, no Marketplace listing required.</div>
+            </div>
+            <div class="ds-card" onclick="showPanel(1)">
+              <div class="ds-card-label">Secure Views</div>
+              <div class="ds-card-desc">Share derived, filtered, or joined views without exposing underlying tables. The view definition is hidden from consumers.</div>
+            </div>
+            <div class="ds-card" onclick="showPanel(2)">
+              <div class="ds-card-label">Listings</div>
+              <div class="ds-card-desc">Publish data products to Snowflake Marketplace (public) or Internal Marketplace (org-wide) for self-service discovery and install.</div>
+            </div>
+            <div class="ds-card" onclick="showPanel(3)">
+              <div class="ds-card-label">Cross-Region Replication</div>
+              <div class="ds-card-desc">Share data across clouds and regions automatically. Snowflake replicates; consumers query a regional replica at low latency.</div>
+            </div>
+            <div class="ds-card" onclick="showPanel(4)">
+              <div class="ds-card-label">Internal Marketplace</div>
+              <div class="ds-card-desc">Publish data products for internal teams across your Snowflake organization — self-service discovery without central IT bottlenecks.</div>
+            </div>
+            <div class="ds-card" onclick="showPanel(5)">
+              <div class="ds-card-label">Governed Sharing</div>
+              <div class="ds-card-desc">Apply row-level security and dynamic masking policies to shared objects — consumers see a governed subset of your data.</div>
+            </div>
+          </div>
+
+          <div class="ds-panel" id="ds-panel">
+            <div class="ds-panel-code" id="ds-code">-- Select a card above to explore Data Sharing concepts</div>
+            <div class="ds-panel-explain" id="ds-explain">
+              <h4>Zero-ETL Data Sharing</h4>
+              <p>Click any card above to see SQL examples and explanations for each aspect of Snowflake's data sharing model.</p>
+              <p>Sharing in Snowflake is built on a single key insight: consumers mount a read-only view of your actual storage. No data movement, no pipeline, always live.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const items = [
+    {
+      label: 'Direct Share',
+      code: `${cm('-- 1. Create a share object')}\n${k('CREATE')} ${k('SHARE')} sales_share;\n\n${cm('-- 2. Grant access to database and schema')}\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('DATABASE')} analytics_db\n  ${k('TO')} ${k('SHARE')} sales_share;\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('SCHEMA')} analytics_db.reporting\n  ${k('TO')} ${k('SHARE')} sales_share;\n\n${cm('-- 3. Grant access to specific objects')}\n${k('GRANT')} ${k('SELECT')} ${k('ON')} ${k('TABLE')} analytics_db.reporting.daily_sales\n  ${k('TO')} ${k('SHARE')} sales_share;\n${k('GRANT')} ${k('SELECT')} ${k('ON')} ${k('VIEW')} analytics_db.reporting.sales_summary_v\n  ${k('TO')} ${k('SHARE')} sales_share;\n\n${cm('-- 4. Add consumer account(s) to the share')}\n${k('ALTER')} ${k('SHARE')} sales_share\n  ${k('ADD')} ${k('ACCOUNTS')} ${p('=')} partner_org.partner_account;\n\n${cm('-- Consumer side: mount the share as a database')}\n${k('CREATE')} ${k('DATABASE')} acme_sales_data\n  ${k('FROM')} ${k('SHARE')} provider_org.provider_account.sales_share;\n${k('SELECT')} ${p('*')} ${k('FROM')} acme_sales_data.reporting.daily_sales;`,
+      title: 'Direct Share',
+      html: `<p><strong>Direct Shares</strong> are the foundational sharing mechanism — account-to-account, no marketplace listing required. Create a SHARE object, grant access to objects, add consumer accounts.</p>
+<ul>
+  <li>Consumers mount the share as a database with <code>CREATE DATABASE FROM SHARE</code> — then query it with standard SQL</li>
+  <li>No data is copied; consumers read from the provider's actual storage. Latency is identical to the provider's own queries.</li>
+  <li>Provider controls exactly which tables, views, and UDFs are in the share — objects can be added or removed at any time</li>
+  <li>Consumer's warehouse provides the compute; provider pays nothing for consumer queries</li>
+</ul>
+<p>A share can be granted to multiple consumer accounts simultaneously. Each consumer sees the same live data.</p>`
+    },
+    {
+      label: 'Secure Views',
+      code: `${cm('-- Create a secure view to limit what\'s shared')}\n${k('CREATE')} ${k('SECURE')} ${k('VIEW')} reporting.customer_summary_v\n${k('AS')}\n${k('SELECT')}\n  customer_region${p(',')}\n  ${f('DATE_TRUNC')}${p('(')}'month'${p(',')}\n  order_date${p(')')} ${k('AS')} order_month${p(',')}\n  ${f('COUNT')}${p('(')}order_id${p(')')} ${k('AS')} order_count${p(',')}\n  ${f('SUM')}${p('(')}order_value${p(')')} ${k('AS')} total_revenue\n${k('FROM')} analytics_db.internal.orders\n${k('WHERE')} status ${p('=')} ${str('COMPLETED')}\n  ${k('AND')} customer_region ${p('!=')} ${str('INTERNAL')}\n${k('GROUP')} ${k('BY')} ${p('1,2')};\n\n${cm('-- Share the secure view (not the underlying table)')}\n${k('GRANT')} ${k('SELECT')} ${k('ON')} ${k('VIEW')} reporting.customer_summary_v\n  ${k('TO')} ${k('SHARE')} partner_share;\n\n${cm('-- Consumers cannot SHOW the view definition')}\n${cm('-- They see only aggregated, filtered results')}\n${cm('-- Internal orders table stays completely hidden')}`,
+      title: 'Secure Views',
+      html: `<p><strong>Secure Views</strong> let you share derived or filtered data without exposing the underlying tables or view logic. The <code>SECURE</code> keyword hides the view definition from consumers entirely.</p>
+<ul>
+  <li>Regular views can have their definition inspected by users with SHOW access. Secure views block this — the query plan is also hidden.</li>
+  <li>Use secure views to share aggregated summaries, pre-filtered subsets, or joined data products without exposing raw data</li>
+  <li>Secure views are the primary tool for sharing sensitive data: the provider controls what shape of data consumers see</li>
+  <li>Only views marked <code>SECURE</code> can be added to a share — Snowflake enforces this to prevent accidental raw table exposure via view</li>
+</ul>
+<p>Best practice: never share raw tables. Always share through a secure view that defines the exact shape, granularity, and filters appropriate for the consumer.</p>`
+    },
+    {
+      label: 'Listings',
+      code: `${cm('-- Create a listing on Snowflake Marketplace')}\n${cm('-- (Most commonly done via Snowsight UI, but CLI/SQL available)')}\n\n${cm('-- Programmatic listing creation via SQL:')}\n${k('CREATE')} ${k('LISTING')} my_data_product\n  ${k('FOR')} ${k('SHARE')} analytics_share\n  ${k('AS')}\n  ${p('$$')}\n    title: ${str('"Daily US Economic Indicators"')}\n    subtitle: ${str('"Macro and sector-level data, updated daily"')}\n    description: ${str('"Covers GDP, CPI, employment — sourced from \n      public filings and enriched with Snowflake ML"')}\n    listing_terms:\n      type: ${str('STANDARD')}\n    targets:\n      regions:\n        - ${str('PUBLIC.AWS_US_EAST_1')}\n  ${p('$$')};\n\n${cm('-- Internal / Org listing (visible only within your org):')}\n${k('CREATE')} ${k('LISTING')} internal_hr_data\n  ${k('FOR')} ${k('SHARE')} hr_share\n  ${k('AS')}\n  ${p('$$')}\n    title: ${str('"HR Employee Data"')}\n    targets:\n      accounts:\n        - ${str('MY_ORG.ACCOUNT_A')}\n        - ${str('MY_ORG.ACCOUNT_B')}\n  ${p('$$')};`,
+      title: 'Listings',
+      html: `<p><strong>Listings</strong> are the self-service layer on top of direct shares. Instead of explicitly adding consumer accounts, you publish a listing that consumers discover and install themselves.</p>
+<ul>
+  <li><strong>Public Marketplace listings</strong>: visible to all Snowflake accounts globally. Free or paid. Self-service install via Marketplace UI.</li>
+  <li><strong>Private/Personalized listings</strong>: published to specific accounts — used for customer data delivery or B2B sharing without public visibility</li>
+  <li><strong>Internal/Org listings</strong>: visible only within your Snowflake organization. Enable self-service data discovery across business units without central IT bottlenecks.</li>
+  <li>Listings support versioned data products, sample data previews, and usage-based pricing for providers</li>
+</ul>
+<p>The Internal Marketplace is particularly powerful for large enterprises: data teams publish certified data products; business teams discover and install them without waiting for IT to provision access.</p>`
+    },
+    {
+      label: 'Cross-Region Replication',
+      code: `${cm('-- Enable replication for a database')}\n${k('ALTER')} ${k('DATABASE')} analytics_db\n  ${k('ENABLE')} ${k('REPLICATION')} ${k('TO')} ${k('ACCOUNTS')}\n    aws_us_east_1.secondary_account${p(',')}\n    azure_westeurope.eu_account;\n\n${cm('-- On the secondary account: create the replica')}\n${k('CREATE')} ${k('DATABASE')} analytics_db\n  ${k('AS')} ${k('REPLICA')} ${k('OF')} aws_us_west_2.primary_account.analytics_db;\n\n${cm('-- Create a replication group for multi-object sync')}\n${k('CREATE')} ${k('REPLICATION')} ${k('GROUP')} global_data\n  ${k('OBJECT_TYPES')} ${p('=')} ${k('DATABASE')}\n  ${k('ALLOWED_DATABASES')} ${p('=')} analytics_db${p(',')} config_db\n  ${k('ALLOWED_ACCOUNTS')} ${p('=')} aws_eu.eu_account;\n\n${cm('-- Check replication lag')}\n${k('SELECT')}\n  replication_group_name${p(',')}\n  replication_schedule${p(',')}\n  last_completed_refresh\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('replication_group_history')}\n${k('ORDER')} ${k('BY')} last_completed_refresh ${k('DESC')};`,
+      title: 'Cross-Region Replication',
+      html: `<p><strong>Database Replication</strong> is the enabler for cross-region and cross-cloud data sharing. Snowflake handles the data movement; consumers in remote regions query a local replica at native latency.</p>
+<ul>
+  <li>Replication is asynchronous and schedule-driven (e.g. every 10 minutes). The replica is a point-in-time consistent snapshot.</li>
+  <li><strong>Replication Groups</strong> allow you to replicate multiple databases, shares, and other objects as an atomic unit — keeps related data in sync</li>
+  <li>When you share a replicated database, Snowflake automatically routes consumers in each region to their nearest replica</li>
+  <li>Replication costs are billed to the provider; compute for consumer queries is billed to the consumer</li>
+</ul>
+<p>Key use case: a US-headquartered company needs to share live data with EU partners. Enable replication to EU, create the share — EU consumers get local latency, GDPR data residency, and live data.</p>`
+    },
+    {
+      label: 'Internal Marketplace',
+      code: `${cm('-- Create an org listing visible only within your organization')}\n${k('CREATE')} ${k('LISTING')} finance.monthly_close_data\n  ${k('FOR')} ${k('SHARE')} finance_share\n  ${k('AS')}\n  ${p('$$')}\n    title: ${str('"Monthly Close — Finance"')}\n    subtitle: ${str('"Ledger and P&L, refreshed post-close"')}\n    targets:\n      organization: MY_ORG\n  ${p('$$')};\n\n${cm('-- Business unit consumer discovers and installs via Snowsight')}\n${cm('-- or programmatically:')}\n${k('CREATE')} ${k('DATABASE')} finance_close\n  ${k('FROM')} ${k('SHARE')} finance_org.finance_account.finance.monthly_close_data;\n\n${cm('-- Providers can see who has installed their listing')}\n${k('SELECT')}\n  consumer_account_locator${p(',')}\n  consumer_organization${p(',')}\n  installed_on\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_history')}\n${k('WHERE')} listing_name ${p('=')} ${str('FINANCE.MONTHLY_CLOSE_DATA')};`,
+      title: 'Internal Marketplace',
+      html: `<p>The <strong>Internal Marketplace</strong> (org listings) enables self-service data discovery and sharing across all Snowflake accounts within a single organization — without going through a central IT team or making data public.</p>
+<ul>
+  <li>Published listings appear in the "Your Organization" tab of Snowflake Marketplace inside every account in the org</li>
+  <li>Data teams publish certified data products; business analysts discover and install them on-demand — no tickets, no delays</li>
+  <li>Governance is preserved: the publisher controls object access via the underlying share, and can revoke listings at any time</li>
+  <li>Usage analytics in <code>DATA_SHARING_USAGE.LISTING_ACCESS_HISTORY</code> shows who installed what and when</li>
+</ul>
+<p>This is the architecture for enterprise data mesh at scale: domain teams own and publish their data products; consumers subscribe to them like an internal app store.</p>`
+    },
+    {
+      label: 'Governed Sharing',
+      code: `${cm('-- Apply a row access policy to a shared view')}\n${k('CREATE')} ${k('ROW')} ${k('ACCESS')} ${k('POLICY')} region_filter_policy\n${k('AS')} ${p('(')}consumer_region ${k('VARCHAR')}${p(')')}\n${k('RETURNS')} ${k('BOOLEAN')} ${p('->')}\n  ${id('consumer_region')} ${p('=')} ${f('CURRENT_ACCOUNT')}${p('()')};\n\n${k('ALTER')} ${k('VIEW')} reporting.sales_by_account_v\n  ${k('ADD')} ${k('ROW')} ${k('ACCESS')} ${k('POLICY')} region_filter_policy\n  ${k('ON')} ${p('(')}account_id${p(')')};\n\n${cm('-- Add dynamic masking on PII column in shared view')}\n${k('CREATE')} ${k('MASKING')} ${k('POLICY')} email_mask\n${k('AS')} ${p('(')}val ${k('STRING')}${p(')')}\n${k('RETURNS')} ${k('STRING')} ${p('->')}\n  ${k('CASE')}\n    ${k('WHEN')} ${f('CURRENT_ROLE')}${p('()')} ${k('LIKE')} ${str("'%PARTNER%'")} \n      ${k('THEN')} ${f('SHA2')}${p('(')}val${p(',')}'256'${p(')')}\n    ${k('ELSE')} val\n  ${k('END')};\n\n${k('ALTER')} ${k('VIEW')} reporting.sales_by_account_v\n  ${k('MODIFY')} ${k('COLUMN')} email\n  ${k('SET')} ${k('MASKING')} ${k('POLICY')} email_mask;`,
+      title: 'Governed Sharing',
+      html: `<p>Snowflake's governance features apply seamlessly to shared objects — consumers see a governed view of data that respects all policies applied by the provider.</p>
+<ul>
+  <li><strong>Row Access Policies</strong> on shared views let you filter rows based on consumer identity — one share object can serve multiple consumers with different row visibility</li>
+  <li><strong>Dynamic Data Masking</strong> on shared columns lets you mask PII (hash emails, redact card numbers) for partner consumers while keeping full data for internal use</li>
+  <li>Policies are applied at query time on the provider's side — consumers cannot bypass them</li>
+  <li>Combine with <code>CURRENT_ACCOUNT()</code>, <code>CURRENT_ROLE()</code>, and context functions to build multi-tenant shares from a single share object</li>
+</ul>
+<p>This is the key to scalable, governed data sharing: one share definition, policy-enforced per-consumer row and column visibility — no custom views or ETL per partner.</p>`
+    }
+  ];
+
+  function showPanel(i) {
+    document.querySelectorAll('.ds-card').forEach((c,j) => c.classList.toggle('active', j===i));
+    document.getElementById('ds-code').innerHTML = items[i].code;
+    document.getElementById('ds-explain').innerHTML = `<h4>${items[i].title}</h4>${items[i].html}`;
+  }
+  </script>
+</body>
+</html>

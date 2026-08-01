@@ -15,6 +15,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 0 18px 8px;
       gap: 10px;
       overflow-y: auto;
@@ -158,7 +159,27 @@
   </style>
 </head>
 <body>
-  <script src="../bg.js"></script>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The Snowflake CLI and Git Integration bring Snowflake development into modern software workflows — version control, CI/CD pipelines, and developer tooling. Teams can manage Snowflake objects, deploy code, and sync repositories directly from the command line or GitHub Actions.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Snowflake CLI (snow):</strong> A single command-line tool for managing Snowflake objects, running SQL, deploying Snowpark apps, and managing SPCS services — replaces SnowSQL and simplifies CI/CD integration.</li>
+  <li><strong>Git integration:</strong> Snowflake can sync directly with a GitHub or GitLab repository. Execute SQL files, Snowpark procedures, and Streamlit apps straight from the repo without staging files manually.</li>
+  <li><strong>DevOps-native:</strong> Works with GitHub Actions, GitLab CI, and Terraform — Snowflake objects become infrastructure-as-code that goes through the same PR and review process as application code.</li>
+  <li><strong>DCM (Database Change Management):</strong> Declarative schema management built into Snowflake — define tables, roles, and objects in YAML manifests and let Snowflake handle the diff and apply.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you manage Snowflake schema changes today — manual DDL scripts, Liquibase, Flyway, or something else?</li>
+  <li>Are your data engineers or analytics engineers already using dbt or a CI/CD pipeline?</li>
+  <li>How long does it take to promote a Snowflake change from dev to production?</li>
+</ul>`;
+</script>
+<script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
       docs:  'https://docs.snowflake.com/en/developer-guide/snowflake-cli/index',

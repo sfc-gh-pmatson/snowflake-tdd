@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Lineage &#8212; Horizon Catalog</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .s6-top { padding: 6px 24px 4px; }
+    .hsp-layout {
+      display: flex; width: 100%;
+      max-width: min(1000px, 96vw); align-self: center;
+      flex: 1; min-height: 0; margin: 0 20px;
+    }
+    .hsp-left {
+      width: 44%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 28px 16px 24px;
+      border-right: 1px solid rgba(41,181,232,.12);
+    }
+    .hsp-eyebrow {
+      font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(41,181,232,.7); margin-bottom: 6px;
+    }
+    .hsp-title { font-size: var(--fs-h1); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .hsp-sub   { font-size: var(--fs-h4); color: rgba(255,255,255,.45); margin-bottom: 16px; line-height: 1.5; }
+    .hsp-feature {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 9px 0; border-top: 1px solid rgba(41,181,232,.09);
+    }
+    .hsp-feature:last-of-type { border-bottom: 1px solid rgba(41,181,232,.09); }
+    .hsp-feature-icon {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--sf-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px; color: #fff;
+    }
+    .hsp-feature-text { flex: 1; }
+    .hsp-feature-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; margin-bottom: 2px; }
+    .hsp-feature-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.52); line-height: 1.5; }
+    .hsp-right {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px 24px;
+      background: linear-gradient(160deg, rgba(5,13,26,.97) 0%, rgba(10,8,30,.97) 100%);
+      position: relative; overflow: hidden;
+    }
+    .hsp-right::before {
+      content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(41,181,232,.07) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
+    }
+    .hsp-code {
+      width: 100%; background: var(--code-bg); border-radius: 10px;
+      padding: 16px 18px; font-family: monospace; font-size: 11px;
+      line-height: 1.85; position: relative; z-index: 1;
+    }
+    .hsp-diagram-img {
+      width: 100%; max-height: 100%; object-fit: contain;
+      border-radius: 8px; position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Lineage in Snowflake is automatic &#8212; it\'s derived from query execution history, not manually curated. Every time a query runs, Snowflake captures which source columns were read to produce which output columns. This means customers get column-level lineage without any tagging or annotation work.</p>
+<h3>Key Points</h3>
+<ul>
+  <li>Column-level lineage spans Snowflake objects AND external BI systems (Tableau, Power BI, dbt) via connectors</li>
+  <li>GET_LINEAGE() is the programmatic API for impact analysis before schema changes</li>
+  <li>Lineage feeds the AI trust model &#8212; agents know the provenance of every piece of data they use</li>
+  <li>Downstream blast radius: "what breaks if I rename this column?" is answerable instantly</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you know the downstream impact before making a schema change today?</li>
+  <li>If an analyst reports a bad number, how long does it take to find the root cause?</li>
+  <li>Do your BI dashboards connect to Snowflake directly? (Lineage will span into those)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/access-history',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
+      <span class="nav-label">Lineage</span>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide" style="align-items:center;">
+        <div class="s6-top" style="width:100%;align-self:stretch;">
+          <div class="s6-top-row"><span class="slide-tag tag-blue">Governance</span></div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Lineage</div>
+          <div class="s6-sub" style="text-align:center;">Track every transformation from source to destination &#8212; column-level, across Snowflake and external systems.</div>
+        </div>
+        <div class="hsp-layout">
+          <div class="hsp-left">
+            <div class="hsp-eyebrow">Horizon Catalog &#183; Monitor</div>
+            <div class="hsp-title">Trace data from<br>source to answer</div>
+            <div class="hsp-sub">Column-level lineage across Snowflake, dbt, Tableau, Power BI, and external databases &#8212; automatic, no manual curation.</div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon">&#8663;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Column-Level Lineage</div>
+                <div class="hsp-feature-body">Track every transformation from source to destination at the column level &#8212; across tables, views, dynamic tables, tasks, and external databases like Tableau, Power BI, and dbt.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#128200;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">Popularity &amp; Usage Signals</div>
+                <div class="hsp-feature-body">See query frequency, active users, and join patterns alongside lineage. Rank data assets by popularity to identify which tables are most trusted and most used.</div>
+              </div>
+            </div>
+            <div class="hsp-feature">
+              <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9888;</div>
+              <div class="hsp-feature-text">
+                <div class="hsp-feature-title">AI Answer Traceability</div>
+                <div class="hsp-feature-body">Every AI-generated answer can be traced back to the source data through lineage. Agents inherit the same lineage graph as SQL queries &#8212; no separate tracking needed.</div>
+              </div>
+            </div>
+          </div>
+          <div class="hsp-right">
+            <img class="hsp-diagram-img" src="../Images/Lineage.png" alt="Lineage diagram"/></div>
+    </div>
+  </div>
+</body>
+</html>

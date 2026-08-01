@@ -4,6 +4,18 @@
 
 ## Module Pages To Build
 
+### Storage — Micro-Partitioning Deep Dive
+Dedicated page going deeper on how Snowflake's micro-partitioning works, with visual diagrams of partition metadata, pruning mechanics, and how DML/Time Travel interact with immutable partitions.
+
+Key concepts: 50–500 MB compressed columnar chunks · column-level min/max/bloom metadata · partition pruning in query plans · MVCC-style immutability · Time Travel & Fail-Safe retention · SYSTEM$CLUSTERING_INFORMATION output interpretation
+
+### Storage — Clustering & Search Optimization Deep Dive
+Dedicated page covering when and how to use cluster keys and the Search Optimization Service, with guidance on choosing cluster keys, monitoring effectiveness, and comparing against search optimization.
+
+Key concepts: when to cluster vs. not · choosing cluster key columns · monitoring depth with SYSTEM$CLUSTERING_INFORMATION · automatic reclustering cost model · Search Optimization Service — equality, substring, geo · ALTER TABLE ADD SEARCH OPTIMIZATION · monitoring with SEARCH_OPTIMIZATION_HISTORY
+
+---
+
 ### Postgres PG Lake
 Expose Postgres-resident Iceberg tables to Snowflake via the pg_lake catalog integration.
 
@@ -35,6 +47,10 @@ Key concepts: mirroring vs pg_lake · `CREATE MIRROR` · CDC mechanics · monito
 | `cortex-agents.html` | Flow node — Answer | Emoji `&#x2705;` (✅) | Proper Snowflake-style icon for "output / answer" |
 | `cortex-analyst.html` | Pipeline node — Business Question | Emoji `&#x1F4AC;` (💬) | Proper Snowflake-style icon for "user question / input" |
 | `cortex-analyst.html` | Pipeline node — Result + Charts | Emoji `&#x2705;` (✅) | Proper Snowflake-style icon for "output / answer" |
+| `data-engineering.html` | Streams & Tasks card | `sf-icon-streams` (placeholder) | Official Snowflake Streams & Tasks icon |
+| `data-engineering.html` | dbt in Snowflake card | `sf-icon-data-mesh` (placeholder) | Official dbt / dbt-in-Snowflake icon |
+| `data-engineering.html` | Snowpark card | `sf-icon-python` (Python logo placeholder) | Official Snowflake Snowpark icon |
+| `data-engineering.html` | Openflow card | `sf-icon-connected` (placeholder) | Official Snowflake Openflow icon |
 
 **Note:** Third-party logos require brand approval before use in customer-facing materials.
 
