@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Delta Direct — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .dd-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; width: 100%; max-width: 900px; padding: 8px 0 4px;
+    }
+    .dd-card {
+      background: #fff; border: 2px solid rgba(41,181,232,.3);
+      border-radius: 12px; padding: 16px 18px;
+      cursor: pointer; transition: border-color .15s, transform .12s, box-shadow .15s;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .dd-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(41,181,232,.18); }
+    .dd-card.active { border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(41,181,232,.2); }
+    .dd-card-label { font-size: var(--fs-h5); font-weight: 700; color: var(--sf-ink); }
+    .dd-card-desc { font-size: var(--fs-h6); color: rgba(7,21,37,.55); line-height: 1.4; }
+    /* Overlay modal */
+    .dd-overlay { display:none; position:fixed; inset:0; background:rgba(5,13,26,.65); z-index:900; align-items:center; justify-content:center; }
+    .dd-overlay.open { display:flex; }
+    .dd-modal { background:var(--sf-navy); border:2px solid var(--sf-blue); border-radius:14px; width:860px; max-width:92vw; max-height:74vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.5); overflow:hidden; }
+    .dd-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:var(--sf-blue); flex-shrink:0; }
+    .dd-modal-title { font-size:var(--fs-h3); font-weight:700; color:#fff; }
+    .dd-modal-close { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.2); border:none; cursor:pointer; color:#fff; font-size:14px; display:flex; align-items:center; justify-content:center; }
+    .dd-modal-close:hover { background:rgba(255,255,255,.35); }
+    .dd-modal-body { flex:1; overflow:hidden; display:flex; }
+    .dd-modal-code { flex:3; overflow-y:auto; background:var(--code-bg); padding:16px 20px; font-family:'SF Mono','Fira Code',ui-monospace,monospace; font-size:var(--fs-h6); line-height:1.75; color:rgba(255,255,255,.85); white-space:pre-wrap; }
+    .dd-modal-explain { flex:2; overflow-y:auto; padding:16px 20px; background:#fff; color:var(--sf-ink); font-size:var(--fs-h5); line-height:1.6; }
+    .dd-modal-explain h4 { font-size:var(--fs-h4); font-weight:700; margin-bottom:8px; }
+    .dd-modal-explain p { margin-bottom:10px; }
+    .dd-modal-explain ul { padding-left:18px; margin-bottom:10px; }
+    .dd-modal-explain li { margin-bottom:4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Delta Direct is Snowflake's answer to customers who run Databricks and Snowflake side by side. Instead of exporting Delta tables to Parquet, loading into Snowflake, and maintaining a pipeline, Delta Direct creates a live read-through from Snowflake directly to the Delta transaction log and underlying Parquet files. Your data engineers keep writing to Delta in Databricks; your analysts query it from Snowflake with full SQL, RBAC, and Snowflake's performance optimizations. No copies, no pipelines, no staleness.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>No data movement:</strong> Snowflake reads the Delta transaction log and Parquet files directly from your object storage (S3, ADLS, GCS). The data stays in one place.</li>
+  <li><strong>Setup:</strong> Create an EXTERNAL VOLUME (storage access) and a CATALOG INTEGRATION (Delta/Unity Catalog). Then CREATE DATABASE FROM CATALOG INTEGRATION.</li>
+  <li><strong>Governance:</strong> Snowflake RBAC, masking policies, and row access policies apply to Delta tables just like native Snowflake tables.</li>
+  <li><strong>Performance:</strong> Snowflake reads Delta's Parquet files with predicate pushdown and partition pruning — comparable to reading native Iceberg.</li>
+  <li><strong>Write-back:</strong> Delta Direct is currently read-only from Snowflake. Writes to Delta tables must go through Databricks or Spark.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have a Databricks environment where data engineers write Delta tables, and Snowflake where analysts want to query them?</li>
+  <li>What&apos;s your current ETL process to move data from Delta into Snowflake — how fresh is the data and how much does the pipeline cost to maintain?</li>
+  <li>Do you use Unity Catalog as your Databricks metastore? (simplifies Delta Direct setup)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Delta Direct</span>
+      <div class="nav-tags">
+        <span class="nav-tag" style="background:rgba(255,62,33,.15);color:#ff6b35;">Databricks Interop</span>
+      </div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Data Lakehouse</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Delta Direct</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Delta Direct</div>
+          <div class="s6-sub" style="text-align:center;">Query Databricks Delta tables natively in Snowflake. No conversion, no ETL, no data copy — reads the Delta transaction log directly.</div>
+        </div>
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 16px 10px;">
+          <div class="dd-grid">
+            <div class="dd-card" data-fn="overview">
+              <div class="dd-card-label">How Delta Direct Works</div>
+              <div class="dd-card-desc">Snowflake reads the Delta transaction log and Parquet files directly from your object storage — no data movement required.</div>
+            </div>
+            <div class="dd-card" data-fn="setup">
+              <div class="dd-card-label">Setup & Catalog Integration</div>
+              <div class="dd-card-desc">Create an EXTERNAL VOLUME for storage access and a CATALOG INTEGRATION pointing at Unity Catalog, Glue, or a custom Delta catalog.</div>
+            </div>
+            <div class="dd-card" data-fn="query">
+              <div class="dd-card-label">Querying Delta Tables</div>
+              <div class="dd-card-desc">After setup, Delta tables appear as native Snowflake tables. Query with full SQL — joins, aggregations, window functions, Cortex AI.</div>
+            </div>
+            <div class="dd-card" data-fn="schema">
+              <div class="dd-card-label">Schema Evolution</div>
+              <div class="dd-card-desc">Delta schema changes propagate automatically to Snowflake. Add a column in Databricks; Snowflake sees it on the next query.</div>
+            </div>
+            <div class="dd-card" data-fn="timetravel">
+              <div class="dd-card-label">Time Travel on Delta</div>
+              <div class="dd-card-desc">Query historical snapshots of Delta tables using Snowflake AT/BEFORE syntax against Delta's transaction log versions.</div>
+            </div>
+            <div class="dd-card" data-fn="governance">
+              <div class="dd-card-label">Governance & Performance</div>
+              <div class="dd-card-desc">Snowflake RBAC, masking, and row access policies apply to Delta tables. Predicate pushdown and partition pruning deliver native performance.</div>
+            </div>
+          </div>
+        </div>
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dd-overlay" id="dd-overlay">
+    <div class="dd-modal">
+      <div class="dd-modal-header">
+        <span class="dd-modal-title" id="dd-modal-title"></span>
+        <button class="dd-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="dd-modal-body">
+        <div class="dd-modal-code" id="dd-modal-code"></div>
+        <div class="dd-modal-explain" id="dd-modal-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const PANELS = {
+      overview: {
+      title: 'How Delta Direct Works',
+      code: `${k("-- Architecture overview")}\n${id("Delta tables")} reside in ${str("S3 / ADLS / GCS")} as ${str("Parquet")} + ${str("_delta_log")}\n${id("Snowflake")} reads them directly — no copy, no pipeline\n\n${k("-- Components required")}\n${p("[1]")} ${id("EXTERNAL VOLUME")}      ${cm("-- storage credentials (AWS / Azure / GCP)")}\n${p("[2]")} ${id("CATALOG INTEGRATION")}  ${cm("-- Unity Catalog, AWS Glue, or REST catalog")}\n${p("[3]")} ${id("DATABASE")}              ${cm("-- auto-discovers Delta tables from catalog")}\n\n${k("-- Read path")}\n${k("SELECT")} ${p("*")} ${k("FROM")} ${id("delta_db.schema.table")}\n  ${p("->")} reads ${str("_delta_log/*.json")} ${cm("(transaction log)")}\n  ${p("->")} resolves current snapshot ${p("->")} Parquet file list\n  ${p("->")} reads with predicate pushdown from ${str("S3/ADLS/GCS")}\n  ${p("->")} returns results ${cm("(your warehouse pays the compute)")}`,
+      explain: `<h4>Setup & Catalog Integration</h4><p>Delta Direct setup requires two Snowflake objects plus a credential in your cloud provider:</p><ul><li><strong>External Volume:</strong> Grants Snowflake read access to the S3/ADLS/GCS bucket where Delta files live. Uses an IAM role (AWS), service principal (Azure), or service account (GCP).</li><li><strong>Catalog Integration:</strong> Points Snowflake at the Unity Catalog (Databricks), Glue, or a REST catalog endpoint. Set <code>TABLE_FORMAT = DELTA</code> to enable Delta Direct specifically.</li><li><strong>Catalog-Linked Database:</strong> <code>CREATE DATABASE FROM CATALOG INTEGRATION</code> auto-discovers all Delta tables in the catalog namespace and exposes them as Snowflake schemas and tables.</li></ul><p>Once set up, tables appear in Snowsight Data tab and are queryable from any Snowflake warehouse. No ongoing maintenance required — new Delta tables added in Databricks appear automatically.</p>`
+    },
+    query: {
+      title: 'Querying Delta Tables',
+      code: `${cm('── Standard SQL — Delta tables look like native Snowflake tables')}\n${k('SELECT')}\n  customer_id${p(',')}\n  ${f('SUM')}${p('(')}order_value${p(')')} ${k('AS')} total_revenue${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} order_count\n${k('FROM')} databricks_db.sales.orders\n${k('WHERE')} order_date ${p('>')} ${f('DATEADD')}${p('(')}'day'${p(',')} ${p('-30')}${p(',')} ${k('CURRENT_DATE')}${p(')')}\n${k('GROUP')} ${k('BY')} ${p('1')}\n${k('ORDER')} ${k('BY')} total_revenue ${k('DESC')}\n${k('LIMIT')} ${p('20')};\n\n${cm('── JOIN Delta tables with native Snowflake tables')}\n${k('SELECT')}\n  d.customer_id${p(',')}\n  d.total_revenue${p(',')}\n  s.segment${p(',')}\n  s.account_manager\n${k('FROM')} databricks_db.sales.orders d\n${k('JOIN')} snowflake_crm.customers.segments s\n  ${k('ON')} d.customer_id ${p('=')} s.customer_id\n${k('WHERE')} d.order_date ${p('>')} ${k('CURRENT_DATE')} ${p('-')} ${p('90')};\n\n${cm('── Use Cortex AI on Delta data')}\n${k('SELECT')}\n  review_id${p(',')}\n  ${f('AI_SENTIMENT')}${p('(')}review_text${p(')')} ${k('AS')} sentiment\n${k('FROM')} databricks_db.reviews.customer_reviews\n${k('LIMIT')} ${p('1000')};`,
+      explain: `<h4>Querying Delta Tables</h4><p>Delta tables accessed via Delta Direct behave exactly like native Snowflake tables from a query perspective:</p><ul><li>Full SQL support: JOINs, window functions, subqueries, CTEs, QUALIFY</li><li>Joins between Delta tables and native Snowflake tables in the same query — Snowflake optimizes the join across both sources</li><li>Cortex AI functions work on Delta data — classify, summarize, extract, or run sentiment analysis directly</li><li>Results are returned through your Snowflake warehouse — no Databricks compute involved</li></ul><p>The experience for analysts is transparent: they don't need to know the data is in Delta format. It looks and behaves like a Snowflake table.</p>`
+    },
+    schema: {
+      title: 'Schema Evolution',
+      code: `${cm('── Delta schema changes propagate automatically')}\n${cm('-- In Databricks: engineer adds a new column')}\n${cm('-- df.withColumn("churn_risk_score", lit(None)).write')}\n${cm('--   .format("delta").mode("append")')}\n${cm('--   .saveAsTable("analytics.customers")')}\n\n${cm('-- In Snowflake: new column appears on next query')}\n${k('DESCRIBE')} ${k('TABLE')} databricks_db.analytics.customers;\n${cm('-- churn_risk_score FLOAT now visible')}\n\n${cm('── Refresh catalog (if auto-refresh is not enabled)')}\n${k('ALTER')} ${k('DATABASE')} databricks_db ${k('REFRESH')};\n\n${cm('── Supported Delta schema evolution operations')}\n${cm('  ADD COLUMN       → appears in Snowflake automatically')}\n${cm('  DROP COLUMN      → removed from Snowflake schema')}\n${cm('  RENAME COLUMN    → reflected in catalog after refresh')}\n${cm('  CHANGE TYPE      → upcast-compatible changes propagate')}\n\n${cm('── Check Delta table metadata')}\n${k('SELECT')} ${p('*')} ${k('FROM')} ${id('information_schema')}.${id('tables')}\n${k('WHERE')} table_schema ${p('=')} ${str("'ANALYTICS'")}\n  ${k('AND')} table_catalog ${p('=')} ${str("'DATABRICKS_DB'")};`,
+      explain: `<h4>Schema Evolution</h4><p>Delta Direct automatically reflects Delta schema changes in Snowflake — no manual DDL required.</p><ul><li>When a Databricks engineer adds or drops a column, that change is visible in Snowflake after the catalog refreshes</li><li><code>ALTER DATABASE db REFRESH</code> manually triggers a metadata sync. With Unity Catalog, changes appear within seconds automatically.</li><li>Snowflake reads schema from the Delta transaction log, which tracks every DDL change — the same source of truth Databricks uses</li><li>Type changes follow Delta&#39;s evolution rules: widening casts (INT → BIGINT, FLOAT → DOUBLE) propagate safely; narrowing casts require explicit handling</li></ul>`
+    },
+    timetravel: {
+      title: 'Time Travel on Delta',
+      code: `${cm('── Time travel using Delta transaction log versions')}\n${cm('-- AT VERSION: query a specific Delta log version')}\n${k('SELECT')} ${p('*')} ${k('FROM')} databricks_db.sales.orders\n${k('AT')} ${p('(')}${k('VERSION')} ${p('=>')} ${p('42')}${p(')')};\n\n${cm('-- AT TIMESTAMP: query as of a point in time')}\n${k('SELECT')} ${p('*')} ${k('FROM')} databricks_db.sales.orders\n${k('AT')} ${p('(')}${k('TIMESTAMP')} ${p('=>')} ${str("'2025-12-01 00:00:00'")}${p(')')};\n\n${cm('── Find Delta log versions and timestamps')}\n${k('SELECT')}\n  version${p(',')}\n  timestamp${p(',')}\n  operation${p(',')}\n  operation_parameters\n${k('FROM')} ${f('TABLE')}${p('(')}\n  ${id('DELTA_LOG_HISTORY')}${p('(')}${str("'databricks_db.sales.orders'")}${p(')')}\n${p(')')}\n${k('ORDER')} ${k('BY')} version ${k('DESC')}\n${k('LIMIT')} ${p('20')};\n\n${cm('── Compare current vs historical data')}\n${k('SELECT')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} current_rows\n${k('FROM')} databricks_db.sales.orders\n\n${k('UNION')} ${k('ALL')}\n\n${k('SELECT')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} rows_7_days_ago\n${k('FROM')} databricks_db.sales.orders\n${k('AT')} ${p('(')}${k('TIMESTAMP')} ${p('=>')} ${k('CURRENT_TIMESTAMP')} ${p('-')} ${k('INTERVAL')} ${str("'7 days'")}${p(')')};`,
+      explain: `<h4>Time Travel on Delta</h4><p>Snowflake exposes Delta&#39;s native time travel through standard Snowflake AT/BEFORE syntax, using the Delta transaction log as the version history.</p><ul><li><strong>By version number:</strong> Delta maintains incrementing version numbers for each commit. Query <code>AT (VERSION =&gt; N)</code> to read any historical snapshot.</li><li><strong>By timestamp:</strong> Each Delta commit has a timestamp. Use <code>AT (TIMESTAMP =&gt; '...')</code> to query as of a specific time.</li><li><strong>DELTA_LOG_HISTORY:</strong> table function that exposes the full Delta transaction log — lists every version, timestamp, and operation (INSERT, UPDATE, DELETE, SCHEMA CHANGE, OPTIMIZE).</li></ul><p>Retention of historical versions depends on Delta&#39;s <code>delta.deletedFileRetentionDuration</code> configuration — typically 7 days by default in Databricks.</p>`
+    },
+    governance: {
+      title: 'Governance & Performance',
+      code: `${cm('── RBAC: grant access to Delta tables like native Snowflake tables')}\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('DATABASE')} databricks_db\n  ${k('TO')} ${k('ROLE')} analyst_role;\n${k('GRANT')} ${k('USAGE')} ${k('ON')} ${k('SCHEMA')} databricks_db.sales\n  ${k('TO')} ${k('ROLE')} analyst_role;\n${k('GRANT')} ${k('SELECT')} ${k('ON')} ${k('ALL')} ${k('TABLES')} ${k('IN')} ${k('SCHEMA')} databricks_db.sales\n  ${k('TO')} ${k('ROLE')} analyst_role;\n\n${cm('── Apply masking policy to a column in Delta table')}\n${k('ALTER')} ${k('TABLE')} databricks_db.customers.profiles\n  ${k('MODIFY')} ${k('COLUMN')} email\n  ${k('SET')} ${k('MASKING')} ${k('POLICY')} pii_email_mask;\n\n${cm('── Row access policy on Delta table')}\n${k('ALTER')} ${k('TABLE')} databricks_db.sales.orders\n  ${k('ADD')} ${k('ROW')} ${k('ACCESS')} ${k('POLICY')} region_filter\n  ${k('ON')} ${p('(')}region${p(')')};\n\n${cm('── Performance: partition pruning happens automatically')}\n${cm('-- Delta partition columns are read from the transaction log')}\n${cm('-- Snowflake pushes WHERE predicates on partition columns')}\n${cm('-- Only the relevant Parquet files are fetched from S3/ADLS/GCS')}\n${k('SELECT')} ${p('*')} ${k('FROM')} databricks_db.events.clickstream\n${k('WHERE')} event_date ${p('=')} ${str("'2025-12-01'")}  ${cm('-- only Dec 1 partition read')}\n  ${k('AND')} user_id ${p('=')} ${p('12345')};`,
+      explain: `<h4>Governance &amp; Performance</h4><p>Delta Direct tables are governed by Snowflake&#39;s full security stack — the same policies that apply to native tables apply here:</p><ul><li><strong>RBAC:</strong> GRANT/REVOKE on Delta tables, schemas, and databases works identically to native Snowflake objects</li><li><strong>Dynamic masking:</strong> attach masking policies to columns in Delta tables — masked for analyst roles, unmasked for data engineers</li><li><strong>Row access policies:</strong> filter rows based on the querying role&#39;s context — same policy framework as native tables</li></ul><p><strong>Performance:</strong></p><ul><li>Delta partition pruning — Snowflake reads partition metadata from the Delta log and only fetches the relevant Parquet files</li><li>Column pruning — only columns referenced in the SELECT are read from Parquet</li><li>Predicate pushdown — WHERE filters are applied when reading files, not after fetching everything</li></ul>`
+    }
+  };
+
+  function openModal(fn) {
+    const data = PANELS[fn]; if (!data) return;
+    document.getElementById('dd-modal-title').textContent = data.title;
+    document.getElementById('dd-modal-code').innerHTML = data.code;
+    document.getElementById('dd-modal-explain').innerHTML = data.explain;
+    document.getElementById('dd-overlay').classList.add('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+  }
+  function closeModal() {
+    document.getElementById('dd-overlay').classList.remove('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.remove('active'));
+  }
+  document.querySelectorAll('[data-fn]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.fn)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.getElementById('dd-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  </script>
+</body>
+</html>

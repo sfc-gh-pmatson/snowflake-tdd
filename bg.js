@@ -67,6 +67,15 @@
     }
     #notes-close:hover { background: rgba(255,255,255,.35); }
 
+    #btn-notes {
+      padding: 5px 14px; border-radius: 100px;
+      font-size: .72rem; font-weight: 600; letter-spacing: .4px;
+      cursor: pointer; border: 1px solid rgba(41,181,232,.3); transition: all .17s;
+      background: rgba(41,181,232,.1); color: #29B5E8;
+    }
+    #btn-notes:hover { background: rgba(41,181,232,.22); border-color: #29B5E8; }
+    #btn-notes.active { background: rgba(41,181,232,.25); border-color: #29B5E8; }
+
     #notes-body {
       flex: 1;
       overflow-y: auto;
@@ -118,7 +127,7 @@
     '<div id="notes-drag"></div>' +
     '<div id="notes-header">' +
       '<span id="notes-header-title">Talk Track Notes</span>' +
-      '<span id="notes-key-hint">N to toggle</span>' +
+      '<span id="notes-key-hint">N · H=Home · M=ML · A=AI · G=Gov · E=DE · L=Lake · C=Compute · W=WAF</span>' +
       '<button id="notes-close">&#x2715;</button>' +
     '</div>' +
     '<div id="notes-body"></div>';
@@ -131,10 +140,15 @@
       '<div id="notes-empty">No talk-track notes for this page yet.</div>';
     body.innerHTML = content;
     panel.classList.add('open');
+    var btn = document.getElementById('btn-notes');
+    if (btn) btn.classList.add('active');
   }
 
   function closeNotes() {
     panel.classList.remove('open');
+    panel.style.right = '';  // clear any inline right set by drag handler
+    var btn = document.getElementById('btn-notes');
+    if (btn) btn.classList.remove('active');
   }
 
   function toggleNotes() {
@@ -177,6 +191,19 @@
 
   // ── Expose toggle ──────────────────────────────────────
   window.__notesToggle = toggleNotes;
+
+  // ── Inject Notes button into nav-bar ───────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    var navBar = document.querySelector('.nav-bar');
+    if (!navBar) return;
+    var btn = document.createElement('button');
+    btn.id = 'btn-notes';
+    btn.textContent = 'Notes';
+    btn.addEventListener('click', toggleNotes);
+    var navTags = navBar.querySelector('.nav-tags');
+    if (navTags) navBar.insertBefore(btn, navTags);
+    else navBar.appendChild(btn);
+  });
 })();
 
 // ── Global keyboard navigation ─────────────────────────────
@@ -213,13 +240,35 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft') {
     history.back();
   }
+
+  var inPages = location.pathname.includes('/pages/');
+
+  // Home (index)
   if (e.key === 'h' || e.key === 'H') {
-    var depth = location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
-    location.href = depth;
+    location.href = inPages ? '../index.html' : 'index.html';
   }
+  // Core category hubs
+  if (e.key === 'm' || e.key === 'M') {
+    location.href = inPages ? './snowflake-ml.html' : './pages/snowflake-ml.html';
+  }
+  if (e.key === 'a' || e.key === 'A') {
+    location.href = inPages ? './cortex-ai.html' : './pages/cortex-ai.html';
+  }
+  if (e.key === 'g' || e.key === 'G') {
+    location.href = inPages ? './horizon.html' : './pages/horizon.html';
+  }
+  if (e.key === 'e' || e.key === 'E') {
+    location.href = inPages ? './data-engineering.html' : './pages/data-engineering.html';
+  }
+  if (e.key === 'l' || e.key === 'L') {
+    location.href = inPages ? './data-lakehouse.html' : './pages/data-lakehouse.html';
+  }
+  if (e.key === 'c' || e.key === 'C') {
+    location.href = inPages ? './compute.html' : './pages/compute.html';
+  }
+  // WAF
   if (e.key === 'w' || e.key === 'W') {
-    var wafPath = location.pathname.includes('/pages/') ? './well-architected-framework.html' : './pages/well-architected-framework.html';
-    location.href = wafPath;
+    location.href = inPages ? './well-architected-framework.html' : './pages/well-architected-framework.html';
   }
 });
 

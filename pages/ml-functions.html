@@ -18,6 +18,7 @@
       justify-content: center;
       padding: 4px 20px 10px;
       min-height: 0;
+      gap: 12px;
     }
     .mlf-grid {
       display: grid;
@@ -67,10 +68,30 @@
       line-height: 1.4;
     }
 
-    /* ── Code panel (slides up from bottom) ────────────────────── */
-    /* Shift cards up when code panel is open */
-    .mlf-page.panel-open { justify-content: flex-start; }
-    .mlf-page.panel-open .mlf-grid { margin-top: 20px; transition: margin .25s ease; }
+    /* ── Inline split panel ────────────────────────────────── */
+    .mlf-panel {
+      width: 100%; max-width: 860px;
+      border: 2px solid rgba(41,181,232,.2);
+      border-radius: 12px;
+      overflow: hidden; display: flex;
+      flex: 1; min-height: 0;
+    }
+    .mlf-panel-code {
+      flex: 3; background: var(--code-bg);
+      padding: 16px 18px; overflow-y: auto;
+      font-family: 'SF Mono','Fira Code',ui-monospace,monospace;
+      font-size: 12px; line-height: 1.6;
+      color: var(--code-base); white-space: pre-wrap;
+    }
+    .mlf-panel-explain {
+      flex: 2; padding: 16px 18px;
+      overflow-y: auto; background: #fff;
+      font-size: var(--fs-h5); color: var(--sf-ink); line-height: 1.6;
+    }
+    .mlf-panel-explain h4 { font-size: var(--fs-h4); font-weight: 700; margin-bottom: 8px; }
+    .mlf-panel-explain p { margin-bottom: 10px; }
+    .mlf-panel-explain ul { padding-left: 18px; margin-bottom: 10px; }
+    .mlf-panel-explain li { margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -112,6 +133,8 @@
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
+
+
     </div>
 
     <div class="slide-canvas with-nav">
@@ -126,7 +149,7 @@
           <div class="s6-sub" style="text-align:center;">Predictive analytics in pure SQL — no Python, no model management, no infrastructure.</div>
         </div>
 
-        <div class="mlf-page content-wrap">
+        <div class="mlf-page content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 20px 10px;">
           <div class="mlf-grid">
 
             <div class="mlf-card" data-fn="forecast">
@@ -178,6 +201,16 @@
             </div>
 
           </div>
+
+          <!-- Inline split panel -->
+          <div class="mlf-panel" id="mlf-panel">
+            <div class="mlf-panel-code" id="mlf-panel-code">-- Click a card above to see the SQL pattern</div>
+            <div class="mlf-panel-explain" id="mlf-panel-explain">
+              <h4>In-SQL ML Functions</h4>
+              <p>Select any card above to see the SQL pattern and explanation for each ML function.</p>
+            </div>
+          </div>
+
         </div>
 
         <!-- Resource bar -->
@@ -190,15 +223,6 @@
 
       </div>
     </div>
-  </div>
-
-  <!-- Code panel (slides up on card click) -->
-  <div class="mlf-code-panel" id="code-panel">
-    <div class="mlf-code-header">
-      <span class="mlf-code-title" id="code-title"></span>
-      <button class="mlf-code-close" onclick="closeCode()">&#10005;</button>
-    </div>
-    <div class="mlf-code-block" id="code-block"></div>
   </div>
 
   <script>
@@ -225,7 +249,8 @@
 
 <span class="code-comment">-- Automate: schedule daily retraining + prediction</span>
 <span class="code-kw">CREATE TASK</span> daily_forecast <span class="code-kw">SCHEDULE</span> = <span class="code-str">'USING CRON 0 6 * * * UTC'</span> <span class="code-kw">AS</span>
-  <span class="code-kw">INSERT INTO</span> predictions <span class="code-kw">SELECT</span> * <span class="code-kw">FROM TABLE</span>(sales_forecast!<span class="code-fn">FORECAST</span>(30));`
+  <span class="code-kw">INSERT INTO</span> predictions <span class="code-kw">SELECT</span> * <span class="code-kw">FROM TABLE</span>(sales_forecast!<span class="code-fn">FORECAST</span>(30));`,
+        explain: `<h4>Forecasting</h4><p>Create a <code>SNOWFLAKE.ML.FORECAST</code> model object against historical data, then call <code>!FORECAST()</code> to generate predictions with confidence intervals.</p><ul><li><strong>Multi-series:</strong> Set <code>SERIES_COLNAME</code> to independently forecast each region, product, or store in one call</li><li><strong>Confidence intervals:</strong> <code>LOWER_BOUND</code> and <code>UPPER_BOUND</code> at any confidence level (default 95%)</li><li><strong>Exogenous variables:</strong> Include future-known inputs (holidays, price changes) to improve accuracy</li><li><strong>Auto-refresh:</strong> <code>ALTER ... REFRESH()</code> retrains on latest data without rebuilding the pipeline</li></ul>`
       },
       anomaly: {
         title: 'Anomaly Detection',
@@ -247,7 +272,8 @@
 <span class="code-comment">-- Output: IS_ANOMALY (bool), PERCENTILE, DISTANCE (deviation from normal)</span>
 
 <span class="code-comment">-- Retrain incrementally as baseline shifts</span>
-<span class="code-kw">ALTER</span> SNOWFLAKE.ML.ANOMALY_DETECTION txn_monitor <span class="code-fn">REFRESH</span>();`
+<span class="code-kw">ALTER</span> SNOWFLAKE.ML.ANOMALY_DETECTION txn_monitor <span class="code-fn">REFRESH</span>();`,
+        explain: `<h4>Anomaly Detection</h4><p>Train on normal data, then call <code>!DETECT_ANOMALIES()</code> on new data. Works supervised (with labels) or unsupervised (no labels needed).</p><ul><li><strong>Threshold tuning:</strong> <code>threshold: 0.99</code> flags only the top 1% most anomalous points — lower for broader sensitivity</li><li><strong>Output columns:</strong> <code>IS_ANOMALY</code> (bool), <code>PERCENTILE</code>, and <code>DISTANCE</code> (deviation from normal baseline)</li><li><strong>Use cases:</strong> fraud detection, system monitoring, data quality alerting, IoT sensor anomalies</li></ul>`
       },
       classify: {
         title: 'Classification',
@@ -270,7 +296,8 @@
 <span class="code-kw">CALL</span> churn_model!<span class="code-fn">SHOW_FEATURE_IMPORTANCE</span>();
 
 <span class="code-comment">-- Evaluation metrics (precision, recall, F1, AUC)</span>
-<span class="code-kw">CALL</span> churn_model!<span class="code-fn">SHOW_EVALUATION_METRICS</span>();`
+<span class="code-kw">CALL</span> churn_model!<span class="code-fn">SHOW_EVALUATION_METRICS</span>();`,
+        explain: `<h4>Classification</h4><p>Train a Snowflake-managed multi-class classifier with standard DDL. Call <code>!PREDICT()</code> to score new rows — no Python, no notebook.</p><ul><li><strong>Per-class probabilities:</strong> Returns a probability for each class label — threshold on the probability column for soft predictions</li><li><strong>Feature importance:</strong> <code>!SHOW_FEATURE_IMPORTANCE()</code> tells you which columns drive the model — useful for explainability conversations</li><li><strong>Evaluation:</strong> <code>!SHOW_EVALUATION_METRICS()</code> returns precision, recall, F1, and AUC on held-out test data</li></ul>`
       },
       regression: {
         title: 'Regression',
@@ -294,7 +321,8 @@
 <span class="code-comment">-- R2 = 0.87 means 87% of price variance explained by features</span>
 
 <span class="code-comment">-- Feature importance</span>
-<span class="code-kw">CALL</span> price_model!<span class="code-fn">SHOW_FEATURE_IMPORTANCE</span>();`
+<span class="code-kw">CALL</span> price_model!<span class="code-fn">SHOW_FEATURE_IMPORTANCE</span>();`,
+        explain: `<h4>Regression</h4><p>Train a Snowflake-managed regression model to predict continuous numeric values. No infrastructure required — train, predict, and evaluate in pure SQL.</p><ul><li><strong>Output:</strong> A <code>&lt;target&gt;_prediction</code> column — join back to source data on a row ID for downstream use</li><li><strong>Evaluation:</strong> R-squared (proportion of variance explained), MAE, and RMSE via <code>!SHOW_EVALUATION_METRICS()</code></li><li><strong>Feature importance:</strong> <code>!SHOW_FEATURE_IMPORTANCE()</code> for model explainability and feature engineering guidance</li></ul>`
       },
       contrib: {
         title: 'Contribution Explorer',
@@ -316,7 +344,8 @@
 <span class="code-comment">-- EXPECTED: $4.2M | ACTUAL: $5.1M</span>
 <span class="code-comment">-- RELATIVE_CONTRIBUTION: 38.2% | DIRECTION: GROWTH</span>
 <span class="code-comment">--</span>
-<span class="code-comment">-- "EMEA accounted for 38% of the revenue increase"</span>`
+<span class="code-comment">-- "EMEA accounted for 38% of the revenue increase"</span>`,
+        explain: `<h4>Contribution Explorer</h4><p>Automatically identify which dimension values drove a metric change between two time periods — no model training, no Python, instant results.</p><ul><li><strong>Classic use case:</strong> "Revenue dropped 15% — which region, product, or segment accounts for most of the change?"</li><li><strong>Output:</strong> Each dimension + contributor ranked by <code>RELATIVE_CONTRIBUTION</code> percentage</li><li><strong>No training needed:</strong> Pure statistical decomposition — runs as a single SQL function call</li></ul>`
       },
       insights: {
         title: 'Top Insights',
@@ -336,31 +365,22 @@
 
 <span class="code-comment">-- SURPRISE (0-1): how unexpected vs rest of data</span>
 <span class="code-comment">-- Runs as a single query - no model, no training, instant results</span>
-<span class="code-comment">-- Combine with time filters for period-over-period analysis</span>`
+<span class="code-comment">-- Combine with time filters for period-over-period analysis</span>`,
+        explain: `<h4>Top Insights</h4><p>Automatically surface statistically surprising patterns in your data — no model training, no labeled data, no setup required.</p><ul><li><strong>SURPRISE score (0–1):</strong> How statistically unexpected a combination is relative to the rest of the data — filter on <code>&gt; 0.8</code> for high-confidence signals</li><li><strong>No setup:</strong> Pass a table, metric column, and dimension columns — get ranked insights back immediately</li><li><strong>Use case:</strong> "Show me the most interesting patterns in our sales data across region, product, and segment"</li></ul>`
       }
     };
 
     function showCode(fn) {
       const data = CODE[fn];
       if (!data) return;
-      document.getElementById('code-title').textContent = data.title;
-      document.getElementById('code-block').innerHTML = data.code;
-      document.getElementById('code-panel').classList.add('open');
-      document.querySelector('.mlf-page').classList.add('panel-open');
+      document.getElementById('mlf-panel-code').innerHTML = data.code;
+      document.getElementById('mlf-panel-explain').innerHTML = data.explain;
       document.querySelectorAll('.mlf-card').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
-    }
-
-    function closeCode() {
-      document.getElementById('code-panel').classList.remove('open');
-      document.querySelector('.mlf-page').classList.remove('panel-open');
-      document.querySelectorAll('.mlf-card').forEach(c => c.classList.remove('active'));
     }
 
     document.querySelectorAll('.mlf-card[data-fn]').forEach(card => {
       card.addEventListener('click', () => showCode(card.dataset.fn));
     });
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCode(); });
   </script>
 
 </body>

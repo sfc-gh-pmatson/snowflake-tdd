@@ -2,39 +2,6 @@
 
 ---
 
-## Module Pages To Build
-
-### Storage — Micro-Partitioning Deep Dive
-Dedicated page going deeper on how Snowflake's micro-partitioning works, with visual diagrams of partition metadata, pruning mechanics, and how DML/Time Travel interact with immutable partitions.
-
-Key concepts: 50–500 MB compressed columnar chunks · column-level min/max/bloom metadata · partition pruning in query plans · MVCC-style immutability · Time Travel & Fail-Safe retention · SYSTEM$CLUSTERING_INFORMATION output interpretation
-
-### Storage — Clustering & Search Optimization Deep Dive
-Dedicated page covering when and how to use cluster keys and the Search Optimization Service, with guidance on choosing cluster keys, monitoring effectiveness, and comparing against search optimization.
-
-Key concepts: when to cluster vs. not · choosing cluster key columns · monitoring depth with SYSTEM$CLUSTERING_INFORMATION · automatic reclustering cost model · Search Optimization Service — equality, substring, geo · ALTER TABLE ADD SEARCH OPTIMIZATION · monitoring with SEARCH_OPTIMIZATION_HISTORY
-
----
-
-### Postgres PG Lake
-Expose Postgres-resident Iceberg tables to Snowflake via the pg_lake catalog integration.
-
-- **Docs:** https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-pg_lake
-- **Guide:** https://www.snowflake.com/en/developers/guides/sync-data-from-postgres-to-snowflake-with-iceberg-and-pg-lake/
-
-Key concepts: pg_lake overview · `SNOWFLAKE_POSTGRES` catalog integration · catalog-linked database auto-discovery · querying pg_lake Iceberg tables · refresh behavior
-
-### Postgres Mirroring
-Replicate Postgres tables into Snowflake as native tables (not Iceberg) via CDC.
-
-- **Docs:** https://docs.snowflake.com/user-guide/snowflake-postgres/postgres-data-mirroring
-- **Guide:** https://www.snowflake.com/en/developers/guides/snowflake-postgres-mirror-to-snowflake/1
-- **Blog:** https://www.snowflake.com/en/blog/engineering/postgres-to-snowflake-replication-mirroring/
-
-Key concepts: mirroring vs pg_lake · `CREATE MIRROR` · CDC mechanics · monitoring lag · when to use each
-
----
-
 ## TEMP Icons — Awaiting Dedicated Assets
 
 | Page | Context | Current placeholder | Needed |
@@ -68,3 +35,19 @@ Cards marked with a dashed border on `partners.html` are logo-less. Source the o
 | BigID | Security &amp; Gov. | Not on SimpleIcons; try bigid.com press resources |
 | OneTrust | Security &amp; Gov. | Not on SimpleIcons; try onetrust.com brand center |
 | Striim | Streaming | Not on SimpleIcons; try striim.com press kit |
+
+---
+
+## Code Display Standardization Audit
+
+Review all pages and standardize code display to the **overlay modal pattern** (★ DEFAULT: code left, explain right, full-screen backdrop). As of the ml-functions.html conversion, five distinct code display patterns exist:
+
+| Pattern | Pages | Action |
+|---|---|---|
+| ★ Overlay modal (default) | `snowflake-cowork.html`, `external-engines.html`, `delta-direct.html`, `external-tables.html`, `internal-marketplace.html`, `org-listings.html` | Keep as-is |
+| Inline split panel | `native-apps.html`, `data-sharing.html`, `marketplace.html`, `data-clean-rooms.html`, `gpu.html`, `ml-functions.html` + others | Evaluate — convert to overlay if UX warrants |
+| Per-page dedicated overlays | `cortex-ai-functions.html`, `cortex-ai-gateway.html`, `ml-overview.html`, `snowpark.html` | Convert to overlay modal |
+| Legacy code-modal (bg.js hidden div) | ~19 pages | Convert to overlay modal or inline split panel |
+| ~~Slide-up from bottom~~ | ~~`ml-functions.html`~~ | ✓ Converted to inline split panel |
+
+**Priority:** Per-page dedicated overlays first (caf/cag/mlo/sp panels) → legacy bg.js modals → inline split panel pages (lower priority, already good UX).

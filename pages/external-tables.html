@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>External Tables — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .et-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:900px; padding:8px 0 4px; }
+    .et-card { background:#fff; border:2px solid rgba(41,181,232,.3); border-radius:12px; padding:16px 18px; cursor:pointer; transition:border-color .15s,transform .12s,box-shadow .15s; display:flex; flex-direction:column; gap:6px; }
+    .et-card:hover { border-color:var(--sf-blue); transform:translateY(-2px); box-shadow:0 4px 14px rgba(41,181,232,.18); }
+    .et-card.active { border-color:var(--sf-blue); box-shadow:0 0 0 3px rgba(41,181,232,.2); }
+    .et-card-label { font-size:var(--fs-h5); font-weight:700; color:var(--sf-ink); }
+    .et-card-desc { font-size:var(--fs-h6); color:rgba(7,21,37,.55); line-height:1.4; }
+    .et-overlay { display:none; position:fixed; inset:0; background:rgba(5,13,26,.65); z-index:900; align-items:center; justify-content:center; }
+    .et-overlay.open { display:flex; }
+    .et-modal { background:var(--sf-navy); border:2px solid var(--sf-blue); border-radius:14px; width:860px; max-width:92vw; max-height:74vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.5); overflow:hidden; }
+    .et-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:var(--sf-blue); flex-shrink:0; }
+    .et-modal-title { font-size:var(--fs-h3); font-weight:700; color:#fff; }
+    .et-modal-close { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.2); border:none; cursor:pointer; color:#fff; font-size:14px; display:flex; align-items:center; justify-content:center; }
+    .et-modal-close:hover { background:rgba(255,255,255,.35); }
+    .et-modal-body { flex:1; overflow:hidden; display:flex; }
+    .et-modal-code { flex:3; overflow-y:auto; background:var(--code-bg); padding:16px 20px; font-family:'SF Mono','Fira Code',ui-monospace,monospace; font-size:var(--fs-h6); line-height:1.75; color:rgba(255,255,255,.85); white-space:pre-wrap; }
+    .et-modal-explain { flex:2; overflow-y:auto; padding:16px 20px; background:#fff; color:var(--sf-ink); font-size:var(--fs-h5); line-height:1.6; }
+    .et-modal-explain h4 { font-size:var(--fs-h4); font-weight:700; margin-bottom:8px; }
+    .et-modal-explain p { margin-bottom:10px; }
+    .et-modal-explain ul { padding-left:18px; margin-bottom:10px; }
+    .et-modal-explain li { margin-bottom:4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>External Tables let Snowflake query raw files directly in object storage — Parquet, ORC, CSV, JSON — without ever loading them into Snowflake. The key use case is "I have data in S3 that I only query occasionally and don't want to pay to store twice." External Tables give you Snowflake SQL over that data, with full governance, at the cost of querying the files directly (slower than native tables but free in terms of storage).</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>No ingestion:</strong> Files stay in S3/ADLS/GCS. Snowflake reads them on each query — no COPY INTO required.</li>
+  <li><strong>Schema detection:</strong> INFER_SCHEMA automatically detects column names and types from Parquet/ORC files. No manual DDL.</li>
+  <li><strong>Partitioning:</strong> Define partition columns to enable partition pruning. Critical for performance on large file sets.</li>
+  <li><strong>AUTO REFRESH:</strong> Uses cloud storage events (S3 events, Azure Event Grid) to automatically update the external table metadata when new files land.</li>
+  <li><strong>vs Iceberg:</strong> External Tables are simpler and work with any file format. Iceberg provides richer metadata, ACID transactions, and better query performance. For new workloads, Iceberg is preferred.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Do you have data in S3/ADLS that you need to query but can't or don't want to load into Snowflake?</li>
+  <li>Is this data queried frequently (load it) or occasionally (external table)?</li>
+  <li>Do your files have consistent schema? (Parquet/ORC yes; CSV needs manual schema)</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/tables-external-intro.html',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">External Tables</span>
+      <div class="nav-tags">
+        <span class="nav-tag nav-tag-ga">Generally Available</span>
+      </div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Data Lakehouse</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">External Tables</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">External Tables</div>
+          <div class="s6-sub" style="text-align:center;">Query Parquet, ORC, and CSV files in S3, Azure, or GCS directly with Snowflake SQL — no ingestion, no data copy required.</div>
+        </div>
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 16px 10px;">
+          <div class="et-grid">
+            <div class="et-card" data-fn="basics">
+              <div class="et-card-label">What are External Tables?</div>
+              <div class="et-card-desc">A metadata layer over files in object storage. Snowflake queries the files directly — no COPY INTO, no storage duplication.</div>
+            </div>
+            <div class="et-card" data-fn="create">
+              <div class="et-card-label">Create External Table</div>
+              <div class="et-card-desc">Point at an external stage with LOCATION, define the schema (or use INFER_SCHEMA), and set file format options.</div>
+            </div>
+            <div class="et-card" data-fn="infer">
+              <div class="et-card-label">INFER_SCHEMA</div>
+              <div class="et-card-desc">Auto-detect column names and types from Parquet or ORC files. No manual DDL needed — let Snowflake read the schema.</div>
+            </div>
+            <div class="et-card" data-fn="partitions">
+              <div class="et-card-label">Partition Columns</div>
+              <div class="et-card-desc">Define partition columns based on directory structure. Enables partition pruning — only reads files matching WHERE predicates.</div>
+            </div>
+            <div class="et-card" data-fn="refresh">
+              <div class="et-card-label">AUTO REFRESH</div>
+              <div class="et-card-desc">Use cloud storage events to automatically update the external table metadata when new files land — no manual REFRESH needed.</div>
+            </div>
+            <div class="et-card" data-fn="vs_iceberg">
+              <div class="et-card-label">External Tables vs Iceberg</div>
+              <div class="et-card-desc">External Tables: simpler, any format, read-only. Iceberg: richer metadata, ACID transactions, better performance. When to use which.</div>
+            </div>
+          </div>
+        </div>
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="et-overlay" id="et-overlay">
+    <div class="et-modal">
+      <div class="et-modal-header">
+        <span class="et-modal-title" id="et-modal-title"></span>
+        <button class="et-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="et-modal-body">
+        <div class="et-modal-code" id="et-modal-code"></div>
+        <div class="et-modal-explain" id="et-modal-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const PANELS = {
+      basics: {
+      title: 'What are External Tables?',
+      code: `${k("-- External Table = metadata layer over object storage files")}\n${id("Files")} stay in ${str("S3 / ADLS / GCS")} — never copied into Snowflake\n\n${k("-- Supported file formats")}\n${id("Parquet")}  ${cm("-- best performance, schema embedded in files")}\n${id("ORC")}      ${cm("-- columnar, common in Hive / Hadoop environments")}\n${id("CSV")}      ${cm("-- manual schema definition required")}\n${id("JSON")}     ${cm("-- semi-structured, loaded as VARIANT")}\n\n${k("-- Query flow")}\n${k("SELECT")} ${p("*")} ${k("FROM")} ${id("ext_table")} ${k("WHERE")} date ${p("=")} ${k("CURRENT_DATE")}\n  ${p("->")} check external table metadata ${cm("(file list)")}\n  ${p("->")} apply partition pruning ${cm("(skip irrelevant files)")}\n  ${p("->")} read Parquet from ${str("S3")} via external stage credentials\n  ${p("->")} return results ${cm("(slower than native: no micro-partitions)")}\n\n${k("-- When to use")}\n${p("+")} data queried infrequently ${cm("(avoid double-paying for storage)")}\n${p("+")} regulatory: data must stay in your own bucket\n${p("-")} high-frequency analytics ${p("->")} ${cm("use COPY INTO instead")}\n${p("-")} better option: ${id("Iceberg")} ${cm("(richer metadata, faster)")}`,
+      explain: `<h4>Create External Table</h4><p>Creating an external table requires a stage (storage credentials) and a column definition that maps Parquet/JSON fields to typed columns.</p><ul><li><strong>LOCATION:</strong> points at the stage (which can be scoped to a prefix/folder within the bucket)</li><li><strong>Column expressions:</strong> for Parquet and JSON, columns are defined as expressions against the implicit <code>VALUE</code> column using colon-path syntax. For CSV, declare columns directly.</li><li><strong>PARTITION BY:</strong> define a virtual partition column (usually derived from the file path directory structure) to enable pruning</li><li><strong>metadata$filename:</strong> a pseudo-column available in external tables that contains the file path — used to extract partition values from directory names</li></ul>`
+    },
+    infer: {
+      title: 'INFER_SCHEMA',
+      code: `${cm('── Auto-detect schema from Parquet/ORC files')}\n${k('SELECT')} ${p('*')}\n${k('FROM')} ${f('TABLE')}${p('(')}\n  ${f('INFER_SCHEMA')}${p('(')}\n    ${k('LOCATION')} ${p('=>')} ${str("'@my_data_stage/2025/12/'")}${p(',')}\n    ${k('FILE_FORMAT')} ${p('=>')} ${str("'my_parquet_format'")}\n  ${p(')')}\n${p(')')};${cm('')}\n\n${cm('-- Returns: column_name, type, nullable, expression, filenames')}\n${cm('-- Example output:')}\n${cm('-- COLUMN_NAME  TYPE       NULLABLE  EXPRESSION')}\n${cm('-- order_id    TEXT       Y         $1:order_id::TEXT')}\n${cm('-- amount      DECIMAL    Y         $1:amount::DECIMAL')}\n${cm('-- order_date  TIMESTAMP  Y         $1:order_date::TIMESTAMP')}\n\n${cm('── Use INFER_SCHEMA output to generate CREATE EXTERNAL TABLE')}\n${k('SELECT')} \n  column_name${p(',')} \n  type${p(',')}\n  ${str("'AS (value:'")} ${p('||')} expression ${p('||')} ${str("')'")} ${k('AS')} col_expr\n${k('FROM')} ${f('TABLE')}${p('(')}\n  ${f('INFER_SCHEMA')}${p('(')}${k('LOCATION')} ${p('=>')} ${str("'@my_data_stage'")}${p(',')}\n  ${k('FILE_FORMAT')} ${p('=>')} ${str("'parquet_ff'")}${p(')')}\n${p(')')};`,
+      explain: `<h4>INFER_SCHEMA</h4><p><code>INFER_SCHEMA</code> reads Parquet or ORC file metadata and returns the inferred column names, types, and Snowflake path expressions — saving you from manually writing the column DDL.</p><ul><li>Works with Parquet (reads the embedded schema), ORC (reads type metadata), and CSV (samples rows to infer types)</li><li>Returns one row per column with: name, detected type, nullability, and the expression needed for the external table definition</li><li>Run INFER_SCHEMA against a representative file sample — not all files in a large dataset</li><li>Use the output to generate your <code>CREATE EXTERNAL TABLE</code> DDL — copy the expressions directly into the column list</li></ul><p>Also works for creating regular Snowflake tables from staged files: <code>CREATE TABLE t USING TEMPLATE (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM TABLE(INFER_SCHEMA(...)))</code></p>`
+    },
+    partitions: {
+      title: 'Partition Columns',
+      code: `${cm('── S3 directory structure (Hive-style partitioning):')}\n${cm('-- s3://bucket/events/year=2025/month=12/day=01/part-0001.parquet')}\n${cm('-- s3://bucket/events/year=2025/month=12/day=02/part-0001.parquet')}\n\n${cm('── Extract partition values from file path')}\n${k('CREATE')} ${k('EXTERNAL')} ${k('TABLE')} analytics.events\n  ${p('(')}\n    payload     ${k('VARIANT')}  ${k('AS')} ${p('(')}${id('value')}${p(')')},\n    event_year  ${k('NUMBER')}   ${k('AS')} ${p('(')}\n      ${f('TRY_CAST')}${p('(')}${f('SPLIT_PART')}${p('(')}${id('metadata')}.${id('filename')}${p(',')} ${str("'year='")}${p(',')} ${p('2')}${p(')')}${p('.')}${f('SPLIT')}${p('(')}${str("'/'")},${p('1')}${p(')')} ${k('AS')} ${k('NUMBER')}${p(')')}${p(')')}${p(',')}\n    event_month ${k('NUMBER')}   ${k('AS')} ${p('(')}\n      ${f('TRY_CAST')}${p('(')}${f('SPLIT_PART')}${p('(')}${id('metadata')}.${id('filename')}${p(',')} ${str("'month='")}${p(',')} ${p('2')}${p(')')}${p('.')}${f('SPLIT')}${p('(')}${str("'/'")},${p('1')}${p(')')} ${k('AS')} ${k('NUMBER')}${p(')')}${p(')')}\n  ${p(')')}\n  ${k('PARTITION')} ${k('BY')} ${p('(')}event_year${p(',')} event_month${p(')')}\n  ${k('LOCATION')} ${p('=')} ${p('@')}events_stage\n  ${k('FILE_FORMAT')} ${p('=')} ${p('(')}${k('TYPE')} ${p('=')} ${k('PARQUET')}${p(')')};\n\n${cm('── Query with partition pruning (only reads Dec 2025 files)')}\n${k('SELECT')} ${f('COUNT')}${p('(*)')} ${k('FROM')} analytics.events\n${k('WHERE')} event_year ${p('=')} ${p('2025')} ${k('AND')} event_month ${p('=')} ${p('12')};`,
+      explain: `<h4>Partition Columns</h4><p>Partition columns are virtual columns derived from the file path, enabling Snowflake to skip entire directories of files when a WHERE predicate matches a partition value.</p><ul><li>Snowflake uses the PARTITION BY columns in the WHERE clause to determine which files to read — this is the primary performance lever for external tables</li><li>Common pattern: Hive-style <code>year=YYYY/month=MM/day=DD</code> directories. Extract values with <code>SPLIT_PART(metadata$filename, 'key=', 2)</code></li><li>Without partitioning, every query scans every file — fine for small datasets, very slow for TB-scale</li><li>Partition columns don&#39;t need to be in the actual file content — they&#39;re derived from the path</li></ul><p>Best practice: always define at least a date-based partition column for time-series data.</p>`
+    },
+    refresh: {
+      title: 'AUTO REFRESH',
+      code: `${cm('── Without AUTO REFRESH: metadata goes stale')}\n${cm('-- New files land in S3, but Snowflake doesn\'t know about them')}\n${cm('-- Manual refresh needed: ALTER EXTERNAL TABLE t REFRESH')}\n\n${cm('── With AUTO REFRESH: cloud events trigger metadata update')}\n${cm('-- AWS: S3 Event Notification → SQS queue → Snowflake reads queue')}\n${cm('-- Azure: Event Grid → Azure Service Bus → Snowflake')}\n${cm('-- GCP: GCS notification → Pub/Sub → Snowflake')}\n\n${cm('── Enable AUTO REFRESH via event notification integration')}\n${k('CREATE')} ${k('NOTIFICATION')} ${k('INTEGRATION')} s3_events_int\n  ${k('TYPE')} ${p('=')} ${k('QUEUE')}\n  ${k('NOTIFICATION_PROVIDER')} ${p('=')} ${id('AWS_SQS')}\n  ${k('ENABLED')} ${p('=')} ${k('TRUE')}\n  ${id('AWS_SQS_ARN')} ${p('=')} ${str("'arn:aws:sqs:us-east-1:123:my-queue'")};\n\n${cm('── CREATE EXTERNAL TABLE with AUTO REFRESH')}\n${k('CREATE')} ${k('EXTERNAL')} ${k('TABLE')} raw.events\n  ${p('(')}event_id ${k('VARCHAR')} ${k('AS')} ${p('(')}${id('value')}${p(':')}${id('id')}${p('::')}${k('VARCHAR')}${p(')')}${p(')')}\n  ${k('LOCATION')} ${p('=')} ${p('@')}my_stage\n  ${k('AUTO_REFRESH')} ${p('=')} ${k('TRUE')}\n  ${k('INTEGRATION')} ${p('=')} ${str("'S3_EVENTS_INT'")};\n\n${cm('-- Check refresh history')}\n${k('SELECT')} ${p('*')} ${k('FROM')} ${id('information_schema')}.${id('external_tables_files_refreshes')}\n${k('WHERE')} table_name ${p('=')} ${str("'EVENTS'")} ${k('ORDER')} ${k('BY')} refresh_time ${k('DESC')};`,
+      explain: `<h4>AUTO REFRESH</h4><p>AUTO REFRESH automatically updates the external table&#39;s file list when new files land in object storage — using cloud event notifications rather than scheduled polling.</p><ul><li><strong>AWS:</strong> Configure S3 Event Notifications → SQS queue. Snowflake polls the SQS queue and updates metadata when it sees PUT/DELETE events.</li><li><strong>Azure:</strong> Configure Event Grid → Service Bus. Same pattern.</li><li><strong>GCP:</strong> Configure GCS Pub/Sub notifications.</li></ul><p>Without AUTO REFRESH, you must run <code>ALTER EXTERNAL TABLE t REFRESH</code> manually or schedule it as a Snowflake Task. New files won&#39;t be queryable until a refresh runs.</p><p>AUTO REFRESH typically reflects new files within seconds of landing — much fresher than scheduled refreshes.</p>`
+    },
+    vs_iceberg: {
+      title: 'External Tables vs Iceberg',
+      code: `${cm('── External Tables: simpler, broader format support')}\n${k('CREATE')} ${k('EXTERNAL')} ${k('TABLE')} raw.csv_data\n  ${p('(')}col1 ${k('VARCHAR')} ${k('AS')} ${p('(')}${id('value')}${p(':')}${p('$1')}${p('::')}${k('VARCHAR')}${p(')')}${p(')')}\n  ${k('LOCATION')} ${p('=')} ${p('@')}csv_stage\n  ${k('FILE_FORMAT')} ${p('=')} ${p('(')}${k('TYPE')} ${p('=')} ${k('CSV')}${p(')')};\n\n${cm('── Iceberg: richer metadata, better query performance')}\n${k('CREATE')} ${k('ICEBERG')} ${k('TABLE')} analytics.events\n  ${k('CATALOG')} ${p('=')} ${str("'SNOWFLAKE'")}\n  ${k('EXTERNAL_VOLUME')} ${p('=')} my_s3_vol\n  ${k('BASE_LOCATION')} ${p('=')} ${str("'events/'")};\n\n${cm('── Comparison')}\n${cm('')}\n${cm('                  External Tables    Iceberg')}\n${cm('File formats      Any format         Parquet (primary)')}\n${cm('Schema mgmt       Manual or infer    Metadata catalog')}\n${cm('ACID writes       No (read-only)     Yes (merge, delete)')}\n${cm('Query perf        Good w/partitions  Better (Iceberg meta)')}\n${cm('Time travel       No                 Yes')}\n${cm('Schema evolution  Manual             Automatic')}\n${cm('Complexity        Low                Medium')}\n\n${cm('── Recommendation')}\n${cm('External Tables → legacy data, CSV/JSON, occasional queries')}\n${cm('Iceberg → new data lakehouse workloads, frequent queries')}`,
+      explain: `<h4>External Tables vs Iceberg</h4><p>Both let Snowflake query data in object storage without loading it — but they have different capabilities and use cases:</p><ul><li><strong>External Tables:</strong> simpler to set up, support any file format (CSV, JSON, Avro, etc.), read-only. Good for legacy data or files generated by non-Snowflake systems.</li><li><strong>Iceberg:</strong> richer metadata catalog, supports ACID writes (INSERT, UPDATE, DELETE), time travel, automatic schema evolution. Better query performance because Iceberg tracks min/max statistics per file.</li></ul><p><strong>When to choose External Tables:</strong> existing CSV/JSON data that&#39;s hard to migrate, regulatory requirements to keep raw files accessible in original format, or very infrequent querying.</p><p><strong>When to choose Iceberg:</strong> for any new data lakehouse investment. Iceberg is the direction Snowflake is investing in — External Tables won&#39;t go away, but Iceberg supersedes them for new workloads.</p>`
+    }
+  };
+
+  function openModal(fn) {
+    const data = PANELS[fn]; if (!data) return;
+    document.getElementById('et-modal-title').textContent = data.title;
+    document.getElementById('et-modal-code').innerHTML = data.code;
+    document.getElementById('et-modal-explain').innerHTML = data.explain;
+    document.getElementById('et-overlay').classList.add('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+  }
+  function closeModal() {
+    document.getElementById('et-overlay').classList.remove('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.remove('active'));
+  }
+  document.querySelectorAll('[data-fn]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.fn)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.getElementById('et-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Organizational Listings — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .ol-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:900px; padding:8px 0 4px; }
+    .ol-card { background:#fff; border:2px solid rgba(41,181,232,.3); border-radius:12px; padding:16px 18px; cursor:pointer; transition:border-color .15s,transform .12s,box-shadow .15s; display:flex; flex-direction:column; gap:6px; }
+    .ol-card:hover { border-color:var(--sf-blue); transform:translateY(-2px); box-shadow:0 4px 14px rgba(41,181,232,.18); }
+    .ol-card.active { border-color:var(--sf-blue); box-shadow:0 0 0 3px rgba(41,181,232,.2); }
+    .ol-card-label { font-size:var(--fs-h5); font-weight:700; color:var(--sf-ink); }
+    .ol-card-desc { font-size:var(--fs-h6); color:rgba(7,21,37,.55); line-height:1.4; }
+    .ol-overlay { display:none; position:fixed; inset:0; background:rgba(5,13,26,.65); z-index:900; align-items:center; justify-content:center; }
+    .ol-overlay.open { display:flex; }
+    .ol-modal { background:var(--sf-navy); border:2px solid var(--sf-blue); border-radius:14px; width:860px; max-width:92vw; max-height:74vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.5); overflow:hidden; }
+    .ol-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:var(--sf-blue); flex-shrink:0; }
+    .ol-modal-title { font-size:var(--fs-h3); font-weight:700; color:#fff; }
+    .ol-modal-close { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.2); border:none; cursor:pointer; color:#fff; font-size:14px; display:flex; align-items:center; justify-content:center; }
+    .ol-modal-close:hover { background:rgba(255,255,255,.35); }
+    .ol-modal-body { flex:1; overflow:hidden; display:flex; }
+    .ol-modal-code { flex:3; overflow-y:auto; background:var(--code-bg); padding:16px 20px; font-family:'SF Mono','Fira Code',ui-monospace,monospace; font-size:var(--fs-h6); line-height:1.75; color:rgba(255,255,255,.85); white-space:pre-wrap; }
+    .ol-modal-explain { flex:2; overflow-y:auto; padding:16px 20px; background:#fff; color:var(--sf-ink); font-size:var(--fs-h5); line-height:1.6; }
+    .ol-modal-explain h4 { font-size:var(--fs-h4); font-weight:700; margin-bottom:8px; }
+    .ol-modal-explain p { margin-bottom:10px; }
+    .ol-modal-explain ul { padding-left:18px; margin-bottom:10px; }
+    .ol-modal-explain li { margin-bottom:4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Organizational Listings are the foundational building block of Internal Marketplace. A listing packages any Snowflake object — a table, a view, a semantic view, a Native App — with metadata (title, description, tags, SLAs) and makes it discoverable across accounts in your Snowflake organization. Think of it as the product packaging for a data product: the underlying share provides the data access; the listing provides the storefront, versioning, and consumer analytics.</p>
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Listing vs Share:</strong> A share provides access. A listing is the discoverability and distribution layer on top.</li>
+  <li><strong>Versioning:</strong> Publish v1 and v2 simultaneously; consumers migrate on their own schedule.</li>
+  <li><strong>Targeting:</strong> Restrict to specific accounts or open to the whole org.</li>
+  <li><strong>Beyond tables:</strong> Listings can wrap Native Apps, AI models, and semantic views.</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  null,
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Organizational Listings</span>
+      <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Data Mesh</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Organizational Listings</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Organizational Listings</div>
+          <div class="s6-sub" style="text-align:center;">Package tables, views, apps, and AI models as versioned data products with metadata, targeting, and usage analytics — shareable across your Snowflake organization.</div>
+        </div>
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 16px 10px;">
+          <div class="ol-grid">
+            <div class="ol-card" data-fn="basics"><div class="ol-card-label">Listing vs Share</div><div class="ol-card-desc">A share is the access mechanism. A listing is the product layer — title, description, discovery, versioning, and analytics.</div></div>
+            <div class="ol-card" data-fn="create"><div class="ol-card-label">Create an Org Listing</div><div class="ol-card-desc">Wrap a share with a listing YAML — title, description, category, targets. One SQL command publishes it to your organization.</div></div>
+            <div class="ol-card" data-fn="targeting"><div class="ol-card-label">Targeting Accounts</div><div class="ol-card-desc">Restrict visibility to specific accounts or business units, or open it to the entire Snowflake organization.</div></div>
+            <div class="ol-card" data-fn="consumer"><div class="ol-card-label">Consumer Experience</div><div class="ol-card-desc">Consumers discover, install, and query listings via Snowsight — one click provisions live data access.</div></div>
+            <div class="ol-card" data-fn="versioning"><div class="ol-card-label">Listing Versioning</div><div class="ol-card-desc">Publish v1 and v2 simultaneously. Consumers pin to a version and migrate when ready — no forced upgrades.</div></div>
+            <div class="ol-card" data-fn="analytics"><div class="ol-card-label">Provider Analytics</div><div class="ol-card-desc">Track installs, active consumers, and query volume via DATA_SHARING_USAGE views.</div></div>
+          </div>
+        </div>
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ol-overlay" id="ol-overlay">
+    <div class="ol-modal">
+      <div class="ol-modal-header">
+        <span class="ol-modal-title" id="ol-modal-title"></span>
+        <button class="ol-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="ol-modal-body">
+        <div class="ol-modal-code" id="ol-modal-code"></div>
+        <div class="ol-modal-explain" id="ol-modal-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const PANELS = {
+    basics: {
+      title: 'Listing vs Share',
+      code: `${k("-- Share = access mechanism")}\n${k("CREATE")} ${k("SHARE")} analytics.orders_share;\n${k("GRANT")} ${k("SELECT")} ${k("ON")} ${k("TABLE")} analytics.orders ${k("TO")} ${k("SHARE")} analytics.orders_share;\n\n${k("-- Listing = product layer on top of the share")}\n${k("CREATE")} ${k("LISTING")} analytics.orders_product\n  ${k("FOR")} ${k("SHARE")} analytics.orders_share ${cm("-- adds metadata + discoverability")};\n\n${k("--")}                   ${id("Share")}               ${id("Listing")}\n${k("-- Discovery")}         none                 searchable in Marketplace\n${k("-- Metadata")}          none                 title, desc, tags, SLA\n${k("-- Versioning")}        no                   yes\n${k("-- Analytics")}         none                 installs, query volume\n${k("-- Access workflow")}   manual grants        optionally request-based\n${k("-- Audience")}          specific accounts    org-wide or targeted`,
+      explain: `<h4>Create an Org Listing</h4><p>An org listing is created with <code>CREATE LISTING ... FOR SHARE ... AS $$...$$</code> where the body is YAML metadata.</p><ul><li><strong>title &amp; subtitle:</strong> what consumers see in search results</li><li><strong>description:</strong> full description shown when a consumer opens the listing — include data quality notes, refresh schedule, contact info</li><li><strong>categories:</strong> Snowflake-defined categories for filtering (FINANCIAL_DATA, MARKETING_DATA, HR_DATA, etc.)</li><li><strong>tags:</strong> custom key-value pairs — use for data owner, refresh frequency, certification status</li><li><strong>targets.organization:</strong> the Snowflake org name. All accounts in the org can see and install the listing.</li></ul>`
+    },
+    targeting: {
+      title: 'Targeting Accounts',
+      code: `${cm('-- Target specific accounts only (not the whole org)')}\n${k('CREATE')} ${k('LISTING')} hr.restricted_headcount\n  ${k('FOR')} ${k('SHARE')} hr.headcount_restricted\n  ${k('AS')}\n  ${p('$$')}\n    title: ${str('"Headcount - Finance & Strategy Only"')}\n    targets:\n      accounts:\n        - ${str('MY_ORG.FINANCE_ACCOUNT')}\n        - ${str('MY_ORG.STRATEGY_ACCOUNT')}\n        - ${str('MY_ORG.EXEC_ACCOUNT')}\n  ${p('$$')};\n\n${cm('-- Organization-wide (all accounts in org):')}\n${cm('-- targets:')}\n${cm('--   organization: MY_ORG')}\n\n${cm('-- Add or remove accounts from an existing listing')}\n${k('ALTER')} ${k('LISTING')} hr.restricted_headcount\n  ${k('ADD')} ${k('ACCOUNTS')} ${p('=')} ${str('MY_ORG.NEW_ACCOUNT')};\n\n${k('ALTER')} ${k('LISTING')} hr.restricted_headcount\n  ${k('REMOVE')} ${k('ACCOUNTS')} ${p('=')} ${str('MY_ORG.STRATEGY_ACCOUNT')};\n\n${cm('-- Suspend listing (hide from Marketplace, keep installs)')}\n${k('ALTER')} ${k('LISTING')} hr.restricted_headcount\n  ${k('SET')} ${k('PUBLISHED')} ${p('=')} ${k('FALSE')};`,
+      explain: `<h4>Targeting Accounts</h4><p>Org listings can be targeted to specific accounts within your organization or made visible to all accounts.</p><ul><li><strong>targets.organization:</strong> listing appears in every account&#39;s Marketplace — broadest visibility</li><li><strong>targets.accounts:</strong> restrict to a named list of account locators within the org. Only those accounts see the listing.</li><li>ALTER LISTING can add or remove accounts from a targeted listing at any time — no need to recreate it</li></ul><p>Use account-targeting for sensitive data products (HR, finance, legal) where you want to control exactly who can discover and request access.</p>`
+    },
+    consumer: {
+      title: 'Consumer Experience',
+      code: `${cm('-- Consumer: discover in Snowsight Marketplace')}\n${cm('-- Snowsight -> Data -> Marketplace -> "Your Organization"')}\n${cm('--   Browse or search by title, category, tag')}\n${cm('--   Click listing -> see title, description, sample data')}\n${cm('--   Click "Get" -> enter database name -> installed')}\n\n${cm('-- What the consumer gets (auto-created)')}\n${k('CREATE')} ${k('DATABASE')} finance_close_data\n  ${k('FROM')} ${k('SHARE')} finance_account.finance.monthly_close;\n\n${cm('-- Immediately queryable:')}\n${k('SELECT')} ${p('*')} ${k('FROM')} finance_close_data.financials.monthly_pl\n${k('WHERE')} close_month ${p('=')} ${str("'2025-12'")};\n\n${cm('-- Consumer can see all installed listings')}\n${k('SELECT')}\n  listing_name${p(',')}\n  display_name${p(',')}\n  provider_account_locator${p(',')}\n  installed_on\n${k('FROM')} ${id('snowflake')}.${id('account_usage')}.${id('installed_listings')}\n${k('ORDER')} ${k('BY')} installed_on ${k('DESC')};`,
+      explain: `<h4>Consumer Experience</h4><p>Consumers interact with org listings entirely through the Snowsight UI — no SQL required to discover or install.</p><ul><li>The "Your Organization" tab shows only listings published within the same Snowflake org</li><li>Clicking "Get" prompts for a database name, then creates the database from the share immediately — live data accessible in seconds</li><li>The installed database appears in the Data tab like any other Snowflake database</li><li>For consumers who prefer SQL, they can also call <code>CREATE DATABASE FROM SHARE</code> directly</li></ul>`
+    },
+    versioning: {
+      title: 'Listing Versioning',
+      code: `${cm('-- Create a versioned listing (v2 with new columns)')}\n${k('CREATE')} ${k('LISTING')} analytics.sales_data_v2\n  ${k('FOR')} ${k('SHARE')} analytics.sales_share_v2\n  ${k('AS')}\n  ${p('$$')}\n    title: ${str('"Sales Data - v2"')}\n    description: ${str('"v2: added region_code and channel columns. v1 remains for backward compat."')}\n    version:\n      name: ${str('"2.0"')}\n      notes: ${str('"Added region_code and channel columns"')}\n    targets:\n      organization: MY_ORG\n  ${p('$$')};\n\n${cm('-- v1 listing stays active for existing consumers')}\n${cm('-- v2 listing appears alongside v1 in Marketplace')}\n${cm('-- Consumers on v1 can migrate to v2 at their own pace')}\n\n${cm('-- List all versions')}\n${k('SHOW')} ${k('LISTINGS')} ${k('LIKE')} ${str("'ANALYTICS.SALES_DATA%'")};\n\n${cm('-- Deprecate v1 after consumers migrate')}\n${k('ALTER')} ${k('LISTING')} analytics.sales_data_v1\n  ${k('SET')} ${k('PUBLISHED')} ${p('=')} ${k('FALSE')};`,
+      explain: `<h4>Listing Versioning</h4><p>Org listings support versioning — publish multiple versions simultaneously, allowing consumers to migrate on their own schedule rather than forcing immediate upgrades.</p><ul><li>Create a new listing for the new version pointing at the new share. The new listing appears in Marketplace alongside the old one.</li><li>Include version notes in the description so consumers understand what changed and what to expect when migrating</li><li>Deprecate old versions by setting <code>PUBLISHED = FALSE</code> — hides from new installs but existing consumers retain access</li></ul><p>This is the recommended pattern for data products with downstream dependencies: teams can evolve their products without breaking consumers who have not had time to adapt.</p>`
+    },
+    analytics: {
+      title: 'Provider Analytics',
+      code: `${cm('-- How many accounts installed my listing?')}\n${k('SELECT')}\n  consumer_account_locator${p(',')}\n  consumer_organization${p(',')}\n  installed_on${p(',')}\n  status\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_history')}\n${k('WHERE')} listing_name ${p('=')} ${str("'ANALYTICS.SALES_DATA_V2'")}\n${k('ORDER')} ${k('BY')} installed_on ${k('DESC')};\n\n${cm('-- Data product health: installs + active users last 30d')}\n${k('SELECT')}\n  ${f('COUNT')}${p('(DISTINCT')} h.consumer_account_locator${p(')')} ${k('AS')} total_installs${p(',')}\n  ${f('COUNT')}${p('(DISTINCT')} q.consumer_account_locator${p(')')} ${k('AS')} active_30d\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_history')} h\n${k('LEFT')} ${k('JOIN')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_query_activity')} q\n  ${k('ON')} h.consumer_account_locator ${p('=')} q.consumer_account_locator\n  ${k('AND')} q.query_date ${p('>')} ${k('CURRENT_DATE')} ${p('-')} ${p('30')}\n${k('WHERE')} h.listing_name ${p('=')} ${str("'ANALYTICS.SALES_DATA_V2'")};`,
+      explain: `<h4>Provider Analytics</h4><p>Every org listing comes with built-in usage analytics available via standard SQL in DATA_SHARING_USAGE views.</p><ul><li><strong>LISTING_ACCESS_HISTORY:</strong> all consumer accounts that installed the listing — when, current status, and organization</li><li><strong>LISTING_QUERY_ACTIVITY:</strong> daily query counts per consumer — tells you which accounts are actively using the data product</li></ul><p>Common metrics to track:</p><ul><li><strong>Total installs:</strong> breadth of reach across the organization</li><li><strong>Active consumers:</strong> how many of those are actually querying — engagement vs just installing</li><li>Week-over-week query growth signals increasing value; decline may mean consumers found an alternative or the data is stale</li></ul>`
+    }
+  };
+
+  function openModal(fn) {
+    const data = PANELS[fn]; if (!data) return;
+    document.getElementById('ol-modal-title').textContent = data.title;
+    document.getElementById('ol-modal-code').innerHTML = data.code;
+    document.getElementById('ol-modal-explain').innerHTML = data.explain;
+    document.getElementById('ol-overlay').classList.add('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+  }
+  function closeModal() {
+    document.getElementById('ol-overlay').classList.remove('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.remove('active'));
+  }
+  document.querySelectorAll('[data-fn]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.fn)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.getElementById('ol-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  </script>
+</body>
+</html>

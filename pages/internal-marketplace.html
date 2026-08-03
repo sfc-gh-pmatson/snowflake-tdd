@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Internal Marketplace — Snowflake TDD</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    body { background: transparent; margin: 0; overflow: hidden; }
+    .im-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:900px; padding:8px 0 4px; }
+    .im-card { background:#fff; border:2px solid rgba(41,181,232,.3); border-radius:12px; padding:16px 18px; cursor:pointer; transition:border-color .15s,transform .12s,box-shadow .15s; display:flex; flex-direction:column; gap:6px; }
+    .im-card:hover { border-color:var(--sf-blue); transform:translateY(-2px); box-shadow:0 4px 14px rgba(41,181,232,.18); }
+    .im-card.active { border-color:var(--sf-blue); box-shadow:0 0 0 3px rgba(41,181,232,.2); }
+    .im-card-label { font-size:var(--fs-h5); font-weight:700; color:var(--sf-ink); }
+    .im-card-desc { font-size:var(--fs-h6); color:rgba(7,21,37,.55); line-height:1.4; }
+    .im-overlay { display:none; position:fixed; inset:0; background:rgba(5,13,26,.65); z-index:900; align-items:center; justify-content:center; }
+    .im-overlay.open { display:flex; }
+    .im-modal { background:var(--sf-navy); border:2px solid var(--sf-blue); border-radius:14px; width:860px; max-width:92vw; max-height:74vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.5); overflow:hidden; }
+    .im-modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:var(--sf-blue); flex-shrink:0; }
+    .im-modal-title { font-size:var(--fs-h3); font-weight:700; color:#fff; }
+    .im-modal-close { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.2); border:none; cursor:pointer; color:#fff; font-size:14px; display:flex; align-items:center; justify-content:center; }
+    .im-modal-close:hover { background:rgba(255,255,255,.35); }
+    .im-modal-body { flex:1; overflow:hidden; display:flex; }
+    .im-modal-code { flex:3; overflow-y:auto; background:var(--code-bg); padding:16px 20px; font-family:'SF Mono','Fira Code',ui-monospace,monospace; font-size:var(--fs-h6); line-height:1.75; color:rgba(255,255,255,.85); white-space:pre-wrap; }
+    .im-modal-explain { flex:2; overflow-y:auto; padding:16px 20px; background:#fff; color:var(--sf-ink); font-size:var(--fs-h5); line-height:1.6; }
+    .im-modal-explain h4 { font-size:var(--fs-h4); font-weight:700; margin-bottom:8px; }
+    .im-modal-explain p { margin-bottom:10px; }
+    .im-modal-explain ul { padding-left:18px; margin-bottom:10px; }
+    .im-modal-explain li { margin-bottom:4px; }
+  </style>
+</head>
+<body>
+  <script>
+  window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The Internal Marketplace solves the data product discovery problem inside large organizations. Today, getting access to data from another team typically means a ticket, a Slack message, a meeting, and a week of waiting. Internal Marketplace is the self-service alternative: data teams publish governed data products once; business users discover and install them on demand — like an internal app store for data. No IT ticket, no pipeline, no copy.</p>
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Self-service discovery:</strong> Published listings appear in the "Your Organization" tab in Snowflake Marketplace inside every account in the org.</li>
+  <li><strong>No data movement:</strong> Zero-copy sharing. Consumers query live data from the provider account.</li>
+  <li><strong>Governance preserved:</strong> Masking and row access policies applied by the provider are enforced for all consumers.</li>
+  <li><strong>Usage tracking:</strong> Provider sees who installed, which accounts are querying, and query volume over time.</li>
+</ul>
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do teams currently share data internally — ETL pipelines, S3 exports, or individual grants?</li>
+  <li>How long does it currently take for a business user to get access to a new dataset?</li>
+</ul>`;
+  </script>
+  <script src="../bg.js"></script>
+  <script>
+    window.RESOURCE_CONFIG = {
+      docs:  'https://docs.snowflake.com/en/user-guide/collaboration/listings/organizational/org-listing-about.html',
+      code:  null,
+      guide: null,
+      blog:  null,
+    };
+  </script>
+  <script src="../resources.js"></script>
+
+  <div style="position:relative;width:100%;height:100%;z-index:1">
+    <div class="nav-bar">
+      <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="nav-label">Internal Marketplace</span>
+      <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
+    </div>
+    <div class="slide-canvas with-nav">
+      <div id="module" class="sf-slide">
+        <div class="s6-top">
+          <div class="s6-top-row">
+            <span class="slide-tag tag-blue">Data Mesh</span>
+            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Internal Marketplace</span>
+          </div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;">Internal Marketplace</div>
+          <div class="s6-sub" style="text-align:center;">Self-service data product discovery across your Snowflake organization. Publish once; discover and install without tickets or ETL pipelines.</div>
+        </div>
+        <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 16px 10px;">
+          <div class="im-grid">
+            <div class="im-card" data-fn="overview"><div class="im-card-label">What is Internal Marketplace?</div><div class="im-card-desc">An intra-org data product store visible to all accounts in your organization. Providers publish once; consumers self-serve.</div></div>
+            <div class="im-card" data-fn="publish"><div class="im-card-label">Publishing a Listing</div><div class="im-card-desc">Create a listing over a share targeting your org. It appears in every account Marketplace under "Your Organization."</div></div>
+            <div class="im-card" data-fn="discovery"><div class="im-card-label">Consumer Discovery</div><div class="im-card-desc">Browse, search by keyword or tag, and install data products in one click — no tickets, no waiting, no IT.</div></div>
+            <div class="im-card" data-fn="access"><div class="im-card-label">Access Request Workflow</div><div class="im-card-desc">Optionally require consumers to submit justification. Providers review and approve — all within Snowflake.</div></div>
+            <div class="im-card" data-fn="analytics"><div class="im-card-label">Usage Analytics</div><div class="im-card-desc">Track who installed your listing, active accounts, and query volume via DATA_SHARING_USAGE views.</div></div>
+            <div class="im-card" data-fn="governance"><div class="im-card-label">Governance Controls</div><div class="im-card-desc">Masking and row access policies applied by provider are enforced for all consumers. Revoke anytime.</div></div>
+          </div>
+        </div>
+        <div class="resource-trigger"><div class="resource-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="im-overlay" id="im-overlay">
+    <div class="im-modal">
+      <div class="im-modal-header">
+        <span class="im-modal-title" id="im-modal-title"></span>
+        <button class="im-modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="im-modal-body">
+        <div class="im-modal-code" id="im-modal-code"></div>
+        <div class="im-modal-explain" id="im-modal-explain"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const k = s => `<span class="code-kw">${s}</span>`;
+  const f = s => `<span class="code-fn">${s}</span>`;
+  const id = s => `<span class="code-id">${s}</span>`;
+  const str = s => `<span class="code-str">${s}</span>`;
+  const p = s => `<span class="code-punc">${s}</span>`;
+  const cm = s => `<span class="code-comment">${s}</span>`;
+
+  const PANELS = {
+    overview: {
+      title: 'What is Internal Marketplace?',
+      code: `${k("-- Internal Marketplace = org-scoped data product store")}\n${id("All accounts")} in the same ${str("Snowflake Organization")} can\ndiscover and install listings published by ${id("other accounts")}\n\n${k("--")}                  ${id("Direct Share")}        ${id("Internal Marketplace")}\n${k("-- Discovery")}        manual ${cm("(know URL)")}   self-service browse\n${k("-- Installation")}     SQL command          one-click in UI\n${k("-- Documentation")}    none                 title, desc, SLAs\n${k("-- Access control")}   provider manages     provider + request flow\n${k("-- Usage tracking")}   manual query         built-in analytics\n\n${k("-- What can be published")}\n${p("+")} ${id("Tables")} and ${id("views")} ${cm("(via share)")}\n${p("+")} ${id("Secure views")} over sensitive tables\n${p("+")} ${id("Native Apps")}, ${id("AI Models")}, ${id("Semantic Views")}`,
+      explain: `<h4>Publishing a Listing</h4><p>Publishing to Internal Marketplace takes two steps: create a share with the objects to expose, then create an org listing that wraps the share with metadata and targets your organization.</p><ul><li><strong>Share:</strong> defines what objects consumers can access. Use secure views to expose aggregated or filtered data without raw table access.</li><li><strong>Listing metadata:</strong> title, description, subtitle. This is what consumers see when browsing — make it descriptive and searchable.</li><li><strong>targets.organization:</strong> set this to your Snowflake org name to make the listing org-visible.</li></ul><p>Once published, the listing appears immediately in every account&#39;s Marketplace UI. Consumers install it with one click — no SQL required on their end.</p>`
+    },
+    discovery: {
+      title: 'Consumer Discovery',
+      code: `${cm('-- Consumer experience: browse in Snowsight')}\n${cm('-- Snowsight -> Data -> Marketplace -> "Your Organization" tab')}\n${cm('--   Search by keyword, browse by category, filter by tag')}\n${cm('--   Click any listing to see title, description, sample data')}\n${cm('--   Click "Get" -> name the database -> installed instantly')}\n\n${cm('-- Consumer SQL: query the installed listing')}\n${k('CREATE')} ${k('DATABASE')} hr_data\n  ${k('FROM')} ${k('SHARE')} hr_account.hr.workforce_headcount;\n\n${k('SELECT')} department${p(',')} headcount${p(',')} avg_tenure\n${k('FROM')} hr_data.workforce.headcount_v\n${k('ORDER')} ${k('BY')} headcount ${k('DESC')};\n\n${cm('-- Programmatic listing discovery')}\n${k('SELECT')}\n  listing_name${p(',')}\n  display_name${p(',')}\n  provider_account_locator${p(',')}\n  description\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('marketplace_available_listings')}\n${k('WHERE')} listing_type ${p('=')} ${str("'ORG'")}\n${k('ORDER')} ${k('BY')} display_name;`,
+      explain: `<h4>Consumer Discovery</h4><p>Consumers discover Internal Marketplace listings through the Snowsight UI — browsable by title, description, keyword, and category tag.</p><ul><li>The "Your Organization" tab only shows listings from within the same Snowflake org</li><li>Clicking "Get" prompts the consumer to name the database that will be created, then mounts it immediately</li><li>The installed database contains the objects the provider shared — consumers query it like any other database</li><li>Programmatic discovery via <code>MARKETPLACE_AVAILABLE_LISTINGS</code> allows data catalogs and portals to pull listing metadata via SQL</li></ul>`
+    },
+    access: {
+      title: 'Access Request Workflow',
+      code: `${cm('-- Optional: require consumers to submit a request')}\n${cm('-- In listing YAML: set access_request_policy')}\n${p('$$')}\n    title: ${str('"HR Headcount - Restricted"')}\n    access_request_policy:\n      type: ${str('MANUAL')}\n      justification_required: ${str('true')}\n      approvers:\n        - name: ${str('"data-steward@company.com"')}\n${p('$$')}\n\n${cm('-- Consumer submits request in Snowsight UI')}\n${cm('--   clicks "Request Access" -> fills in justification')}\n${cm('--   request goes to provider for review')}\n\n${cm('-- Provider: view and approve requests')}\n${k('SELECT')}\n  request_id${p(',')}\n  consumer_account_locator${p(',')}\n  justification${p(',')}\n  status${p(',')}\n  requested_on\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_requests')}\n${k('WHERE')} listing_name ${p('=')} ${str("'HR.WORKFORCE_HEADCOUNT'")}\n  ${k('AND')} status ${p('=')} ${str("'PENDING'")}\n${k('ORDER')} ${k('BY')} requested_on ${k('DESC')};`,
+      explain: `<h4>Access Request Workflow</h4><p>Providers can optionally require consumers to submit a justification before installing a listing — appropriate for sensitive data products (HR, finance, PII) where the provider wants to track who accesses the data and why.</p><ul><li>Set <code>access_request_policy.type = MANUAL</code> in the listing YAML to require approval</li><li><code>justification_required: true</code> forces consumers to explain why they need access</li><li>Approvers are notified by email; they approve or deny in Snowsight</li><li>All requests tracked in <code>LISTING_ACCESS_REQUESTS</code> — full audit trail</li></ul>`
+    },
+    analytics: {
+      title: 'Usage Analytics',
+      code: `${cm('-- Who installed your listing?')}\n${k('SELECT')}\n  consumer_account_locator${p(',')}\n  consumer_organization${p(',')}\n  installed_on${p(',')}\n  status\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_access_history')}\n${k('WHERE')} listing_name ${p('=')} ${str("'HR.WORKFORCE_HEADCOUNT'")}\n${k('ORDER')} ${k('BY')} installed_on ${k('DESC')};\n\n${cm('-- How much are consumers querying?')}\n${k('SELECT')}\n  consumer_account_locator${p(',')}\n  ${f('DATE_TRUNC')}${p('(')}'week'${p(',')} query_date${p(')')} ${k('AS')} week${p(',')}\n  ${f('COUNT')}${p('(*)')} ${k('AS')} queries\n${k('FROM')} ${id('snowflake')}.${id('data_sharing_usage')}.${id('listing_query_activity')}\n${k('WHERE')} listing_name ${p('=')} ${str("'HR.WORKFORCE_HEADCOUNT'")}\n  ${k('AND')} query_date ${p('>')} ${k('CURRENT_DATE')} ${p('-')} ${p('30')}\n${k('GROUP')} ${k('BY')} ${p('1,2')}\n${k('ORDER')} ${k('BY')} week ${k('DESC')};`,
+      explain: `<h4>Usage Analytics</h4><p>Providers have full visibility into who installed their listing and how frequently it is being queried — all via standard SQL against <code>DATA_SHARING_USAGE</code> views.</p><ul><li><strong>LISTING_ACCESS_HISTORY:</strong> one row per consumer account install — who, when, and current status</li><li><strong>LISTING_QUERY_ACTIVITY:</strong> daily query counts per consumer account — active vs dormant consumers</li></ul><p>Use cases: identify high-value consumers, find dormant installs to revoke, demonstrate ROI of your data product (N accounts, M queries/month).</p>`
+    },
+    governance: {
+      title: 'Governance Controls',
+      code: `${cm('-- Masking policy applied to shared view')}\n${k('CREATE')} ${k('MASKING')} ${k('POLICY')} email_mask\n${k('AS')} ${p('(')}val ${k('VARCHAR')}${p(')')}\n${k('RETURNS')} ${k('VARCHAR')} ${p('->')}\n  ${k('CASE')}\n    ${k('WHEN')} ${f('CURRENT_ROLE')}${p('()')} ${k('IN')} ${p('(')}${str("'DATA_ENGINEER'")}${p(')')} ${k('THEN')} val\n    ${k('ELSE')} ${str("'***@***.***'")}\n  ${k('END')};\n\n${k('ALTER')} ${k('VIEW')} hr_db.workforce.headcount_v\n  ${k('MODIFY')} ${k('COLUMN')} manager_email\n  ${k('SET')} ${k('MASKING')} ${k('POLICY')} email_mask;\n${cm('-- All consumers see masked email regardless of their role')}\n\n${cm('-- Revoke access from a specific consumer')}\n${k('ALTER')} ${k('LISTING')} hr.workforce_headcount\n  ${k('REVOKE')} ${k('ACCESS')} ${k('FROM')} ${k('ACCOUNT')} consumer_org.consumer_acct;\n\n${cm('-- Unpublish listing (hides from Marketplace, keeps installs)')}\n${k('ALTER')} ${k('LISTING')} hr.workforce_headcount\n  ${k('SET')} ${k('PUBLISHED')} ${p('=')} ${k('FALSE')};`,
+      explain: `<h4>Governance Controls</h4><p>Internal Marketplace listings inherit all of Snowflake&#39;s governance features — masking, row access, and RBAC — with the provider&#39;s policies enforced for every consumer.</p><ul><li><strong>Masking policies:</strong> applied to objects in the share. Consumers cannot bypass them — masking runs in the provider&#39;s account.</li><li><strong>Row access policies:</strong> filter which rows each consumer sees. One listing can serve multiple consumers with different row visibility.</li><li><strong>Revoke access:</strong> instantly removes a specific consumer. Their installed database becomes inaccessible immediately.</li><li><strong>Unpublish:</strong> hides the listing from new installs. Does not automatically revoke existing installs.</li></ul>`
+    }
+  };
+
+  function openModal(fn) {
+    const data = PANELS[fn]; if (!data) return;
+    document.getElementById('im-modal-title').textContent = data.title;
+    document.getElementById('im-modal-code').innerHTML = data.code;
+    document.getElementById('im-modal-explain').innerHTML = data.explain;
+    document.getElementById('im-overlay').classList.add('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.toggle('active', c.dataset.fn === fn));
+  }
+  function closeModal() {
+    document.getElementById('im-overlay').classList.remove('open');
+    document.querySelectorAll('[data-fn]').forEach(c => c.classList.remove('active'));
+  }
+  document.querySelectorAll('[data-fn]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.fn)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.getElementById('im-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  </script>
+</body>
+</html>
