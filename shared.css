@@ -212,7 +212,7 @@
 
     /* ── NAV BAR ────────────────────────────────────────────── */
     .nav-bar {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; gap: 10px;
       padding: 9px 18px;
       background: rgba(5,13,26,.92);
@@ -259,7 +259,7 @@
     .slide-canvas {
       position: relative; width: 100%; height: 100%;
       display: flex; align-items: stretch;
-      overflow: hidden;
+      overflow-y: auto;
     }
     .slide-canvas.with-nav { margin-top: 42px; height: calc(100% - 42px); }
     .slide-canvas.with-nav .s6-top { padding-top: 18px; }
@@ -278,10 +278,10 @@
       font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase;
     }
-    .tag-blue   { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
-    .tag-purple { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
-    .tag-green  { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
-    .tag-amber  { background: rgba(255,255,255,.22); color: #fff;    border: 1px solid rgba(255,255,255,.45); }
+    .tag-blue   { background: rgba(41,181,232,.12);  color: var(--sf-blue);    border: 1px solid rgba(41,181,232,.4); }
+    .tag-purple { background: rgba(139,92,246,.1);   color: #7c3aed;           border: 1px solid rgba(139,92,246,.35); }
+    .tag-green  { background: rgba(34,197,94,.1);    color: #15803d;           border: 1px solid rgba(34,197,94,.35); }
+    .tag-amber  { background: rgba(245,158,11,.1);   color: #b45309;           border: 1px solid rgba(245,158,11,.35); }
 
     /* ── ICON CIRCLES ───────────────────────────────────────── */
     .icon-circle {
@@ -317,11 +317,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-left: 115px;
-      background-image: url('sf-icons/Snowflake_ICON_Wordmark.svg');
-      background-size: auto 24px;
-      background-repeat: no-repeat;
-      background-position: left center;
       min-height: 24px;
     }
     .s6-top-wordmark { flex-shrink:0; height:28px; width:auto; }
@@ -335,6 +330,7 @@
       margin-left: auto;
       margin-right: auto;
       padding: var(--content-pad);
+      padding-top: 14px;
     }
 
     /* Full-bleed modifier — all direct children fill the slide width */

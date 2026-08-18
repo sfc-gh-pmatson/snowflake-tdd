@@ -6,7 +6,7 @@
   <title>Window Functions — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .win-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 880px; padding: 8px 0 4px; }
     .win-card { background: var(--sf-card); border: 2px solid rgba(41,181,232,.2); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: border-color .15s, transform .12s; }
     .win-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
@@ -58,13 +58,13 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
       <span class="nav-label">Window Functions &amp; Advanced SQL</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-top-row"><span class="slide-tag tag-blue">Analytics — Window Functions</span></div>
           <div class="s6-header" style="margin-top:4px;text-align:center;">Window Functions &amp; Advanced SQL</div>
           <div class="s6-sub" style="text-align:center;">QUALIFY eliminates subqueries. Full ANSI window functions plus Snowflake extensions for ranking, period-over-period, and reshaping.</div>
         </div>

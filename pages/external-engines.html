@@ -6,7 +6,7 @@
   <title>External Engines — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
 
     .ee-grid {
       display: grid;
@@ -107,6 +107,7 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Iceberg</span>
       <span class="nav-label">External Engines</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
@@ -117,10 +118,6 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">Ecosystem</span>
-            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">External Engines &amp; Connectors</span>
-          </div>
           <div class="s6-header" style="margin-top:6px;text-align:center;">External Engines</div>
           <div class="s6-sub" style="text-align:center;">Spark, Flink, Kafka, Trino, Dremio, Databricks — native connectors and open standards let any engine read from and write to Snowflake.</div>
         </div>

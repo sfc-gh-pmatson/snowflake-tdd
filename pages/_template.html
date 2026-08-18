@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../shared.css">
   <style>
     /* Page-specific styles go here (keep shared styles in shared.css) */
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
 
     /* s6-header uses --fs-h1 / s6-sub uses --fs-h3 by default (shared.css).
        Add text-align:center here if this page needs centered headers. */
@@ -33,6 +33,7 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">TAG_LABEL</span>
       <span class="nav-label">MODULE_NAME</span>
       <!--
         NAV TAGS — add any combination; omit the div entirely if not needed.
@@ -49,9 +50,6 @@
 
         <!-- Shared header block: eyebrow logo/tag row + title + subtitle -->
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">TAG_LABEL</span>
-          </div>
           <div class="s6-header" style="margin-top:6px">MODULE_NAME</div>
           <div class="s6-sub">Subtitle or overview sentence.</div>
         </div>

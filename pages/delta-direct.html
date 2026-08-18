@@ -6,7 +6,7 @@
   <title>Delta Direct — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .dd-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 12px; width: 100%; max-width: 900px; padding: 8px 0 4px;
@@ -74,6 +74,7 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Iceberg</span>
       <span class="nav-label">Delta Direct</span>
       <div class="nav-tags">
         <span class="nav-tag" style="background:rgba(255,62,33,.15);color:#ff6b35;">Databricks Interop</span>
@@ -82,10 +83,6 @@
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">Data Lakehouse</span>
-            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Delta Direct</span>
-          </div>
           <div class="s6-header" style="margin-top:6px;text-align:center;">Delta Direct</div>
           <div class="s6-sub" style="text-align:center;">Query Databricks Delta tables natively in Snowflake. No conversion, no ETL, no data copy — reads the Delta transaction log directly.</div>
         </div>

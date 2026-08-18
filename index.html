@@ -438,29 +438,6 @@
 
     <a href="./pages/pillars.html" class="cta-pillars" style="margin-bottom:0;margin-top:20px;">Snowflake Core Pillars: Easy, Connected, Trusted &nbsp;&#8594;</a>
 
-    <!-- Help button (fixed, bottom-right) -->
-    <button id="idx-help-btn" aria-label="Keyboard shortcuts" style="position:fixed;bottom:16px;right:16px;width:28px;height:28px;border-radius:50%;background:rgba(5,13,26,.8);border:1px solid rgba(41,181,232,.35);color:rgba(255,255,255,.45);font-size:13px;font-weight:700;cursor:pointer;z-index:200;line-height:1;">?</button>
-    <div id="idx-help-popup" style="position:fixed;bottom:52px;right:16px;display:none;flex-direction:column;gap:7px;padding:12px 16px;border-radius:10px;background:rgba(5,13,26,.94);border:1px solid rgba(41,181,232,.3);font-size:11px;color:rgba(255,255,255,.6);z-index:200;min-width:240px;box-shadow:0 4px 24px rgba(0,0,0,.55);">
-      <span style="color:#fff;font-weight:700;font-size:12px;margin-bottom:2px;">Interactive TDD</span>
-      <span>Click any block to drill into that topic</span>
-      <div style="height:1px;background:rgba(41,181,232,.2);margin:2px 0;"></div>
-      <span><kbd style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:1px 5px;font-family:monospace;">&#8592;</kbd>&ensp;Back</span>
-      <span><kbd style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:1px 5px;font-family:monospace;">H</kbd>&ensp;Home</span>
-      <span><kbd style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:1px 5px;font-family:monospace;">N</kbd>&ensp;Talk Track</span>
-      <span><kbd style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:1px 5px;font-family:monospace;">W</kbd>&ensp;Well-Architected Framework</span>
-      <span><kbd style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:1px 5px;font-family:monospace;">C</kbd>&ensp;Compute</span>
-    </div>
-    <script>
-      (function(){
-        var btn = document.getElementById('idx-help-btn');
-        var pop = document.getElementById('idx-help-popup');
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          pop.style.display = pop.style.display === 'flex' ? 'none' : 'flex';
-        });
-        document.addEventListener('click', function(){ pop.style.display = 'none'; });
-      })();
-    </script>
   </div>
 </div>
 
@@ -514,10 +491,17 @@
 <h3>Keyboard Shortcuts</h3>
 <ul>
   <li><strong>N</strong> — Toggle this talk track</li>
-  <li><strong>H</strong> — Return home from any page</li>
+  <li><strong>P</strong> — Open page navigator</li>
+  <li><strong>S</strong> — Open speaker notes window (secondary screen)</li>
   <li><strong>&#8592;</strong> — Go back</li>
-  <li><strong>W</strong> — Jump to Well-Architected Framework</li>
+  <li><strong>H</strong> — Return home from any page</li>
+  <li><strong>M</strong> — Jump to Snowflake ML</li>
+  <li><strong>A</strong> — Jump to Cortex AI</li>
+  <li><strong>G</strong> — Jump to Governance (Horizon)</li>
+  <li><strong>E</strong> — Jump to Data Engineering</li>
+  <li><strong>L</strong> — Jump to Data Lakehouse</li>
   <li><strong>C</strong> — Jump to Compute</li>
+  <li><strong>W</strong> — Jump to Well-Architected Framework</li>
 </ul>`;
 </script>
 <script src="bg.js"></script>

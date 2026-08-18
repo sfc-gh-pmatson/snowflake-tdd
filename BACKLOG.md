@@ -38,6 +38,16 @@ Cards marked with a dashed border on `partners.html` are logo-less. Source the o
 
 ---
 
+## User Feedback (2026-08-17)
+
+### Feedback button on main page
+Add a persistent feedback button to `index.html` (and optionally all pages) so users can submit suggestions. Options: mailto link, Google Form, or a simple modal with a pre-filled email draft. Decide on target (e.g. `peter.matson@snowflake.com`) and button placement (bottom-right corner, near resource bar).
+
+### Title text cut off on split slides at short viewport heights
+On pages with a split-panel layout (header + two-column content), the `.s6-header` / `.s6-sub` title block can be clipped when the browser window isn't tall enough. Fix: add `overflow: visible` or `min-height: 0` adjustments to the header container, or reduce vertical padding at smaller viewport heights via `@media (max-height: ...)` rules in `shared.css`. Identify which pages exhibit the worst clipping (likely `compute-warehouses.html`, `storage.html`, `horizon.html` family) and test at ~768px height.
+
+---
+
 ## Code Display Standardization Audit
 
 Review all pages and standardize code display to the **overlay modal pattern** (★ DEFAULT: code left, explain right, full-screen backdrop). As of the ml-functions.html conversion, five distinct code display patterns exist:

@@ -6,7 +6,7 @@
   <title>Semi-Structured Data — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .ss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 880px; padding: 8px 0 4px; }
     .ss-card { background: var(--sf-card); border: 2px solid rgba(41,181,232,.2); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: border-color .15s, transform .12s; }
     .ss-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
@@ -58,13 +58,13 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
       <span class="nav-label">Semi-Structured / JSON</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-top-row"><span class="slide-tag tag-blue">Analytics — Semi-Structured</span></div>
           <div class="s6-header" style="margin-top:4px;text-align:center;">Semi-Structured Data &amp; JSON</div>
           <div class="s6-sub" style="text-align:center;">Land raw JSON. Query it immediately. Add structure progressively. No schema definition upfront.</div>
         </div>

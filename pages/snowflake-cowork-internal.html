@@ -6,207 +6,183 @@
   <title>How Snowflake Uses CoWork — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .s6-top { padding: 6px 24px 4px; }
 
-    /* ── Layout ─────────────────────────────────────────────── */
+    /* ── Two-column layout ──────────────────────────────────── */
     .sos-page {
       flex: 1;
       display: flex;
       flex-direction: row;
-      align-items: stretch;
+      align-items: center;
+      justify-content: center;
       padding: 8px 20px 10px;
       min-height: 0;
       gap: 20px;
     }
 
-    /* ── Left: metrics + capabilities ────────────────────────── */
+    /* ── Left: vertical KPI stack ───────────────────────────── */
     .sos-left {
-      flex: 0 0 42%;
+      flex: 0 0 28%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
       justify-content: center;
+      gap: 0;
+      background: var(--sf-blue);
+      border-radius: 14px;
+      padding: 20px 18px;
     }
 
-    /* KPI tiles */
-    .sos-kpis {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .sos-kpi {
-      background: #fff;
-      border: 2px solid rgba(41,181,232,.3);
-      border-radius: 10px;
-      padding: 12px 14px;
+    .sos-kpi-big {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 2px;
+      text-align: center;
+      padding: 10px 0;
     }
     .sos-kpi-val {
-      font-size: var(--fs-h2);
-      font-weight: 800;
-      color: var(--sf-blue);
+      font-size: var(--fs-h1);
+      font-weight: 900;
+      color: #fff;
       line-height: 1;
     }
     .sos-kpi-label {
-      font-size: var(--fs-h6);
-      color: rgba(7,21,37,.55);
-      text-align: center;
-      line-height: 1.3;
-    }
-
-    /* Capabilities panel */
-    .sos-caps {
-      background: #fff;
-      border: 2px solid rgba(41,181,232,.25);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .sos-caps-title {
-      font-size: var(--fs-h5);
+      font-size: var(--fs-h4);
       font-weight: 700;
-      color: var(--sf-ink);
-      margin-bottom: 2px;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: 3px;
     }
-    .sos-cap-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+    .sos-kpi-sub {
       font-size: var(--fs-h5);
-      color: var(--sf-ink);
-      line-height: 1.35;
+      color: rgba(255,255,255,.65);
+      margin-top: 2px;
     }
-    .sos-cap-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--sf-blue);
-      flex-shrink: 0;
-      margin-top: 5px;
+    .sos-kpi-divider {
+      height: 1px;
+      background: rgba(255,255,255,.25);
+      margin: 2px 0;
     }
-    .sos-cap-sub {
-      font-size: var(--fs-h6);
-      color: rgba(7,21,37,.45);
+    .sos-attribution-left {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.25);
+      font-size: var(--fs-h5);
+      color: rgba(255,255,255,.8);
+      text-align: center;
+      line-height: 1.4;
     }
+    .sos-attribution-left strong { color: #fff; }
 
-    /* ── Right: architecture diagram ─────────────────────────── */
+    /* ── Right: capabilities + architecture ─────────────────── */
     .sos-right {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      justify-content: center;
+      gap: 10px;
       min-width: 0;
+      align-self: center;
     }
 
+    /* Capability grid */
+    .sos-caps-title {
+      font-size: var(--fs-h4);
+      font-weight: 800;
+      color: var(--sf-ink);
+      letter-spacing: .3px;
+      margin-bottom: 6px;
+    }
+    .sos-caps-title span { color: var(--sf-blue); }
+    .sos-caps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .sos-cap-card {
+      background: var(--sf-blue-dark);
+      border-radius: 8px;
+      padding: 9px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sos-cap-card--last {
+      background: var(--sf-blue);
+    }
+    .sos-cap-card-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .sos-cap-card-desc {
+      font-size: var(--fs-h6);
+      color: rgba(255,255,255,.7);
+      line-height: 1.3;
+    }
+
+    /* Architecture (Behind the Scenes) */
     .sos-arch-wrap {
-      border: 3px solid var(--sf-blue);
+      border: 2px solid rgba(41,181,232,.3);
       border-radius: 12px;
       overflow: hidden;
     }
     .sos-arch-header {
       background: var(--sf-blue);
-      padding: 8px 16px;
-      text-align: center;
+      padding: 7px 14px;
       font-size: var(--fs-h5);
-      font-weight: 800;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: #fff;
-    }
-    .sos-arch-inner {
-      background: #fff;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    /* Architecture layer */
-    .sos-layer {
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      align-items: stretch;
-    }
-    .sos-layer-label {
-      width: 64px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
       font-weight: 800;
       letter-spacing: 1px;
       text-transform: uppercase;
-      writing-mode: vertical-lr;
-      transform: rotate(180deg);
-      color: rgba(255,255,255,.9);
+      color: var(--sf-ink);
+      border-bottom: 1px solid rgba(41,181,232,.2);
     }
-    .sos-layer-body {
-      flex: 1;
-      padding: 8px 10px;
+    .sos-arch-inner {
+      background: #fff;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
-    }
-    .sos-layer--interface { background: var(--sf-blue); }
-    .sos-layer--interface .sos-layer-body { background: rgba(255,255,255,.12); margin: 6px 6px 6px 0; border-radius: 6px; }
-    .sos-layer--context { background: var(--sf-blue-dark); }
-    .sos-layer--context .sos-layer-body { background: rgba(255,255,255,.1); margin: 6px 6px 6px 0; border-radius: 6px; }
-    .sos-layer--tools { background: var(--sf-navy); border: 1.5px solid rgba(41,181,232,.3); }
-    .sos-layer--tools .sos-layer-label { color: rgba(41,181,232,.8); }
-    .sos-layer--tools .sos-layer-body { background: transparent; }
-
-    .sos-layer-item {
-      display: flex;
-      align-items: center;
       gap: 6px;
     }
-    .sos-layer-item-icon { width: 16px; height: 16px; flex-shrink: 0; }
-    .sos-layer-item-text {
-      font-size: var(--fs-h5);
-      font-weight: 600;
-      color: #fff;
-      line-height: 1.2;
-    }
-    .sos-layer-item-sub {
-      font-size: 10px;
-      color: rgba(255,255,255,.65);
-      line-height: 1.2;
-    }
-    .sos-layer--tools .sos-layer-item-text { color: rgba(255,255,255,.9); }
-    .sos-layer--tools .sos-layer-item-sub { color: rgba(255,255,255,.5); }
 
-    /* Tools row */
-    .sos-tools-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
+    .sos-layer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .sos-tool-chip {
-      padding: 4px 6px;
-      border-radius: 6px;
-      background: rgba(41,181,232,.08);
-      border: 1px solid rgba(41,181,232,.2);
-      font-size: 10px;
-      font-weight: 600;
-      color: rgba(255,255,255,.8);
-      text-align: center;
-    }
-
-    /* Bottom attribution */
-    .sos-attribution {
+    .sos-layer-name {
+      width: 88px;
+      flex-shrink: 0;
       font-size: var(--fs-h6);
-      color: rgba(7,21,37,.45);
-      text-align: center;
-      font-style: italic;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--sf-blue);
+    }
+    .sos-layer-items {
+      flex: 1;
+      display: flex;
+      gap: 6px;
+    }
+    .sos-layer-card {
+      flex: 1;
+      background: rgba(41,181,232,.06);
+      border: 1px solid rgba(41,181,232,.2);
+      border-radius: 7px;
+      padding: 7px 10px;
+    }
+    .sos-layer-card-title {
+      font-size: var(--fs-h5);
+      font-weight: 700;
+      color: var(--sf-ink);
+      line-height: 1.2;
+    }
+    .sos-layer-card-desc {
+      font-size: var(--fs-h6);
+      color: rgba(7,21,37,.5);
+      line-height: 1.3;
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -246,6 +222,7 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./snowflake-cowork.html" class="btn-back">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Cortex AI</span>
       <span class="nav-label">Snow-on-Snow: Sales Agent</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Internal</span>
@@ -257,138 +234,131 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">Snow-on-Snow</span>
-          </div>
-          <div class="s6-header" style="margin-top:4px;text-align:center;">How Snowflake Uses CoWork</div>
-          <div class="s6-sub" style="text-align:center;">RAVEN: AI Sales Agent for 6,000 GTM employees — built on Snowflake CoWork</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;">Snow-on-Snow: Sales Agent for 6k GTM Org</div>
+          <div class="s6-sub" style="text-align:center;">RAVEN — Snowflake's own AI sales agent, built on CoWork, deployed to 6,000 GTM employees</div>
         </div>
 
         <div class="sos-page content-wrap">
 
-          <!-- Left: KPIs + capabilities -->
+          <!-- Left: vertical KPI stack -->
           <div class="sos-left">
-
-            <!-- KPI tiles -->
-            <div class="sos-kpis">
-              <div class="sos-kpi">
-                <div class="sos-kpi-val">$16M+</div>
-                <div class="sos-kpi-label">Overhead Savings</div>
-              </div>
-              <div class="sos-kpi">
-                <div class="sos-kpi-val">92%</div>
-                <div class="sos-kpi-label">NPS Score</div>
-              </div>
-              <div class="sos-kpi">
-                <div class="sos-kpi-val">70%</div>
-                <div class="sos-kpi-label">Weekly Retention</div>
-              </div>
-              <div class="sos-kpi">
-                <div class="sos-kpi-val">1M+</div>
-                <div class="sos-kpi-label">Questions Answered</div>
-              </div>
+            <div class="sos-kpi-big">
+              <div class="sos-kpi-val">$16M+</div>
+              <div class="sos-kpi-label">Overhead Savings</div>
             </div>
-
-            <!-- Capabilities -->
-            <div class="sos-caps">
-              <div class="sos-caps-title">What RAVEN Can Do — 15+ GTM Personas</div>
-
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Opportunity Pipeline</div><div class="sos-cap-sub">Top opportunities by ACV &amp; stage</div></div>
-              </div>
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Account Intelligence</div><div class="sos-cap-sub">Recent earnings, press releases, competitive insights</div></div>
-              </div>
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Consumption Trends</div><div class="sos-cap-sub">Monthly credit usage analysis per account</div></div>
-              </div>
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Quota Attainment</div><div class="sos-cap-sub">AE/SE quota performance lookup</div></div>
-              </div>
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Use Case Discovery</div><div class="sos-cap-sub">Explore closed industry wins &amp; similar customers</div></div>
-              </div>
-              <div class="sos-cap-item">
-                <div class="sos-cap-dot"></div>
-                <div><div>Team Coverage</div><div class="sos-cap-sub">Find assigned AE/SE for any account instantly</div></div>
-              </div>
+            <div class="sos-kpi-divider"></div>
+            <div class="sos-kpi-big">
+              <div class="sos-kpi-val">70%</div>
+              <div class="sos-kpi-label">Weekly Retention</div>
             </div>
-
+            <div class="sos-kpi-divider"></div>
+            <div class="sos-kpi-big">
+              <div class="sos-kpi-val">5X ROI</div>
+            </div>
+            <div class="sos-kpi-divider"></div>
+            <div class="sos-kpi-big">
+              <div class="sos-kpi-sub">Customer Satisfaction</div>
+              <div class="sos-kpi-val">92% NPS</div>
+            </div>
+            <div class="sos-attribution-left">
+              Manual Research &rarr; <strong>Instant AI Insights</strong>
+            </div>
           </div>
 
-          <!-- Right: architecture -->
+          <!-- Right: capabilities + architecture -->
           <div class="sos-right">
 
+            <!-- Capability grid -->
+            <div>
+              <div class="sos-caps-title">What RAVEN Can Do &mdash; <span>Supporting 15+ GTM Personas</span></div>
+              <div class="sos-caps-grid">
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Opportunity Pipeline</div>
+                  <div class="sos-cap-card-desc">Top opportunities by ACV &amp; stage</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Consumption Trends</div>
+                  <div class="sos-cap-card-desc">Monthly credit usage analysis</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Quota Attainment</div>
+                  <div class="sos-cap-card-desc">AE/SE quota performance lookup</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Competitive Intelligence</div>
+                  <div class="sos-cap-card-desc">Selling points vs competitors</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Account Team</div>
+                  <div class="sos-cap-card-desc">Find assigned AE/SE coverage</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Use Case Discovery</div>
+                  <div class="sos-cap-card-desc">Explore closed industry wins</div>
+                </div>
+                <div class="sos-cap-card">
+                  <div class="sos-cap-card-title">Account News</div>
+                  <div class="sos-cap-card-desc">Recent earnings &amp; press releases</div>
+                </div>
+                <div class="sos-cap-card sos-cap-card--last">
+                  <div class="sos-cap-card-title">More Capabilities</div>
+                  <div class="sos-cap-card-desc">Continuously expanding skills</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Architecture: Behind the Scenes -->
             <div class="sos-arch-wrap">
-              <div class="sos-arch-header">RAVEN Architecture</div>
+              <div class="sos-arch-header">Behind the Scenes</div>
               <div class="sos-arch-inner">
 
-                <!-- Interface layer -->
-                <div class="sos-layer sos-layer--interface">
-                  <div class="sos-layer-label">Interface</div>
-                  <div class="sos-layer-body">
-                    <div class="sos-layer-item">
-                      <span class="sf-img sf-icon-be-excellent sos-layer-item-icon" style="filter:brightness(0) invert(1);"></span>
-                      <div>
-                        <div class="sos-layer-item-text">Snowflake CoWork</div>
-                        <div class="sos-layer-item-sub">Unified interface surfacing insights to 6k GTM employees</div>
-                      </div>
+                <div class="sos-layer">
+                  <div class="sos-layer-name">Interface</div>
+                  <div class="sos-layer-items">
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Snowflake CoWork</div>
+                      <div class="sos-layer-card-desc">Unified interface surfacing insights directly to sales reps</div>
                     </div>
-                    <div class="sos-layer-item">
-                      <span class="sf-img sf-icon-platform sos-layer-item-icon" style="filter:brightness(0) invert(1);"></span>
-                      <div>
-                        <div class="sos-layer-item-text">Packaged Profiles</div>
-                        <div class="sos-layer-item-sub">Zero-setup — consistent toolset delivered to every GTM employee automatically</div>
-                      </div>
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Packaged Profiles</div>
+                      <div class="sos-layer-card-desc">Zero-setup — consistent toolset delivered to every GTM employee</div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Context layer -->
-                <div class="sos-layer sos-layer--context">
-                  <div class="sos-layer-label">Context</div>
-                  <div class="sos-layer-body">
-                    <div class="sos-layer-item">
-                      <span class="sf-img sf-icon-horizon sos-layer-item-icon" style="filter:brightness(0) invert(1);"></span>
-                      <div>
-                        <div class="sos-layer-item-text">Semantic Views + Cortex Search</div>
-                        <div class="sos-layer-item-sub">Sales · A360 · Account Lookup · Use Cases · Quota · Marketing · CX · Partner Ecosystem</div>
-                      </div>
+                <div class="sos-layer">
+                  <div class="sos-layer-name">Intelligence</div>
+                  <div class="sos-layer-items">
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Operating Context</div>
+                      <div class="sos-layer-card-desc">Identity, scope, domain, boundaries</div>
                     </div>
-                    <div class="sos-layer-item">
-                      <span class="sf-img sf-icon-ai sos-layer-item-icon" style="filter:brightness(0) invert(1);"></span>
-                      <div>
-                        <div class="sos-layer-item-text">Decision Engine + Response Framework</div>
-                        <div class="sos-layer-item-sub">Operating context (identity, scope, domain, boundaries) + tone, structure, formatting</div>
-                      </div>
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Decision Engine</div>
+                      <div class="sos-layer-card-desc">Tools, rules, workflows</div>
+                    </div>
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Response Framework</div>
+                      <div class="sos-layer-card-desc">Tone, structure, formatting, error handling</div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Tools layer -->
-                <div class="sos-layer sos-layer--tools">
-                  <div class="sos-layer-label">Tools</div>
-                  <div class="sos-layer-body">
-                    <div class="sos-tools-grid">
-                      <div class="sos-tool-chip">Salesforce</div>
-                      <div class="sos-tool-chip">JIRA</div>
-                      <div class="sos-tool-chip">Internal Wikis</div>
-                      <div class="sos-tool-chip">Web Search</div>
+                <div class="sos-layer">
+                  <div class="sos-layer-name">Context</div>
+                  <div class="sos-layer-items">
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Semantic Views + Cortex Search</div>
+                      <div class="sos-layer-card-desc">Sales &middot; A360 &middot; Account Lookup &middot; Use Cases &middot; Quota &middot; Marketing &middot; CX &middot; Partner Ecosystem</div>
                     </div>
-                    <div style="font-size:10px;color:rgba(41,181,232,.7);margin-top:3px;">MCP connections — live data, governed by RBAC</div>
+                    <div class="sos-layer-card">
+                      <div class="sos-layer-card-title">Tools Integrations (MCP)</div>
+                      <div class="sos-layer-card-desc">Live connections to Salesforce, JIRA, internal Wikis, and Web Search</div>
+                    </div>
                   </div>
                 </div>
 
               </div>
-            </div>
-
-            <div class="sos-attribution">
-              Manual research → instant AI insights. QBR prep from days to 2 hours. 15K close workload reduced 60%.
             </div>
 
           </div>

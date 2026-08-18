@@ -6,7 +6,7 @@
   <title>Apache Spark on Snowflake — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .s6-top { padding: 6px 24px 4px; }
 
     /* ── Page layout ─────────────────────────────────────────── */
@@ -136,21 +136,23 @@
       color: #b45309;
     }
 
-    /* ── Slide-up panel ─────────────────────────────────────── */
+    /* ── Inline detail panel ───────────────────────────────────── */
     .spk-panel {
-      position: fixed;
-      bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-      width: 100%; max-width: 900px;
+      width: 100%; max-width: 860px;
       background: var(--sf-navy);
-      border-top: 3px solid var(--sf-blue);
-      border-radius: 12px 12px 0 0;
+      border: 2px solid var(--sf-blue);
+      border-radius: 10px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .3s ease, padding .3s ease;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .spk-panel.open {
+      max-height: 420px;
       padding: 14px 24px 18px;
-      transition: transform .25s ease;
-      z-index: 100;
-      max-height: 48vh;
       overflow-y: auto;
     }
-    .spk-panel.open { transform: translateX(-50%) translateY(0); }
     .spk-panel-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 10px;
@@ -200,6 +202,7 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Compute</span>
       <span class="nav-label">Apache Spark on Snowflake</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
@@ -211,9 +214,6 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">Developer Platform</span>
-          </div>
           <div class="s6-header" style="margin-top:4px;text-align:center;">Apache Spark&#x2122; on Snowflake</div>
           <div class="s6-sub" style="text-align:center;">Run Spark workloads natively on Snowflake compute or connect an external Spark cluster — same PySpark API, all your data where it already lives.</div>
         </div>
@@ -310,6 +310,15 @@
 
           </div>
 
+          <!-- Inline detail panel -->
+          <div class="spk-panel" id="spk-panel">
+            <div class="spk-panel-header">
+              <span class="spk-panel-title" id="spk-panel-title"></span>
+              <button class="spk-panel-close" onclick="closePanel()">&#10005;</button>
+            </div>
+            <div class="mlf-code-block" id="spk-panel-body"></div>
+          </div>
+
         </div>
 
         <!-- Resource bar -->
@@ -323,15 +332,6 @@
 
       </div>
     </div>
-  </div>
-
-  <!-- Slide-up panel -->
-  <div class="spk-panel" id="spk-panel">
-    <div class="spk-panel-header">
-      <span class="spk-panel-title" id="spk-panel-title"></span>
-      <button class="spk-panel-close" onclick="closePanel()">&#10005;</button>
-    </div>
-    <div class="mlf-code-block" id="spk-panel-body"></div>
   </div>
 
   <script>

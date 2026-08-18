@@ -6,7 +6,7 @@
   <title>Internal Marketplace — Snowflake TDD</title>
   <link rel="stylesheet" href="../shared.css">
   <style>
-    body { background: transparent; margin: 0; overflow: hidden; }
+    body { background: transparent; margin: 0; }
     .im-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:900px; padding:8px 0 4px; }
     .im-card { background:#fff; border:2px solid rgba(41,181,232,.3); border-radius:12px; padding:16px 18px; cursor:pointer; transition:border-color .15s,transform .12s,box-shadow .15s; display:flex; flex-direction:column; gap:6px; }
     .im-card:hover { border-color:var(--sf-blue); transform:translateY(-2px); box-shadow:0 4px 14px rgba(41,181,232,.18); }
@@ -61,16 +61,13 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Mesh &amp; Sharing</span>
       <span class="nav-label">Internal Marketplace</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-top-row">
-            <span class="slide-tag tag-blue">Data Mesh</span>
-            <span class="slide-tag" style="background:rgba(41,181,232,.12);color:rgba(41,181,232,.8);">Internal Marketplace</span>
-          </div>
           <div class="s6-header" style="margin-top:6px;text-align:center;">Internal Marketplace</div>
           <div class="s6-sub" style="text-align:center;">Self-service data product discovery across your Snowflake organization. Publish once; discover and install without tickets or ETL pipelines.</div>
         </div>
