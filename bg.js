@@ -800,7 +800,13 @@
   function speakerWindowHTML() {
     return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Speaker Notes \u2014 TDD</title><style>' +
       '* { margin:0; padding:0; box-sizing:border-box; }' +
-      'body { background:#050d1a; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; color:rgba(255,255,255,.85); height:100vh; display:flex; flex-direction:column; }' +
+      ':root { --sv-bg:#050d1a; --sv-text:rgba(255,255,255,.85); --sv-dim:rgba(255,255,255,.75);' +
+        ' --sv-strong:#fff; --sv-muted:rgba(255,255,255,.3); --sv-border:rgba(41,181,232,.15);' +
+        ' --sv-accent:#29B5E8; color-scheme:dark; }' +
+      'html[data-theme="light"] { --sv-bg:#ffffff; --sv-text:#16232f; --sv-dim:rgba(22,35,47,.78);' +
+        ' --sv-strong:#0f1a24; --sv-muted:rgba(22,35,47,.45); --sv-border:rgba(16,42,67,.14);' +
+        ' --sv-accent:#0a6ca4; color-scheme:light; }' +
+      'body { background:var(--sv-bg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; color:var(--sv-text); height:100vh; display:flex; flex-direction:column; }' +
       '#hdr { background:#29B5E8; padding:11px 20px; display:flex; align-items:center; gap:12px; flex-shrink:0; }' +
       '#cat { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.7); background:rgba(0,0,0,.2); padding:2px 8px; border-radius:4px; }' +
       '#ttl { font-size:1rem; font-weight:700; color:#fff; flex:1; }' +
@@ -808,21 +814,25 @@
       '#nap { display:flex; align-items:center; gap:5px; flex-shrink:0; }' +
       '#nap span { font-size:.6rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:rgba(255,255,255,.6); }' +
       '#nap select { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:.7rem; font-weight:600; padding:2px 6px; border-radius:4px; cursor:pointer; outline:none; max-width:140px; }' +
-      '#nap select option { background:#050d1a; color:rgba(255,255,255,.85); }' +
+      '#nap select option { background:var(--sv-bg); color:var(--sv-text); }' +
       '#body { flex:1; overflow-y:auto; padding:20px 24px; font-size:.9rem; line-height:1.65; }' +
-      '#body h3 { font-size:.74rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#29B5E8; margin:18px 0 8px; }' +
+      '#body h3 { font-size:.74rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--sv-accent); margin:18px 0 8px; }' +
       '#body h3:first-child { margin-top:0; }' +
-      '#body p { margin-bottom:10px; color:rgba(255,255,255,.75); }' +
+      '#body p { margin-bottom:10px; color:var(--sv-dim); }' +
       '#body ul { padding-left:18px; margin-bottom:10px; }' +
-      '#body li { margin-bottom:6px; color:rgba(255,255,255,.75); }' +
-      '#body strong { color:#fff; }' +
-      '#empty { color:rgba(255,255,255,.3); font-style:italic; text-align:center; margin-top:60px; }' +
-      '#ftr { padding:7px 20px; border-top:1px solid rgba(41,181,232,.15); font-size:.7rem; color:rgba(255,255,255,.28); flex-shrink:0; }' +
+      '#body li { margin-bottom:6px; color:var(--sv-dim); }' +
+      '#body strong { color:var(--sv-strong); }' +
+      '#empty { color:var(--sv-muted); font-style:italic; text-align:center; margin-top:60px; }' +
+      '#ftr { padding:7px 20px; border-top:1px solid var(--sv-border); font-size:.7rem; color:var(--sv-muted); flex-shrink:0; }' +
       '</style></head><body>' +
       '<div id="hdr"><span id="cat"></span><span id="ttl">Waiting\u2026</span><span id="nap"><span>Notes</span><select id="napsel" aria-label="Whose notes to use"></select></span><span id="clk"></span></div>' +
       '<div id="body"><div id="empty">Navigate to a slide to load notes.</div></div>' +
       '<div id="ftr">Snowflake Interactive TDD \u00b7 Speaker Notes \u00b7 Press S on the main window to open/focus</div>' +
-      '<script>var K="tdd-speaker-state";var AK="tdd-notes-author";' +
+      '<script>var K="tdd-speaker-state";var AK="tdd-notes-author";var TK="tdd-theme";' +
+      'function applyTheme(){try{var t=localStorage.getItem(TK);' +
+        'if(t==="light")document.documentElement.setAttribute("data-theme","light");' +
+        'else document.documentElement.removeAttribute("data-theme");}catch(e){}}' +
+      'applyTheme();' +
       'function paint(s){' +
         'var sel=document.getElementById("napsel");' +
         'var list=s.authors||[];' +
@@ -847,7 +857,7 @@
       // the selection and republishes state back to us.
       'document.getElementById("napsel").addEventListener("change",function(){try{localStorage.setItem(AK,this.value);}catch(e){}});' +
       'try{var r=localStorage.getItem(K);if(r)upd(JSON.parse(r));}catch(e){}' +
-      'window.addEventListener("storage",function(e){if(e.key===K&&e.newValue){try{upd(JSON.parse(e.newValue));}catch(x){}}});' +
+      'window.addEventListener("storage",function(e){if(e.key===TK){applyTheme();return;}if(e.key===K&&e.newValue){try{upd(JSON.parse(e.newValue));}catch(x){}}});' +
       'function tick(){var n=new Date();document.getElementById("clk").textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(function(v){return v.toString().padStart(2,"0");}).join(":");}' +
       'tick();setInterval(tick,1000);' +
       'window.tddSpeakerReady=true;' +
