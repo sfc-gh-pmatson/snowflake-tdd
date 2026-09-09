@@ -11,3 +11,5 @@ deploy-demo.sh
 deploy-snowhouse.sh
 analytics-dashboard
 _speaker_test.html
+tools
+.gitignore
