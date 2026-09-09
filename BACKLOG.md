@@ -139,6 +139,18 @@ now fill gaps only (`setdefault`), and the eight now-redundant batch files were 
 after verifying they held **zero** strings not already in `languages/es/`. `tools/`
 is now seven Python tools plus `i18n-precommit.conf`, with no data files.
 
+**Deploy gotcha, now fixed in both scripts: `:latest` does not redeploy.** Pushing a
+new `:latest` and running `ALTER SERVICE FROM SPECIFICATION` — or SUSPEND + RESUME —
+restarts the container on the node's **cached** copy of that tag. `SHOW SERVICE
+CONTAINERS` showed `image_digest` unchanged from the previous day's build across two
+apparently successful deploys, so the deck kept serving old code while every status
+check said READY. Both `deploy-demo.sh` and `deploy-snowhouse.sh` now build and push a
+git-SHA tag alongside `:latest`, pin the spec to that tag (a digest the node has never
+seen, which forces a real pull), and then print the running `image_digest` so a no-op
+deploy cannot masquerade as a successful one. Verify with `SHOW SERVICE CONTAINERS`, not
+`SYSTEM$GET_SERVICE_STATUS` — the latter reports READY either way and does not expose
+the digest.
+
 **⚠️ The Spanish copy is a first-pass AI translation and has NOT been reviewed by a native speaker.** It proves the mechanism; it should not be shown to a Spanish-speaking customer until someone fluent reviews it.
 
 **Known limitations / still open:**
