@@ -1,5 +1,151 @@
 // Background animation disabled
 
+// ── Theme (light / dark) ───────────────────────────────────
+// Applied by setting html[data-theme="light"]; dark is the default and
+// carries no attribute, so :root's dark tokens apply untouched.
+//
+// This runs first in bg.js, before any page content exists, so the theme is
+// set before first paint. That is why there is no flash here, unlike the
+// language layer, which cannot avoid one because it depends on an async fetch.
+(function() {
+  var KEY = 'tdd-theme';
+  var DARK = 'dark', LIGHT = 'light';
+
+  function stored() {
+    try {
+      var v = localStorage.getItem(KEY);
+      return (v === LIGHT || v === DARK) ? v : DARK;   // default dark
+    } catch (e) { return DARK; }
+  }
+
+  function apply(theme) {
+    if (theme === LIGHT) document.documentElement.setAttribute('data-theme', LIGHT);
+    else document.documentElement.removeAttribute('data-theme');
+    window.__theme = theme;
+  }
+
+  // Set immediately — do not wait for DOM ready.
+  apply(stored());
+
+  // Sun when light is active, moon when dark: the icon reports the current
+  // theme rather than the action, matching docs.snowflake.com.
+  var SUN =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="4.2"></circle>' +
+    '<path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2' +
+    'M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"></path>' +
+    '</svg>';
+
+  var MOON =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.9 6.9 0 0 0 11.1 11.1z"></path>' +
+    '</svg>';
+
+  var style = document.createElement('style');
+  style.textContent = `
+    /* Shared slot so the globe and the theme toggle order deterministically.
+       The language picker mounts asynchronously after its fetch, so relative
+       insertion alone would leave the order dependent on network timing.
+       CSS order fixes it: globe first, theme second. */
+    #nav-controls {
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+    }
+    #nav-controls.nc-floating {
+      position: fixed; top: 8px; right: 12px; z-index: 900;
+    }
+    #lang-picker  { order: 1; }
+    #theme-toggle { order: 2; }
+
+    #theme-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; padding: 0;
+      background: none; border: none; border-radius: 50%;
+      color: var(--text-muted, rgba(255,255,255,.55));
+      cursor: pointer;
+      transition: color .15s, background .15s;
+    }
+    #theme-toggle:hover {
+      color: var(--accent, #29B5E8);
+      background: var(--accent-wash-2, rgba(41,181,232,.12));
+    }
+    #theme-toggle:focus { outline: none; }
+    #theme-toggle:focus-visible {
+      outline: 2px solid var(--accent, #29B5E8); outline-offset: 2px;
+    }
+    #theme-toggle svg { width: 17px; height: 17px; display: block; }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+
+  // Find-or-create the shared nav slot. Both this toggle and the language
+  // picker mount into it, whichever runs first.
+  window.__tddNavSlot = function() {
+    var slot = document.getElementById('nav-controls');
+    if (slot) return slot;
+    slot = document.createElement('div');
+    slot.id = 'nav-controls';
+    var navBar = document.querySelector('.nav-bar');
+    if (navBar) {
+      var navTags = navBar.querySelector('.nav-tags');
+      // .nav-tags owns margin-left:auto, so sit just before it.
+      if (navTags) navBar.insertBefore(slot, navTags);
+      else navBar.appendChild(slot);
+    } else {
+      // index.html has no nav bar — use a fixed control instead.
+      slot.classList.add('nc-floating');
+      document.body.appendChild(slot);
+    }
+    return slot;
+  };
+
+  function syncUI() {
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    var light = window.__theme === LIGHT;
+    btn.innerHTML = light ? SUN : MOON;
+    var label = light ? 'Light mode — switch to dark' : 'Dark mode — switch to light';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-pressed', light ? 'true' : 'false');
+  }
+
+  function set(theme, persist) {
+    apply(theme);
+    if (persist) { try { localStorage.setItem(KEY, theme); } catch (e) {} }
+    syncUI();
+    // Keep an open Speaker View in step with the deck.
+    if (window.__speakerPublish) window.__speakerPublish();
+  }
+
+  function build() {
+    if (document.getElementById('theme-toggle')) return;
+    var btn = document.createElement('button');
+    btn.id = 'theme-toggle';
+    btn.type = 'button';
+    btn.addEventListener('click', function() {
+      set(window.__theme === LIGHT ? DARK : LIGHT, true);
+    });
+    window.__tddNavSlot().appendChild(btn);
+    syncUI();
+  }
+
+  // A storage event fires only in OTHER windows, so this follows a change made
+  // in another tab or the Speaker View without looping back on itself.
+  window.addEventListener('storage', function(e) {
+    if (e.key !== KEY) return;
+    set(stored(), false);
+  });
+
+  window.__tddTheme = function() { return window.__theme || DARK; };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', build);
+  } else {
+    build();
+  }
+})();
+
 // ── Notes Panel ────────────────────────────────────────────
 (function() {
   // Inject CSS
@@ -1270,17 +1416,10 @@
     wrap.appendChild(btn);
     wrap.appendChild(menu);
 
-    var navBar = document.querySelector('.nav-bar');
-    if (navBar) {
-      var navTags = navBar.querySelector('.nav-tags');
-      // .nav-tags owns margin-left:auto, so sit just before it.
-      if (navTags) navBar.insertBefore(wrap, navTags);
-      else navBar.appendChild(wrap);
-    } else {
-      // index.html has no nav bar — use a fixed control instead.
-      wrap.classList.add('lp-floating');
-      document.body.appendChild(wrap);
-    }
+    // Mount into the shared nav slot. CSS order puts the globe first and the
+    // theme toggle second, regardless of which mounted first — this picker
+    // arrives after an async fetch, so DOM insertion order is not reliable.
+    window.__tddNavSlot().appendChild(wrap);
 
     syncPickerUI(current);
   }
