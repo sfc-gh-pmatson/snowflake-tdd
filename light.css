@@ -1,0 +1,181 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   light.css — LIGHT MODE ONLY.
+
+   Every rule in this file is scoped to html[data-theme="light"], so this file
+   is purely additive: it cannot affect dark mode. Deleting it restores the
+   deck exactly, and shared.css plus the 79 page style blocks stay untouched.
+
+   That is the whole point of the split. The alternative — replacing the dark
+   colour literals with theme-aware tokens — silently changed dark rendering in
+   four places on the first attempt, because distinct alpha values got collapsed
+   onto shared tokens.
+
+   Injected by bg.js on every page, so no page markup changes.
+
+   ── Palette ───────────────────────────────────────────────────────────────
+   Mirrors docs.snowflake.com in light mode: white surfaces, near-black text,
+   light grey code panels, and a darker blue for accent TEXT because brand blue
+   #29B5E8 on white is about 2.4:1 and fails WCAG.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+html[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --l-surface:        #ffffff;
+  --l-surface-grad:   #f2f7fb;
+  --l-raised:         #ffffff;
+  --l-raised-2:       #f4f8fc;
+  --l-sunken:         #eaf1f8;
+
+  /* Text */
+  --l-text:           #16232f;
+  --l-text-dim:       rgba(22,35,47,0.74);
+  --l-text-soft:      rgba(22,35,47,0.66);
+  --l-text-quiet:     rgba(22,35,47,0.58);
+  --l-text-muted:     rgba(22,35,47,0.52);
+  --l-text-faint:     rgba(22,35,47,0.40);
+
+  /* Lines */
+  --l-border:         rgba(16,42,67,0.14);
+  --l-border-accent:  rgba(41,181,232,0.38);
+  --l-border-accent-2:rgba(41,181,232,0.55);
+
+  /* Accent. The brand blue stays brand blue for fills; text uses the darker
+     value so it passes contrast on white. */
+  --l-accent-text:    #0a6ca4;
+  --l-wash:           rgba(41,181,232,0.10);
+  --l-wash-2:         rgba(41,181,232,0.18);
+
+  /* Neutral overlays must INVERT: a white-alpha fill is invisible on white. */
+  --l-overlay:        rgba(16,42,67,0.05);
+  --l-overlay-mid:    rgba(16,42,67,0.09);
+  --l-overlay-strong: rgba(16,42,67,0.14);
+
+  /* Chrome */
+  --l-nav-bg:         rgba(255,255,255,0.94);
+  --l-nav-bg-2:       rgba(255,255,255,0.90);
+  --l-scrim:          rgba(16,32,48,0.45);
+  --l-shadow:         0 2px 10px rgba(16,42,67,0.10);
+  --l-shadow-modal:   0 20px 60px rgba(16,42,67,0.22);
+
+  /* Code panels go light too, mirroring the docs site. */
+  --l-code-bg:        #f6f8fa;
+  --l-code-fg:        #1f2933;
+  --l-code-base:      #0550ae;
+  --l-code-green:     #0a7c5a;
+  --l-code-pink:      #b3246b;
+  --l-code-punc:      #b45309;
+  --l-code-dim:       #667685;
+
+  /* Status tag text needs darker values on a light fill. */
+  --l-tag-blue:       #0a6ca4;
+  --l-tag-purple:     #6d28d9;
+  --l-tag-green:      #15803d;
+  --l-tag-amber:      #b45309;
+}
+
+/* ── Page surface ──────────────────────────────────────────────────────────
+   .sf-slide carries the page gradient, not body: all 79 pages override
+   body background to transparent, so the body rule never paints.          */
+html[data-theme="light"] body { color: var(--l-text); }
+
+html[data-theme="light"] .sf-slide {
+  background: radial-gradient(ellipse 90% 85% at 50% 50%,
+              var(--l-surface-grad) 0%, var(--l-surface) 70%);
+}
+
+/* ── Nav bar ─────────────────────────────────────────────────────────────── */
+html[data-theme="light"] .nav-bar {
+  background: var(--l-nav-bg);
+  border-bottom-color: var(--l-border);
+}
+html[data-theme="light"] .nav-label { color: var(--l-text-muted); }
+html[data-theme="light"] .nav-tag   { color: var(--l-text); }
+
+html[data-theme="light"] .btn-back {
+  background: var(--l-wash);
+  border-color: var(--l-border-accent);
+  color: var(--l-accent-text);
+}
+html[data-theme="light"] .btn-back:hover { background: var(--l-wash-2); }
+
+html[data-theme="light"] .btn-home {
+  background: var(--l-overlay);
+  border-color: var(--l-border);
+  color: var(--l-text-dim);
+}
+html[data-theme="light"] .btn-home:hover {
+  background: var(--l-overlay-mid);
+  color: var(--l-text);
+}
+
+/* ── Status tags ─────────────────────────────────────────────────────────── */
+html[data-theme="light"] .tag-blue   { color: var(--l-tag-blue); }
+html[data-theme="light"] .tag-purple { color: var(--l-tag-purple); }
+html[data-theme="light"] .tag-green  { color: var(--l-tag-green); }
+html[data-theme="light"] .tag-amber  { color: var(--l-tag-amber); }
+
+/* ── Feature cards ───────────────────────────────────────────────────────── */
+html[data-theme="light"] .feat-title { color: var(--l-text); }
+html[data-theme="light"] .feat-body  { color: var(--l-text-soft); }
+
+/* ── Section header band and footer ──────────────────────────────────────── */
+html[data-theme="light"] .s6-top { border-bottom-color: var(--l-border); }
+html[data-theme="light"] .s6-footer span { color: var(--l-text-faint); }
+
+/* ── Resource bar ────────────────────────────────────────────────────────── */
+html[data-theme="light"] .resource-bar {
+  background: var(--l-nav-bg-2);
+  border-color: var(--l-border);
+  box-shadow: var(--l-shadow);
+}
+html[data-theme="light"] .resource-btn .rb-circle {
+  background: var(--l-wash);
+  border-color: var(--l-border-accent);
+}
+html[data-theme="light"] .resource-btn:hover .rb-circle { background: var(--l-wash-2); }
+
+/* ── Code panels ─────────────────────────────────────────────────────────── */
+html[data-theme="light"] .code-block,
+html[data-theme="light"] .mlf-code-block {
+  background: var(--l-code-bg);
+  color: var(--l-code-fg);
+  border-color: var(--l-border);
+}
+html[data-theme="light"] .code-kw      { color: var(--l-code-base); }
+html[data-theme="light"] .code-fn      { color: var(--l-code-pink); }
+html[data-theme="light"] .code-str     { color: var(--l-code-green); }
+html[data-theme="light"] .code-num     { color: var(--l-code-punc); }
+html[data-theme="light"] .code-punc    { color: var(--l-code-punc); }
+html[data-theme="light"] .code-comment { color: var(--l-code-dim); }
+html[data-theme="light"] .code-id      { color: var(--l-code-fg); }
+
+/* ── Code modal ──────────────────────────────────────────────────────────── */
+html[data-theme="light"] .code-modal-overlay { background: var(--l-scrim); }
+html[data-theme="light"] .code-modal {
+  box-shadow: var(--l-shadow-modal);
+  border-color: var(--l-border);
+}
+html[data-theme="light"] .code-modal-header { border-bottom-color: var(--l-border); }
+html[data-theme="light"] .code-modal-title  { color: var(--l-text-dim); }
+html[data-theme="light"] .code-modal-close {
+  background: var(--l-overlay);
+  border-color: var(--l-border);
+  color: var(--l-text-quiet);
+}
+html[data-theme="light"] .code-modal-close:hover {
+  background: var(--l-overlay-strong);
+  color: var(--l-text);
+}
+html[data-theme="light"] .code-modal-explain { border-left-color: var(--l-border); }
+
+/* ── Misc shared components ──────────────────────────────────────────────── */
+html[data-theme="light"] .diagram-label,
+html[data-theme="light"] .cl-diagram-label { color: var(--l-accent-text); }
+html[data-theme="light"] .cl-chip {
+  background: var(--l-wash);
+  border-color: var(--l-border-accent);
+  color: var(--l-text-quiet);
+}
+html[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--l-border-accent-2); }

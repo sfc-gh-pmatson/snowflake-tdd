@@ -78,6 +78,16 @@
   `;
   (document.head || document.documentElement).appendChild(style);
 
+  // Light mode lives entirely in light.css, every rule scoped to
+  // html[data-theme="light"]. Injecting it here means no page markup changes and
+  // shared.css stays exactly as it was, so dark mode cannot be affected.
+  // Appended into <head> during initial parse, so it blocks paint and there is
+  // no flash of unstyled light mode.
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = (location.pathname.indexOf('/pages/') !== -1 ? '../' : './') + 'light.css';
+  (document.head || document.documentElement).appendChild(link);
+
   // Find-or-create the shared nav slot. Both this toggle and the language
   // picker mount into it, whichever runs first.
   window.__tddNavSlot = function() {
@@ -800,13 +810,7 @@
   function speakerWindowHTML() {
     return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Speaker Notes \u2014 TDD</title><style>' +
       '* { margin:0; padding:0; box-sizing:border-box; }' +
-      ':root { --sv-bg:#050d1a; --sv-text:rgba(255,255,255,.85); --sv-dim:rgba(255,255,255,.75);' +
-        ' --sv-strong:#fff; --sv-muted:rgba(255,255,255,.3); --sv-border:rgba(41,181,232,.15);' +
-        ' --sv-accent:#29B5E8; color-scheme:dark; }' +
-      'html[data-theme="light"] { --sv-bg:#ffffff; --sv-text:#16232f; --sv-dim:rgba(22,35,47,.78);' +
-        ' --sv-strong:#0f1a24; --sv-muted:rgba(22,35,47,.45); --sv-border:rgba(16,42,67,.14);' +
-        ' --sv-accent:#0a6ca4; color-scheme:light; }' +
-      'body { background:var(--sv-bg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; color:var(--sv-text); height:100vh; display:flex; flex-direction:column; }' +
+      'body { background:#050d1a; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; color:rgba(255,255,255,.85); height:100vh; display:flex; flex-direction:column; }' +
       '#hdr { background:#29B5E8; padding:11px 20px; display:flex; align-items:center; gap:12px; flex-shrink:0; }' +
       '#cat { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,.7); background:rgba(0,0,0,.2); padding:2px 8px; border-radius:4px; }' +
       '#ttl { font-size:1rem; font-weight:700; color:#fff; flex:1; }' +
@@ -814,16 +818,25 @@
       '#nap { display:flex; align-items:center; gap:5px; flex-shrink:0; }' +
       '#nap span { font-size:.6rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:rgba(255,255,255,.6); }' +
       '#nap select { background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:.7rem; font-weight:600; padding:2px 6px; border-radius:4px; cursor:pointer; outline:none; max-width:140px; }' +
-      '#nap select option { background:var(--sv-bg); color:var(--sv-text); }' +
+      '#nap select option { background:#050d1a; color:rgba(255,255,255,.85); }' +
       '#body { flex:1; overflow-y:auto; padding:20px 24px; font-size:.9rem; line-height:1.65; }' +
-      '#body h3 { font-size:.74rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--sv-accent); margin:18px 0 8px; }' +
+      '#body h3 { font-size:.74rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#29B5E8; margin:18px 0 8px; }' +
       '#body h3:first-child { margin-top:0; }' +
-      '#body p { margin-bottom:10px; color:var(--sv-dim); }' +
+      '#body p { margin-bottom:10px; color:rgba(255,255,255,.75); }' +
       '#body ul { padding-left:18px; margin-bottom:10px; }' +
-      '#body li { margin-bottom:6px; color:var(--sv-dim); }' +
-      '#body strong { color:var(--sv-strong); }' +
-      '#empty { color:var(--sv-muted); font-style:italic; text-align:center; margin-top:60px; }' +
-      '#ftr { padding:7px 20px; border-top:1px solid var(--sv-border); font-size:.7rem; color:var(--sv-muted); flex-shrink:0; }' +
+      '#body li { margin-bottom:6px; color:rgba(255,255,255,.75); }' +
+      '#body strong { color:#fff; }' +
+      '#empty { color:rgba(255,255,255,.3); font-style:italic; text-align:center; margin-top:60px; }' +
+      '#ftr { padding:7px 20px; border-top:1px solid rgba(41,181,232,.15); font-size:.7rem; color:rgba(255,255,255,.28); flex-shrink:0; }' +
+      /* Light mode: additive overrides only, so the dark styles above are untouched. */
+      'html[data-theme="light"] { color-scheme:light; }' +
+      'html[data-theme="light"] body { background:#fff; color:#16232f; }' +
+      'html[data-theme="light"] #nap select option { background:#fff; color:#16232f; }' +
+      'html[data-theme="light"] #body h3 { color:#0a6ca4; }' +
+      'html[data-theme="light"] #body p, html[data-theme="light"] #body li { color:rgba(22,35,47,.78); }' +
+      'html[data-theme="light"] #body strong { color:#0f1a24; }' +
+      'html[data-theme="light"] #empty { color:rgba(22,35,47,.45); }' +
+      'html[data-theme="light"] #ftr { border-top-color:rgba(16,42,67,.14); color:rgba(22,35,47,.45); }' +
       '</style></head><body>' +
       '<div id="hdr"><span id="cat"></span><span id="ttl">Waiting\u2026</span><span id="nap"><span>Notes</span><select id="napsel" aria-label="Whose notes to use"></select></span><span id="clk"></span></div>' +
       '<div id="body"><div id="empty">Navigate to a slide to load notes.</div></div>' +

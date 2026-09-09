@@ -55,145 +55,14 @@
       --fs-h3: 1.15rem;   /*  ~18px — slide subheadings                      */
       --fs-h2: 1.35rem;   /*  ~22px — slide main headings                    */
       --fs-h1: 1.75rem;   /*  ~28px — large display headings                 */
-
-      /* ── SEMANTIC TOKENS ───────────────────────────────────
-         Theme-aware layer. Page styles should reference THESE, not the
-         raw --sf-* palette above, because only these flip in light mode.
-         The dark values below are aliases of the existing palette, so the
-         dark deck renders exactly as it always has.
-
-         Why an accent split: --sf-blue (#29B5E8) on white is about 2:1
-         contrast and fails WCAG for text. Fills and borders can keep the
-         brand blue; text needs the darker --accent-text.                */
-
-      /* Surfaces */
-      --surface:         var(--sf-navy);
-      --surface-grad:    #0b1a35;              /* inner stop of body gradient */
-      --surface-raised:  var(--sf-card);
-      --surface-raised2: var(--sf-card2);
-      --surface-sunken:  var(--sf-ink);
-
-      /* Text */
-      --text:            #fff;
-      --text-dim:        rgba(255,255,255,0.72);
-      --text-soft:       rgba(255,255,255,0.62);
-      --text-quiet:      rgba(255,255,255,0.55);
-      --text-muted:      rgba(255,255,255,0.45);
-      --text-faint:      rgba(255,255,255,0.30);
-      --text-on-accent:  #04121f;              /* text on a solid blue fill */
-
-      /* Lines */
-      --border:          var(--sf-border);
-      --border-strong:   rgba(41,181,232,0.32);
-      --accent-line:     rgba(41,181,232,0.20);
-      --accent-line-2:   rgba(41,181,232,0.45);
-
-      /* Accent */
-      --accent:          var(--sf-blue);       /* fills, borders, icons */
-      --accent-text:     var(--sf-blue);       /* accent used AS text */
-      --accent-wash:     rgba(41,181,232,0.09);
-      --accent-wash-2:   rgba(41,181,232,0.15);
-      --accent-glow:     var(--sf-blue-glow);
-
-      /* Code panels */
-      --code-panel-bg:     var(--code-bg);
-      --code-panel-border: rgba(41,181,232,0.20);
-
-      /* Shadows read very differently per theme */
-      --shadow-card:     0 4px 18px rgba(0,0,0,0.35);
-      --shadow-modal:    0 24px 80px rgba(0,0,0,0.75);
-      --scrim:           rgba(0,0,0,0.72);
-
-      /* Translucent chrome (nav bar, resource bar) sits over the page surface */
-      --nav-bg:          rgba(5,13,26,0.92);
-      --nav-bg-2:        rgba(5,13,26,0.88);   /* resource bar: slightly sheerer */
-
-      /* Neutral overlays. These MUST invert: a white-alpha fill is invisible on
-         a light surface, so light mode uses dark-alpha instead. */
-      --overlay:         rgba(255,255,255,0.05);
-      --overlay-mid:     rgba(255,255,255,0.10);
-      --overlay-strong:  rgba(255,255,255,0.18);
-      --overlay-line:    rgba(255,255,255,0.15);
-
-      /* Code panel foreground */
-      --code-fg:         rgba(255,255,255,0.85);
-
-      /* Status tag text. Light-tinted text needs a darker value on white. */
-      --tag-blue-fg:     #70D9F5;
-      --tag-purple-fg:   #c4b5fd;
-      --tag-green-fg:    #86efac;
-      --tag-amber-fg:    #fcd34d;
-    }
-
-    /* ── LIGHT THEME ────────────────────────────────────────────
-       Set by bg.js as html[data-theme="light"], persisted in
-       localStorage['tdd-theme']. Only the semantic tokens change; the
-       --sf-* brand palette is deliberately untouched so brand blue stays
-       brand blue in both themes.                                        */
-    html[data-theme="light"] {
-      color-scheme: light;
-
-      --surface:         #ffffff;
-      --surface-grad:    #f2f7fb;
-      --surface-raised:  #ffffff;
-      --surface-raised2: #f4f8fc;
-      --surface-sunken:  #eaf1f8;
-
-      --text:            #16232f;
-      --text-dim:        rgba(22,35,47,0.74);
-      --text-soft:       rgba(22,35,47,0.66);
-      --text-quiet:      rgba(22,35,47,0.58);
-      --text-muted:      rgba(22,35,47,0.52);
-      --text-faint:      rgba(22,35,47,0.40);
-      --text-on-accent:  #ffffff;
-
-      --border:          rgba(16,42,67,0.14);
-      --border-strong:   rgba(41,181,232,0.55);
-      --accent-line:     rgba(41,181,232,0.38);
-      --accent-line-2:   rgba(41,181,232,0.62);
-
-      --accent-text:     #0a6ca4;   /* darker: passes AA on white */
-      --accent-wash:     rgba(41,181,232,0.10);
-      --accent-wash-2:   rgba(41,181,232,0.18);
-      --accent-glow:     rgba(41,181,232,0.28);
-
-      /* Code panels go light too, mirroring docs.snowflake.com */
-      --code-panel-bg:     #f6f8fa;
-      --code-panel-border: rgba(16,42,67,0.12);
-      --code-bg:        #f6f8fa;
-      --code-base:      #0550ae;
-      --code-hl-green:  #0a7c5a;
-      --code-hl-pink:   #b3246b;
-      --code-punc:      #b45309;
-      --code-downlight: #667685;
-
-      --shadow-card:     0 2px 10px rgba(16,42,67,0.10);
-      --shadow-modal:    0 20px 60px rgba(16,42,67,0.22);
-      --scrim:           rgba(16,32,48,0.45);
-
-      --nav-bg:          rgba(255,255,255,0.94);
-      --nav-bg-2:        rgba(255,255,255,0.90);
-
-      /* Inverted: dark-alpha, so overlays are visible on a light surface */
-      --overlay:         rgba(16,42,67,0.05);
-      --overlay-mid:     rgba(16,42,67,0.09);
-      --overlay-strong:  rgba(16,42,67,0.14);
-      --overlay-line:    rgba(16,42,67,0.12);
-
-      --code-fg:         #1f2933;
-
-      --tag-blue-fg:     #0a6ca4;
-      --tag-purple-fg:   #6d28d9;
-      --tag-green-fg:    #15803d;
-      --tag-amber-fg:    #b45309;
     }
     html { font-size: clamp(13px, 1.3vw, 16px); }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: radial-gradient(ellipse 90% 85% at 50% 50%, var(--surface-grad) 0%, var(--surface) 70%);
+      background: radial-gradient(ellipse 90% 85% at 50% 50%, #0b1a35 0%, var(--sf-navy) 70%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       height: 100vh; overflow: hidden;
-      color: var(--text);
+      color: #fff;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -349,19 +218,19 @@
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; gap: 10px;
       padding: 9px 18px;
-      background: var(--nav-bg);
-      border-bottom: 1px solid var(--accent-wash-2);
+      background: rgba(5,13,26,.92);
+      border-bottom: 1px solid rgba(41,181,232,.15);
     }
     .btn-back, .btn-home {
       padding: 5px 14px; border-radius: 100px;
       font-size: var(--fs-h6); font-weight: 600;
       cursor: pointer; border: none; transition: all .17s; letter-spacing: .3px;
     }
-    .btn-back { background: var(--accent-wash); border: 1px solid var(--border-strong); color: var(--sf-blue); }
-    .btn-back:hover { background: var(--border-strong); border-color: var(--sf-blue); }
-    .btn-home { background: var(--overlay); border: 1px solid var(--overlay-mid); color: var(--text-dim); }
-    .btn-home:hover { background: var(--overlay-mid); color: #fff; }
-    .nav-label { font-size: var(--fs-h6); font-weight: 500; color: var(--text-muted); letter-spacing: .4px; }
+    .btn-back { background: rgba(41,181,232,.1); border: 1px solid rgba(41,181,232,.3); color: var(--sf-blue); }
+    .btn-back:hover { background: rgba(41,181,232,.22); border-color: var(--sf-blue); }
+    .btn-home { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.6); }
+    .btn-home:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .nav-label { font-size: var(--fs-h6); font-weight: 500; color: rgba(255,255,255,.45); letter-spacing: .4px; }
 
     /* ── NAV TAGS (availability / edition) ─────────────────── */
     /* Add <div class="nav-tags"> as the last child of .nav-bar  */
@@ -403,7 +272,7 @@
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       position: relative; overflow: hidden;
-      background: radial-gradient(ellipse 90% 85% at 50% 50%, var(--surface-grad) 0%, var(--surface) 70%);
+      background: radial-gradient(ellipse 90% 85% at 50% 50%, #0b1a35 0%, var(--sf-navy) 70%);
     }
 
     /* ── SNOWFLAKE BRAND ELEMENTS ──────────────────────────── */
@@ -413,17 +282,17 @@
       font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase;
     }
-    .tag-blue   { background: var(--accent-wash-2);  color: var(--tag-blue-fg);            border: 1px solid var(--accent-line-2); }
-    .tag-purple { background: rgba(167,139,250,.15); color: var(--tag-purple-fg);            border: 1px solid rgba(167,139,250,.45); }
-    .tag-green  { background: rgba(74,222,128,.12);  color: var(--tag-green-fg);            border: 1px solid rgba(74,222,128,.4); }
-    .tag-amber  { background: rgba(251,191,36,.12);  color: var(--tag-amber-fg);            border: 1px solid rgba(251,191,36,.4); }
+    .tag-blue   { background: rgba(41,181,232,.15);  color: #70D9F5;            border: 1px solid rgba(41,181,232,.45); }
+    .tag-purple { background: rgba(167,139,250,.15); color: #c4b5fd;            border: 1px solid rgba(167,139,250,.45); }
+    .tag-green  { background: rgba(74,222,128,.12);  color: #86efac;            border: 1px solid rgba(74,222,128,.4); }
+    .tag-amber  { background: rgba(251,191,36,.12);  color: #fcd34d;            border: 1px solid rgba(251,191,36,.4); }
 
     /* ── ICON CIRCLES ───────────────────────────────────────── */
     .icon-circle {
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .ic-blue   { background: var(--accent-wash-2);  color: var(--sf-blue); }
+    .ic-blue   { background: rgba(41,181,232,.15);  color: var(--sf-blue); }
 
     /* ── FEATURE CARDS ──────────────────────────────────────── */
     .feat-card {
@@ -433,17 +302,17 @@
       display: flex; flex-direction: row; gap: 8px;
       transition: border-color .2s, transform .15s;
     }
-    .feat-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+    .feat-card:hover { border-color: rgba(41,181,232,.38); transform: translateY(-2px); }
     .feat-card-head { display: flex; align-items: center; gap: 10px; }
-    .feat-title { font-size: var(--fs-h4); font-weight: 700; color: var(--text); }
-    .feat-body  { font-size: var(--fs-h5); color: var(--text-soft); line-height: 1.55; }
+    .feat-title { font-size: var(--fs-h4); font-weight: 700; color: #e8f4fd; }
+    .feat-body  { font-size: var(--fs-h5); color: rgba(255,255,255,.62); line-height: 1.55; }
 
     /* ── SHARED SLIDE HEADER (eyebrow / title / subtitle) ───── */
     .s6-top {
       padding: 14px 24px 10px;
       display:flex; flex-direction:column; gap:4px;
       background: #fff;
-      border-bottom:1px solid var(--accent-wash-2);
+      border-bottom:1px solid rgba(41,181,232,.15);
     }
     .s6-header { font-size: var(--fs-h1); font-weight:800; color:var(--sf-blue); }
     .s6-sub    { font-size: var(--fs-h3); color:var(--sf-ink); opacity:.72; }
@@ -487,7 +356,7 @@
 
     .code-block {
       background: var(--code-bg);
-      color: var(--code-fg);
+      color: rgba(255,255,255,.85);
       font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
       font-size: var(--fs-h6);
       line-height: 1.75;
@@ -518,9 +387,9 @@
       gap: 14px;
       padding: 10px 18px;
       border-radius: 100px;
-      background: var(--nav-bg-2);
-      border: 1px solid var(--accent-line);
-      box-shadow: var(--shadow-card);
+      background: rgba(5,13,26,.88);
+      border: 1px solid rgba(41,181,232,.2);
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
       opacity: 0;
       transform: translateY(6px);
       transition: opacity 0.22s ease, transform 0.22s ease;
@@ -540,7 +409,7 @@
     }
     .s6-footer span {
       font-size: var(--fs-h6);
-      color: var(--text-faint);
+      color: rgba(255,255,255,.3);
     }
     /* ── Shared slide-up code panel (ml-functions, CoWork, reusable) ── */
     .mlf-code-panel {
@@ -564,16 +433,16 @@
     .mlf-code-title { font-size: var(--fs-h4); font-weight: 700; color: var(--sf-blue); }
     .mlf-code-close {
       width: 26px; height: 26px; border-radius: 50%;
-      background: var(--accent-wash-2); border: none; cursor: pointer;
+      background: rgba(41,181,232,.15); border: none; cursor: pointer;
       color: var(--sf-blue); font-size: 15px; line-height: 1;
       display: flex; align-items: center; justify-content: center;
     }
-    .mlf-code-close:hover { background: var(--border-strong); }
+    .mlf-code-close:hover { background: rgba(41,181,232,.3); }
 
     /* ── Shared code block (used by panel/overlay code viewers) ── */
     .mlf-code-block {
       background: var(--code-bg);
-      color: var(--code-fg);
+      color: rgba(255,255,255,.85);
       font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
       font-size: var(--fs-h6);
       line-height: 1.75;
@@ -595,8 +464,8 @@
     .resource-btn .rb-circle {
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: var(--accent-wash);
-      border: 1px solid var(--border-strong);
+      background: rgba(41,181,232,.08);
+      border: 1px solid rgba(41,181,232,.22);
       display: flex; align-items: center; justify-content: center;
       transition: background .18s, border-color .18s, transform .15s;
     }
@@ -608,7 +477,7 @@
     }
     .resource-btn .rb-label { display: none; }
     .resource-btn:hover .rb-circle {
-      background: var(--accent-wash-2);
+      background: rgba(41,181,232,.18);
       border-color: var(--sf-blue);
       transform: translateY(-2px);
     }
@@ -617,7 +486,7 @@
     /* ── CODE MODAL ─────────────────────────────────────────── */
     .code-modal-overlay {
       position: fixed; inset: 0;
-      background: var(--scrim);
+      background: rgba(0,0,0,.72);
       display: flex; align-items: center; justify-content: center;
       z-index: 800;
       opacity: 0; pointer-events: none;
@@ -632,8 +501,8 @@
       display: flex; flex-direction: column;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: var(--shadow-modal);
-      border: 1px solid var(--border-strong);
+      box-shadow: 0 24px 80px rgba(0,0,0,.75);
+      border: 1px solid rgba(41,181,232,.22);
       transform: translateY(12px);
       transition: transform .3s ease;
     }
@@ -642,25 +511,25 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 16px;
       background: var(--code-bg);
-      border-bottom: 1px solid var(--overlay);
+      border-bottom: 1px solid rgba(255,255,255,.08);
       flex-shrink: 0;
     }
     .code-modal-title {
       font-size: var(--fs-h5); font-weight: 700;
-      color: var(--text-dim); letter-spacing: .3px;
+      color: rgba(255,255,255,.7); letter-spacing: .3px;
     }
     .code-modal-close {
       width: 28px; height: 28px;
       border-radius: 50%;
-      background: var(--overlay);
-      border: 1px solid var(--overlay-line);
-      color: var(--text-quiet);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.55);
       font-size: 1rem; line-height: 1;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s, color .15s;
     }
-    .code-modal-close:hover { background: var(--overlay-strong); color: #fff; }
+    .code-modal-close:hover { background: rgba(255,255,255,.18); color: #fff; }
     .code-modal-body {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -688,7 +557,7 @@
     /* ── MISC ───────────────────────────────────────────────── */
     ::-webkit-scrollbar { width:5px; }
     ::-webkit-scrollbar-track { background:var(--sf-navy); }
-    ::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:3px; }
+    ::-webkit-scrollbar-thumb { background:rgba(41,181,232,.35); border-radius:3px; }
 
 /* ── SHARED DIAGRAM COMPONENTS ──────────────────────────── */
 /* Reusable across diagram pages (iceberg-catalog-linked, iceberg-snowflake, etc.) */
@@ -697,7 +566,7 @@
   font-weight: 700;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: var(--accent-text);
+  color: rgba(41,181,232,.55);
   text-align: center;
   margin-bottom: 2px;
 }
@@ -710,10 +579,10 @@
 .cl-chip {
   padding: 4px 11px;
   border-radius: 100px;
-  background: var(--accent-wash);
-  border: 1px solid var(--border-strong);
+  background: rgba(41,181,232,.08);
+  border: 1px solid rgba(41,181,232,.2);
   font-size: var(--fs-h6);
-  color: var(--text-quiet);
+  color: rgba(255,255,255,.55);
   font-weight: 600;
 }
 
