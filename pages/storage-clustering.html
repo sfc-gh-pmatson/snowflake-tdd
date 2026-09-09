@@ -125,6 +125,29 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Two accelerators for large tables that solve genuinely different problems, and the most common mistake is reaching for the wrong one. Clustering co-locates data for range and scan queries. Search Optimization builds access paths for needle-in-haystack lookups. The "when to use / when to skip" panels are the useful part — resist demoing both without framing the choice.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Clustering:</strong> pick cluster keys from columns that appear most in WHERE clauses with moderate-to-high cardinality. Low-cardinality keys do not help; very high cardinality can cost more than it returns.</li>
+  <li><strong>Reclustering is serverless and automatic</strong> once a key is defined — Snowflake watches clustering depth and reorganises in the background. No maintenance window.</li>
+  <li><strong>It is a cost model, not a free win.</strong> Reclustering burns serverless credits proportional to data reorganised. Use SYSTEM$CLUSTERING_INFORMATION to check depth and overlaps, and be honest about ROI on tables that churn heavily.</li>
+  <li><strong>Search Optimization is for selective point lookups:</strong> equality and range predicates on high-cardinality columns, substring and LIKE search on text, and VARIANT path lookups.</li>
+  <li><strong>SOS is transparent</strong> — no query rewrite, no hints. One ALTER TABLE enables it per column and access type; access paths build incrementally on serverless credits.</li>
+  <li><strong>The distinction to land:</strong> clustering makes scans read less; SOS makes lookups avoid scanning. Wide range queries want clustering, single-row retrieval wants SOS.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What do your slowest queries filter on, and how selective are those filters?</li>
+  <li>Are the painful queries scanning ranges, or hunting for a handful of rows?</li>
+  <li>How large are the tables in question, and how often are they rewritten? That drives the reclustering cost conversation.</li>
+  <li>Are you searching inside text or JSON today, and how is that performing?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

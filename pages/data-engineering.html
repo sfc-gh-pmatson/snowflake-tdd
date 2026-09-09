@@ -142,6 +142,29 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The pitch here is that data engineering on Snowflake does not require a separate stack. Ingestion, transformation, and orchestration are all native — so there is no Airflow cluster to babysit, no separate Spark environment, and no data movement between them. Walk the two tabs: how data gets in, then how it gets shaped.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Four ingestion paths, one per shape of problem:</strong> COPY INTO for bulk files, Snowpipe for event-driven file arrival, Openflow for connector-based movement from 200+ sources, and Snowpipe Streaming for sub-second row-level pushes.</li>
+  <li><strong>Snowpipe Streaming has no staging files.</strong> Rows go through an SDK straight into channels. This is the answer for Kafka, CDC, and IoT — not micro-batching files into a stage.</li>
+  <li><strong>Dynamic Tables are the headline.</strong> Write a SELECT, set a TARGET_LAG, and Snowflake owns scheduling, dependency order, and incremental refresh. Declarative, not imperative — customers stop writing orchestration logic.</li>
+  <li><strong>Streams &amp; Tasks remain the escape hatch</strong> when you need explicit control: row-level change capture plus DAGs of SQL or Snowpark steps.</li>
+  <li><strong>dbt runs as a native Snowflake object</strong> via <code>snow dbt deploy</code> — no dbt Cloud subscription and no external scheduler.</li>
+  <li><strong>Snowpark</strong> covers the Python, Java, and Scala DataFrame crowd without moving data out.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>What is orchestrating your pipelines today, and what does it cost you to keep it running?</li>
+  <li>How much of your pipeline code exists purely to figure out what changed since last run? That is the Dynamic Tables conversation.</li>
+  <li>What is your current latency from source system to queryable data — and what do you actually need it to be?</li>
+  <li>Are you running dbt today? Where does it execute, and who maintains that runner?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

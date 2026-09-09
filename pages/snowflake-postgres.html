@@ -123,6 +123,28 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>Snowflake Postgres is a managed, production-grade Postgres running inside Snowflake — the same Postgres their developers already know, with the analytics platform on the other side of the wall instead of across an ETL pipeline. The strategic message: transactional and analytical data stop being two estates with a pipeline between them. Note the availability tag on the page and set expectations honestly.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>It is real Postgres,</strong> not a compatibility layer. Existing apps, drivers, extensions, and developer skills carry over.</li>
+  <li><strong>Zero-ETL to analytics:</strong> transactional data syncs to Snowflake automatically, with no separate tooling to build or operate. It can also write to Iceberg.</li>
+  <li><strong>One platform, one bill, one governance model</strong> — Postgres sits alongside warehouses and Iceberg tables under Horizon Catalog, rather than being a separate system with its own access controls and audit trail.</li>
+  <li><strong>Enterprise requirements are covered:</strong> automated HA and failover, customer-managed keys, private connectivity, and a single security perimeter with global compliance.</li>
+  <li><strong>Mirroring is the mechanism</strong> behind the zero-ETL claim — always-on replication, configured once, with Live Views for freshness. There is a deep-dive page; go there if they press on how it actually works.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Where does your Postgres run today, and who carries the pager for it?</li>
+  <li>What moves transactional data into analytics right now, and how often does it break?</li>
+  <li>How stale is the data your dashboards show against your operational systems?</li>
+  <li>Are your application developers and your data team fighting over the same database?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

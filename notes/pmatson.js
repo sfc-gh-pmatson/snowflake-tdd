@@ -9,7 +9,10 @@
 //       e.g. pages/sql-analytics.html  ->  'sql-analytics'
 //
 // Pages with an entry here show these notes; pages without one fall
-// back to that page's own built-in notes automatically.
+// back to that page's own built-in notes (window.PAGE_NOTES) automatically.
+// If a page has neither, the panel says "No talk-track notes for this page
+// yet." — so check tools/add-talk-tracks.py / the page itself before assuming
+// a gap here is covered downstream.
 //
 // Markup conventions (match the built-in notes so rendering is identical):
 //   <h3>Section Header</h3>

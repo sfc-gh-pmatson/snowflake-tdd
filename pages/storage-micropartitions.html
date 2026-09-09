@@ -132,6 +132,26 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>This is the page that explains why Snowflake is fast without anyone tuning it. Micro-partitioning is automatic, and the metadata Snowflake keeps per partition is what lets it skip most of the table before reading a byte. Use the ORDERS visual — 400M rows where a date predicate prunes three of four partitions and cuts I/O by 75%.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Partitions are immutable, 50–500 MB, compressed, columnar.</strong> DML never overwrites one — updates write new partitions. That single design choice is what makes Time Travel and zero-copy cloning cheap.</li>
+  <li><strong>The metadata is the magic.</strong> Per column, per partition: min/max, distinct count, null count. Snowflake compares predicates against that before scanning.</li>
+  <li><strong>Pruning is the payoff.</strong> Partitions whose ranges cannot satisfy the predicate are never read. Emphasise that this happens with no hints, no indexes, and no DBA.</li>
+  <li><strong>Time Travel and Fail-Safe fall out of immutability</strong> rather than being a bolted-on backup system. Previous versions already exist, so AT(TIMESTAMP) is just a metadata lookup.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>Who owns partitioning strategy in your current platform, and how much of their week goes to it?</li>
+  <li>When a query is slow today, what is your diagnostic process — and how often does the answer involve rebuilding or reindexing?</li>
+  <li>How do you recover from a bad UPDATE or DELETE right now? Compare that to querying the table as it was 10 minutes ago.</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

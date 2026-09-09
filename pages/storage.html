@@ -147,6 +147,28 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>The point of this page is that there is one storage layer, not three. Structured tables, semi-structured JSON, and unstructured files all live in the same place, under the same governance, queryable from the same SQL. Most customers arrive with a warehouse for structured data and a lake for everything else — this is where that split stops being necessary.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Structured, semi-structured, and unstructured are peers here.</strong> VARIANT holds JSON, Avro, Parquet, ORC, and XML with no fixed schema, queried with dot notation — no shredding step.</li>
+  <li><strong>Unstructured files are first-class:</strong> documents, images, video, and audio sit alongside tables, with presigned URLs for access. This is what makes the document-AI story possible later.</li>
+  <li><strong>Micro-partitioning is automatic and unavoidable</strong> — every table gets it, with no tuning knobs. That is the "zero maintenance" claim, and it is worth pausing on if they come from a world of manual partition management.</li>
+  <li><strong>Clustering and Search Optimization are the two opt-in accelerators</strong> for large tables. Both have deep-dive pages if the audience is technical.</li>
+  <li><strong>Stages cover both directions:</strong> internal stages for Snowflake-managed file storage, external stages to read S3, Azure Blob, or GCS in place via a Storage Integration — without loading.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How many separate storage systems are in your current architecture, and what governs each one?</li>
+  <li>What are you doing with JSON today — shredding it into columns on ingest, or querying it as-is?</li>
+  <li>Do you have unstructured data you would want to run AI against? Where does it live now?</li>
+  <li>How much data would you rather query in place than load?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {

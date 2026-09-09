@@ -106,6 +106,29 @@
   </style>
 </head>
 <body>
+  <script>
+    window.PAGE_NOTES = `
+<h3>Talk Track</h3>
+<p>This is the foundational page — everything else in the storage section builds on it. Three table types with different durability and billing, then the capabilities that make Snowflake tables different from a conventional warehouse: zero-copy cloning, Time Travel, and MERGE. Lead with the table-type comparison, because choosing wrongly is a real and recurring cost mistake.</p>
+
+<h3>Key Points</h3>
+<ul>
+  <li><strong>Permanent, Transient, Temporary</strong> differ on Time Travel (0–90 days, 0–1 day, 0–1 day), Fail-Safe (7 days, none, none), and storage billing. Transient is the answer for rebuildable staging data — customers often pay full Fail-Safe cost on tables they could regenerate.</li>
+  <li><strong>Constraints are mostly informational.</strong> NOT NULL is enforced; UNIQUE, PRIMARY KEY, and FOREIGN KEY are NOVALIDATE and exist for tooling and the optimizer. Say this plainly — it surprises people migrating from an RDBMS, and it is better heard from you than discovered in production.</li>
+  <li><strong>Zero-copy clone is metadata-only.</strong> No data is copied, so a full-size dev environment is instant and initially free, diverging in storage only as it changes. This is one of the strongest demo moments in the deck.</li>
+  <li><strong>Time Travel queries the past without restoring a backup</strong> — by timestamp, offset, or query ID.</li>
+  <li><strong>MERGE handles upserts and SCD Type 1 and 2</strong> atomically in one statement.</li>
+  <li><strong>CHANGE_TRACKING is the prerequisite for Streams</strong> and the CDC story on the data engineering page.</li>
+</ul>
+
+<h3>Questions to Ask</h3>
+<ul>
+  <li>How do you create development and test environments today, and how long does a refresh take?</li>
+  <li>Are you paying for Fail-Safe on staging tables you could rebuild from source?</li>
+  <li>Do you rely on the database to enforce uniqueness and referential integrity? Let us talk about where that responsibility moves.</li>
+  <li>How are you handling slowly changing dimensions today?</li>
+</ul>`;
+  </script>
   <script src="../bg.js"></script>
   <script>
     window.RESOURCE_CONFIG = {
