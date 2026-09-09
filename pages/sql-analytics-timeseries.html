@@ -98,42 +98,42 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
-      <span class="nav-label">Time Series Analytics</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide.tag">Analytics</span>
+      <span class="nav-label" data-i18n="nav.label">Time Series Analytics</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Time Series Analytics</div>
-          <div class="s6-sub" style="text-align:center;">Purpose-built SQL constructs for ordered time data. Fill gaps, align on nearest timestamp, and slide windows without subqueries.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="header">Time Series Analytics</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="sub">Purpose-built SQL constructs for ordered time data. Fill gaps, align on nearest timestamp, and slide windows without subqueries.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="ts-grid">
             <div class="ts-card active" data-idx="0">
-              <div class="ts-card-label">DATE_SPINE</div>
-              <div class="ts-card-desc">Generate a gapless time scaffold for any interval</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.1">DATE_SPINE</div>
+              <div class="ts-card-desc" data-i18n="card.datespine.desc">Generate a gapless time scaffold for any interval</div>
             </div>
             <div class="ts-card" data-idx="1">
-              <div class="ts-card-label">Time Slice</div>
-              <div class="ts-card-desc">DATE_TRUNC and TIME_SLICE for period bucketing</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.2">Time Slice</div>
+              <div class="ts-card-desc" data-i18n="card.timeslice.desc">DATE_TRUNC and TIME_SLICE for period bucketing</div>
             </div>
             <div class="ts-card" data-idx="2">
-              <div class="ts-card-label">ASOF JOIN</div>
-              <div class="ts-card-desc">Join to the nearest prior timestamp</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.3">ASOF JOIN</div>
+              <div class="ts-card-desc" data-i18n="card.asof.desc">Join to the nearest prior timestamp</div>
             </div>
             <div class="ts-card" data-idx="3">
-              <div class="ts-card-label">RANGE BETWEEN</div>
-              <div class="ts-card-desc">Interval-based sliding window frames</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.4">RANGE BETWEEN</div>
+              <div class="ts-card-desc" data-i18n="card.range.desc">Interval-based sliding window frames</div>
             </div>
             <div class="ts-card" data-idx="4">
-              <div class="ts-card-label">Resample</div>
-              <div class="ts-card-desc">Change time granularity with aggregation</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.5">Resample</div>
+              <div class="ts-card-desc" data-i18n="card.resample.desc">Change time granularity with aggregation</div>
             </div>
             <div class="ts-card" data-idx="5">
-              <div class="ts-card-label">Interpolate</div>
-              <div class="ts-card-desc">Fill gaps with linear or forward-fill values</div>
+              <div class="ts-card-label" data-i18n="ts-card-label.6">Interpolate</div>
+              <div class="ts-card-desc" data-i18n="card.interpolate.desc">Fill gaps with linear or forward-fill values</div>
             </div>
           </div>
 
@@ -171,9 +171,9 @@
 <span class="code-kw">ORDER BY</span> <span class="code-num">1</span><span class="code-punc">;</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>Complete Time Series Pipeline</h4>
-      <p>DATE_SPINE generates every day in the range. LEFT JOIN ensures dates with no events show 0, not NULL. The rolling average window runs over the complete scaffold.</p>
-      <p>No complex CTEs for gap-filling. One clean query.</p>
+      <h4 data-i18n="h4">Complete Time Series Pipeline</h4>
+      <p data-i18n="p.1">DATE_SPINE generates every day in the range. LEFT JOIN ensures dates with no events show 0, not NULL. The rolling average window runs over the complete scaffold.</p>
+      <p data-i18n="p.2">No complex CTEs for gap-filling. One clean query.</p>
     </div>
   </div>
 
@@ -187,38 +187,46 @@
     const cm = s => `<span class="code-comment">${s}</span>`;
 
     const ITEMS = [
-      { label: 'DATE_SPINE',
+      { key: 'datespine', label: 'DATE_SPINE',
         code: `${cm('-- Generate a complete, gapless date scaffold')}\n${k('SELECT')} ${id('d')}${p('::')}${f('DATE')} ${k('AS')} ${id('day')}\n${k('FROM')} ${f('TABLE')}${p('(')}\n  ${f('DATE_SPINE')}${p('(')}${str("'day'")}\n    ${p(',')} ${str("'2025-01-01'")}${p('::')}${f('DATE')}\n    ${p(',')} ${f('CURRENT_DATE')}${p('()')}\n  ${p('))')}\n${k('ORDER BY')} ${id('day')}${p(';')}\n\n${cm('-- Supported intervals:')}\n${cm('--  second, minute, hour, day, week, month, quarter, year')}`,
         explain: `<h4>DATE_SPINE</h4><p>Generates one row per time period between two dates. Eliminates the need for recursive CTEs or calendar tables.</p><p>Classic use: generate every day of the year, then LEFT JOIN transaction data to surface zeros for inactive days — critical for accurate trend charts.</p><p>Tip: wrap in a CTE named <code>spine</code> as the base for your time-series query.</p>` },
 
-      { label: 'Time Slice',
+      { key: 'timeslice', label: 'Time Slice',
         code: `${cm('-- TIME_SLICE: bucket timestamps into fixed-width intervals')}\n${k('SELECT')}\n  ${f('TIME_SLICE')}${p('(')}${id('event_ts')}${p(',')} ${n('15')}${p(',')} ${str("'minute'")}\n  ${p(')')} ${k('AS')} ${id('bucket')}\n  ${p(',')} ${f('COUNT')}${p('(*)')} ${k('AS')} ${id('events')}\n${k('FROM')} ${id('clickstream')}\n${k('GROUP BY')} ${n('1')}\n${k('ORDER BY')} ${n('1')}${p(';')}\n\n${cm('-- DATE_TRUNC: truncate to a calendar boundary')}\n${k('SELECT')}\n  ${f('DATE_TRUNC')}${p('(')}${str("'month'")}${p(',')} ${id('order_date')}${p(')')} ${k('AS')} ${id('month')}\n  ${p(',')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('AS')} ${id('monthly_rev')}\n${k('FROM')} ${id('orders')}\n${k('GROUP BY')} ${n('1')}${p(';')}`,
         explain: `<h4>TIME_SLICE &amp; DATE_TRUNC</h4><p><strong>TIME_SLICE(ts, n, unit)</strong> buckets timestamps into fixed-width intervals. Unlike DATE_TRUNC, it isn't limited to calendar boundaries — use it for 15-minute, 5-minute, or any custom interval bucketing.</p><p><strong>DATE_TRUNC(unit, ts)</strong> truncates to a calendar boundary: 'month', 'week', 'day', 'hour', etc. The classic choice for daily/monthly reporting aggregations.</p>` },
 
-      { label: 'ASOF JOIN',
+      { key: 'asof', label: 'ASOF JOIN',
         code: `${cm('-- Join each trade to the most recent prior price')}\n${k('SELECT')}\n  ${id('t')}.${id('trade_id')}${p(',')}\n  ${id('t')}.${id('trade_ts')}${p(',')}\n  ${id('t')}.${id('quantity')}${p(',')}\n  ${id('p')}.${id('price')} ${k('AS')} ${id('price_at_trade')}\n${k('FROM')} ${id('trades')} ${id('t')}\n  ${k('ASOF JOIN')} ${id('prices')} ${id('p')}\n  ${k('MATCH_CONDITION')}${p('(')}\n    ${id('t')}.${id('trade_ts')} ${p('>=')} ${id('p')}.${id('price_ts')}\n  ${p(')')}\n${k('ORDER BY')} ${id('t')}.${id('trade_ts')}${p(';')}`,
         explain: `<h4>ASOF JOIN</h4><p>Joins each row to the matching row with the nearest prior (or equal) timestamp. No range join, no window function, no self-join CTE.</p><p><strong>Classic uses:</strong></p><ul><li>Attach the most recent price to each trade</li><li>Get the active exchange rate at transaction time</li><li>Join sensor readings to the nearest prior configuration change</li></ul><p>The <code>MATCH_CONDITION</code> controls direction: <code>&gt;=</code> for nearest prior, <code>&lt;=</code> for nearest subsequent.</p>` },
 
-      { label: 'RANGE BETWEEN',
+      { key: 'range', label: 'RANGE BETWEEN',
         code: `${cm('-- Sliding 1-hour window on irregular sensor data')}\n${k('SELECT')}\n  ${id('device_id')}${p(',')}\n  ${id('reading_ts')}${p(',')}\n  ${id('value')}${p(',')}\n  ${f('AVG')}${p('(')}${id('value')}${p(')')} ${k('OVER')} ${p('(')}\n    ${k('PARTITION BY')} ${id('device_id')}\n    ${k('ORDER BY')} ${id('reading_ts')}\n    ${k('RANGE BETWEEN')}\n      ${k('INTERVAL')} ${str("'1 hour'")} ${k('PRECEDING')}\n      ${k('AND CURRENT ROW')}\n  ${p(')')} ${k('AS')} ${id('rolling_1h_avg')}\n${k('FROM')} ${id('sensor_readings')}${p(';')}\n\n${cm('-- ROWS vs RANGE: rows counts physical rows,')}\n${cm('-- RANGE uses value distance on the ORDER BY column')}`,
         explain: `<h4>RANGE BETWEEN with Intervals</h4><p>RANGE-based window frames use <strong>value distance</strong> rather than row count. With <code>INTERVAL '1 hour' PRECEDING</code>, the window includes all rows within the last 60 minutes — regardless of how many rows that is.</p><p>Critical for irregular time series where readings don't arrive at fixed intervals. A ROWS frame of 10 preceding rows could span 10 seconds or 10 hours; RANGE is deterministic regardless of data density.</p>` },
 
-      { label: 'Resample',
+      { key: 'resample', label: 'Resample',
         code: `${cm('-- Resample 1-minute ticks to 5-minute OHLC bars')}\n${k('SELECT')}\n  ${f('TIME_SLICE')}${p('(')}${id('tick_ts')}${p(',')} ${n('5')}${p(',')} ${str("'minute'")}\n  ${p(')')} ${k('AS')} ${id('bar_ts')}\n  ${p(',')} ${f('FIRST_VALUE')}${p('(')}${id('price')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('PARTITION BY')} ${f('TIME_SLICE')}${p('(')}${id('tick_ts')}${p(',')}${n('5')}${p(',')}${str("'minute'")}${p(')')} ${k('ORDER BY')} ${id('tick_ts')}${p(')')} ${k('AS')} ${id('open_price')}\n  ${p(',')} ${f('MAX')}${p('(')}${id('price')}${p(')')} ${k('OVER')}\n    ${p('(')}${k('PARTITION BY')} ${f('TIME_SLICE')}${p('(')}${id('tick_ts')}${p(',')}${n('5')}${p(',')}${str("'minute'")}${p(')')}\n  ${p(')')} ${k('AS')} ${id('high')}\n  ${p(',')} ${f('MIN')}${p('(')}${id('price')}${p(')')} ${k('OVER')} ${p('(')}..${p(')')} ${k('AS')} ${id('low')}\n  ${p(',')} ${f('LAST_VALUE')}${p('(')}${id('price')}${p(')')} ${k('OVER')} ${p('(')}..${p(')')} ${k('AS')} ${id('close')}\n${k('FROM')} ${id('tick_data')}${p(';')}`,
         explain: `<h4>Resample (Change Time Granularity)</h4><p>Resampling converts a fine-grained time series into a coarser one. The pattern is: bucket timestamps with <code>TIME_SLICE</code> or <code>DATE_TRUNC</code>, then aggregate within each bucket.</p><p><strong>Common patterns:</strong></p><ul><li>Tick data → OHLC bars (using FIRST_VALUE/LAST_VALUE/MIN/MAX)</li><li>Raw events → hourly/daily counts</li><li>Per-second metrics → 5-minute averages</li></ul>` },
 
-      { label: 'Interpolate',
+      { key: 'interpolate', label: 'Interpolate',
         code: `${cm('-- Forward-fill missing values with LAST_VALUE + IGNORE NULLS')}\n${k('WITH')} ${id('spine')} ${k('AS')} ${p('(')}\n  ${k('SELECT')} ${id('d')}${p('::')}${f('DATE')} ${id('day')}\n  ${k('FROM')} ${f('TABLE')}${p('(')}${f('DATE_SPINE')}${p('(')}${str("'day'")}\n    ${p(',')} ${str("'2025-01-01'")}\n    ${p(',')} ${str("'2025-12-31'")}\n  ${p('))')}\n${p(')')}\n${k('SELECT')}\n  ${id('s')}.${id('day')}\n  ${p(',')} ${f('LAST_VALUE')}${p('(')}${id('d')}.${id('price')} ${k('IGNORE NULLS')}${p(')')}\n    ${k('OVER')} ${p('(')}${k('ORDER BY')} ${id('s')}.${id('day')} ${k('ROWS UNBOUNDED PRECEDING')}${p(')')} ${k('AS')} ${id('price_filled')}\n${k('FROM')} ${id('spine')} ${id('s')}\n${k('LEFT JOIN')} ${id('daily_prices')} ${id('d')} ${k('ON')} ${id('d')}.${id('date')} ${p('=')} ${id('s')}.${id('day')}${p(';')}`,
         explain: `<h4>Interpolation Patterns</h4><p><strong>Forward-fill (LOCF):</strong> Use <code>LAST_VALUE(col IGNORE NULLS) OVER (ORDER BY ts ROWS UNBOUNDED PRECEDING)</code> to carry the last known value forward through missing periods.</p><p><strong>Linear interpolation:</strong> Combine LAST_VALUE and LEAD to find the bracketing values, then calculate the proportional fill between them.</p><p>The <code>IGNORE NULLS</code> clause is key — without it, LAST_VALUE returns the last row's value regardless of whether it's null.</p>` },
     ];
 
     let currentIdx = 0;
 
+    // The explain prose is built here in JS and injected as innerHTML, so
+    // data-i18n can't reach it. Ask the i18n layer for a translated block
+    // instead, falling back to the English written above.
+    function explainFor(item) {
+      return (window.TDD_I18N && window.TDD_I18N.block('explain.' + item.key))
+             || item.explain;
+    }
+
     function showItem(idx) {
       currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
       const item = ITEMS[currentIdx];
       document.getElementById('ts-code').innerHTML = item.code;
-      document.getElementById('ts-explain').innerHTML = item.explain;
+      document.getElementById('ts-explain').innerHTML = explainFor(item);
       document.querySelectorAll('.ts-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
     }
 
@@ -227,6 +235,9 @@
     });
 
     showItem(0);
+
+    // Re-render the open panel when the language changes.
+    if (window.TDD_I18N) window.TDD_I18N.onChange(() => showItem(currentIdx));
   </script>
 </body>
 </html>

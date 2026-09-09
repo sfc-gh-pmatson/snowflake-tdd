@@ -91,8 +91,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Mesh &amp; Sharing</span>
-      <span class="nav-label">Data Clean Rooms</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Mesh &amp; Sharing</span>
+      <span class="nav-label" data-i18n="nav-label">Data Clean Rooms</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -102,44 +102,44 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Data Clean Rooms</div>
-          <div class="s6-sub" style="text-align:center;">Collaborate on sensitive data without exposing raw records. Privacy-preserving joint analytics across organizational boundaries.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Data Clean Rooms</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Collaborate on sensitive data without exposing raw records. Privacy-preserving joint analytics across organizational boundaries.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="dcr-grid">
             <div class="dcr-card" onclick="showPanel(0)">
-              <div class="dcr-card-label">DCR Architecture</div>
-              <div class="dcr-card-desc">Built on Snowflake Native Apps. Analysis logic runs in both parties' accounts — raw data never crosses the boundary.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.1">DCR Architecture</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.1">Built on Snowflake Native Apps. Analysis logic runs in both parties' accounts — raw data never crosses the boundary.</div>
             </div>
             <div class="dcr-card" onclick="showPanel(1)">
-              <div class="dcr-card-label">Audience Overlap</div>
-              <div class="dcr-card-desc">Compute audience overlap between two organizations' customer sets without either party exposing their raw records.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.2">Audience Overlap</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.2">Compute audience overlap between two organizations' customer sets without either party exposing their raw records.</div>
             </div>
             <div class="dcr-card" onclick="showPanel(2)">
-              <div class="dcr-card-label">Attribution Analysis</div>
-              <div class="dcr-card-desc">Measure ad campaign attribution by joining impression data with purchase data — governed, aggregate results only.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.3">Attribution Analysis</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.3">Measure ad campaign attribution by joining impression data with purchase data — governed, aggregate results only.</div>
             </div>
             <div class="dcr-card" onclick="showPanel(3)">
-              <div class="dcr-card-label">Templates</div>
-              <div class="dcr-card-desc">Pre-approved Jinja query templates define exactly what analyses can run. No arbitrary SQL on partner data.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.4">Templates</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.4">Pre-approved Jinja query templates define exactly what analyses can run. No arbitrary SQL on partner data.</div>
             </div>
             <div class="dcr-card" onclick="showPanel(4)">
-              <div class="dcr-card-label">Privacy Controls</div>
-              <div class="dcr-card-desc">Minimum aggregation thresholds and differential privacy noise prevent re-identification from aggregate results.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.5">Privacy Controls</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.5">Minimum aggregation thresholds and differential privacy noise prevent re-identification from aggregate results.</div>
             </div>
             <div class="dcr-card" onclick="showPanel(5)">
-              <div class="dcr-card-label">Activation</div>
-              <div class="dcr-card-desc">Export matched audience segments for ad targeting or activation — without exposing the underlying match list.</div>
+              <div class="dcr-card-label" data-i18n="dcr-card-label.6">Activation</div>
+              <div class="dcr-card-desc" data-i18n="dcr-card-desc.6">Export matched audience segments for ad targeting or activation — without exposing the underlying match list.</div>
             </div>
           </div>
 
           <div class="dcr-panel" id="dcr-panel">
-            <div class="dcr-panel-code" id="dcr-code">-- Select a card above to explore Data Clean Room concepts</div>
+            <div class="dcr-panel-code" id="dcr-code" data-i18n="dcr-panel-code">-- Select a card above to explore Data Clean Room concepts</div>
             <div class="dcr-panel-explain" id="dcr-explain">
-              <h4>Data Clean Rooms</h4>
-              <p>Click any card above to see explanations and SQL examples for each aspect of Snowflake Data Clean Rooms.</p>
-              <p>Clean Rooms enable two parties to compute the intersection of their data without either party ever seeing the other's raw records — enforced by architecture, not just policy.</p>
+              <h4 data-i18n="h4">Data Clean Rooms</h4>
+              <p data-i18n="p.1">Click any card above to see explanations and SQL examples for each aspect of Snowflake Data Clean Rooms.</p>
+              <p data-i18n="p.2">Clean Rooms enable two parties to compute the intersection of their data without either party ever seeing the other's raw records — enforced by architecture, not just policy.</p>
             </div>
           </div>
         </div>

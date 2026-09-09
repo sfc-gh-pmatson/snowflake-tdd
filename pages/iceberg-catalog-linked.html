@@ -244,8 +244,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./iceberg.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Iceberg</span>
-      <span class="nav-label">Catalog-Linked Iceberg</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Iceberg</span>
+      <span class="nav-label" data-i18n="nav-label">Catalog-Linked Iceberg</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -255,17 +255,17 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Catalog-Linked Iceberg Databases</div>
-          <div class="s6-sub" style="text-align:center;">Connect any Iceberg catalog to Snowflake. No ETL. No copies. One governance layer.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Catalog-Linked Iceberg Databases</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Connect any Iceberg catalog to Snowflake. No ETL. No copies. One governance layer.</div>
         </div>
 
         <div class="cl-layout content-wrap">
 
           <!-- ════════ Left: features ════════ -->
           <div class="cl-left">
-            <div class="cl-eyebrow">Snowflake — Universal Query Layer</div>
-            <div class="cl-title">One Governance<br>Layer, Any Catalog</div>
-            <div class="cl-sub">Keep external Iceberg tables in your own storage — Snowflake provides the query engine, full Horizon governance, and Cortex AI.</div>
+            <div class="cl-eyebrow" data-i18n="cl-eyebrow">Snowflake — Universal Query Layer</div>
+            <div class="cl-title" data-i18n-html="cl-title">One Governance<br>Layer, Any Catalog</div>
+            <div class="cl-sub" data-i18n="cl-sub">Keep external Iceberg tables in your own storage — Snowflake provides the query engine, full Horizon governance, and Cortex AI.</div>
 
             <!-- Feature 1 -->
             <div class="cl-feature">
@@ -273,8 +273,8 @@
                 <span class="sf-img sf-icon-iceberg" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="cl-feature-text">
-                <div class="cl-feature-title">Zero-Copy, In-Place Access</div>
-                <div class="cl-feature-body">Mount Unity Catalog, AWS Glue, or Apache Polaris as a Snowflake database. Tables are auto-discovered and synced — data never leaves the external storage location.</div>
+                <div class="cl-feature-title" data-i18n="cl-feature-title.1">Zero-Copy, In-Place Access</div>
+                <div class="cl-feature-body" data-i18n="cl-feature-body.1">Mount Unity Catalog, AWS Glue, or Apache Polaris as a Snowflake database. Tables are auto-discovered and synced — data never leaves the external storage location.</div>
               </div>
             </div>
 
@@ -284,8 +284,8 @@
                 <span class="sf-img sf-icon-connected" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="cl-feature-text">
-                <div class="cl-feature-title">Auto-Discover &amp; Stay Fresh</div>
-                <div class="cl-feature-body">New tables added to the external catalog surface automatically in Snowflake. Metadata sync keeps partition statistics current so query planning stays optimal.</div>
+                <div class="cl-feature-title" data-i18n="cl-feature-title.2">Auto-Discover &amp; Stay Fresh</div>
+                <div class="cl-feature-body" data-i18n="cl-feature-body.2">New tables added to the external catalog surface automatically in Snowflake. Metadata sync keeps partition statistics current so query planning stays optimal.</div>
               </div>
             </div>
 
@@ -295,8 +295,8 @@
                 <span class="sf-img sf-icon-horizon" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="cl-feature-text">
-                <div class="cl-feature-title">Horizon Governance Applies</div>
-                <div class="cl-feature-body">Masking policies, row access policies, and data classification from Snowflake Horizon extend to all catalog-linked tables — consistent governance regardless of where data lives.</div>
+                <div class="cl-feature-title" data-i18n="cl-feature-title.3">Horizon Governance Applies</div>
+                <div class="cl-feature-body" data-i18n="cl-feature-body.3">Masking policies, row access policies, and data classification from Snowflake Horizon extend to all catalog-linked tables — consistent governance regardless of where data lives.</div>
               </div>
             </div>
 
@@ -306,8 +306,8 @@
                 <span class="sf-img sf-icon-sql" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="cl-feature-text">
-                <div class="cl-feature-title">Full SQL on External Tables</div>
-                <div class="cl-feature-body">Run any Snowflake SQL — joins, aggregations, window functions, Cortex AI — directly against catalog-linked Iceberg tables, just like any native Snowflake table.</div>
+                <div class="cl-feature-title" data-i18n="cl-feature-title.4">Full SQL on External Tables</div>
+                <div class="cl-feature-body" data-i18n="cl-feature-body.4">Run any Snowflake SQL — joins, aggregations, window functions, Cortex AI — directly against catalog-linked Iceberg tables, just like any native Snowflake table.</div>
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@
           <!-- ════════ Right: diagram ════════ -->
           <div class="cl-right">
             <div class="cl-diagram">
-              <div class="cl-diagram-label">External Iceberg Catalogs</div>
+              <div class="cl-diagram-label" data-i18n="cl-diagram-label.1">External Iceberg Catalogs</div>
 
               <!-- Catalog source cards -->
               <div class="cl-catalog-row">
@@ -324,38 +324,38 @@
                   <div class="cl-catalog-card-logo" style="background:var(--databricks-c);">
                     <span class="sf-img img-ext-databricks" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
                   </div>
-                  <div class="cl-catalog-card-name">Unity Catalog</div>
-                  <div class="cl-catalog-card-sub">Databricks</div>
+                  <div class="cl-catalog-card-name" data-i18n="cl-catalog-card-name.1">Unity Catalog</div>
+                  <div class="cl-catalog-card-sub" data-i18n="cl-catalog-card-sub.1">Databricks</div>
                 </div>
                 <!-- AWS Glue -->
                 <div class="cl-catalog-card" style="border:3px solid var(--aws-c);">
                   <div class="cl-catalog-card-logo" style="background:var(--aws-c);">
                     <span class="sf-img img-ext-aws" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
                   </div>
-                  <div class="cl-catalog-card-name">AWS Glue</div>
-                  <div class="cl-catalog-card-sub">Amazon</div>
+                  <div class="cl-catalog-card-name" data-i18n="cl-catalog-card-name.2">AWS Glue</div>
+                  <div class="cl-catalog-card-sub" data-i18n="cl-catalog-card-sub.2">Amazon</div>
                 </div>
                 <!-- Apache Polaris -->
                 <div class="cl-catalog-card" style="border:3px solid var(--polaris-c);">
                   <div class="cl-catalog-card-logo" style="background:var(--polaris-c);">
                     <span class="sf-img img-ext-polaris" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
                   </div>
-                  <div class="cl-catalog-card-name">Apache Polaris&#x2122;</div>
-                  <div class="cl-catalog-card-sub">Open Source</div>
+                  <div class="cl-catalog-card-name" data-i18n="cl-catalog-card-name.3">Apache Polaris&#x2122;</div>
+                  <div class="cl-catalog-card-sub" data-i18n="cl-catalog-card-sub.3">Open Source</div>
                 </div>
                 <div class="cl-catalog-card" style="border:3px solid var(--sf-blue);">
                   <div class="cl-catalog-card-logo" style="background:var(--sf-blue);">
                     <span class="sf-img sf-icon-connected" style="width:20px;height:20px;filter:brightness(0) invert(1);"></span>
                   </div>
-                  <div class="cl-catalog-card-name">Any REST</div>
-                  <div class="cl-catalog-card-sub">Iceberg Catalog</div>
+                  <div class="cl-catalog-card-name" data-i18n="cl-catalog-card-name.4">Any REST</div>
+                  <div class="cl-catalog-card-sub" data-i18n="cl-catalog-card-sub.4">Iceberg Catalog</div>
                 </div>
               </div>
 
               <!-- Connector arrow -->
               <div class="cl-connector" style="padding: 4px 16px;">
                 <div class="cl-connector-line"></div>
-                <div class="cl-connector-pill">Catalog Integration</div>
+                <div class="cl-connector-pill" data-i18n="cl-connector-pill">Catalog Integration</div>
                 <div class="cl-connector-line"></div>
               </div>
 
@@ -363,8 +363,8 @@
               <div class="cl-sf-box">
                 <span class="sf-img sf-icon-horizon" style="width:44px;height:44px;filter:brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(400%) hue-rotate(165deg) brightness(97%);"></span>
                 <div class="cl-sf-box-text">
-                  <div class="cl-sf-box-title">Snowflake Catalog-Linked Database</div>
-                  <div class="cl-sf-box-sub">Auto-synced schemas &amp; tables — full SQL, Horizon governance, Cortex AI</div>
+                  <div class="cl-sf-box-title" data-i18n="cl-sf-box-title">Snowflake Catalog-Linked Database</div>
+                  <div class="cl-sf-box-sub" data-i18n="cl-sf-box-sub">Auto-synced schemas &amp; tables — full SQL, Horizon governance, Cortex AI</div>
                 </div>
               </div>
 
@@ -375,12 +375,12 @@
 
               <!-- Storage layer chips -->
               <div style="text-align:center;">
-                <div class="cl-diagram-label" style="margin-bottom:8px;">Data Stays in Cloud Object Storage</div>
+                <div class="cl-diagram-label" style="margin-bottom:8px;" data-i18n="cl-diagram-label.2">Data Stays in Cloud Object Storage</div>
                 <div class="cl-chips">
-                  <div class="cl-chip" style="background:var(--aws-c);color:#fff;">Amazon S3</div>
-                  <div class="cl-chip" style="background:var(--azure-c);color:#fff;">Azure ADLS</div>
-                  <div class="cl-chip" style="background:var(--gcp-c);color:#fff;">Google GCS</div>
-                  <div class="cl-chip" style="background:var(--sf-blue);color:#fff;">Parquet + Iceberg Metadata</div>
+                  <div class="cl-chip" style="background:var(--aws-c);color:#fff;" data-i18n="cl-chip.1">Amazon S3</div>
+                  <div class="cl-chip" style="background:var(--azure-c);color:#fff;" data-i18n="cl-chip.2">Azure ADLS</div>
+                  <div class="cl-chip" style="background:var(--gcp-c);color:#fff;" data-i18n="cl-chip.3">Google GCS</div>
+                  <div class="cl-chip" style="background:var(--sf-blue);color:#fff;" data-i18n="cl-chip.4">Parquet + Iceberg Metadata</div>
                 </div>
               </div>
             </div>
@@ -393,7 +393,7 @@
           <div class="resource-bar"></div>
         </div>
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
 
       </div>
@@ -430,12 +430,12 @@
 <span class="code-kw">LIMIT</span> <span class="code-num">100</span><span class="code-punc">;</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>Catalog Integration</h4>
-      <p>A <code>CATALOG INTEGRATION</code> tells Snowflake how to authenticate and connect to an external Iceberg catalog that implements the REST catalog spec (e.g., Unity Catalog, Polaris, AWS Glue).</p>
-      <h4>Catalog-Linked Database</h4>
-      <p><code>CREATE DATABASE ... FROM CATALOG INTEGRATION</code> mounts the external catalog as a native Snowflake database. Tables are auto-discovered — no manual <code>CREATE EXTERNAL TABLE</code> statements needed.</p>
-      <h4>Zero-Copy Querying</h4>
-      <p>Snowflake reads Parquet files directly from the original cloud object storage. Data never moves. Snowflake Horizon governance (masking, row access, RBAC) applies to every query.</p>
+      <h4 data-i18n="h4.1">Catalog Integration</h4>
+      <p data-i18n-html="p.1">A <code>CATALOG INTEGRATION</code> tells Snowflake how to authenticate and connect to an external Iceberg catalog that implements the REST catalog spec (e.g., Unity Catalog, Polaris, AWS Glue).</p>
+      <h4 data-i18n="h4.2">Catalog-Linked Database</h4>
+      <p data-i18n-html="p.2"><code>CREATE DATABASE ... FROM CATALOG INTEGRATION</code> mounts the external catalog as a native Snowflake database. Tables are auto-discovered — no manual <code>CREATE EXTERNAL TABLE</code> statements needed.</p>
+      <h4 data-i18n="h4.3">Zero-Copy Querying</h4>
+      <p data-i18n="p.3">Snowflake reads Parquet files directly from the original cloud object storage. Data never moves. Snowflake Horizon governance (masking, row access, RBAC) applies to every query.</p>
     </div>
   </div>
 

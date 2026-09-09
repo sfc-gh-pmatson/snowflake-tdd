@@ -89,45 +89,45 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Governance</span>
-      <span class="nav-label">Classification</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Governance</span>
+      <span class="nav-label" data-i18n="nav-label">Classification</span>
     </div>
 
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Classification</div>
-          <div class="s6-sub" style="text-align:center;">Automatically detect PII, PHI, and sensitive data using ML classifiers &#8212; no manual column review required.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Data Classification</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Automatically detect PII, PHI, and sensitive data using ML classifiers &#8212; no manual column review required.</div>
         </div>
 
         <div class="hsp-layout">
           <div class="hsp-left">
-            <div class="hsp-eyebrow">Horizon Catalog &#183; Classification</div>
+            <div class="hsp-eyebrow" data-i18n="hsp-eyebrow">Horizon Catalog &#183; Classification</div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon">&#129302;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Auto-Classification</div>
-                <div class="hsp-feature-body">Snowflake ML classifiers analyze column names, data types, and sample values to detect PII (emails, SSNs, phone numbers), PHI (medical record numbers), and financial data. System tags are applied automatically.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.1">Auto-Classification</div>
+                <div class="hsp-feature-body" data-i18n="hsp-feature-body.1">Snowflake ML classifiers analyze column names, data types, and sample values to detect PII (emails, SSNs, phone numbers), PHI (medical record numbers), and financial data. System tags are applied automatically.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#127775;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Custom Classifiers</div>
-                <div class="hsp-feature-body">Create domain-specific classifiers using <code style="font-size:10px;font-family:monospace;">CREATE PRIVACY CATEGORY</code> and <code style="font-size:10px;font-family:monospace;">CREATE SEMANTIC CATEGORY</code> to detect business-specific sensitive data patterns.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.2">Custom Classifiers</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.2">Create domain-specific classifiers using <code style="font-size:10px;font-family:monospace;">CREATE PRIVACY CATEGORY</code> and <code style="font-size:10px;font-family:monospace;">CREATE SEMANTIC CATEGORY</code> to detect business-specific sensitive data patterns.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9881;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">On-Demand &amp; Scheduled</div>
-                <div class="hsp-feature-body">Run <code style="font-size:10px;font-family:monospace;">SYSTEM$CLASSIFY</code> on any table or schema on-demand. Schedule classification to run automatically as new tables and columns are added.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.3">On-Demand &amp; Scheduled</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.3">Run <code style="font-size:10px;font-family:monospace;">SYSTEM$CLASSIFY</code> on any table or schema on-demand. Schedule classification to run automatically as new tables and columns are added.</div>
               </div>
             </div>
           </div>
           <div class="hsp-right">
-            <div class="hsp-code">
+            <div class="hsp-code" data-i18n-html="hsp-code">
               <span class="code-comment">-- Classify a single table on demand</span><br>
               <span class="code-kw">CALL</span> <span class="code-fn">SYSTEM$CLASSIFY</span><span class="code-punc">(</span><br>
               &nbsp;&nbsp;<span class="code-str">'MY_DB.SCHEMA.CUSTOMERS'</span><span class="code-punc">,</span><br>
@@ -147,7 +147,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

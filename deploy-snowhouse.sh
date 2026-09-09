@@ -24,10 +24,9 @@ docker build --platform linux/amd64 --provenance=false --sbom=false \
 echo "[3/4] Pushing image..."
 docker push "$IMAGE:latest"
 
-echo "[4/4] Restarting service..."
-$SNOW sql -q "ALTER SERVICE $SERVICE SUSPEND" --connection Snowhouse || true
-sleep 15
-$SNOW sql -q "ALTER SERVICE $SERVICE RESUME" --connection Snowhouse
+echo "[4/4] Updating service spec (clears pinned digest, forces fresh image pull)..."
+SPEC=$(cat spec.yml)
+$SNOW sql -q "ALTER SERVICE $SERVICE FROM SPECIFICATION \$\$${SPEC}\$\$" --connection Snowhouse
 
 echo ""
 echo "Waiting 20s for service to start..."

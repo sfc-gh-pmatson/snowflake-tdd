@@ -92,8 +92,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Mesh &amp; Sharing</span>
-      <span class="nav-label">Zero-ETL Data Sharing</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Mesh &amp; Sharing</span>
+      <span class="nav-label" data-i18n="nav-label">Zero-ETL Data Sharing</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -103,44 +103,44 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Zero-ETL Data Sharing</div>
-          <div class="s6-sub" style="text-align:center;">Share live data across accounts and clouds without pipelines, copies, or ETL. Consumers query your actual data — always fresh, always governed.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Zero-ETL Data Sharing</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Share live data across accounts and clouds without pipelines, copies, or ETL. Consumers query your actual data — always fresh, always governed.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="ds-grid">
             <div class="ds-card" onclick="showPanel(0)">
-              <div class="ds-card-label">Direct Share</div>
-              <div class="ds-card-desc">Share tables, views, and UDFs directly to another Snowflake account. Point-to-point, no Marketplace listing required.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.1">Direct Share</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.1">Share tables, views, and UDFs directly to another Snowflake account. Point-to-point, no Marketplace listing required.</div>
             </div>
             <div class="ds-card" onclick="showPanel(1)">
-              <div class="ds-card-label">Secure Views</div>
-              <div class="ds-card-desc">Share derived, filtered, or joined views without exposing underlying tables. The view definition is hidden from consumers.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.2">Secure Views</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.2">Share derived, filtered, or joined views without exposing underlying tables. The view definition is hidden from consumers.</div>
             </div>
             <div class="ds-card" onclick="showPanel(2)">
-              <div class="ds-card-label">Listings</div>
-              <div class="ds-card-desc">Publish data products to Snowflake Marketplace (public) or Internal Marketplace (org-wide) for self-service discovery and install.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.3">Listings</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.3">Publish data products to Snowflake Marketplace (public) or Internal Marketplace (org-wide) for self-service discovery and install.</div>
             </div>
             <div class="ds-card" onclick="showPanel(3)">
-              <div class="ds-card-label">Cross-Region Replication</div>
-              <div class="ds-card-desc">Share data across clouds and regions automatically. Snowflake replicates; consumers query a regional replica at low latency.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.4">Cross-Region Replication</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.4">Share data across clouds and regions automatically. Snowflake replicates; consumers query a regional replica at low latency.</div>
             </div>
             <div class="ds-card" onclick="showPanel(4)">
-              <div class="ds-card-label">Internal Marketplace</div>
-              <div class="ds-card-desc">Publish data products for internal teams across your Snowflake organization — self-service discovery without central IT bottlenecks.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.5">Internal Marketplace</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.5">Publish data products for internal teams across your Snowflake organization — self-service discovery without central IT bottlenecks.</div>
             </div>
             <div class="ds-card" onclick="showPanel(5)">
-              <div class="ds-card-label">Governed Sharing</div>
-              <div class="ds-card-desc">Apply row-level security and dynamic masking policies to shared objects — consumers see a governed subset of your data.</div>
+              <div class="ds-card-label" data-i18n="ds-card-label.6">Governed Sharing</div>
+              <div class="ds-card-desc" data-i18n="ds-card-desc.6">Apply row-level security and dynamic masking policies to shared objects — consumers see a governed subset of your data.</div>
             </div>
           </div>
 
           <div class="ds-panel" id="ds-panel">
-            <div class="ds-panel-code" id="ds-code">-- Select a card above to explore Data Sharing concepts</div>
+            <div class="ds-panel-code" id="ds-code" data-i18n="ds-panel-code">-- Select a card above to explore Data Sharing concepts</div>
             <div class="ds-panel-explain" id="ds-explain">
-              <h4>Zero-ETL Data Sharing</h4>
-              <p>Click any card above to see SQL examples and explanations for each aspect of Snowflake's data sharing model.</p>
-              <p>Sharing in Snowflake is built on a single key insight: consumers mount a read-only view of your actual storage. No data movement, no pipeline, always live.</p>
+              <h4 data-i18n="h4">Zero-ETL Data Sharing</h4>
+              <p data-i18n="p.1">Click any card above to see SQL examples and explanations for each aspect of Snowflake's data sharing model.</p>
+              <p data-i18n="p.2">Sharing in Snowflake is built on a single key insight: consumers mount a read-only view of your actual storage. No data movement, no pipeline, always live.</p>
             </div>
           </div>
         </div>

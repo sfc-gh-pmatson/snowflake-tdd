@@ -139,8 +139,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./storage.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Storage &amp; Tables</span>
-      <span class="nav-label">Clustering &amp; Search Optimization</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Storage &amp; Tables</span>
+      <span class="nav-label" data-i18n="nav-label">Clustering &amp; Search Optimization</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -150,16 +150,16 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Clustering &amp; Search Optimization</div>
-          <div class="s6-sub" style="text-align:center;">Two complementary techniques for accelerating queries on large tables — automatic clustering for range scans, and the Search Optimization Service for point lookups.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Clustering &amp; Search Optimization</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Two complementary techniques for accelerating queries on large tables — automatic clustering for range scans, and the Search Optimization Service for point lookups.</div>
         </div>
 
         <div class="cs-page content-wrap">
 
           <!-- Tab switcher -->
           <div class="cs-tabs">
-            <button class="cs-tab active" onclick="switchTab('clustering')">Clustering</button>
-            <button class="cs-tab" onclick="switchTab('sos')">Search Optimization Service</button>
+            <button class="cs-tab active" onclick="switchTab('clustering')" data-i18n="cs-tab.1">Clustering</button>
+            <button class="cs-tab" onclick="switchTab('sos')" data-i18n="cs-tab.2">Search Optimization Service</button>
           </div>
 
           <div class="cs-panel-wrap">
@@ -169,13 +169,13 @@
 
               <div class="cs-when">
                 <div class="cs-when-card">
-                  <div class="cs-when-label">Use Clustering when</div>
+                  <div class="cs-when-label" data-i18n="cs-when-label.1">Use Clustering when</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Table is &gt;1 TB and queries always filter on the same 1–2 columns (date, region, tenant)</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Data is inserted out of order relative to your filter columns</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>You see high partition scan counts despite reasonable predicates</div>
                 </div>
                 <div class="cs-when-card">
-                  <div class="cs-when-label">Skip Clustering when</div>
+                  <div class="cs-when-label" data-i18n="cs-when-label.2">Skip Clustering when</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Table is &lt;500 GB — micro-partitioning already prunes well</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Queries filter on many different columns with no dominant pattern</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Table is append-only with natural time-order (already well-clustered)</div>
@@ -188,40 +188,40 @@
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-structured" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Choosing a Cluster Key</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.1">Choosing a Cluster Key</div>
                   </div>
-                  <div class="cs-card-desc">Pick columns that appear most often in WHERE clauses and have moderate-to-high cardinality. Low-cardinality columns (e.g. boolean) provide little benefit; too-high cardinality (UUID) spreads rows too thin.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">CLUSTER BY</span><span class="cs-chip">cardinality</span><span class="cs-chip">filter patterns</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.1">Pick columns that appear most often in WHERE clauses and have moderate-to-high cardinality. Low-cardinality columns (e.g. boolean) provide little benefit; too-high cardinality (UUID) spreads rows too thin.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.1">CLUSTER BY</span><span class="cs-chip" data-i18n="cs-chip.2">cardinality</span><span class="cs-chip" data-i18n="cs-chip.3">filter patterns</span></div>
                 </div>
                 <div class="cs-card" data-fn="auto-recluster">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-speed-2" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Automatic Reclustering</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.2">Automatic Reclustering</div>
                   </div>
-                  <div class="cs-card-desc">Once a cluster key is defined, Snowflake monitors clustering depth and triggers reclustering serverlessly in the background as DML causes disorder. No manual ALTER or rebuild commands needed.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">Serverless</span><span class="cs-chip">Background</span><span class="cs-chip">Zero maintenance</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.2">Once a cluster key is defined, Snowflake monitors clustering depth and triggers reclustering serverlessly in the background as DML causes disorder. No manual ALTER or rebuild commands needed.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.4">Serverless</span><span class="cs-chip" data-i18n="cs-chip.5">Background</span><span class="cs-chip" data-i18n="cs-chip.6">Zero maintenance</span></div>
                 </div>
                 <div class="cs-card" data-fn="cluster-monitor">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Monitoring Clustering Depth</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.3">Monitoring Clustering Depth</div>
                   </div>
-                  <div class="cs-card-desc">SYSTEM$CLUSTERING_INFORMATION returns average depth and average overlaps. Lower depth = better pruning. Track reclustering credit consumption via AUTOMATIC_CLUSTERING_HISTORY.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">SYSTEM$CLUSTERING_INFORMATION</span><span class="cs-chip">avg_depth</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.3">SYSTEM$CLUSTERING_INFORMATION returns average depth and average overlaps. Lower depth = better pruning. Track reclustering credit consumption via AUTOMATIC_CLUSTERING_HISTORY.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.7">SYSTEM$CLUSTERING_INFORMATION</span><span class="cs-chip" data-i18n="cs-chip.8">avg_depth</span></div>
                 </div>
                 <div class="cs-card" data-fn="cluster-cost">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-cost" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Clustering Cost Model</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.4">Clustering Cost Model</div>
                   </div>
-                  <div class="cs-card-desc">Reclustering consumes serverless credits proportional to the data volume reorganized. Balance reclustering savings (less scan cost) against reclustering spend. High-churn tables may recluster frequently; append-heavy tables rarely need it.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">Serverless credits</span><span class="cs-chip">ROI analysis</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.4">Reclustering consumes serverless credits proportional to the data volume reorganized. Balance reclustering savings (less scan cost) against reclustering spend. High-churn tables may recluster frequently; append-heavy tables rarely need it.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.9">Serverless credits</span><span class="cs-chip" data-i18n="cs-chip.10">ROI analysis</span></div>
                 </div>
               </div>
             </div>
@@ -231,13 +231,13 @@
 
               <div class="cs-when">
                 <div class="cs-when-card">
-                  <div class="cs-when-label">Use Search Optimization when</div>
+                  <div class="cs-when-label" data-i18n="cs-when-label.3">Use Search Optimization when</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Queries look up individual rows by high-cardinality key (email, order_id, user_id)</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Equality or range predicates on columns that are NOT the cluster key</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>ILIKE / LIKE substring searches on large text columns</div>
                 </div>
                 <div class="cs-when-card">
-                  <div class="cs-when-label">vs. Clustering</div>
+                  <div class="cs-when-label" data-i18n="cs-when-label.4">vs. Clustering</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>Clustering = range scans on ordered columns (date ranges, regions)</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>SOS = point lookups on any column, independent of physical order</div>
                   <div class="cs-when-item"><div class="cs-when-dot"></div>They complement each other — a table can have both</div>
@@ -250,40 +250,40 @@
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-sql" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Equality &amp; Range Lookups</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.5">Equality &amp; Range Lookups</div>
                   </div>
-                  <div class="cs-card-desc">SOS builds access paths for equality (=, IN) and range (&lt;, &gt;, BETWEEN) predicates on high-cardinality columns. Queries are unchanged — Snowflake automatically uses the access path when it helps.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">EQUALITY(...)</span><span class="cs-chip">RANGE(...)</span><span class="cs-chip">Transparent</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.5">SOS builds access paths for equality (=, IN) and range (&lt;, &gt;, BETWEEN) predicates on high-cardinality columns. Queries are unchanged — Snowflake automatically uses the access path when it helps.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.11">EQUALITY(...)</span><span class="cs-chip" data-i18n="cs-chip.12">RANGE(...)</span><span class="cs-chip" data-i18n="cs-chip.13">Transparent</span></div>
                 </div>
                 <div class="cs-card" data-fn="sos-substring">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-semi-struct" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Substring &amp; VARIANT Search</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.6">Substring &amp; VARIANT Search</div>
                   </div>
-                  <div class="cs-card-desc">Enable substring search for LIKE '%term%' and ILIKE patterns on text columns. Also supports equality lookups on VARIANT sub-field values without full JSON extraction on every row.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">SUBSTRING(...)</span><span class="cs-chip">LIKE / ILIKE</span><span class="cs-chip">VARIANT paths</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.6">Enable substring search for LIKE '%term%' and ILIKE patterns on text columns. Also supports equality lookups on VARIANT sub-field values without full JSON extraction on every row.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.14">SUBSTRING(...)</span><span class="cs-chip" data-i18n="cs-chip.15">LIKE / ILIKE</span><span class="cs-chip" data-i18n="cs-chip.16">VARIANT paths</span></div>
                 </div>
                 <div class="cs-card" data-fn="sos-setup">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-data-eng" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Setup &amp; Management</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.7">Setup &amp; Management</div>
                   </div>
-                  <div class="cs-card-desc">One ALTER TABLE command enables SOS on specific columns and access types. Snowflake builds the access paths offline — no table lock, no impact to queries during build. Disable per-column to control storage cost.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">ALTER TABLE</span><span class="cs-chip">ADD SEARCH OPTIMIZATION ON</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.7">One ALTER TABLE command enables SOS on specific columns and access types. Snowflake builds the access paths offline — no table lock, no impact to queries during build. Disable per-column to control storage cost.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.17">ALTER TABLE</span><span class="cs-chip" data-i18n="cs-chip.18">ADD SEARCH OPTIMIZATION ON</span></div>
                 </div>
                 <div class="cs-card" data-fn="sos-monitor">
                   <div class="cs-card-head">
                     <div class="cs-card-icon">
                       <span class="sf-img sf-icon-analytics" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="cs-card-title">Monitoring &amp; Cost</div>
+                    <div class="cs-card-title" data-i18n="cs-card-title.8">Monitoring &amp; Cost</div>
                   </div>
-                  <div class="cs-card-desc">SOS builds access paths incrementally, consuming serverless credits. Monitor build progress and query acceleration via SEARCH_OPTIMIZATION_HISTORY and EXPLAIN plans — look for "Search Optimization: YES" in the plan output.</div>
-                  <div class="cs-card-chips"><span class="cs-chip">SEARCH_OPTIMIZATION_HISTORY</span><span class="cs-chip">EXPLAIN</span></div>
+                  <div class="cs-card-desc" data-i18n="cs-card-desc.8">SOS builds access paths incrementally, consuming serverless credits. Monitor build progress and query acceleration via SEARCH_OPTIMIZATION_HISTORY and EXPLAIN plans — look for "Search Optimization: YES" in the plan output.</div>
+                  <div class="cs-card-chips"><span class="cs-chip" data-i18n="cs-chip.19">SEARCH_OPTIMIZATION_HISTORY</span><span class="cs-chip" data-i18n="cs-chip.20">EXPLAIN</span></div>
                 </div>
               </div>
             </div>
@@ -292,7 +292,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

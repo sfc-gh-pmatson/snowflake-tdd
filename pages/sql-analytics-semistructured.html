@@ -58,25 +58,25 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
-      <span class="nav-label">Semi-Structured / JSON</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Analytics</span>
+      <span class="nav-label" data-i18n="nav-label">Semi-Structured / JSON</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Semi-Structured Data &amp; JSON</div>
-          <div class="s6-sub" style="text-align:center;">Land raw JSON. Query it immediately. Add structure progressively. No schema definition upfront.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Semi-Structured Data &amp; JSON</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Land raw JSON. Query it immediately. Add structure progressively. No schema definition upfront.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="ss-grid">
-            <div class="ss-card active" data-idx="0"><div class="ss-card-label">VARIANT &amp; Path Syntax</div><div class="ss-card-desc">Typed read-on-access with colon notation</div></div>
-            <div class="ss-card" data-idx="1"><div class="ss-card-label">FLATTEN</div><div class="ss-card-desc">Explode nested arrays into rows</div></div>
-            <div class="ss-card" data-idx="2"><div class="ss-card-label">OBJECT_CONSTRUCT</div><div class="ss-card-desc">Build JSON from structured data</div></div>
-            <div class="ss-card" data-idx="3"><div class="ss-card-label">PARSE_JSON</div><div class="ss-card-desc">Ingest raw JSON strings safely</div></div>
-            <div class="ss-card" data-idx="4"><div class="ss-card-label">INFER_SCHEMA</div><div class="ss-card-desc">Auto-detect schema from staged files</div></div>
-            <div class="ss-card" data-idx="5"><div class="ss-card-label">ARRAY Functions</div><div class="ss-card-desc">ARRAY_CONTAINS, ARRAY_SIZE, ARRAY_SLICE</div></div>
+            <div class="ss-card active" data-idx="0"><div class="ss-card-label" data-i18n="ss-card-label.1">VARIANT &amp; Path Syntax</div><div class="ss-card-desc" data-i18n="ss-card-desc.1">Typed read-on-access with colon notation</div></div>
+            <div class="ss-card" data-idx="1"><div class="ss-card-label" data-i18n="ss-card-label.2">FLATTEN</div><div class="ss-card-desc" data-i18n="ss-card-desc.2">Explode nested arrays into rows</div></div>
+            <div class="ss-card" data-idx="2"><div class="ss-card-label" data-i18n="ss-card-label.3">OBJECT_CONSTRUCT</div><div class="ss-card-desc" data-i18n="ss-card-desc.3">Build JSON from structured data</div></div>
+            <div class="ss-card" data-idx="3"><div class="ss-card-label" data-i18n="ss-card-label.4">PARSE_JSON</div><div class="ss-card-desc" data-i18n="ss-card-desc.4">Ingest raw JSON strings safely</div></div>
+            <div class="ss-card" data-idx="4"><div class="ss-card-label" data-i18n="ss-card-label.5">INFER_SCHEMA</div><div class="ss-card-desc" data-i18n="ss-card-desc.5">Auto-detect schema from staged files</div></div>
+            <div class="ss-card" data-idx="5"><div class="ss-card-label" data-i18n="ss-card-label.6">ARRAY Functions</div><div class="ss-card-desc" data-i18n="ss-card-desc.6">ARRAY_CONTAINS, ARRAY_SIZE, ARRAY_SLICE</div></div>
           </div>
           <div class="ss-panel">
             <div id="ss-code" class="ss-panel-code"></div>
@@ -103,13 +103,29 @@
 <span class="code-kw">WHERE</span> <span class="code-id">e</span><span class="code-punc">:</span><span class="code-id">user</span><span class="code-punc">:</span><span class="code-id">tier</span><span class="code-punc">::</span><span class="code-fn">STRING</span> <span class="code-punc">=</span> <span class="code-str">'premium'</span><span class="code-punc">;</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>JSON + FLATTEN in one query</h4>
-      <p>Access nested JSON fields with colon path syntax. LATERAL FLATTEN explodes the tags array so each tag becomes its own row joined to its parent event.</p>
-      <p>The WHERE clause filters on a nested field — Snowflake pushes the predicate down into the VARIANT scan.</p>
+      <h4 data-i18n="h4">JSON + FLATTEN in one query</h4>
+      <p data-i18n="p.1">Access nested JSON fields with colon path syntax. LATERAL FLATTEN explodes the tags array so each tag becomes its own row joined to its parent event.</p>
+      <p data-i18n="p.2">The WHERE clause filters on a nested field — Snowflake pushes the predicate down into the VARIANT scan.</p>
     </div>
   </div>
 
   <script>
+
+    // ── i18n for the explain prose ─────────────────────────────────
+    // This prose is built in JS and injected as innerHTML, so data-i18n
+    // cannot reach it. Ask the i18n layer for a translated block, falling
+    // back to the English written above, and re-render on language change.
+    var __exEl = null, __exItem = null;
+    function __setExplain(el, item) {
+      __exEl = el; __exItem = item;
+      el.innerHTML = (window.TDD_I18N && window.TDD_I18N.block('explain.' + item.key))
+                     || item.explain;
+    }
+    if (window.TDD_I18N) {
+      window.TDD_I18N.onChange(function() {
+        if (__exEl && __exItem) __setExplain(__exEl, __exItem);
+      });
+    }
     const k = s => `<span class="code-kw">${s}</span>`;
     const f = s => `<span class="code-fn">${s}</span>`;
     const id = s => `<span class="code-id">${s}</span>`;
@@ -121,27 +137,27 @@
     const ITEMS = [
       { label: 'VARIANT & Path Syntax',
         code: `${cm('-- Access nested JSON fields with : path syntax')}\n${k('SELECT')}\n  ${id('payload')}${p(':')}${id('user')}${p(':')}${id('id')}${p('::')}${f('STRING')}   ${k('AS')} ${id('user_id')}\n  ${p(',')} ${id('payload')}${p(':')}${id('user')}${p(':')}${id('email')}${p('::')}${f('STRING')} ${k('AS')} ${id('email')}\n  ${p(',')} ${id('payload')}${p(':')}${id('amount')}${p('::')}${f('FLOAT')}       ${k('AS')} ${id('amount')}\n  ${p(',')} ${id('payload')}${p(':')}${id('ts')}${p('::')}${f('TIMESTAMP')}        ${k('AS')} ${id('event_ts')}\n${k('FROM')} ${id('raw_events')}\n${k('WHERE')} ${id('payload')}${p(':')}${id('status')}${p('::')}${f('STRING')} ${p('=')} ${str("'completed'")}\n${p(';')}\n\n${cm('-- Missing keys return NULL, not an error')}\n${cm('-- payload:missing_key::STRING => NULL')}`,
-        explain: `<h4>VARIANT Path Syntax</h4><p>Access nested JSON using colon-dot notation: <code>payload:user:id</code>. Cast on read with <code>::TYPE</code>.</p><p><strong>Rules:</strong></p><ul><li>Missing keys return NULL — no error</li><li>Cast immediately to avoid implicit string coercion</li><li>Snowflake builds a virtual column index on VARIANT paths automatically</li></ul><p>No schema change required to add new JSON fields — they're immediately queryable.</p>` },
+        key: 'variant-path-syntax', explain: `<h4>VARIANT Path Syntax</h4><p>Access nested JSON using colon-dot notation: <code>payload:user:id</code>. Cast on read with <code>::TYPE</code>.</p><p><strong>Rules:</strong></p><ul><li>Missing keys return NULL — no error</li><li>Cast immediately to avoid implicit string coercion</li><li>Snowflake builds a virtual column index on VARIANT paths automatically</li></ul><p>No schema change required to add new JSON fields — they're immediately queryable.</p>` },
 
       { label: 'FLATTEN',
         code: `${cm('-- Explode a JSON array into one row per element')}\n${k('SELECT')}\n  ${id('e')}.${id('event_id')}\n  ${p(',')} ${id('item')}.${id('value')}${p(':')}${id('product_id')}${p('::')}${f('STRING')}   ${k('AS')} ${id('product_id')}\n  ${p(',')} ${id('item')}.${id('value')}${p(':')}${id('quantity')}${p('::')}${f('INT')}    ${k('AS')} ${id('qty')}\n  ${p(',')} ${id('item')}.${id('value')}${p(':')}${id('price')}${p('::')}${f('FLOAT')}    ${k('AS')} ${id('price')}\n${k('FROM')} ${id('orders')} ${id('e')}\n  ${p(',')} ${k('LATERAL')} ${f('FLATTEN')}${p('(')}\n    ${id('input')} ${p('=>')} ${id('e')}.${id('payload')}${p(':')}${id('line_items')}\n  ${p(')')} ${id('item')}${p(';')}`,
-        explain: `<h4>FLATTEN</h4><p>Converts a JSON array into rows. Each element in the array becomes a separate row joined to its parent.</p><p><strong>LATERAL FLATTEN:</strong> Cross-joins each array to its parent row. An order with 3 line items produces 3 rows — one per item.</p><p>Access the current element via <code>item.value</code>. Use <code>item.index</code> for position, <code>item.path</code> for the path string.</p>` },
+        key: 'flatten', explain: `<h4>FLATTEN</h4><p>Converts a JSON array into rows. Each element in the array becomes a separate row joined to its parent.</p><p><strong>LATERAL FLATTEN:</strong> Cross-joins each array to its parent row. An order with 3 line items produces 3 rows — one per item.</p><p>Access the current element via <code>item.value</code>. Use <code>item.index</code> for position, <code>item.path</code> for the path string.</p>` },
 
       { label: 'OBJECT_CONSTRUCT',
         code: `${cm('-- Build JSON from structured relational data')}\n${k('SELECT')}\n  ${id('order_id')}\n  ${p(',')} ${f('OBJECT_CONSTRUCT')}${p('(')}\n    ${str("'customer'")}${p(',')} ${id('customer_name')}\n    ${p(',')} ${str("'total'")}${p(',')} ${id('total_amount')}\n    ${p(',')} ${str("'status'")}${p(',')} ${id('order_status')}\n    ${p(',')} ${str("'items'")}${p(',')} ${f('ARRAY_AGG')}${p('(')}${f('OBJECT_CONSTRUCT')}${p('(')}\n      ${str("'sku'")}${p(',')} ${id('sku')}\n      ${p(',')} ${str("'qty'")}${p(',')} ${id('quantity')}\n    ${p(')))')}\n  ${p(')')} ${k('AS')} ${id('order_json')}\n${k('FROM')} ${id('orders')} ${k('JOIN')} ${id('order_items')} ${k('USING')} ${p('(')}${id('order_id')}${p(')')}\n${k('GROUP BY')} ${n('1')}${p(',')} ${n('2')}${p(',')} ${n('3')}${p(',')} ${n('4')}${p(';')}`,
-        explain: `<h4>OBJECT_CONSTRUCT &amp; ARRAY_AGG</h4><p>Build structured JSON from relational data. <code>OBJECT_CONSTRUCT</code> creates a JSON object from key-value pairs. <code>ARRAY_AGG</code> collects rows into a JSON array.</p><p>Use this to produce API-ready JSON responses from normalized tables without an application layer doing the assembly.</p>` },
+        key: 'object-construct-and-array-agg', explain: `<h4>OBJECT_CONSTRUCT &amp; ARRAY_AGG</h4><p>Build structured JSON from relational data. <code>OBJECT_CONSTRUCT</code> creates a JSON object from key-value pairs. <code>ARRAY_AGG</code> collects rows into a JSON array.</p><p>Use this to produce API-ready JSON responses from normalized tables without an application layer doing the assembly.</p>` },
 
       { label: 'PARSE_JSON',
         code: `${cm('-- Safe JSON ingestion from a string column')}\n${k('SELECT')}\n  ${id('id')}\n  ${p(',')} ${f('TRY_PARSE_JSON')}${p('(')}${id('raw_json')}\n  ${p(')')} ${k('AS')} ${id('parsed')}\n${k('FROM')} ${id('inbound_messages')}${p(';')}\n\n${cm('-- Use TRY_PARSE_JSON to handle malformed JSON')}\n${cm('-- Returns NULL instead of raising an error')}\n\n${cm('-- Store parsed result in a VARIANT column')}\n${k('UPDATE')} ${id('messages')}\n${k('SET')} ${id('payload')} ${p('=')} ${f('TRY_PARSE_JSON')}${p('(')}${id('raw_json')}${p(')')}\n${k('WHERE')} ${f('TRY_PARSE_JSON')}${p('(')}${id('raw_json')}${p(')')} ${k('IS NOT NULL')}${p(';')}`,
-        explain: `<h4>PARSE_JSON &amp; TRY_PARSE_JSON</h4><p>Convert a JSON string column into a queryable VARIANT value.</p><p><strong>PARSE_JSON</strong> — raises an error on malformed JSON. Use when you control the source and know it's valid.</p><p><strong>TRY_PARSE_JSON</strong> — returns NULL on malformed input. Use for untrusted sources like webhook payloads or user-submitted data.</p>` },
+        key: 'parse-json-and-try-parse-json', explain: `<h4>PARSE_JSON &amp; TRY_PARSE_JSON</h4><p>Convert a JSON string column into a queryable VARIANT value.</p><p><strong>PARSE_JSON</strong> — raises an error on malformed JSON. Use when you control the source and know it's valid.</p><p><strong>TRY_PARSE_JSON</strong> — returns NULL on malformed input. Use for untrusted sources like webhook payloads or user-submitted data.</p>` },
 
       { label: 'INFER_SCHEMA',
         code: `${cm('-- Auto-detect schema from Parquet files in a stage')}\n${k('SELECT')} ${p('*')}\n${k('FROM')} ${f('TABLE')}${p('(')}\n  ${f('INFER_SCHEMA')}${p('(')}\n    ${id('LOCATION')} ${p('=>')} ${str("'@my_stage/data/'")}\n    ${p(',')} ${id('FILE_FORMAT')} ${p('=>')} ${str("'my_parquet_format'")}\n  ${p('))')}\n${k('ORDER BY')} ${id('ORDER_ID')}${p(';')}\n\n${cm('-- Use the result to CREATE TABLE automatically')}\n${k('CREATE OR REPLACE TABLE')} ${id('events')}\n  ${k('USING TEMPLATE')} ${p('(')}\n    ${k('SELECT')} ${f('ARRAY_AGG')}${p('(')}${id('OBJECT_CONSTRUCT')}\n      ${p('(*)')}${p(')')}\n    ${k('FROM')} ${f('TABLE')}${p('(')}${f('INFER_SCHEMA')}${p('(')}\n      ${id('LOCATION')} ${p('=>')} ${str("'@my_stage/data/'")}${p(',')}\n      ${id('FILE_FORMAT')} ${p('=>')} ${str("'my_parquet_format'")}${p('))')}\n  ${p(')')}\n${p(';')}`,
-        explain: `<h4>INFER_SCHEMA</h4><p>Automatically detects column names, types, and nullability from Parquet, Avro, ORC, or JSON files in a stage.</p><p>Use <code>USING TEMPLATE</code> with the ARRAY_AGG pattern to create a properly typed table without manually writing DDL.</p><p>Eliminates the "schema guessing" step when onboarding new data sources — run INFER_SCHEMA, review the output, adjust if needed, and CREATE TABLE.</p>` },
+        key: 'infer-schema', explain: `<h4>INFER_SCHEMA</h4><p>Automatically detects column names, types, and nullability from Parquet, Avro, ORC, or JSON files in a stage.</p><p>Use <code>USING TEMPLATE</code> with the ARRAY_AGG pattern to create a properly typed table without manually writing DDL.</p><p>Eliminates the "schema guessing" step when onboarding new data sources — run INFER_SCHEMA, review the output, adjust if needed, and CREATE TABLE.</p>` },
 
       { label: 'ARRAY Functions',
         code: `${cm('-- ARRAY_CONTAINS: check if value is in array')}\n${k('SELECT')} ${p('*')} ${k('FROM')} ${id('products')}\n${k('WHERE')} ${f('ARRAY_CONTAINS')}${p('(')}\n  ${str("'electronics'")}${p('::')}${f('VARIANT')}\n  ${p(',')} ${id('tags')}\n${p(')')}\n\n${cm('-- ARRAY_SIZE: count elements')}\n${k('SELECT')} ${id('order_id')}\n  ${p(',')} ${f('ARRAY_SIZE')}${p('(')}${id('items')}${p(')')} ${k('AS')} ${id('item_count')}\n${k('FROM')} ${id('orders')}${p(';')}\n\n${cm('-- ARRAY_SLICE: extract a sub-array')}\n${k('SELECT')} ${f('ARRAY_SLICE')}${p('(')}${id('tags')}${p(',')} ${n('0')}${p(',')} ${n('3')}${p(')')} ${k('AS')} ${id('first_3_tags')}\n${k('FROM')} ${id('products')}${p(';')}\n\n${cm('-- ARRAYS_OVERLAP: test if two arrays share elements')}\n${k('SELECT')} ${p('*')} ${k('FROM')} ${id('products')}\n${k('WHERE')} ${f('ARRAYS_OVERLAP')}${p('(')}${id('tags')}${p(',')} ${id('search_tags')}${p(')')}${p(';')}`,
-        explain: `<h4>Array Functions</h4><p>Work directly with JSON arrays without FLATTEN when you only need a check or simple extraction.</p><ul><li><strong>ARRAY_CONTAINS(value, array)</strong> — returns true if value is in the array. Note: value must be cast to VARIANT.</li><li><strong>ARRAY_SIZE(array)</strong> — returns the number of elements.</li><li><strong>ARRAY_SLICE(array, from, to)</strong> — returns a sub-array by index range.</li><li><strong>ARRAYS_OVERLAP(a, b)</strong> — returns true if any element appears in both arrays.</li></ul>` },
+        key: 'array-functions', explain: `<h4>Array Functions</h4><p>Work directly with JSON arrays without FLATTEN when you only need a check or simple extraction.</p><ul><li><strong>ARRAY_CONTAINS(value, array)</strong> — returns true if value is in the array. Note: value must be cast to VARIANT.</li><li><strong>ARRAY_SIZE(array)</strong> — returns the number of elements.</li><li><strong>ARRAY_SLICE(array, from, to)</strong> — returns a sub-array by index range.</li><li><strong>ARRAYS_OVERLAP(a, b)</strong> — returns true if any element appears in both arrays.</li></ul>` },
     ];
 
     let currentIdx = 0;
@@ -149,7 +165,7 @@
       currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
       const item = ITEMS[currentIdx];
       document.getElementById('ss-code').innerHTML = item.code;
-      document.getElementById('ss-explain').innerHTML = item.explain;
+      __setExplain(document.getElementById('ss-explain'), item);
       document.querySelectorAll('.ss-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
     }
     document.querySelectorAll('.ss-card[data-idx]').forEach(el => {

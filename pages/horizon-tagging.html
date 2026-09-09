@@ -89,45 +89,45 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Governance</span>
-      <span class="nav-label">Tagging</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Governance</span>
+      <span class="nav-label" data-i18n="nav-label">Tagging</span>
     </div>
 
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Tagging</div>
-          <div class="s6-sub" style="text-align:center;">Tag data assets once &#8212; policies propagate automatically to every tagged column, everywhere.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Tagging</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Tag data assets once &#8212; policies propagate automatically to every tagged column, everywhere.</div>
         </div>
 
         <div class="hsp-layout">
           <div class="hsp-left">
-            <div class="hsp-eyebrow">Horizon Catalog &#183; Tagging</div>
+            <div class="hsp-eyebrow" data-i18n="hsp-eyebrow">Horizon Catalog &#183; Tagging</div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon">&#127991;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">System &amp; Custom Tags</div>
-                <div class="hsp-feature-body">Snowflake provides built-in system tags (e.g. <code style="font-size:10px;font-family:monospace;">SNOWFLAKE.CORE.SENSITIVITY</code>) and lets you create custom tags with <code style="font-size:10px;font-family:monospace;">CREATE TAG</code> for your own classification taxonomy.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.1">System &amp; Custom Tags</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.1">Snowflake provides built-in system tags (e.g. <code style="font-size:10px;font-family:monospace;">SNOWFLAKE.CORE.SENSITIVITY</code>) and lets you create custom tags with <code style="font-size:10px;font-family:monospace;">CREATE TAG</code> for your own classification taxonomy.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#11107;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Tag Propagation</div>
-                <div class="hsp-feature-body">Tags set on a table inherit to all columns by default. Column tags propagate to query results. Tags flow through views and joins &#8212; governance follows data, not just objects.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.2">Tag Propagation</div>
+                <div class="hsp-feature-body" data-i18n="hsp-feature-body.2">Tags set on a table inherit to all columns by default. Column tags propagate to query results. Tags flow through views and joins &#8212; governance follows data, not just objects.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#128274;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Policy Inheritance</div>
-                <div class="hsp-feature-body">Masking and row-access policies can be bound to a tag rather than a column. Tag a column &#8220;PII&#8221; and the masking policy applies automatically &#8212; to every column with that tag, everywhere.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.3">Policy Inheritance</div>
+                <div class="hsp-feature-body" data-i18n="hsp-feature-body.3">Masking and row-access policies can be bound to a tag rather than a column. Tag a column &#8220;PII&#8221; and the masking policy applies automatically &#8212; to every column with that tag, everywhere.</div>
               </div>
             </div>
           </div>
           <div class="hsp-right">
-            <div class="hsp-code">
+            <div class="hsp-code" data-i18n-html="hsp-code">
               <span class="code-comment">-- Create a custom sensitivity tag</span><br>
               <span class="code-kw">CREATE</span> <span class="code-fn">TAG</span> <span class="code-id">governance.tags.pii</span><br>
               &nbsp;&nbsp;<span class="code-fn">ALLOWED_VALUES</span> <span class="code-str">'email'</span><span class="code-punc">,</span> <span class="code-str">'ssn'</span><span class="code-punc">,</span> <span class="code-str">'phone'</span><span class="code-punc">;</span><br>
@@ -145,7 +145,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

@@ -385,16 +385,16 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Platform</span>
-      <span class="nav-label">Snowgrid — Cross-Cloud Multi-Region</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Platform</span>
+      <span class="nav-label" data-i18n="nav-label">Snowgrid — Cross-Cloud Multi-Region</span>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
         <!-- Shared header block -->
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Global Cloud Infrastructure</div>
-          <div class="s6-sub" style="text-align:center;">Snowflake runs natively across AWS, Azure, and Google Cloud in 50+ regions worldwide.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Global Cloud Infrastructure</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Snowflake runs natively across AWS, Azure, and Google Cloud in 50+ regions worldwide.</div>
         </div>
 
         <div class="sg-layout">
@@ -408,8 +408,8 @@
               <div class="sg-cloud-logo sg-cloud-logo-aws img-ext-aws"></div>
               <div class="sg-pulse-ring"></div>
             </div>
-            <span class="sg-cloud-name">AWS</span>
-            <span class="sg-cloud-count-badge">26 regions</span>
+            <span class="sg-cloud-name" data-i18n="sg-cloud-name.1">AWS</span>
+            <span class="sg-cloud-count-badge" data-i18n="sg-cloud-count-badge.1">26 regions</span>
           </div>
 
           <!-- Azure node -->
@@ -418,8 +418,8 @@
               <div class="sg-cloud-logo sg-cloud-logo-azure img-ext-azure-logo"></div>
               <div class="sg-pulse-ring"></div>
             </div>
-            <span class="sg-cloud-name">Azure</span>
-            <span class="sg-cloud-count-badge">19 regions</span>
+            <span class="sg-cloud-name" data-i18n="sg-cloud-name.2">Azure</span>
+            <span class="sg-cloud-count-badge" data-i18n="sg-cloud-count-badge.2">19 regions</span>
           </div>
 
           <!-- GCP node -->
@@ -428,8 +428,8 @@
               <div class="sg-cloud-logo sg-cloud-logo-gcp img-ext-gcp-logo"></div>
               <div class="sg-pulse-ring"></div>
             </div>
-            <span class="sg-cloud-name">Google Cloud</span>
-            <span class="sg-cloud-count-badge">7 regions</span>
+            <span class="sg-cloud-name" data-i18n="sg-cloud-name.3">Google Cloud</span>
+            <span class="sg-cloud-count-badge" data-i18n="sg-cloud-count-badge.3">7 regions</span>
           </div>
 
           <!-- Inner map area: world map bg + dots + arrows (pointer-events off) -->
@@ -437,7 +437,7 @@
 
           <!-- Legend boxes -->
           <div class="globe-legend-box">
-            <div class="globe-legend-label">Across Data Types</div>
+            <div class="globe-legend-label" data-i18n="globe-legend-label.1">Across Data Types</div>
             <div class="globe-legend-icons">
               <span class="sf-img sf-icon-structured"   style="width:32px;height:32px;"></span>
               <span class="sf-img sf-icon-semi-struct"  style="width:32px;height:32px;"></span>
@@ -445,7 +445,7 @@
             </div>
           </div>
           <a href="bcdr.html" class="globe-legend-box center-side">
-            <div class="globe-legend-label">BC &amp; DR</div>
+            <div class="globe-legend-label" data-i18n="globe-legend-label.2">BC &amp; DR</div>
             <div class="globe-legend-icons">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2z"/>
@@ -454,7 +454,7 @@
             </div>
           </a>
           <div class="globe-legend-box right-side">
-            <div class="globe-legend-label">Across Storage Formats</div>
+            <div class="globe-legend-label" data-i18n="globe-legend-label.3">Across Storage Formats</div>
             <div class="globe-legend-icons">
               <span class="sf-img sf-icon-server"  style="width:32px;height:32px;"></span>
               <span class="sf-img sf-icon-cloud"   style="width:32px;height:32px;"></span>
@@ -462,7 +462,7 @@
             </div>
           </div>
 
-          <div class="sg-hint">Click a cloud provider to explore supported regions</div>
+          <div class="sg-hint" data-i18n="sg-hint">Click a cloud provider to explore supported regions</div>
         </div>
 
         <!-- ════════ Region panel ════════ -->
@@ -470,7 +470,7 @@
           <div class="sg-panel-header">
             <div class="sg-panel-cloud-name">
               <div class="sg-panel-cloud-dot" id="sg-panel-dot"></div>
-              <span id="sg-panel-title-text">Select a Cloud Provider</span>
+              <span id="sg-panel-title-text" data-i18n="span.1">Select a Cloud Provider</span>
             </div>
             <div class="sg-panel-region-count" id="sg-panel-count"></div>
           </div>
@@ -485,7 +485,7 @@
         </div><!-- /sg-layout -->
 
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span.2">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
       </div><!-- /sf-slide -->
     </div>

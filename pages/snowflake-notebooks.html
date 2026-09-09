@@ -58,25 +58,25 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./sql-analytics.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
-      <span class="nav-label">Snowflake Notebooks</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Analytics</span>
+      <span class="nav-label" data-i18n="nav-label">Snowflake Notebooks</span>
       <div class="nav-tags"><span class="nav-tag nav-tag-ga">Generally Available</span></div>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Notebooks</div>
-          <div class="s6-sub" style="text-align:center;">SQL and Python in one governed workspace. Runs on Snowflake compute. No local environment, no data export, no kernel management.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Snowflake Notebooks</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">SQL and Python in one governed workspace. Runs on Snowflake compute. No local environment, no data export, no kernel management.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="nb-grid">
-            <div class="nb-card active" data-idx="0"><div class="nb-card-label">SQL + Python Cells</div><div class="nb-card-desc">Mix SQL and Python freely in one notebook</div></div>
-            <div class="nb-card" data-idx="1"><div class="nb-card-label">Snowpark Integration</div><div class="nb-card-desc">Snowpark DataFrames and UDFs from notebook cells</div></div>
-            <div class="nb-card" data-idx="2"><div class="nb-card-label">Cortex AI in Notebooks</div><div class="nb-card-desc">Call AI functions and agents directly in cells</div></div>
-            <div class="nb-card" data-idx="3"><div class="nb-card-label">Python Packages</div><div class="nb-card-desc">1000+ Anaconda packages, no pip install needed</div></div>
-            <div class="nb-card" data-idx="4"><div class="nb-card-label">Git + Sharing</div><div class="nb-card-desc">Version control and governed sharing within Snowflake</div></div>
-            <div class="nb-card" data-idx="5"><div class="nb-card-label">Container Runtime</div><div class="nb-card-desc">GPU compute, custom packages, deep learning workloads</div></div>
+            <div class="nb-card active" data-idx="0"><div class="nb-card-label" data-i18n="nb-card-label.1">SQL + Python Cells</div><div class="nb-card-desc" data-i18n="nb-card-desc.1">Mix SQL and Python freely in one notebook</div></div>
+            <div class="nb-card" data-idx="1"><div class="nb-card-label" data-i18n="nb-card-label.2">Snowpark Integration</div><div class="nb-card-desc" data-i18n="nb-card-desc.2">Snowpark DataFrames and UDFs from notebook cells</div></div>
+            <div class="nb-card" data-idx="2"><div class="nb-card-label" data-i18n="nb-card-label.3">Cortex AI in Notebooks</div><div class="nb-card-desc" data-i18n="nb-card-desc.3">Call AI functions and agents directly in cells</div></div>
+            <div class="nb-card" data-idx="3"><div class="nb-card-label" data-i18n="nb-card-label.4">Python Packages</div><div class="nb-card-desc" data-i18n="nb-card-desc.4">1000+ Anaconda packages, no pip install needed</div></div>
+            <div class="nb-card" data-idx="4"><div class="nb-card-label" data-i18n="nb-card-label.5">Git + Sharing</div><div class="nb-card-desc" data-i18n="nb-card-desc.5">Version control and governed sharing within Snowflake</div></div>
+            <div class="nb-card" data-idx="5"><div class="nb-card-label" data-i18n="nb-card-label.6">Container Runtime</div><div class="nb-card-desc" data-i18n="nb-card-desc.6">GPU compute, custom packages, deep learning workloads</div></div>
           </div>
           <div class="nb-panel">
             <div id="nb-code" class="nb-panel-code"></div>
@@ -110,13 +110,29 @@
 <span class="code-id">result</span><span class="code-punc">.</span><span class="code-fn">hist</span><span class="code-punc">(</span><span class="code-id">column</span><span class="code-punc">=</span><span class="code-str">'sentiment'</span><span class="code-punc">)</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>Python Cell Pattern</h4>
-      <p>Use <code>get_active_session()</code> to get the Snowflake session. Reference previous SQL cell results with <code>cell1.to_pandas()</code>.</p>
-      <p>Cortex AI functions are called via <code>session.sql()</code> — they run server-side on the full dataset before results come back to Python.</p>
+      <h4 data-i18n="h4">Python Cell Pattern</h4>
+      <p data-i18n-html="p.1">Use <code>get_active_session()</code> to get the Snowflake session. Reference previous SQL cell results with <code>cell1.to_pandas()</code>.</p>
+      <p data-i18n-html="p.2">Cortex AI functions are called via <code>session.sql()</code> — they run server-side on the full dataset before results come back to Python.</p>
     </div>
   </div>
 
   <script>
+
+    // ── i18n for the explain prose ─────────────────────────────────
+    // This prose is built in JS and injected as innerHTML, so data-i18n
+    // cannot reach it. Ask the i18n layer for a translated block, falling
+    // back to the English written above, and re-render on language change.
+    var __exEl = null, __exItem = null;
+    function __setExplain(el, item) {
+      __exEl = el; __exItem = item;
+      el.innerHTML = (window.TDD_I18N && window.TDD_I18N.block('explain.' + item.key))
+                     || item.explain;
+    }
+    if (window.TDD_I18N) {
+      window.TDD_I18N.onChange(function() {
+        if (__exEl && __exItem) __setExplain(__exEl, __exItem);
+      });
+    }
     const k = s => `<span class="code-kw">${s}</span>`;
     const f = s => `<span class="code-fn">${s}</span>`;
     const id = s => `<span class="code-id">${s}</span>`;
@@ -128,27 +144,27 @@
     const ITEMS = [
       { label: 'SQL + Python Cells',
         code: `${cm('-- SQL cell (cell1): query your data')}\n${k('SELECT')}\n  ${id('region')}\n  ${p(',')} ${f('SUM')}${p('(')}${id('revenue')}${p(')')} ${k('AS')} ${id('total_rev')}\n${k('FROM')} ${id('orders')}\n${k('WHERE')} ${id('year')} ${p('=')} ${n('2025')}\n${k('GROUP BY')} ${id('region')}${p(';')}\n\n${cm('# Python cell (cell2): use the SQL result')}\n${id('df')} ${p('=')} ${id('cell1')}.${f('to_pandas')}${p('()')}\n\n${cm('# Visualize with matplotlib (built-in)')}\n${id('df')}.${f('plot')}.${f('bar')}${p('(')}\n  ${id('x')}${p('=')}${str("'region'")}${p(',')} ${id('y')}${p('=')}${str("'total_rev'")}\n${p(')')}`,
-        explain: `<h4>SQL + Python in One Notebook</h4><p>Alternate SQL and Python cells freely. Reference any SQL cell result in Python using <code>cellN.to_pandas()</code>.</p><p><strong>No data export needed.</strong> The SQL cell runs on your warehouse and returns results. Python cells access those results as DataFrames without moving data to a local machine.</p><p>Matplotlib, Plotly, Altair, and Streamlit widgets all work in notebook cells for inline visualization.</p>` },
+        key: 'sql-python-in-one-notebook', explain: `<h4>SQL + Python in One Notebook</h4><p>Alternate SQL and Python cells freely. Reference any SQL cell result in Python using <code>cellN.to_pandas()</code>.</p><p><strong>No data export needed.</strong> The SQL cell runs on your warehouse and returns results. Python cells access those results as DataFrames without moving data to a local machine.</p><p>Matplotlib, Plotly, Altair, and Streamlit widgets all work in notebook cells for inline visualization.</p>` },
 
       { label: 'Snowpark Integration',
         code: `${cm('# Get the active Snowflake session')}\n${k('from')} ${id('snowflake.snowpark.context')} ${k('import')} ${id('get_active_session')}\n${k('from')} ${id('snowflake.snowpark.functions')} ${k('import')} ${id('col')}${p(',')} ${id('sum_')}\n\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n\n${cm('# Snowpark DataFrame — runs on your warehouse')}\n${id('df')} ${p('=')} ${id('session')}.${f('table')}${p('(')}${str("'orders'")}${p(')')}\n  .${f('filter')}${p('(')}${id('col')}${p('(')}${str("'status'")}${p(')')} ${p('==')} ${str("'open'")}${p(')')}\n  .${f('group_by')}${p('(')}${str("'region'")}${p(')')}\n  .${f('agg')}${p('(')}${id('sum_')}${p('(')}${str("'amount'")}${p('))')}\n\n${cm('# Bring to pandas only when needed')}\n${id('result')} ${p('=')} ${id('df')}.${f('to_pandas')}${p('()')}\n${id('result')}.${f('sort_values')}${p('(')}${str("'SUM(AMOUNT)'")}${p(',')} ${id('ascending')}${p('=')}${k('False')}${p(')')}`,
-        explain: `<h4>Snowpark in Notebooks</h4><p><code>get_active_session()</code> returns the authenticated Snowflake session — no connection string, no credentials, no config file. You're already in Snowflake.</p><p>Snowpark DataFrames execute lazily on the warehouse. Call <code>.to_pandas()</code> only for the final result — avoid pulling large datasets to the Python process unnecessarily.</p>` },
+        key: 'snowpark-in-notebooks', explain: `<h4>Snowpark in Notebooks</h4><p><code>get_active_session()</code> returns the authenticated Snowflake session — no connection string, no credentials, no config file. You're already in Snowflake.</p><p>Snowpark DataFrames execute lazily on the warehouse. Call <code>.to_pandas()</code> only for the final result — avoid pulling large datasets to the Python process unnecessarily.</p>` },
 
       { label: 'Cortex AI in Notebooks',
         code: `${cm('# Call Cortex AI from a Python notebook cell')}\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n\n${cm('# AI functions run server-side on your data')}\n${id('df')} ${p('=')} ${id('session')}.${f('sql')}${p('(')}${str('"""')}\n  ${k('SELECT')}\n    ${id('ticket_id')}\n    ${p(',')} ${f('AI_CLASSIFY')}${p('(')}${id('description')}${p(',')}\n      ${p('[')}${str("'billing'")}${p(',')} ${str("'technical'")}${p(',')} ${str("'account'")}${p(']')}\n    ${p(')')} ${k('AS')} ${id('category')}\n    ${p(',')} ${f('AI_SENTIMENT')}${p('(')}${id('description')}${p(')')} ${k('AS')} ${id('sentiment')}\n  ${k('FROM')} ${id('support_tickets')}\n  ${k('LIMIT')} ${n('5000')}\n${str('"""')}${p(')')}.${f('to_pandas')}${p('()')}\n\n${cm('# Plot sentiment distribution')}\n${id('df')}.${f('hist')}${p('(')}${id('column')}${p('=')}${str("'sentiment'")}${p(',')} ${id('bins')}${p('=')}${n('20')}${p(')')}`,
-        explain: `<h4>Cortex AI in Notebook Cells</h4><p>Call any Cortex AI function from a Python cell via <code>session.sql()</code>. The AI runs server-side on Snowflake's GPU infrastructure — you're not sending data to an external API.</p><p>This means you can run AI_CLASSIFY or AI_SENTIMENT on millions of rows and bring back only the result set to Python for visualization or further analysis.</p>` },
+        key: 'cortex-ai-in-notebook-cells', explain: `<h4>Cortex AI in Notebook Cells</h4><p>Call any Cortex AI function from a Python cell via <code>session.sql()</code>. The AI runs server-side on Snowflake's GPU infrastructure — you're not sending data to an external API.</p><p>This means you can run AI_CLASSIFY or AI_SENTIMENT on millions of rows and bring back only the result set to Python for visualization or further analysis.</p>` },
 
       { label: 'Python Packages',
         code: `${cm('# 1000+ Anaconda packages available — no pip install')}\n${k('import')} ${id('pandas')} ${k('as')} ${id('pd')}\n${k('import')} ${id('numpy')} ${k('as')} ${id('np')}\n${k('import')} ${id('matplotlib.pyplot')} ${k('as')} ${id('plt')}\n${k('import')} ${id('sklearn')}\n${k('import')} ${id('xgboost')}\n${k('import')} ${id('plotly.express')} ${k('as')} ${id('px')}\n${k('import')} ${id('scipy')}\n${k('import')} ${id('statsmodels.api')} ${k('as')} ${id('sm')}\n\n${cm('# Specify versions in notebook settings')}\n${cm('# or via requirements.txt for reproducibility')}\n\n${cm('# PyPI packages also supported via pip in cells:')}\n${cm('# import sys')}\n${cm('# !pip install some-package')}\n${cm('# import some_package')}`,
-        explain: `<h4>Package Ecosystem</h4><p>Snowflake Notebooks have 1000+ Anaconda packages pre-available: pandas, numpy, scikit-learn, XGBoost, LightGBM, Plotly, SciPy, statsmodels, and more.</p><p>No <code>pip install</code> needed for standard packages. For PyPI packages not in Anaconda, you can use <code>!pip install</code> in a cell or add them to the environment configuration.</p><p>Package versions are pinned per notebook for reproducibility.</p>` },
+        key: 'package-ecosystem', explain: `<h4>Package Ecosystem</h4><p>Snowflake Notebooks have 1000+ Anaconda packages pre-available: pandas, numpy, scikit-learn, XGBoost, LightGBM, Plotly, SciPy, statsmodels, and more.</p><p>No <code>pip install</code> needed for standard packages. For PyPI packages not in Anaconda, you can use <code>!pip install</code> in a cell or add them to the environment configuration.</p><p>Package versions are pinned per notebook for reproducibility.</p>` },
 
       { label: 'Git + Sharing',
         code: `${cm('-- Connect a notebook to a Git repository')}\n${cm('-- (done via Snowsight UI, stored as an integration)')}\n\n${k('CREATE OR REPLACE')} ${f('GIT REPOSITORY')} ${id('my_notebooks_repo')}\n  ${f('ORIGIN')} ${p('=')} ${str("'https://github.com/org/notebooks'")}  \n  ${f('GIT_CREDENTIALS')} ${p('=')} ${id('my_github_secret')}\n${p(';')}\n\n${cm('-- Notebooks are Snowflake objects — share like any other')}\n${k('GRANT')} ${f('USAGE')} ${k('ON')} ${f('NOTEBOOK')} ${id('my_analysis')}\n  ${k('TO ROLE')} ${id('analyst_role')}${p(';')}\n\n${cm('-- Commit notebook files to git via CLI')}\n${cm('-- snow notebook execute my_analysis --warehouse my_wh')}`,
-        explain: `<h4>Git Integration &amp; Sharing</h4><p>Connect notebooks to any Git repository (GitHub, GitLab, Bitbucket). Changes are committed and versioned like any other code.</p><p><strong>Sharing:</strong> GRANT permissions on notebooks like any Snowflake object. Recipients open the notebook in Snowsight — no download, no email attachment, no "works on my machine."</p><p>Notebooks can also be executed headlessly via the Snowflake CLI for scheduled or CI/CD-driven workflows.</p>` },
+        key: 'git-integration-and-sharing', explain: `<h4>Git Integration &amp; Sharing</h4><p>Connect notebooks to any Git repository (GitHub, GitLab, Bitbucket). Changes are committed and versioned like any other code.</p><p><strong>Sharing:</strong> GRANT permissions on notebooks like any Snowflake object. Recipients open the notebook in Snowsight — no download, no email attachment, no "works on my machine."</p><p>Notebooks can also be executed headlessly via the Snowflake CLI for scheduled or CI/CD-driven workflows.</p>` },
 
       { label: 'Container Runtime',
         code: `${cm('# Container Runtime: more memory, GPU, custom packages')}\n${cm('# Set via notebook settings UI or RUNTIME_NAME param')}\n\n${cm('# Full PyTorch / transformers available')}\n${k('import')} ${id('torch')}\n${k('from')} ${id('transformers')} ${k('import')} ${id('pipeline')}\n\n${cm('# Load a HuggingFace model — runs on Snowflake GPU')}\n${id('classifier')} ${p('=')} ${f('pipeline')}${p('(')}\n  ${str('"sentiment-analysis"')}\n  ${p(',')} ${id('model')}${p('=')}${str('"distilbert-base-uncased-finetuned-sst-2-english"')}\n${p(')')}\n\n${cm('# Call it on your data')}\n${id('session')} ${p('=')} ${f('get_active_session')}${p('()')}\n${id('reviews')} ${p('=')} ${id('session')}.${f('sql')}${p('(')}${str('"SELECT review_text FROM reviews LIMIT 1000"')}${p(')')}.${f('to_pandas')}${p('()')}\n${id('results')} ${p('=')} ${id('classifier')}${p('(')}${id('reviews')}${p('[')}${str('"review_text"')}${p(']')}.${f('tolist')}${p('()')}\n`,
-        explain: `<h4>Container Runtime</h4><p>Notebooks can run on a Container Runtime instead of a warehouse. This gives you:</p><ul><li><strong>GPU access</strong> for deep learning and LLM inference</li><li><strong>More RAM</strong> for large in-memory workloads</li><li><strong>Custom packages</strong> from PyPI including PyTorch, TensorFlow, HuggingFace Transformers</li></ul><p>Switch to Container Runtime in notebook settings. The notebook still runs inside Snowflake — data governance and RBAC still apply.</p>` },
+        key: 'container-runtime', explain: `<h4>Container Runtime</h4><p>Notebooks can run on a Container Runtime instead of a warehouse. This gives you:</p><ul><li><strong>GPU access</strong> for deep learning and LLM inference</li><li><strong>More RAM</strong> for large in-memory workloads</li><li><strong>Custom packages</strong> from PyPI including PyTorch, TensorFlow, HuggingFace Transformers</li></ul><p>Switch to Container Runtime in notebook settings. The notebook still runs inside Snowflake — data governance and RBAC still apply.</p>` },
     ];
 
     let currentIdx = 0;
@@ -156,7 +172,7 @@
       currentIdx = ((idx % ITEMS.length) + ITEMS.length) % ITEMS.length;
       const item = ITEMS[currentIdx];
       document.getElementById('nb-code').innerHTML = item.code;
-      document.getElementById('nb-explain').innerHTML = item.explain;
+      __setExplain(document.getElementById('nb-explain'), item);
       document.querySelectorAll('.nb-card').forEach((el, i) => el.classList.toggle('active', i === currentIdx));
     }
     document.querySelectorAll('.nb-card[data-idx]').forEach(el => {

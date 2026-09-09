@@ -199,8 +199,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./cortex-agents.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Cortex AI</span>
-      <span class="nav-label">Cortex Search</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Cortex AI</span>
+      <span class="nav-label" data-i18n="nav-label">Cortex Search</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -210,8 +210,8 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Cortex Search</div>
-          <div class="s6-sub" style="text-align:center;">Fully managed hybrid retrieval &#8212; vector + keyword &#8212; for RAG pipelines and Cortex Agents. No embeddings to manage.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Cortex Search</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Fully managed hybrid retrieval &#8212; vector + keyword &#8212; for RAG pipelines and Cortex Agents. No embeddings to manage.</div>
         </div>
 
         <div class="cs-page content-wrap">
@@ -222,8 +222,8 @@
               <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
                 <span class="sf-img sf-icon-structured" style="width:24px;height:24px;"></span>
               </div>
-              <div class="cs-node-title">Source Table</div>
-              <div class="cs-node-sub">Any Snowflake table or view. Text, documents, semi-structured data.</div>
+              <div class="cs-node-title" data-i18n="cs-node-title.1">Source Table</div>
+              <div class="cs-node-sub" data-i18n="cs-node-sub.1">Any Snowflake table or view. Text, documents, semi-structured data.</div>
             </div>
 
             <div class="cs-arrow">&#x2192;</div>
@@ -232,12 +232,12 @@
               <div class="cs-node-icon" style="background:var(--sf-blue);">
                 <span class="sf-img sf-icon-ai" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
-              <div class="cs-node-title">Cortex Search Service</div>
-              <div class="cs-node-sub">Incrementally indexed. Refreshes on target lag.</div>
+              <div class="cs-node-title" data-i18n="cs-node-title.2">Cortex Search Service</div>
+              <div class="cs-node-sub" data-i18n="cs-node-sub.2">Incrementally indexed. Refreshes on target lag.</div>
               <div class="cs-hybrid">
-                <span class="cs-hybrid-pill">Dense (Vector)</span>
-                <span class="cs-hybrid-pill">Sparse (BM25)</span>
-                <span class="cs-hybrid-pill">Re-ranked</span>
+                <span class="cs-hybrid-pill" data-i18n="cs-hybrid-pill.1">Dense (Vector)</span>
+                <span class="cs-hybrid-pill" data-i18n="cs-hybrid-pill.2">Sparse (BM25)</span>
+                <span class="cs-hybrid-pill" data-i18n="cs-hybrid-pill.3">Re-ranked</span>
               </div>
             </div>
 
@@ -247,8 +247,8 @@
               <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
                 <span class="sf-img sf-icon-analytics" style="width:24px;height:24px;"></span>
               </div>
-              <div class="cs-node-title">Query / Agent</div>
-              <div class="cs-node-sub">SQL function, REST API, or Cortex Agent tool call.</div>
+              <div class="cs-node-title" data-i18n="cs-node-title.3">Query / Agent</div>
+              <div class="cs-node-sub" data-i18n="cs-node-sub.3">SQL function, REST API, or Cortex Agent tool call.</div>
             </div>
 
             <div class="cs-arrow">&#x2192;</div>
@@ -257,28 +257,28 @@
               <div class="cs-node-icon" style="background:rgba(41,181,232,.15);">
                 <span class="sf-img sf-icon-ai" style="width:24px;height:24px;"></span>
               </div>
-              <div class="cs-node-title">LLM Answer</div>
-              <div class="cs-node-sub">Grounded in retrieved context. Cited sources.</div>
+              <div class="cs-node-title" data-i18n="cs-node-title.4">LLM Answer</div>
+              <div class="cs-node-sub" data-i18n="cs-node-sub.4">Grounded in retrieved context. Cited sources.</div>
             </div>
 
           </div>
 
           <div class="cs-features">
             <div class="cs-feat" data-idx="4">
-              <div class="cs-feat-title">Hybrid Retrieval</div>
-              <div class="cs-feat-desc">Combines dense (semantic) and sparse (BM25 keyword) retrieval. Better recall than vector-only approaches on enterprise data.</div>
+              <div class="cs-feat-title" data-i18n="cs-feat-title.1">Hybrid Retrieval</div>
+              <div class="cs-feat-desc" data-i18n="cs-feat-desc.1">Combines dense (semantic) and sparse (BM25 keyword) retrieval. Better recall than vector-only approaches on enterprise data.</div>
             </div>
             <div class="cs-feat" data-idx="5">
-              <div class="cs-feat-title">Auto-Refresh</div>
-              <div class="cs-feat-desc">Target lag keeps the index fresh as source data changes. No pipelines, no manual re-indexing, no drift.</div>
+              <div class="cs-feat-title" data-i18n="cs-feat-title.2">Auto-Refresh</div>
+              <div class="cs-feat-desc" data-i18n="cs-feat-desc.2">Target lag keeps the index fresh as source data changes. No pipelines, no manual re-indexing, no drift.</div>
             </div>
             <div class="cs-feat" data-idx="6">
-              <div class="cs-feat-title">Zero Embedding Ops</div>
-              <div class="cs-feat-desc">Snowflake manages embeddings, indexing, and serving. You define the source table and column &#8212; nothing else needed.</div>
+              <div class="cs-feat-title" data-i18n="cs-feat-title.3">Zero Embedding Ops</div>
+              <div class="cs-feat-desc" data-i18n="cs-feat-desc.3">Snowflake manages embeddings, indexing, and serving. You define the source table and column &#8212; nothing else needed.</div>
             </div>
             <div class="cs-feat" data-idx="7">
-              <div class="cs-feat-title">Governed by Horizon</div>
-              <div class="cs-feat-desc">RBAC applied at query time. Masking policies respected in retrieved results. Full audit trail on every search call.</div>
+              <div class="cs-feat-title" data-i18n="cs-feat-title.4">Governed by Horizon</div>
+              <div class="cs-feat-desc" data-i18n="cs-feat-desc.4">RBAC applied at query time. Masking policies respected in retrieved results. Full audit trail on every search call.</div>
             </div>
           </div>
 
@@ -289,7 +289,7 @@
           <div class="resource-bar"></div>
         </div>
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
 
       </div>
@@ -337,11 +337,11 @@
   <span class="code-fn">TOOLS</span> <span class="code-punc">=</span> <span class="code-punc">(</span><span class="code-id">support_kb_search</span><span class="code-punc">)</span><span class="code-punc">;</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>Cortex Search</h4>
-      <p>Define the source table and column to search on. Snowflake handles all embedding generation, indexing, and serving automatically.</p>
-      <p><strong>ATTRIBUTES</strong> are additional columns returned with results for filtering and display.</p>
-      <p><strong>TARGET_LAG</strong> keeps the index in sync as new rows land &#8212; no manual refresh needed.</p>
-      <p>Add the service as a tool to any Cortex Agent and it will search autonomously at reasoning time.</p>
+      <h4 data-i18n="h4">Cortex Search</h4>
+      <p data-i18n="p.1">Define the source table and column to search on. Snowflake handles all embedding generation, indexing, and serving automatically.</p>
+      <p data-i18n-html="p.2"><strong>ATTRIBUTES</strong> are additional columns returned with results for filtering and display.</p>
+      <p data-i18n-html="p.3"><strong>TARGET_LAG</strong> keeps the index in sync as new rows land &#8212; no manual refresh needed.</p>
+      <p data-i18n="p.4">Add the service as a tool to any Cortex Agent and it will search autonomously at reasoning time.</p>
     </div>
   </div>
 

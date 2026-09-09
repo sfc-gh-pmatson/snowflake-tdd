@@ -91,8 +91,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Mesh &amp; Sharing</span>
-      <span class="nav-label">Snowflake Marketplace</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Mesh &amp; Sharing</span>
+      <span class="nav-label" data-i18n="nav-label">Snowflake Marketplace</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -102,44 +102,44 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake Marketplace</div>
-          <div class="s6-sub" style="text-align:center;">750+ live data sources, AI models, and apps. Install and query directly — no downloads, no pipelines, always fresh.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Snowflake Marketplace</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">750+ live data sources, AI models, and apps. Install and query directly — no downloads, no pipelines, always fresh.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="mp-grid">
             <div class="mp-card" onclick="showPanel(0)">
-              <div class="mp-card-label">Browse &amp; Install</div>
-              <div class="mp-card-desc">Discover and install data products, apps, and AI models from the Marketplace UI or programmatically via SQL.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.1">Browse &amp; Install</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.1">Discover and install data products, apps, and AI models from the Marketplace UI or programmatically via SQL.</div>
             </div>
             <div class="mp-card" onclick="showPanel(1)">
-              <div class="mp-card-label">Data Products</div>
-              <div class="mp-card-desc">750+ live data sets — weather, demographics, firmographics, financial data, alternative data — always fresh, no ETL.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.2">Data Products</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.2">750+ live data sets — weather, demographics, firmographics, financial data, alternative data — always fresh, no ETL.</div>
             </div>
             <div class="mp-card" onclick="showPanel(2)">
-              <div class="mp-card-label">Native App Listings</div>
-              <div class="mp-card-desc">Install apps that run code inside your account. Analytics tools, AI agents, ML models — governed and isolated.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.3">Native App Listings</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.3">Install apps that run code inside your account. Analytics tools, AI agents, ML models — governed and isolated.</div>
             </div>
             <div class="mp-card" onclick="showPanel(3)">
-              <div class="mp-card-label">AI &amp; Model Listings</div>
-              <div class="mp-card-desc">Access third-party AI models and inference endpoints directly in your Snowflake queries — no API keys required.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.4">AI &amp; Model Listings</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.4">Access third-party AI models and inference endpoints directly in your Snowflake queries — no API keys required.</div>
             </div>
             <div class="mp-card" onclick="showPanel(4)">
-              <div class="mp-card-label">Capacity Drawdown</div>
-              <div class="mp-card-desc">Use your existing Snowflake contract balance to purchase third-party Marketplace listings — one vendor, one invoice.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.5">Capacity Drawdown</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.5">Use your existing Snowflake contract balance to purchase third-party Marketplace listings — one vendor, one invoice.</div>
             </div>
             <div class="mp-card" onclick="showPanel(5)">
-              <div class="mp-card-label">Provider Analytics</div>
-              <div class="mp-card-desc">Track listing installs, consumer queries, and revenue through ACCOUNT_USAGE and DATA_SHARING_USAGE views.</div>
+              <div class="mp-card-label" data-i18n="mp-card-label.6">Provider Analytics</div>
+              <div class="mp-card-desc" data-i18n="mp-card-desc.6">Track listing installs, consumer queries, and revenue through ACCOUNT_USAGE and DATA_SHARING_USAGE views.</div>
             </div>
           </div>
 
           <div class="mp-panel" id="mp-panel">
-            <div class="mp-panel-code" id="mp-code">-- Select a card above to explore Marketplace concepts</div>
+            <div class="mp-panel-code" id="mp-code" data-i18n="mp-panel-code">-- Select a card above to explore Marketplace concepts</div>
             <div class="mp-panel-explain" id="mp-explain">
-              <h4>Snowflake Marketplace</h4>
-              <p>Click any card above to see SQL examples and explanations for each aspect of Snowflake Marketplace.</p>
-              <p>Marketplace connects data consumers and providers inside Snowflake's security boundary. Data you install from Marketplace is live and queryable — not a downloaded copy.</p>
+              <h4 data-i18n="h4">Snowflake Marketplace</h4>
+              <p data-i18n="p.1">Click any card above to see SQL examples and explanations for each aspect of Snowflake Marketplace.</p>
+              <p data-i18n="p.2">Marketplace connects data consumers and providers inside Snowflake's security boundary. Data you install from Marketplace is live and queryable — not a downloaded copy.</p>
             </div>
           </div>
         </div>

@@ -89,44 +89,44 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Governance</span>
-      <span class="nav-label">Data Quality (DMFs)</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Governance</span>
+      <span class="nav-label" data-i18n="nav-label">Data Quality (DMFs)</span>
     </div>
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide" style="align-items:center;">
         <div class="s6-top" style="width:100%;align-self:stretch;">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Metric Functions</div>
-          <div class="s6-sub" style="text-align:center;">Measure, monitor, and alert on data quality &#8212; built in, scheduled, no external tools.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Data Metric Functions</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Measure, monitor, and alert on data quality &#8212; built in, scheduled, no external tools.</div>
         </div>
         <div class="hsp-layout">
           <div class="hsp-left">
-            <div class="hsp-eyebrow">Horizon Catalog &#183; Monitor</div>
-            <div class="hsp-title">Measure quality,<br>automatically</div>
-            <div class="hsp-sub">Attach freshness, null, uniqueness, and custom quality checks to any table &#8212; on a schedule, inside Snowflake.</div>
+            <div class="hsp-eyebrow" data-i18n="hsp-eyebrow">Horizon Catalog &#183; Monitor</div>
+            <div class="hsp-title" data-i18n-html="hsp-title">Measure quality,<br>automatically</div>
+            <div class="hsp-sub" data-i18n="hsp-sub">Attach freshness, null, uniqueness, and custom quality checks to any table &#8212; on a schedule, inside Snowflake.</div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon">&#9989;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Built-in Metric Functions</div>
-                <div class="hsp-feature-body">Snowflake ships ready-to-use DMFs: <code style="font-family:monospace;font-size:10px;">FRESHNESS</code>, <code style="font-family:monospace;font-size:10px;">NULL_COUNT</code>, <code style="font-family:monospace;font-size:10px;">UNIQUE_COUNT</code>, <code style="font-family:monospace;font-size:10px;">ROW_COUNT</code>, <code style="font-family:monospace;font-size:10px;">DUPLICATE_COUNT</code>. Attach them to any table &#8212; no custom code required.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.1">Built-in Metric Functions</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.1">Snowflake ships ready-to-use DMFs: <code style="font-family:monospace;font-size:10px;">FRESHNESS</code>, <code style="font-family:monospace;font-size:10px;">NULL_COUNT</code>, <code style="font-family:monospace;font-size:10px;">UNIQUE_COUNT</code>, <code style="font-family:monospace;font-size:10px;">ROW_COUNT</code>, <code style="font-family:monospace;font-size:10px;">DUPLICATE_COUNT</code>. Attach them to any table &#8212; no custom code required.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-dark);">&#128221;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Custom DMFs</div>
-                <div class="hsp-feature-body">Write your own <code style="font-family:monospace;font-size:10px;">CREATE DATA METRIC FUNCTION</code> in SQL or Python to measure domain-specific quality: referential integrity, business rules, format validation.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.2">Custom DMFs</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.2">Write your own <code style="font-family:monospace;font-size:10px;">CREATE DATA METRIC FUNCTION</code> in SQL or Python to measure domain-specific quality: referential integrity, business rules, format validation.</div>
               </div>
             </div>
             <div class="hsp-feature">
               <div class="hsp-feature-icon" style="background:var(--sf-blue-mid);">&#9201;</div>
               <div class="hsp-feature-text">
-                <div class="hsp-feature-title">Scheduled &amp; Alertable</div>
-                <div class="hsp-feature-body">Set a schedule per table. Results land in <code style="font-family:monospace;font-size:10px;">SNOWFLAKE.LOCAL.DATA_QUALITY_MONITORING_RESULTS</code>. Combine with Snowflake Alerts to notify on threshold breaches.</div>
+                <div class="hsp-feature-title" data-i18n="hsp-feature-title.3">Scheduled &amp; Alertable</div>
+                <div class="hsp-feature-body" data-i18n-html="hsp-feature-body.3">Set a schedule per table. Results land in <code style="font-family:monospace;font-size:10px;">SNOWFLAKE.LOCAL.DATA_QUALITY_MONITORING_RESULTS</code>. Combine with Snowflake Alerts to notify on threshold breaches.</div>
               </div>
             </div>
           </div>
           <div class="hsp-right">
-            <div class="hsp-code">
+            <div class="hsp-code" data-i18n-html="hsp-code">
               <span class="code-comment">-- Attach built-in DMFs to a table</span><br>
               <span class="code-kw">ALTER TABLE</span> <span class="code-id">orders</span><br>
               &nbsp;&nbsp;<span class="code-kw">ADD</span> <span class="code-fn">DATA METRIC FUNCTION</span><br>
@@ -147,7 +147,7 @@
           </div>
         </div>
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

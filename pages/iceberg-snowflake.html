@@ -258,8 +258,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./iceberg.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Iceberg</span>
-      <span class="nav-label">Iceberg on Snowflake</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Iceberg</span>
+      <span class="nav-label" data-i18n="nav-label">Iceberg on Snowflake</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -269,17 +269,17 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Iceberg on Snowflake</div>
-          <div class="s6-sub" style="text-align:center;">Open format. Snowflake performance. Any engine reads and writes. No ETL.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Iceberg on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Open format. Snowflake performance. Any engine reads and writes. No ETL.</div>
         </div>
 
         <div class="isf-layout content-wrap">
 
           <!-- ════════ Left: features ════════ -->
           <div class="isf-left">
-            <div class="isf-eyebrow">Snowflake — Managed Iceberg</div>
-            <div class="isf-title">Open Format,<br>Full Performance</div>
-            <div class="isf-sub">Snowflake manages the metadata, compaction, and catalog endpoint so every query runs at full speed on your own storage.</div>
+            <div class="isf-eyebrow" data-i18n="isf-eyebrow">Snowflake — Managed Iceberg</div>
+            <div class="isf-title" data-i18n-html="isf-title">Open Format,<br>Full Performance</div>
+            <div class="isf-sub" data-i18n="isf-sub">Snowflake manages the metadata, compaction, and catalog endpoint so every query runs at full speed on your own storage.</div>
 
             <!-- Feature 1 -->
             <div class="isf-feature">
@@ -287,8 +287,8 @@
                 <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
-                <div class="isf-feature-title">Full Snowflake Query Performance</div>
-                <div class="isf-feature-body">Automatic clustering, result caching, partition pruning, and query compilation work at full speed on Iceberg tables — no special configuration needed.</div>
+                <div class="isf-feature-title" data-i18n="isf-feature-title.1">Full Snowflake Query Performance</div>
+                <div class="isf-feature-body" data-i18n="isf-feature-body.1">Automatic clustering, result caching, partition pruning, and query compilation work at full speed on Iceberg tables — no special configuration needed.</div>
               </div>
             </div>
 
@@ -298,8 +298,8 @@
                 <span class="sf-img sf-icon-connected" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
-                <div class="isf-feature-title">Write from Any Engine</div>
-                <div class="isf-feature-body">Spark, Flink, Trino, and Dremio can write directly via the Snowflake Iceberg REST catalog — same table, multiple engines, Snowflake manages the metadata and compaction.</div>
+                <div class="isf-feature-title" data-i18n="isf-feature-title.2">Write from Any Engine</div>
+                <div class="isf-feature-body" data-i18n="isf-feature-body.2">Spark, Flink, Trino, and Dremio can write directly via the Snowflake Iceberg REST catalog — same table, multiple engines, Snowflake manages the metadata and compaction.</div>
               </div>
             </div>
 
@@ -309,8 +309,8 @@
                 <span class="sf-img sf-icon-security-gov" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
-                <div class="isf-feature-title">Enterprise Security &amp; Governance</div>
-                <div class="isf-feature-body">Dynamic data masking, row-level security, Time Travel, Fail-safe, and Snowflake Horizon classification all apply to Iceberg tables — just like any Snowflake native table.</div>
+                <div class="isf-feature-title" data-i18n="isf-feature-title.3">Enterprise Security &amp; Governance</div>
+                <div class="isf-feature-body" data-i18n="isf-feature-body.3">Dynamic data masking, row-level security, Time Travel, Fail-safe, and Snowflake Horizon classification all apply to Iceberg tables — just like any Snowflake native table.</div>
               </div>
             </div>
 
@@ -320,8 +320,8 @@
                 <span class="sf-img sf-icon-lakehouse" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="isf-feature-text">
-                <div class="isf-feature-title">No ETL &mdash; One Copy of Data</div>
-                <div class="isf-feature-body">Your data lives in a single Iceberg-format file set in cloud object storage. Snowflake reads it natively — no duplication, no pipelines, no sync overhead.</div>
+                <div class="isf-feature-title" data-i18n="isf-feature-title.4">No ETL &mdash; One Copy of Data</div>
+                <div class="isf-feature-body" data-i18n="isf-feature-body.4">Your data lives in a single Iceberg-format file set in cloud object storage. Snowflake reads it natively — no duplication, no pipelines, no sync overhead.</div>
               </div>
             </div>
           </div>
@@ -329,7 +329,7 @@
           <!-- ════════ Right: architecture diagram ════════ -->
           <div class="isf-right">
             <div class="isf-diagram">
-              <div class="isf-diagram-label">External Write Engines</div>
+              <div class="isf-diagram-label" data-i18n="isf-diagram-label">External Write Engines</div>
 
               <!-- Engine cards -->
               <div class="isf-engine-row">
@@ -337,32 +337,32 @@
                   <div class="isf-engine-icon" style="background:var(--spark-c);">
                     <span class="sf-img img-ext-spark" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
                   </div>
-                  <div class="isf-engine-name">Apache Spark&#x2122;</div>
+                  <div class="isf-engine-name" data-i18n="isf-engine-name.1">Apache Spark&#x2122;</div>
                 </div>
                 <div class="isf-engine-card" style="border:3px solid var(--flink-c);">
                   <div class="isf-engine-icon" style="background:var(--flink-c);">
                     <span class="sf-img img-ext-flink" style="width:22px;height:22px;"></span>
                   </div>
-                  <div class="isf-engine-name">Apache Flink&#x2122;</div>
+                  <div class="isf-engine-name" data-i18n="isf-engine-name.2">Apache Flink&#x2122;</div>
                 </div>
                 <div class="isf-engine-card" style="border:3px solid var(--trino-c);">
                   <div class="isf-engine-icon" style="background:var(--trino-c);">
                     <span class="sf-img img-ext-trino" style="width:22px;height:22px;"></span>
                   </div>
-                  <div class="isf-engine-name">Trino</div>
+                  <div class="isf-engine-name" data-i18n="isf-engine-name.3">Trino</div>
                 </div>
                 <div class="isf-engine-card" style="border:3px solid var(--dremio-c);">
                   <div class="isf-engine-icon" style="background:var(--dremio-c);">
                     <span class="sf-img img-ext-dremio" style="width:22px;height:22px;"></span>
                   </div>
-                  <div class="isf-engine-name">Dremio</div>
+                  <div class="isf-engine-name" data-i18n="isf-engine-name.4">Dremio</div>
                 </div>
               </div>
 
               <!-- Connector -->
               <div class="isf-connector">
                 <div class="isf-connector-line"></div>
-                <div class="isf-connector-pill">Iceberg REST Catalog</div>
+                <div class="isf-connector-pill" data-i18n="isf-connector-pill">Iceberg REST Catalog</div>
                 <div class="isf-connector-line"></div>
               </div>
 
@@ -370,15 +370,15 @@
               <div class="isf-sf-box">
                 <span class="sf-img sf-icon-iceberg" style="width:44px;height:44px;flex-shrink:0;"></span>
                 <div class="isf-sf-box-text">
-                  <div class="isf-sf-box-title">Snowflake-Managed Iceberg Table</div>
-                  <div class="isf-sf-box-sub">Snowflake manages metadata, compaction, and the REST catalog endpoint</div>
+                  <div class="isf-sf-box-title" data-i18n="isf-sf-box-title">Snowflake-Managed Iceberg Table</div>
+                  <div class="isf-sf-box-sub" data-i18n="isf-sf-box-sub">Snowflake manages metadata, compaction, and the REST catalog endpoint</div>
                   <div class="isf-benefit-row">
-                    <div class="isf-benefit-chip">Auto-clustering</div>
-                    <div class="isf-benefit-chip">Result cache</div>
-                    <div class="isf-benefit-chip">Time Travel</div>
-                    <div class="isf-benefit-chip">Masking policies</div>
-                    <div class="isf-benefit-chip">Row access</div>
-                    <div class="isf-benefit-chip">Cortex AI</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.1">Auto-clustering</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.2">Result cache</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.3">Time Travel</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.4">Masking policies</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.5">Row access</div>
+                    <div class="isf-benefit-chip" data-i18n="isf-benefit-chip.6">Cortex AI</div>
                   </div>
                 </div>
               </div>
@@ -390,12 +390,12 @@
 
               <!-- Storage layer -->
               <div style="text-align:center;">
-                <div class="cl-diagram-label" style="margin-bottom:8px;">Cloud Object Storage (Customer-Owned)</div>
+                <div class="cl-diagram-label" style="margin-bottom:8px;" data-i18n="cl-diagram-label">Cloud Object Storage (Customer-Owned)</div>
                 <div class="cl-chips">
-                  <div class="cl-chip" style="background:var(--aws-c);color:#fff;">Amazon S3</div>
-                  <div class="cl-chip" style="background:var(--azure-c);color:#fff;">Azure ADLS</div>
-                  <div class="cl-chip" style="background:var(--gcp-c);color:#fff;">Google GCS</div>
-                  <div class="cl-chip" style="background:var(--sf-blue);color:#fff;">Parquet + Iceberg Metadata</div>
+                  <div class="cl-chip" style="background:var(--aws-c);color:#fff;" data-i18n="cl-chip.1">Amazon S3</div>
+                  <div class="cl-chip" style="background:var(--azure-c);color:#fff;" data-i18n="cl-chip.2">Azure ADLS</div>
+                  <div class="cl-chip" style="background:var(--gcp-c);color:#fff;" data-i18n="cl-chip.3">Google GCS</div>
+                  <div class="cl-chip" style="background:var(--sf-blue);color:#fff;" data-i18n="cl-chip.4">Parquet + Iceberg Metadata</div>
                 </div>
               </div>
             </div>
@@ -408,7 +408,7 @@
           <div class="resource-bar"></div>
         </div>
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
 
       </div>
@@ -447,12 +447,12 @@
 -- spark.sql.catalog.snowflake.uri = https://&lt;account&gt;.snowflakecomputing.com/polaris/api/catalog</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>External Volume</h4>
-      <p>An <code>EXTERNAL VOLUME</code> tells Snowflake where in cloud object storage to write Iceberg data files. Snowflake assumes an IAM role (AWS), service principal (Azure), or service account (GCP) to access that location.</p>
-      <h4>Snowflake-Managed Iceberg Table</h4>
-      <p>Setting <code>CATALOG = 'SNOWFLAKE'</code> means Snowflake owns and manages the Iceberg metadata. This enables Time Travel, Fail-safe, automatic compaction, and full query optimization.</p>
-      <h4>External Engine Access</h4>
-      <p>Configure Spark (or another engine) to use Snowflake's Polaris-compatible REST catalog endpoint. External engines read and write the same Parquet/Iceberg files — Snowflake coordinates concurrent access.</p>
+      <h4 data-i18n="h4.1">External Volume</h4>
+      <p data-i18n-html="p.1">An <code>EXTERNAL VOLUME</code> tells Snowflake where in cloud object storage to write Iceberg data files. Snowflake assumes an IAM role (AWS), service principal (Azure), or service account (GCP) to access that location.</p>
+      <h4 data-i18n="h4.2">Snowflake-Managed Iceberg Table</h4>
+      <p data-i18n-html="p.2">Setting <code>CATALOG = 'SNOWFLAKE'</code> means Snowflake owns and manages the Iceberg metadata. This enables Time Travel, Fail-safe, automatic compaction, and full query optimization.</p>
+      <h4 data-i18n="h4.3">External Engine Access</h4>
+      <p data-i18n="p.3">Configure Spark (or another engine) to use Snowflake's Polaris-compatible REST catalog endpoint. External engines read and write the same Parquet/Iceberg files — Snowflake coordinates concurrent access.</p>
     </div>
   </div>
 

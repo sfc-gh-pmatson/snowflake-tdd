@@ -107,8 +107,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Iceberg</span>
-      <span class="nav-label">External Engines</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Iceberg</span>
+      <span class="nav-label" data-i18n="nav-label">External Engines</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -118,8 +118,8 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">External Engines</div>
-          <div class="s6-sub" style="text-align:center;">Spark, Flink, Kafka, Trino, Dremio, Databricks — native connectors and open standards let any engine read from and write to Snowflake.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">External Engines</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Spark, Flink, Kafka, Trino, Dremio, Databricks — native connectors and open standards let any engine read from and write to Snowflake.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
@@ -127,67 +127,67 @@
             <div class="ee-card" onclick="showPanel(0)">
               <div class="ee-card-logo img-ext-spark-mark"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Apache Spark™</div>
-                <div class="ee-card-desc">Snowpark for Spark: run PySpark on Snowflake compute. Or connect an external cluster via Spark Connector.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.1">Apache Spark™</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.1">Snowpark for Spark: run PySpark on Snowflake compute. Or connect an external cluster via Spark Connector.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(1)">
               <div class="ee-card-logo img-ext-trino"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Trino</div>
-                <div class="ee-card-desc">Federated SQL across Snowflake + S3/Hive in one query. Snowflake as a Trino catalog via JDBC.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.2">Trino</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.2">Federated SQL across Snowflake + S3/Hive in one query. Snowflake as a Trino catalog via JDBC.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(2)">
               <div class="ee-card-logo img-ext-flink-mark"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Apache Flink</div>
-                <div class="ee-card-desc">Stream Flink output into Snowflake via Kafka Connector or Snowpipe Streaming for sub-second latency.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.3">Apache Flink</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.3">Stream Flink output into Snowflake via Kafka Connector or Snowpipe Streaming for sub-second latency.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(3)">
               <div class="ee-card-logo img-ext-databricks"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Databricks</div>
-                <div class="ee-card-desc">Iceberg and Delta Sharing let both platforms share live data bidirectionally — no copies, no ETL.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.4">Databricks</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.4">Iceberg and Delta Sharing let both platforms share live data bidirectionally — no copies, no ETL.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(4)">
               <div class="ee-card-logo img-ext-aws" style="background-size:contain;"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">AWS Glue</div>
-                <div class="ee-card-desc">Glue Data Catalog as Iceberg source for Snowflake. Glue ETL jobs read/write Snowflake via Spark Connector.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.5">AWS Glue</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.5">Glue Data Catalog as Iceberg source for Snowflake. Glue ETL jobs read/write Snowflake via Spark Connector.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(5)">
               <div class="ee-card-logo img-ext-azure" style="background-size:contain;"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Microsoft Fabric</div>
-                <div class="ee-card-desc">OneLake Iceberg and Delta Sharing enable Snowflake ↔ Fabric bidirectional access over shared storage.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.6">Microsoft Fabric</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.6">OneLake Iceberg and Delta Sharing enable Snowflake ↔ Fabric bidirectional access over shared storage.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(6)">
               <div class="ee-card-logo img-ext-dbt"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">dbt</div>
-                <div class="ee-card-desc">SQL transformation framework with first-class Snowflake support — incremental models, merge strategies, dynamic tables.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.7">dbt</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.7">SQL transformation framework with first-class Snowflake support — incremental models, merge strategies, dynamic tables.</div>
               </div>
             </div>
             <div class="ee-card" onclick="showPanel(7)">
               <div class="ee-card-logo img-ext-airflow"></div>
               <div class="ee-card-text">
-                <div class="ee-card-label">Apache Airflow</div>
-                <div class="ee-card-desc">Orchestrate Snowflake workflows via the Snowflake provider — SQL operators, sensors, and task dependency graphs.</div>
+                <div class="ee-card-label" data-i18n="ee-card-label.8">Apache Airflow</div>
+                <div class="ee-card-desc" data-i18n="ee-card-desc.8">Orchestrate Snowflake workflows via the Snowflake provider — SQL operators, sensors, and task dependency graphs.</div>
               </div>
             </div>
           </div>
 
           <div class="ee-panel" id="ee-panel">
-            <div class="ee-panel-code" id="ee-code">-- Select an engine above to see its Snowflake integration pattern</div>
+            <div class="ee-panel-code" id="ee-code" data-i18n="ee-panel-code">-- Select an engine above to see its Snowflake integration pattern</div>
             <div class="ee-panel-explain" id="ee-explain">
-              <h4>External Engines</h4>
-              <p>Click any engine card to see its connection pattern, key SQL, and integration architecture.</p>
-              <p>Snowflake supports external engines through native connectors, JDBC/ODBC, and open standards (Iceberg, Delta Sharing) — so you keep your existing tools while unifying governance and data access.</p>
+              <h4 data-i18n="h4">External Engines</h4>
+              <p data-i18n="p.1">Click any engine card to see its connection pattern, key SQL, and integration architecture.</p>
+              <p data-i18n="p.2">Snowflake supports external engines through native connectors, JDBC/ODBC, and open standards (Iceberg, Delta Sharing) — so you keep your existing tools while unifying governance and data access.</p>
             </div>
           </div>
         </div>

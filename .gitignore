@@ -1,2 +1,9 @@
 .DS_Store
 Images/summitcocodesktopstreamlit.mp4
+
+# Python tooling
+__pycache__/
+*.pyc
+
+# Local virtualenvs (uv writes .venv/.gitignore, but be explicit)
+.venv/

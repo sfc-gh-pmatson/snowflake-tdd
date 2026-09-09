@@ -148,8 +148,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Analytics</span>
-      <span class="nav-label">SQL Analytics</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide.tag">Analytics</span>
+      <span class="nav-label" data-i18n="nav.label">SQL Analytics</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -159,25 +159,25 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">SQL Analytics on Snowflake</div>
-          <div class="s6-sub" style="text-align:center;">Multi-modal SQL with extensions that don't exist anywhere else. One query for structured data, JSON, geospatial, and time-series.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="header">SQL Analytics on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="sub">Multi-modal SQL with extensions that don't exist anywhere else. One query for structured data, JSON, geospatial, and time-series.</div>
         </div>
 
         <div class="sqa-layout content-wrap">
 
           <!-- Left: pillars -->
           <div class="sqa-left">
-            <div class="sqa-eyebrow">Snowflake — Analytics Platform</div>
-            <div class="sqa-title">One Platform.<br>Every Data Shape.</div>
-            <div class="sqa-sub">Query structured, semi-structured, geospatial, and time-series data together — with SQL extensions that eliminate entire classes of subqueries.</div>
+            <div class="sqa-eyebrow" data-i18n="eyebrow">Snowflake — Analytics Platform</div>
+            <div class="sqa-title" data-i18n-html="title">One Platform.<br>Every Data Shape.</div>
+            <div class="sqa-sub" data-i18n="lead">Query structured, semi-structured, geospatial, and time-series data together — with SQL extensions that eliminate entire classes of subqueries.</div>
 
             <div class="sqa-feature">
               <div class="sqa-feature-icon">
                 <span class="sf-img sf-icon-semi-struct" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div>
-                <div class="sqa-feature-title">Multi-Modal SQL</div>
-                <div class="sqa-feature-body">Structured columns, JSON/VARIANT, GEOGRAPHY, VECTOR — all queryable in a single SELECT. No ETL to separate analytical stores.</div>
+                <div class="sqa-feature-title" data-i18n="feature.multimodal.title">Multi-Modal SQL</div>
+                <div class="sqa-feature-body" data-i18n="feature.multimodal.body">Structured columns, JSON/VARIANT, GEOGRAPHY, VECTOR — all queryable in a single SELECT. No ETL to separate analytical stores.</div>
               </div>
             </div>
 
@@ -186,8 +186,8 @@
                 <span class="sf-img sf-icon-analytics" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div>
-                <div class="sqa-feature-title">SQL Extensions</div>
-                <div class="sqa-feature-body">QUALIFY, ASOF JOIN, TIMESERIES clause, H3 hexagonal indexing — constructs that don't exist in standard SQL and solve common analytical patterns cleanly.</div>
+                <div class="sqa-feature-title" data-i18n="feature.extensions.title">SQL Extensions</div>
+                <div class="sqa-feature-body" data-i18n="feature.extensions.body">QUALIFY, ASOF JOIN, TIMESERIES clause, H3 hexagonal indexing — constructs that don't exist in standard SQL and solve common analytical patterns cleanly.</div>
               </div>
             </div>
 
@@ -196,23 +196,23 @@
                 <span class="sf-img sf-icon-speed-2" style="width:22px;height:22px;filter:brightness(0) invert(1);"></span>
               </div>
               <div>
-                <div class="sqa-feature-title">Performance by Default</div>
-                <div class="sqa-feature-body">Result cache, partition pruning, automatic clustering, and search optimization work across all data types with zero query hints.</div>
+                <div class="sqa-feature-title" data-i18n="feature.performance.title">Performance by Default</div>
+                <div class="sqa-feature-body" data-i18n="feature.performance.body">Result cache, partition pruning, automatic clustering, and search optimization work across all data types with zero query hints.</div>
               </div>
             </div>
           </div>
 
           <!-- Right: nav cards -->
           <div class="sqa-right">
-            <div class="sqa-right-label">Explore in Depth</div>
+            <div class="sqa-right-label" data-i18n="sqa-right-label">Explore in Depth</div>
 
             <a href="./sql-analytics-timeseries.html" class="sqa-card">
               <div class="sqa-card-icon">
                 <span class="sf-img sf-icon-time" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Time Series Analytics</div>
-                <div class="sqa-card-desc">DATE_SPINE, ASOF JOIN, TIMESERIES clause, sliding window aggregations.</div>
+                <div class="sqa-card-title" data-i18n="card.timeseries.title">Time Series Analytics</div>
+                <div class="sqa-card-desc" data-i18n="card.timeseries.desc">DATE_SPINE, ASOF JOIN, TIMESERIES clause, sliding window aggregations.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>
@@ -222,8 +222,8 @@
                 <span class="sf-img sf-icon-location" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Geospatial Analytics</div>
-                <div class="sqa-card-desc">GEOGRAPHY, GEOMETRY, 50+ ST_* functions, H3 hexagonal indexing.</div>
+                <div class="sqa-card-title" data-i18n="card.geospatial.title">Geospatial Analytics</div>
+                <div class="sqa-card-desc" data-i18n="card.geospatial.desc">GEOGRAPHY, GEOMETRY, 50+ ST_* functions, H3 hexagonal indexing.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>
@@ -233,8 +233,8 @@
                 <span class="sf-img sf-icon-semi-struct" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Semi-Structured / JSON</div>
-                <div class="sqa-card-desc">VARIANT type, JSON path syntax, FLATTEN, INFER_SCHEMA.</div>
+                <div class="sqa-card-title" data-i18n="card.semistructured.title">Semi-Structured / JSON</div>
+                <div class="sqa-card-desc" data-i18n="card.semistructured.desc">VARIANT type, JSON path syntax, FLATTEN, INFER_SCHEMA.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>
@@ -244,8 +244,8 @@
                 <span class="sf-img sf-icon-analytics" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Window Functions &amp; Advanced SQL</div>
-                <div class="sqa-card-desc">QUALIFY, ranking, LEAD/LAG, running totals, PIVOT/UNPIVOT.</div>
+                <div class="sqa-card-title" data-i18n="card.window.title">Window Functions &amp; Advanced SQL</div>
+                <div class="sqa-card-desc" data-i18n="card.window.desc">QUALIFY, ranking, LEAD/LAG, running totals, PIVOT/UNPIVOT.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>
@@ -255,8 +255,8 @@
                 <span class="sf-img sf-icon-data-apps" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Streamlit in Snowflake</div>
-                <div class="sqa-card-desc">Build and deploy interactive dashboards directly on your governed data.</div>
+                <div class="sqa-card-title" data-i18n="card.streamlit.title">Streamlit in Snowflake</div>
+                <div class="sqa-card-desc" data-i18n="card.streamlit.desc">Build and deploy interactive dashboards directly on your governed data.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>
@@ -266,8 +266,8 @@
                 <span class="sf-img sf-icon-snowpark" style="width:24px;height:24px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="sqa-card-text">
-                <div class="sqa-card-title">Snowflake Notebooks</div>
-                <div class="sqa-card-desc">SQL and Python in one governed workspace. Runs on Snowflake compute.</div>
+                <div class="sqa-card-title" data-i18n="card.notebooks.title">Snowflake Notebooks</div>
+                <div class="sqa-card-desc" data-i18n="card.notebooks.desc">SQL and Python in one governed workspace. Runs on Snowflake compute.</div>
               </div>
               <div class="sqa-card-arrow">&#8594;</div>
             </a>

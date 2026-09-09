@@ -161,8 +161,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Storage &amp; Tables</span>
-      <span class="nav-label">Storage</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Storage &amp; Tables</span>
+      <span class="nav-label" data-i18n="nav-label">Storage</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -172,16 +172,16 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Storage</div>
-          <div class="s6-sub" style="text-align:center;">One storage layer for all data types — structured tables, semi-structured JSON, and unstructured files — with automatic micro-partitioning, clustering, and Time Travel built in.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Snowflake Storage</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">One storage layer for all data types — structured tables, semi-structured JSON, and unstructured files — with automatic micro-partitioning, clustering, and Time Travel built in.</div>
         </div>
 
         <div class="st-page content-wrap">
 
           <!-- Tab switcher -->
           <div class="st-tabs">
-            <button class="st-tab active" onclick="switchTab('types')">Data Types</button>
-            <button class="st-tab" onclick="switchTab('arch')">Storage Architecture</button>
+            <button class="st-tab active" onclick="switchTab('types')" data-i18n="st-tab.1">Data Types</button>
+            <button class="st-tab" onclick="switchTab('arch')" data-i18n="st-tab.2">Storage Architecture</button>
           </div>
 
           <div class="st-panel-wrap">
@@ -195,14 +195,14 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-unstructured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Unstructured Data</div>
+                    <div class="st-card-title" data-i18n="st-card-title.1">Unstructured Data</div>
                   </div>
-                  <div class="st-card-desc">Store documents, images, video, audio, and binary files natively alongside structured data. Query file metadata as a table, generate presigned URLs, and run AI extraction — without moving data to a separate system.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.1">Store documents, images, video, audio, and binary files natively alongside structured data. Query file metadata as a table, generate presigned URLs, and run AI extraction — without moving data to a separate system.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">FILES</span>
-                    <span class="st-chip">DIRECTORY TABLE</span>
-                    <span class="st-chip">AI_PARSE_DOCUMENT</span>
-                    <span class="st-chip">Presigned URLs</span>
+                    <span class="st-chip" data-i18n="st-chip.1">FILES</span>
+                    <span class="st-chip" data-i18n="st-chip.2">DIRECTORY TABLE</span>
+                    <span class="st-chip" data-i18n="st-chip.3">AI_PARSE_DOCUMENT</span>
+                    <span class="st-chip" data-i18n="st-chip.4">Presigned URLs</span>
                   </div>
                 </div>
 
@@ -211,14 +211,14 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-semi-struct" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Semi-Structured</div>
+                    <div class="st-card-title" data-i18n="st-card-title.2">Semi-Structured</div>
                   </div>
-                  <div class="st-card-desc">Native VARIANT type stores JSON, Avro, Parquet, ORC, and XML without a fixed schema. Query nested fields with dot notation, flatten arrays into rows, and auto-detect column structure — all in standard SQL.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.2">Native VARIANT type stores JSON, Avro, Parquet, ORC, and XML without a fixed schema. Query nested fields with dot notation, flatten arrays into rows, and auto-detect column structure — all in standard SQL.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">VARIANT</span>
-                    <span class="st-chip">FLATTEN</span>
-                    <span class="st-chip">INFER_SCHEMA</span>
-                    <span class="st-chip">dot notation</span>
+                    <span class="st-chip" data-i18n="st-chip.5">VARIANT</span>
+                    <span class="st-chip" data-i18n="st-chip.6">FLATTEN</span>
+                    <span class="st-chip" data-i18n="st-chip.7">INFER_SCHEMA</span>
+                    <span class="st-chip" data-i18n="st-chip.8">dot notation</span>
                   </div>
                 </div>
 
@@ -227,14 +227,14 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Structured Data</div>
+                    <div class="st-card-title" data-i18n="st-card-title.3">Structured Data</div>
                   </div>
-                  <div class="st-card-desc">Full ANSI SQL typed columns with constraints, views, and Time Travel. Every table is automatically micro-partitioned and columnar — no tuning required. Secure views, materialized views, and transactional DML included.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.3">Full ANSI SQL typed columns with constraints, views, and Time Travel. Every table is automatically micro-partitioned and columnar — no tuning required. Secure views, materialized views, and transactional DML included.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">Typed columns</span>
-                    <span class="st-chip">Constraints</span>
-                    <span class="st-chip">Time Travel</span>
-                    <span class="st-chip">Secure views</span>
+                    <span class="st-chip" data-i18n="st-chip.9">Typed columns</span>
+                    <span class="st-chip" data-i18n="st-chip.10">Constraints</span>
+                    <span class="st-chip" data-i18n="st-chip.11">Time Travel</span>
+                    <span class="st-chip" data-i18n="st-chip.12">Secure views</span>
                   </div>
                 </div>
 
@@ -250,16 +250,16 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-sf-tables" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Micro-Partitioning</div>
+                    <div class="st-card-title" data-i18n="st-card-title.4">Micro-Partitioning</div>
                   </div>
-                  <div class="st-card-desc">All Snowflake tables are automatically divided into immutable, compressed micro-partitions of 50–500 MB. Snowflake stores rich column-level metadata (min/max, distinct count, bloom filter) for each partition, enabling aggressive pruning without manual maintenance.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.4">All Snowflake tables are automatically divided into immutable, compressed micro-partitions of 50–500 MB. Snowflake stores rich column-level metadata (min/max, distinct count, bloom filter) for each partition, enabling aggressive pruning without manual maintenance.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">Immutable</span>
-                    <span class="st-chip">Columnar</span>
-                    <span class="st-chip">Partition pruning</span>
-                    <span class="st-chip">Zero maintenance</span>
+                    <span class="st-chip" data-i18n="st-chip.13">Immutable</span>
+                    <span class="st-chip" data-i18n="st-chip.14">Columnar</span>
+                    <span class="st-chip" data-i18n="st-chip.15">Partition pruning</span>
+                    <span class="st-chip" data-i18n="st-chip.16">Zero maintenance</span>
                   </div>
-                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;">Deep dive &#x2192;</div>
+                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;" data-i18n="div.1">Deep dive &#x2192;</div>
                 </a>
 
                 <a class="st-card" href="./storage-clustering.html">
@@ -267,15 +267,15 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-warehouse" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Clustering &amp; Search Optimization</div>
+                    <div class="st-card-title" data-i18n="st-card-title.5">Clustering &amp; Search Optimization</div>
                   </div>
-                  <div class="st-card-desc">Define cluster keys to co-locate frequently filtered columns in the same micro-partitions. Automatic Reclustering keeps large tables tidy as data ages. Search Optimization Service accelerates equality and range lookups without changing queries.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.5">Define cluster keys to co-locate frequently filtered columns in the same micro-partitions. Automatic Reclustering keeps large tables tidy as data ages. Search Optimization Service accelerates equality and range lookups without changing queries.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">CLUSTER BY</span>
-                    <span class="st-chip">Auto-recluster</span>
-                    <span class="st-chip">Search Optimization</span>
+                    <span class="st-chip" data-i18n="st-chip.17">CLUSTER BY</span>
+                    <span class="st-chip" data-i18n="st-chip.18">Auto-recluster</span>
+                    <span class="st-chip" data-i18n="st-chip.19">Search Optimization</span>
                   </div>
-                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;">Deep dive &#x2192;</div>
+                  <div style="font-size:9px;font-weight:700;color:var(--sf-blue);letter-spacing:.3px;" data-i18n="div.2">Deep dive &#x2192;</div>
                 </a>
 
                 <div class="st-card" data-fn="internal-stages">
@@ -283,14 +283,14 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-servers" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">Internal Stages</div>
+                    <div class="st-card-title" data-i18n="st-card-title.6">Internal Stages</div>
                   </div>
-                  <div class="st-card-desc">Snowflake-managed temporary and permanent file storage for data loading, transformation outputs, and pipeline intermediates. Three types: user stage (personal), table stage (bound to a table), and named stage (reusable, governed).</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.6">Snowflake-managed temporary and permanent file storage for data loading, transformation outputs, and pipeline intermediates. Three types: user stage (personal), table stage (bound to a table), and named stage (reusable, governed).</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">@~ user</span>
-                    <span class="st-chip">@%table</span>
-                    <span class="st-chip">Named stage</span>
-                    <span class="st-chip">PUT / GET</span>
+                    <span class="st-chip" data-i18n="st-chip.20">@~ user</span>
+                    <span class="st-chip" data-i18n="st-chip.21">@%table</span>
+                    <span class="st-chip" data-i18n="st-chip.22">Named stage</span>
+                    <span class="st-chip" data-i18n="st-chip.23">PUT / GET</span>
                   </div>
                 </div>
 
@@ -299,13 +299,13 @@
                     <div class="st-card-icon">
                       <span class="sf-img sf-icon-cloud" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="st-card-title">External Stages</div>
+                    <div class="st-card-title" data-i18n="st-card-title.7">External Stages</div>
                   </div>
-                  <div class="st-card-desc">Reference data in S3, Azure Blob, or GCS without loading it into Snowflake. Use a Storage Integration to decouple credentials from stage definitions. Query files in-place with external tables or load on-demand with COPY INTO.</div>
+                  <div class="st-card-desc" data-i18n="st-card-desc.7">Reference data in S3, Azure Blob, or GCS without loading it into Snowflake. Use a Storage Integration to decouple credentials from stage definitions. Query files in-place with external tables or load on-demand with COPY INTO.</div>
                   <div class="st-card-chips">
-                    <span class="st-chip">S3 · Azure · GCS</span>
-                    <span class="st-chip">Storage Integration</span>
-                    <span class="st-chip">External Tables</span>
+                    <span class="st-chip" data-i18n="st-chip.24">S3 · Azure · GCS</span>
+                    <span class="st-chip" data-i18n="st-chip.25">Storage Integration</span>
+                    <span class="st-chip" data-i18n="st-chip.26">External Tables</span>
                   </div>
                 </div>
 
@@ -317,7 +317,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
 
       </div>
     </div>

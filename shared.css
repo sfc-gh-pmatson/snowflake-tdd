@@ -173,6 +173,9 @@
     .sf-icon-semi-struct  { background-image: url('sf-icons/Snowflake_ICON_Semi_Structured_Data.svg'); }
     .sf-icon-structured   { background-image: url('sf-icons/Snowflake_ICON_Structured_Data.svg'); }
     .sf-icon-iceberg      { background-image: url('sf-icons/Snowflake_ICON_Iceberg_Tables.svg'); }
+    .sf-icon-timetravel   { background-image: url('sf-icons/Snowflake_ICON_Backup.svg'); }
+    .sf-icon-changetrack  { background-image: url('sf-icons/Snowflake_ICON_RA_Stream.svg'); }
+    .sf-icon-cost         { background-image: url('sf-icons/Snowflake_ICON_Cost_Savings.svg'); }
     .sf-icon-sf-tables    { background-image: url('sf-icons/Snowflake_ICON_Snowflake_Storage.svg'); }
     .sf-icon-hybrid       { background-image: url('sf-icons/Snowflake_ICON_Hybrid_Tables.svg'); }
     .sf-icon-server       { background-image: url('sf-icons/Snowflake_ICON_Server.svg'); }
@@ -269,6 +272,7 @@
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       position: relative; overflow: hidden;
+      background: radial-gradient(ellipse 90% 85% at 50% 50%, #0b1a35 0%, var(--sf-navy) 70%);
     }
 
     /* ── SNOWFLAKE BRAND ELEMENTS ──────────────────────────── */
@@ -278,10 +282,10 @@
       font-size: var(--fs-h6); font-weight: 700; letter-spacing: 1px;
       text-transform: uppercase;
     }
-    .tag-blue   { background: rgba(41,181,232,.12);  color: var(--sf-blue);    border: 1px solid rgba(41,181,232,.4); }
-    .tag-purple { background: rgba(139,92,246,.1);   color: #7c3aed;           border: 1px solid rgba(139,92,246,.35); }
-    .tag-green  { background: rgba(34,197,94,.1);    color: #15803d;           border: 1px solid rgba(34,197,94,.35); }
-    .tag-amber  { background: rgba(245,158,11,.1);   color: #b45309;           border: 1px solid rgba(245,158,11,.35); }
+    .tag-blue   { background: rgba(41,181,232,.15);  color: #70D9F5;            border: 1px solid rgba(41,181,232,.45); }
+    .tag-purple { background: rgba(167,139,250,.15); color: #c4b5fd;            border: 1px solid rgba(167,139,250,.45); }
+    .tag-green  { background: rgba(74,222,128,.12);  color: #86efac;            border: 1px solid rgba(74,222,128,.4); }
+    .tag-amber  { background: rgba(251,191,36,.12);  color: #fcd34d;            border: 1px solid rgba(251,191,36,.4); }
 
     /* ── ICON CIRCLES ───────────────────────────────────────── */
     .icon-circle {

@@ -106,16 +106,16 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Governance</span>
-      <span class="nav-label">Access Control</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Governance</span>
+      <span class="nav-label" data-i18n="nav-label">Access Control</span>
     </div>
 
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Access Control</div>
-          <div class="s6-sub" style="text-align:center;">One security model across all data &#8212; roles, network, identity, and encryption.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Access Control</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">One security model across all data &#8212; roles, network, identity, and encryption.</div>
         </div>
 
         <div class="hac-page">
@@ -124,13 +124,13 @@
             <!-- RBAC -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Role-Based</span>
-                <div class="hac-card-title">RBAC</div>
-                <div class="hac-card-sub">Hierarchical privilege model for all Snowflake objects</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.1">Role-Based</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.1">RBAC</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.1">Hierarchical privilege model for all Snowflake objects</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">Every operation requires a privilege. Roles are granted to users and other roles. Column-level, row-level, and object-level access all controlled through one model.</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.1">Every operation requires a privilege. Roles are granted to users and other roles. Column-level, row-level, and object-level access all controlled through one model.</div>
+                <div class="hac-code" data-i18n-html="hac-code.1">
                   <span class="code-kw">GRANT</span> <span class="code-fn">SELECT</span> <span class="code-kw">ON</span> <span class="code-id">TABLE</span> <span class="code-id">orders</span><br>
                   &nbsp;&nbsp;<span class="code-kw">TO ROLE</span> <span class="code-id">analyst_role</span><span class="code-punc">;</span>
                 </div>
@@ -140,13 +140,13 @@
             <!-- Network Policies -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Network</span>
-                <div class="hac-card-title">Network Policies</div>
-                <div class="hac-card-sub">Restrict connections by IP address or CIDR range</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.2">Network</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.2">Network Policies</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.2">Restrict connections by IP address or CIDR range</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">Allowlist and denylist by IP range. Attach at account level or per-user. Blocks all connections from unauthorized networks before authentication.</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.2">Allowlist and denylist by IP range. Attach at account level or per-user. Blocks all connections from unauthorized networks before authentication.</div>
+                <div class="hac-code" data-i18n-html="hac-code.2">
                   <span class="code-kw">CREATE NETWORK POLICY</span> <span class="code-id">corp_only</span><br>
                   &nbsp;&nbsp;<span class="code-fn">ALLOWED_IP_LIST</span> <span class="code-punc">=</span> <span class="code-punc">(</span><span class="code-str">'10.0.0.0/8'</span><span class="code-punc">)</span><span class="code-punc">;</span>
                 </div>
@@ -156,13 +156,13 @@
             <!-- MFA -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Identity</span>
-                <div class="hac-card-title">MFA</div>
-                <div class="hac-card-sub">Enforce multi-factor authentication via policy</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.3">Identity</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.3">MFA</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.3">Enforce multi-factor authentication via policy</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">Authentication Policies enforce MFA for all users, specific roles, or specific client types. TOTP-based. Also controls allowed authentication methods (password, keypair, SSO, OAuth).</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.3">Authentication Policies enforce MFA for all users, specific roles, or specific client types. TOTP-based. Also controls allowed authentication methods (password, keypair, SSO, OAuth).</div>
+                <div class="hac-code" data-i18n-html="hac-code.3">
                   <span class="code-kw">CREATE AUTHENTICATION POLICY</span> <span class="code-id">require_mfa</span><br>
                   &nbsp;&nbsp;<span class="code-fn">MFA_ENROLLMENT</span> <span class="code-punc">=</span> <span class="code-str">REQUIRED</span><span class="code-punc">;</span>
                 </div>
@@ -172,13 +172,13 @@
             <!-- SSO -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Identity</span>
-                <div class="hac-card-title">SSO / SAML</div>
-                <div class="hac-card-sub">Federated identity via SAML 2.0 with any IdP</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.4">Identity</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.4">SSO / SAML</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.4">Federated identity via SAML 2.0 with any IdP</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">Integrate with Okta, Azure AD, Ping Identity, OneLogin. JIT user provisioning. No password sync. Same session as corporate IdP &#8212; revoke at the IdP to immediately cut access.</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.4">Integrate with Okta, Azure AD, Ping Identity, OneLogin. JIT user provisioning. No password sync. Same session as corporate IdP &#8212; revoke at the IdP to immediately cut access.</div>
+                <div class="hac-code" data-i18n-html="hac-code.4">
                   <span class="code-kw">CREATE SECURITY INTEGRATION</span> <span class="code-id">okta_sso</span><br>
                   &nbsp;&nbsp;<span class="code-fn">TYPE</span> <span class="code-punc">=</span> <span class="code-str">SAML2</span><br>
                   &nbsp;&nbsp;<span class="code-fn">SAML2_ISSUER</span> <span class="code-punc">=</span> <span class="code-str">'https://okta.com/...'</span><span class="code-punc">;</span>
@@ -189,13 +189,13 @@
             <!-- Tri-Secret Secure -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Encryption</span>
-                <div class="hac-card-title">Tri-Secret Secure</div>
-                <div class="hac-card-sub">Customer-managed encryption key via cloud KMS</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.5">Encryption</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.5">Tri-Secret Secure</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.5">Customer-managed encryption key via cloud KMS</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">Your KMS key + Snowflake key = both required to decrypt. Supports AWS KMS, Azure Key Vault, GCP KMS. Revoke your key and data is immediately inaccessible &#8212; even to Snowflake employees.</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.5">Your KMS key + Snowflake key = both required to decrypt. Supports AWS KMS, Azure Key Vault, GCP KMS. Revoke your key and data is immediately inaccessible &#8212; even to Snowflake employees.</div>
+                <div class="hac-code" data-i18n-html="hac-code.5">
                   <span class="code-comment">-- Configured via account-level setting</span><br>
                   <span class="code-comment">-- + KMS integration in your cloud console</span><br>
                   <span class="code-kw">ALTER ACCOUNT</span> <span class="code-kw">SET</span><br>
@@ -207,13 +207,13 @@
             <!-- OAuth -->
             <div class="hac-card">
               <div class="hac-card-head">
-                <span class="hac-card-tag">Identity</span>
-                <div class="hac-card-title">OAuth</div>
-                <div class="hac-card-sub">Delegated access for BI tools and custom apps</div>
+                <span class="hac-card-tag" data-i18n="hac-card-tag.6">Identity</span>
+                <div class="hac-card-title" data-i18n="hac-card-title.6">OAuth</div>
+                <div class="hac-card-sub" data-i18n="hac-card-sub.6">Delegated access for BI tools and custom apps</div>
               </div>
               <div class="hac-card-body">
-                <div class="hac-fact">OAuth 2.0 for Tableau, Power BI, Streamlit, and custom integrations. Users authenticate via their IdP; tools receive a scoped access token. No credential embedding in BI configs.</div>
-                <div class="hac-code">
+                <div class="hac-fact" data-i18n="hac-fact.6">OAuth 2.0 for Tableau, Power BI, Streamlit, and custom integrations. Users authenticate via their IdP; tools receive a scoped access token. No credential embedding in BI configs.</div>
+                <div class="hac-code" data-i18n-html="hac-code.6">
                   <span class="code-kw">CREATE SECURITY INTEGRATION</span> <span class="code-id">tableau_oauth</span><br>
                   &nbsp;&nbsp;<span class="code-fn">TYPE</span> <span class="code-punc">=</span> <span class="code-str">OAUTH</span><br>
                   &nbsp;&nbsp;<span class="code-fn">OAUTH_CLIENT</span> <span class="code-punc">=</span> <span class="code-str">TABLEAU_DESKTOP</span><span class="code-punc">;</span>
@@ -225,7 +225,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

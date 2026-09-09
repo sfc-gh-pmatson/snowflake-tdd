@@ -96,8 +96,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Mesh &amp; Sharing</span>
-      <span class="nav-label">Snowflake Native Apps</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Mesh &amp; Sharing</span>
+      <span class="nav-label" data-i18n="nav-label">Snowflake Native Apps</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -107,44 +107,44 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">Snowflake Native Apps</div>
-          <div class="s6-sub" style="text-align:center;">Ship code directly into consumer accounts. Your logic runs next to their data — no data movement, full governance.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">Snowflake Native Apps</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Ship code directly into consumer accounts. Your logic runs next to their data — no data movement, full governance.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="na-grid">
             <div class="na-card" onclick="showPanel(0)">
-              <div class="na-card-label">App Package</div>
-              <div class="na-card-desc">Provider-side container that bundles versions, code, and distribution logic for your application.</div>
+              <div class="na-card-label" data-i18n="na-card-label.1">App Package</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.1">Provider-side container that bundles versions, code, and distribution logic for your application.</div>
             </div>
             <div class="na-card" onclick="showPanel(1)">
-              <div class="na-card-label">Setup Script</div>
-              <div class="na-card-desc">SQL script that runs at install time to create objects in the consumer's account — procedures, views, roles.</div>
+              <div class="na-card-label" data-i18n="na-card-label.2">Setup Script</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.2">SQL script that runs at install time to create objects in the consumer's account — procedures, views, roles.</div>
             </div>
             <div class="na-card" onclick="showPanel(2)">
-              <div class="na-card-label">Application Roles</div>
-              <div class="na-card-desc">Fine-grained access control defined by the provider. Consumers grant app roles to their users — not raw Snowflake privileges.</div>
+              <div class="na-card-label" data-i18n="na-card-label.3">Application Roles</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.3">Fine-grained access control defined by the provider. Consumers grant app roles to their users — not raw Snowflake privileges.</div>
             </div>
             <div class="na-card" onclick="showPanel(3)">
-              <div class="na-card-label">Versioning &amp; Patches</div>
-              <div class="na-card-desc">Release channels let you push updates incrementally. Consumers on auto-upgrade receive patches transparently.</div>
+              <div class="na-card-label" data-i18n="na-card-label.4">Versioning &amp; Patches</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.4">Release channels let you push updates incrementally. Consumers on auto-upgrade receive patches transparently.</div>
             </div>
             <div class="na-card" onclick="showPanel(4)">
-              <div class="na-card-label">Streamlit Frontend</div>
-              <div class="na-card-desc">Embed a Streamlit app inside your Native App — consumers get a full UI running in their account, no hosting required.</div>
+              <div class="na-card-label" data-i18n="na-card-label.5">Streamlit Frontend</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.5">Embed a Streamlit app inside your Native App — consumers get a full UI running in their account, no hosting required.</div>
             </div>
             <div class="na-card" onclick="showPanel(5)">
-              <div class="na-card-label">SPCS Container Apps</div>
-              <div class="na-card-desc">Include containerized microservices (APIs, ML inference) that run in consumer's Snowpark Container Services environment.</div>
+              <div class="na-card-label" data-i18n="na-card-label.6">SPCS Container Apps</div>
+              <div class="na-card-desc" data-i18n="na-card-desc.6">Include containerized microservices (APIs, ML inference) that run in consumer's Snowpark Container Services environment.</div>
             </div>
           </div>
 
           <div class="na-panel" id="na-panel">
-            <div class="na-panel-code" id="na-code">-- Select a card above to explore Native App concepts</div>
+            <div class="na-panel-code" id="na-code" data-i18n="na-panel-code">-- Select a card above to explore Native App concepts</div>
             <div class="na-panel-explain" id="na-explain">
-              <h4>Native Apps Framework</h4>
-              <p>Click any card above to see SQL examples and explanations for each aspect of the Native App Framework.</p>
-              <p>Native Apps let you deploy your application logic directly into consumer Snowflake accounts, where it can access their data with the permissions they grant — without ever moving data out.</p>
+              <h4 data-i18n="h4">Native Apps Framework</h4>
+              <p data-i18n="p.1">Click any card above to see SQL examples and explanations for each aspect of the Native App Framework.</p>
+              <p data-i18n="p.2">Native Apps let you deploy your application logic directly into consumer Snowflake accounts, where it can access their data with the permissions they grant — without ever moving data out.</p>
             </div>
           </div>
         </div>

@@ -199,8 +199,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Engineering</span>
-      <span class="nav-label">DevOps &amp; Database Change Management</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Engineering</span>
+      <span class="nav-label" data-i18n="nav-label">DevOps &amp; Database Change Management</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-pvpr">Private Preview</span>
       </div>
@@ -211,8 +211,8 @@
 
         <!-- Header -->
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Database Change Management</div>
-          <div class="s6-sub" style="text-align:center;">Declarative schema management for Snowflake — define your database objects as code, deploy with confidence, and eliminate drift between environments.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Database Change Management</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Declarative schema management for Snowflake — define your database objects as code, deploy with confidence, and eliminate drift between environments.</div>
         </div>
 
         <div class="dcm-page content-wrap">
@@ -220,7 +220,7 @@
           <!-- Imperative vs Declarative comparison -->
           <div class="dcm-compare">
             <div class="dcm-compare-col dcm-compare-col--old">
-              <div class="dcm-compare-label">Imperative (Traditional)</div>
+              <div class="dcm-compare-label" data-i18n="dcm-compare-label.1">Imperative (Traditional)</div>
               <div class="dcm-compare-item">
                 <div class="dcm-compare-dot"></div>
                 Manual SQL scripts per environment — easy to drift
@@ -240,7 +240,7 @@
             </div>
             <div class="dcm-compare-divider">&#x2192;</div>
             <div class="dcm-compare-col dcm-compare-col--new">
-              <div class="dcm-compare-label">Declarative (DCM)</div>
+              <div class="dcm-compare-label" data-i18n="dcm-compare-label.2">Declarative (DCM)</div>
               <div class="dcm-compare-item">
                 <div class="dcm-compare-dot"></div>
                 Desired state in <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">manifest.yml</code> — DCM diffs &amp; applies
@@ -268,13 +268,13 @@
                 <div class="dcm-pillar-icon">
                   <span class="sf-img sf-icon-structured" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="dcm-pillar-title">DEFINE Objects</div>
+                <div class="dcm-pillar-title" data-i18n="dcm-pillar-title.1">DEFINE Objects</div>
               </div>
-              <div class="dcm-pillar-desc">Declare tables, views, schemas, and databases in a versioned YAML manifest. DCM computes the delta and applies only what changed.</div>
+              <div class="dcm-pillar-desc" data-i18n="dcm-pillar-desc.1">Declare tables, views, schemas, and databases in a versioned YAML manifest. DCM computes the delta and applies only what changed.</div>
               <div class="dcm-pillar-chips">
-                <span class="dcm-chip">DEFINE TABLE</span>
-                <span class="dcm-chip">DEFINE SCHEMA</span>
-                <span class="dcm-chip">manifest.yml</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.1">DEFINE TABLE</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.2">DEFINE SCHEMA</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.3">manifest.yml</span>
               </div>
             </div>
 
@@ -283,13 +283,13 @@
                 <div class="dcm-pillar-icon">
                   <span class="sf-img sf-icon-security-gov" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="dcm-pillar-title">Auto-Generated Roles</div>
+                <div class="dcm-pillar-title" data-i18n="dcm-pillar-title.2">Auto-Generated Roles</div>
               </div>
-              <div class="dcm-pillar-desc">DCM generates three roles per schema automatically — ADMIN, READ-WRITE, and READ-ONLY — following the Snowflake three-tier access pattern with correct grants applied.</div>
+              <div class="dcm-pillar-desc" data-i18n="dcm-pillar-desc.2">DCM generates three roles per schema automatically — ADMIN, READ-WRITE, and READ-ONLY — following the Snowflake three-tier access pattern with correct grants applied.</div>
               <div class="dcm-pillar-chips">
-                <span class="dcm-chip">ADMIN role</span>
-                <span class="dcm-chip">RW role</span>
-                <span class="dcm-chip">RO role</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.4">ADMIN role</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.5">RW role</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.6">RO role</span>
               </div>
             </div>
 
@@ -298,13 +298,13 @@
                 <div class="dcm-pillar-icon">
                   <span class="sf-img sf-icon-data-eng" style="width:15px;height:15px;filter:brightness(0) invert(1);"></span>
                 </div>
-                <div class="dcm-pillar-title">CI/CD Deployment</div>
+                <div class="dcm-pillar-title" data-i18n="dcm-pillar-title.3">CI/CD Deployment</div>
               </div>
-              <div class="dcm-pillar-desc">Use <code style="font-size:10px;">snow dcm plan</code> to preview the changeset and <code style="font-size:10px;">snow dcm deploy</code> to apply it. Drop into any GitHub Actions or GitLab CI pipeline.</div>
+              <div class="dcm-pillar-desc" data-i18n-html="dcm-pillar-desc.3">Use <code style="font-size:10px;">snow dcm plan</code> to preview the changeset and <code style="font-size:10px;">snow dcm deploy</code> to apply it. Drop into any GitHub Actions or GitLab CI pipeline.</div>
               <div class="dcm-pillar-chips">
-                <span class="dcm-chip">snow dcm plan</span>
-                <span class="dcm-chip">snow dcm deploy</span>
-                <span class="dcm-chip">GitHub Actions</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.7">snow dcm plan</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.8">snow dcm deploy</span>
+                <span class="dcm-chip" data-i18n="dcm-chip.9">GitHub Actions</span>
               </div>
             </div>
 
@@ -318,7 +318,7 @@
         </div>
 
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
 
       </div>

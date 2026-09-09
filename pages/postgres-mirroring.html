@@ -114,8 +114,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./snowflake-postgres.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Transactions &amp; OLTP</span>
-      <span class="nav-label">Postgres Data Mirroring</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Transactions &amp; OLTP</span>
+      <span class="nav-label" data-i18n="nav-label">Postgres Data Mirroring</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-pvpr">Public Preview</span>
       </div>
@@ -128,17 +128,17 @@
 
           <!-- ════ Left ════ -->
           <div class="pm-left">
-            <div class="pm-eyebrow">Snowflake Postgres</div>
-            <div class="pm-title">Data Mirroring</div>
-            <div class="pm-sub">Always-on, automatic replication from Postgres to Snowflake. Set it up once — tables stay in sync, schema changes included, forever.</div>
+            <div class="pm-eyebrow" data-i18n="pm-eyebrow">Snowflake Postgres</div>
+            <div class="pm-title" data-i18n="pm-title">Data Mirroring</div>
+            <div class="pm-sub" data-i18n="pm-sub">Always-on, automatic replication from Postgres to Snowflake. Set it up once — tables stay in sync, schema changes included, forever.</div>
 
             <div class="pm-feature">
               <div class="pm-feature-icon">
                 <span class="sf-img sf-icon-data-eng" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="pm-feature-text">
-                <div class="pm-feature-title">Push-Based CDC — Not Pull</div>
-                <div class="pm-feature-body">A <code style="font-size:10px;background:rgba(41,181,232,.12);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snowflake_cdc</code> Postgres extension continuously pushes change batches into Iceberg change logs on object storage. No external connector to manage, no snapshots that can conflict with changes.</div>
+                <div class="pm-feature-title" data-i18n="pm-feature-title.1">Push-Based CDC — Not Pull</div>
+                <div class="pm-feature-body" data-i18n-html="pm-feature-body.1">A <code style="font-size:10px;background:rgba(41,181,232,.12);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snowflake_cdc</code> Postgres extension continuously pushes change batches into Iceberg change logs on object storage. No external connector to manage, no snapshots that can conflict with changes.</div>
               </div>
             </div>
 
@@ -147,8 +147,8 @@
                 <span class="sf-img sf-icon-sql" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="pm-feature-text">
-                <div class="pm-feature-title">Simple Setup with CREATE MIRROR</div>
-                <div class="pm-feature-body">One SQL command replicates an entire Postgres database — or specific schemas. Schema changes (ADD COLUMN, DROP TABLE) replicate automatically with no manual intervention.</div>
+                <div class="pm-feature-title" data-i18n="pm-feature-title.2">Simple Setup with CREATE MIRROR</div>
+                <div class="pm-feature-body" data-i18n="pm-feature-body.2">One SQL command replicates an entire Postgres database — or specific schemas. Schema changes (ADD COLUMN, DROP TABLE) replicate automatically with no manual intervention.</div>
               </div>
             </div>
 
@@ -157,8 +157,8 @@
                 <span class="sf-img sf-icon-speed-2" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="pm-feature-text">
-                <div class="pm-feature-title">Live Views — Sub-Minute Lag</div>
-                <div class="pm-feature-body">Live views merge unapplied change batches with the base table on-the-fly. Queries see data within seconds of commit — even if batches haven't been applied yet. Filter and aggregation pushdown keeps live view queries fast.</div>
+                <div class="pm-feature-title" data-i18n="pm-feature-title.3">Live Views — Sub-Minute Lag</div>
+                <div class="pm-feature-body" data-i18n="pm-feature-body.3">Live views merge unapplied change batches with the base table on-the-fly. Queries see data within seconds of commit — even if batches haven't been applied yet. Filter and aggregation pushdown keeps live view queries fast.</div>
               </div>
             </div>
 
@@ -167,8 +167,8 @@
                 <span class="sf-img sf-icon-transactions" style="width:18px;height:18px;filter:brightness(0) invert(1);"></span>
               </div>
               <div class="pm-feature-text">
-                <div class="pm-feature-title">Transactional Consistency</div>
-                <div class="pm-feature-body">Snowflake applies all tables forward in one transaction — exactly to a Postgres transaction boundary. Foreign keys and join correctness are preserved. Insert-heavy workloads are fast because inserts are appended, never upserted.</div>
+                <div class="pm-feature-title" data-i18n="pm-feature-title.4">Transactional Consistency</div>
+                <div class="pm-feature-body" data-i18n="pm-feature-body.4">Snowflake applies all tables forward in one transaction — exactly to a Postgres transaction boundary. Foreign keys and join correctness are preserved. Insert-heavy workloads are fast because inserts are appended, never upserted.</div>
               </div>
             </div>
 
@@ -182,7 +182,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
 
       </div>
     </div>

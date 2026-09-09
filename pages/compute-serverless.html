@@ -125,16 +125,16 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./compute.html" class="btn-back">&#8592; Compute</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Compute</span>
-      <span class="nav-label">Serverless Compute</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Compute</span>
+      <span class="nav-label" data-i18n="nav-label">Serverless Compute</span>
     </div>
 
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Serverless Compute</div>
-          <div class="s6-sub" style="text-align:center;">Snowflake-managed compute &#8212; no warehouse required, auto-scaling, billed per second.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Serverless Compute</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Snowflake-managed compute &#8212; no warehouse required, auto-scaling, billed per second.</div>
         </div>
 
         <div class="csv-page">
@@ -145,22 +145,22 @@
             <div class="csv-card">
               <div class="csv-card-head">
                 <div class="csv-card-icon">&#9654;</div>
-                <div class="csv-card-title">Serverless Tasks</div>
+                <div class="csv-card-title" data-i18n="csv-card-title.1">Serverless Tasks</div>
               </div>
               <div class="csv-card-body">
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">SQL or Snowpark procedures run on a cron schedule or triggered by a stream with new data</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.1">SQL or Snowpark procedures run on a cron schedule or triggered by a stream with new data</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Snowflake auto-scales compute for the task &#8212; no warehouse sizing or auto-suspend config</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.2">Snowflake auto-scales compute for the task &#8212; no warehouse sizing or auto-suspend config</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Task graphs (DAGs) for multi-step pipelines with dependencies. Serverless finalizer tasks for cleanup.</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.3">Task graphs (DAGs) for multi-step pipelines with dependencies. Serverless finalizer tasks for cleanup.</div>
                 </div>
-                <div class="csv-billing">Billed per credit-second of execution</div>
+                <div class="csv-billing" data-i18n="csv-billing.1">Billed per credit-second of execution</div>
               </div>
             </div>
 
@@ -168,22 +168,22 @@
             <div class="csv-card">
               <div class="csv-card-head">
                 <div class="csv-card-icon">&#8659;</div>
-                <div class="csv-card-title">Snowpipe &amp; Streaming</div>
+                <div class="csv-card-title" data-i18n="csv-card-title.2">Snowpipe &amp; Streaming</div>
               </div>
               <div class="csv-card-body">
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text"><strong>Snowpipe:</strong> File-triggered micro-batch ingestion from cloud storage (S3, GCS, Azure Blob). Auto-ingest via storage event notifications.</div>
+                  <div class="csv-fact-text" data-i18n-html="csv-fact-text.4"><strong>Snowpipe:</strong> File-triggered micro-batch ingestion from cloud storage (S3, GCS, Azure Blob). Auto-ingest via storage event notifications.</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text"><strong>Snowpipe Streaming:</strong> SDK-based row-level ingestion with sub-second latency. Ideal for IoT, CDC, clickstreams, financial events.</div>
+                  <div class="csv-fact-text" data-i18n-html="csv-fact-text.5"><strong>Snowpipe Streaming:</strong> SDK-based row-level ingestion with sub-second latency. Ideal for IoT, CDC, clickstreams, financial events.</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Both are fully serverless &#8212; no warehouse dedicated to ingestion</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.6">Both are fully serverless &#8212; no warehouse dedicated to ingestion</div>
                 </div>
-                <div class="csv-billing">Billed per file processed / per row ingested</div>
+                <div class="csv-billing" data-i18n="csv-billing.2">Billed per file processed / per row ingested</div>
               </div>
             </div>
 
@@ -191,22 +191,22 @@
             <div class="csv-card">
               <div class="csv-card-head">
                 <div class="csv-card-icon">&#9733;</div>
-                <div class="csv-card-title">Cortex AI Compute</div>
+                <div class="csv-card-title" data-i18n="csv-card-title.3">Cortex AI Compute</div>
               </div>
               <div class="csv-card-body">
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">LLM inference functions (COMPLETE, CLASSIFY, EXTRACT, SUMMARIZE, SENTIMENT, TRANSLATE) run serverless &#8212; no GPU warehouse needed</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.7">LLM inference functions (COMPLETE, CLASSIFY, EXTRACT, SUMMARIZE, SENTIMENT, TRANSLATE) run serverless &#8212; no GPU warehouse needed</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Cortex Search indexing, Cortex Analyst query processing, and Document AI all use managed serverless compute</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.8">Cortex Search indexing, Cortex Analyst query processing, and Document AI all use managed serverless compute</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Run directly in SQL: <code style="font-family:monospace;font-size:10px;">SELECT SNOWFLAKE.CORTEX.COMPLETE(...)</code></div>
+                  <div class="csv-fact-text" data-i18n-html="csv-fact-text.9">Run directly in SQL: <code style="font-family:monospace;font-size:10px;">SELECT SNOWFLAKE.CORTEX.COMPLETE(...)</code></div>
                 </div>
-                <div class="csv-billing">Billed per token / per function call</div>
+                <div class="csv-billing" data-i18n="csv-billing.3">Billed per token / per function call</div>
               </div>
             </div>
 
@@ -214,22 +214,22 @@
             <div class="csv-card">
               <div class="csv-card-head">
                 <div class="csv-card-icon">&#128269;</div>
-                <div class="csv-card-title">Search Optimization Service</div>
+                <div class="csv-card-title" data-i18n="csv-card-title.4">Search Optimization Service</div>
               </div>
               <div class="csv-card-body">
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Maintains equality, range, and substring search indexes on table columns. Eliminates full-table scans for point-lookup queries.</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.10">Maintains equality, range, and substring search indexes on table columns. Eliminates full-table scans for point-lookup queries.</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Background serverless maintenance job keeps indexes current as data changes</div>
+                  <div class="csv-fact-text" data-i18n="csv-fact-text.11">Background serverless maintenance job keeps indexes current as data changes</div>
                 </div>
                 <div class="csv-fact">
                   <div class="csv-fact-dot"></div>
-                  <div class="csv-fact-text">Enabled per-table or per-column: <code style="font-family:monospace;font-size:10px;">ALTER TABLE t ADD SEARCH OPTIMIZATION</code></div>
+                  <div class="csv-fact-text" data-i18n-html="csv-fact-text.12">Enabled per-table or per-column: <code style="font-family:monospace;font-size:10px;">ALTER TABLE t ADD SEARCH OPTIMIZATION</code></div>
                 </div>
-                <div class="csv-billing">Billed per compute-hour of maintenance</div>
+                <div class="csv-billing" data-i18n="csv-billing.4">Billed per compute-hour of maintenance</div>
               </div>
             </div>
 
@@ -238,7 +238,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

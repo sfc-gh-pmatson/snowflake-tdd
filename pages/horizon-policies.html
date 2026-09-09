@@ -113,50 +113,50 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./horizon.html" class="btn-back">&#8592; Horizon Catalog</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Governance</span>
-      <span class="nav-label">Data Protection Policies</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Governance</span>
+      <span class="nav-label" data-i18n="nav-label">Data Protection Policies</span>
     </div>
 
     <div class="slide-canvas with-nav">
       <div id="module" class="sf-slide" style="align-items:center;">
 
         <div class="s6-top" style="width:100%;align-self:stretch;">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Protection Policies</div>
-          <div class="s6-sub" style="text-align:center;">Apply masking, filtering, and access controls inline &#8212; enforced automatically on every query.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Data Protection Policies</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Apply masking, filtering, and access controls inline &#8212; enforced automatically on every query.</div>
         </div>
 
         <div class="hpp-tabs">
-          <button class="hpp-tab active" onclick="switchTab('mask')">Masking</button>
-          <button class="hpp-tab" onclick="switchTab('row')">Row Access</button>
-          <button class="hpp-tab" onclick="switchTab('proj')">Projection</button>
-          <button class="hpp-tab" onclick="switchTab('agg')">Aggregation</button>
-          <button class="hpp-tab" onclick="switchTab('token')">Tokenization</button>
+          <button class="hpp-tab active" onclick="switchTab('mask')" data-i18n="hpp-tab.1">Masking</button>
+          <button class="hpp-tab" onclick="switchTab('row')" data-i18n="hpp-tab.2">Row Access</button>
+          <button class="hpp-tab" onclick="switchTab('proj')" data-i18n="hpp-tab.3">Projection</button>
+          <button class="hpp-tab" onclick="switchTab('agg')" data-i18n="hpp-tab.4">Aggregation</button>
+          <button class="hpp-tab" onclick="switchTab('token')" data-i18n="hpp-tab.5">Tokenization</button>
         </div>
 
         <!-- Masking -->
         <div id="tab-mask" class="hpp-panel active">
           <div class="hpp-split">
             <div class="hpp-left">
-              <div class="hpp-eyebrow">Column-Level Policy</div>
-              <div class="hpp-title">Masking Policies</div>
-              <div class="hpp-sub">Replace sensitive column values with masked equivalents based on the querying role.</div>
+              <div class="hpp-eyebrow" data-i18n="hpp-eyebrow.1">Column-Level Policy</div>
+              <div class="hpp-title" data-i18n="hpp-title.1">Masking Policies</div>
+              <div class="hpp-sub" data-i18n="hpp-sub.1">Replace sensitive column values with masked equivalents based on the querying role.</div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon">&#128274;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Role-Based Masking</div>
-                  <div class="hpp-feature-body">Define masking logic in SQL: full mask (return null/stars), partial mask (show last 4 digits), or hash. Different roles see different representations of the same column.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.1">Role-Based Masking</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.1">Define masking logic in SQL: full mask (return null/stars), partial mask (show last 4 digits), or hash. Different roles see different representations of the same column.</div>
                 </div>
               </div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon" style="background:var(--sf-blue-dark);">&#127991;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Tag-Based Inheritance</div>
-                  <div class="hpp-feature-body">Bind a masking policy to a tag. Every column tagged with that tag automatically gets masked &#8212; no per-column assignment needed.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.2">Tag-Based Inheritance</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.2">Bind a masking policy to a tag. Every column tagged with that tag automatically gets masked &#8212; no per-column assignment needed.</div>
                 </div>
               </div>
             </div>
             <div class="hpp-right">
-              <div class="hpp-code">
+              <div class="hpp-code" data-i18n-html="hpp-code.1">
                 <span class="code-comment">-- Create a masking policy</span><br>
                 <span class="code-kw">CREATE MASKING POLICY</span> <span class="code-id">mask_email</span><br>
                 &nbsp;&nbsp;<span class="code-kw">AS</span> <span class="code-punc">(</span><span class="code-id">val</span> <span class="code-fn">STRING</span><span class="code-punc">)</span> <span class="code-kw">RETURNS</span> <span class="code-fn">STRING</span><br>
@@ -180,26 +180,26 @@
         <div id="tab-row" class="hpp-panel">
           <div class="hpp-split">
             <div class="hpp-left">
-              <div class="hpp-eyebrow">Row-Level Policy</div>
-              <div class="hpp-title">Row Access Policies</div>
-              <div class="hpp-sub">Filter which rows a role can see &#8212; based on a policy mapping table, with no query changes required.</div>
+              <div class="hpp-eyebrow" data-i18n="hpp-eyebrow.2">Row-Level Policy</div>
+              <div class="hpp-title" data-i18n="hpp-title.2">Row Access Policies</div>
+              <div class="hpp-sub" data-i18n="hpp-sub.2">Filter which rows a role can see &#8212; based on a policy mapping table, with no query changes required.</div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon">&#9776;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Policy Mapping Table</div>
-                  <div class="hpp-feature-body">A separate table maps roles (or users) to the allowed values of a filter column (region, department, cost center). Policy joins this table at query time.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.3">Policy Mapping Table</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.3">A separate table maps roles (or users) to the allowed values of a filter column (region, department, cost center). Policy joins this table at query time.</div>
                 </div>
               </div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon" style="background:var(--sf-blue-dark);">&#128065;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Transparent to Users</div>
-                  <div class="hpp-feature-body">Users run <code style="font-family:monospace;font-size:10px;">SELECT * FROM sales</code> and only see rows they\'re allowed to see. The policy is invisible and cannot be bypassed.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.4">Transparent to Users</div>
+                  <div class="hpp-feature-body" data-i18n-html="hpp-feature-body.4">Users run <code style="font-family:monospace;font-size:10px;">SELECT * FROM sales</code> and only see rows they\'re allowed to see. The policy is invisible and cannot be bypassed.</div>
                 </div>
               </div>
             </div>
             <div class="hpp-right">
-              <div class="hpp-code">
+              <div class="hpp-code" data-i18n-html="hpp-code.2">
                 <span class="code-comment">-- Create row access policy</span><br>
                 <span class="code-kw">CREATE ROW ACCESS POLICY</span> <span class="code-id">region_filter</span><br>
                 &nbsp;&nbsp;<span class="code-kw">AS</span> <span class="code-punc">(</span><span class="code-id">region</span> <span class="code-fn">STRING</span><span class="code-punc">)</span><br>
@@ -223,26 +223,26 @@
         <div id="tab-proj" class="hpp-panel">
           <div class="hpp-split">
             <div class="hpp-left">
-              <div class="hpp-eyebrow">Column-Level Policy</div>
-              <div class="hpp-title">Projection Policies</div>
-              <div class="hpp-sub">Prevent a column from being SELECTed directly &#8212; filter on it, but never export its values.</div>
+              <div class="hpp-eyebrow" data-i18n="hpp-eyebrow.3">Column-Level Policy</div>
+              <div class="hpp-title" data-i18n="hpp-title.3">Projection Policies</div>
+              <div class="hpp-sub" data-i18n="hpp-sub.3">Prevent a column from being SELECTed directly &#8212; filter on it, but never export its values.</div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon">&#128683;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Visible but Unexportable</div>
-                  <div class="hpp-feature-body">Column appears in schema and can be used in WHERE clauses. But it cannot appear in SELECT results. Perfect for: &#8220;analysts can filter by SSN but never see the actual value.&#8221;</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.5">Visible but Unexportable</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.5">Column appears in schema and can be used in WHERE clauses. But it cannot appear in SELECT results. Perfect for: &#8220;analysts can filter by SSN but never see the actual value.&#8221;</div>
                 </div>
               </div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon" style="background:var(--sf-blue-dark);">&#9973;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Complements Masking</div>
-                  <div class="hpp-feature-body">Use projection policies when full masking isn\'t enough &#8212; you want to prevent a column from appearing in any result set, not just mask its value.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.6">Complements Masking</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.6">Use projection policies when full masking isn\'t enough &#8212; you want to prevent a column from appearing in any result set, not just mask its value.</div>
                 </div>
               </div>
             </div>
             <div class="hpp-right">
-              <div class="hpp-code">
+              <div class="hpp-code" data-i18n-html="hpp-code.3">
                 <span class="code-comment">-- Create projection policy</span><br>
                 <span class="code-kw">CREATE PROJECTION POLICY</span> <span class="code-id">no_ssn_export</span><br>
                 &nbsp;&nbsp;<span class="code-kw">AS</span> <span class="code-punc">()</span> <span class="code-kw">RETURNS</span> <span class="code-fn">PROJECTION_CONSTRAINT</span><br>
@@ -264,26 +264,26 @@
         <div id="tab-agg" class="hpp-panel">
           <div class="hpp-split">
             <div class="hpp-left">
-              <div class="hpp-eyebrow">Column-Level Policy</div>
-              <div class="hpp-title">Aggregation Policies</div>
-              <div class="hpp-sub">Require aggregation on sensitive columns &#8212; prevent row-level exposure by enforcing minimum group sizes.</div>
+              <div class="hpp-eyebrow" data-i18n="hpp-eyebrow.4">Column-Level Policy</div>
+              <div class="hpp-title" data-i18n="hpp-title.4">Aggregation Policies</div>
+              <div class="hpp-sub" data-i18n="hpp-sub.4">Require aggregation on sensitive columns &#8212; prevent row-level exposure by enforcing minimum group sizes.</div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon">&#931;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Enforce Minimum Group Size</div>
-                  <div class="hpp-feature-body">Queries on a protected column must aggregate results. MIN_GROUP_SIZE prevents re-identification &#8212; if a group has fewer rows than the minimum, the query is blocked.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.7">Enforce Minimum Group Size</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.7">Queries on a protected column must aggregate results. MIN_GROUP_SIZE prevents re-identification &#8212; if a group has fewer rows than the minimum, the query is blocked.</div>
                 </div>
               </div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon" style="background:var(--sf-blue-dark);">&#128202;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Statistical Privacy</div>
-                  <div class="hpp-feature-body">Used in healthcare, finance, and research settings where individual row values must never be exposed even through aggregation-based re-identification attacks.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.8">Statistical Privacy</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.8">Used in healthcare, finance, and research settings where individual row values must never be exposed even through aggregation-based re-identification attacks.</div>
                 </div>
               </div>
             </div>
             <div class="hpp-right">
-              <div class="hpp-code">
+              <div class="hpp-code" data-i18n-html="hpp-code.4">
                 <span class="code-comment">-- Create aggregation policy</span><br>
                 <span class="code-kw">CREATE AGGREGATION POLICY</span> <span class="code-id">min_group_5</span><br>
                 &nbsp;&nbsp;<span class="code-kw">AS</span> <span class="code-punc">()</span> <span class="code-kw">RETURNS</span> <span class="code-fn">AGGREGATION_CONSTRAINT</span><br>
@@ -305,26 +305,26 @@
         <div id="tab-token" class="hpp-panel">
           <div class="hpp-split">
             <div class="hpp-left">
-              <div class="hpp-eyebrow">Column-Level Policy</div>
-              <div class="hpp-title">Tokenization</div>
-              <div class="hpp-sub">Replace sensitive values with tokens via an external vault &#8212; data stays usable but original values are protected.</div>
+              <div class="hpp-eyebrow" data-i18n="hpp-eyebrow.5">Column-Level Policy</div>
+              <div class="hpp-title" data-i18n="hpp-title.5">Tokenization</div>
+              <div class="hpp-sub" data-i18n="hpp-sub.5">Replace sensitive values with tokens via an external vault &#8212; data stays usable but original values are protected.</div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon">&#128273;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">External Vault Integration</div>
-                  <div class="hpp-feature-body">Tokenization uses an external tokenization vault (e.g., Protegrity, Voltage) via a Snowflake External Function. The vault maps token &#8596; original value. Snowflake stores only the token.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.9">External Vault Integration</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.9">Tokenization uses an external tokenization vault (e.g., Protegrity, Voltage) via a Snowflake External Function. The vault maps token &#8596; original value. Snowflake stores only the token.</div>
                 </div>
               </div>
               <div class="hpp-feature">
                 <div class="hpp-feature-icon" style="background:var(--sf-blue-dark);">&#128260;</div>
                 <div class="hpp-feature-text">
-                  <div class="hpp-feature-title">Reversible with Authorization</div>
-                  <div class="hpp-feature-body">Authorized roles can de-tokenize by calling the vault. Unauthorized roles always see the token &#8212; the original value never leaves the vault without explicit permission.</div>
+                  <div class="hpp-feature-title" data-i18n="hpp-feature-title.10">Reversible with Authorization</div>
+                  <div class="hpp-feature-body" data-i18n="hpp-feature-body.10">Authorized roles can de-tokenize by calling the vault. Unauthorized roles always see the token &#8212; the original value never leaves the vault without explicit permission.</div>
                 </div>
               </div>
             </div>
             <div class="hpp-right">
-              <div class="hpp-code">
+              <div class="hpp-code" data-i18n-html="hpp-code.5">
                 <span class="code-comment">-- Tokenization via masking policy + external fn</span><br>
                 <span class="code-kw">CREATE MASKING POLICY</span> <span class="code-id">tokenize_cc</span><br>
                 &nbsp;&nbsp;<span class="code-kw">AS</span> <span class="code-punc">(</span><span class="code-id">val</span> <span class="code-fn">STRING</span><span class="code-punc">)</span> <span class="code-kw">RETURNS</span> <span class="code-fn">STRING</span><br>
@@ -344,7 +344,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

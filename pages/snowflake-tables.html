@@ -120,8 +120,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Storage &amp; Tables</span>
-      <span class="nav-label">Snowflake Tables</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Storage &amp; Tables</span>
+      <span class="nav-label" data-i18n="nav-label">Snowflake Tables</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -131,8 +131,8 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Snowflake Native Tables</div>
-          <div class="s6-sub" style="text-align:center;">Columnar, micro-partitioned, always-compressed — with zero-copy cloning, Time Travel, MERGE, and full ANSI SQL built in. No indexes, no partitioning keys, no vacuuming required.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Snowflake Native Tables</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Columnar, micro-partitioned, always-compressed — with zero-copy cloning, Time Travel, MERGE, and full ANSI SQL built in. No indexes, no partitioning keys, no vacuuming required.</div>
         </div>
 
         <div class="nt-page content-wrap">
@@ -140,28 +140,28 @@
           <!-- Table type comparison tiles -->
           <div class="nt-types">
             <div class="nt-type">
-              <div class="nt-type-label">Standard</div>
-              <div class="nt-type-title">Permanent</div>
-              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val yes">0–90 days</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val yes">7 days</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val yes">Yes</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Full</span></div>
+              <div class="nt-type-label" data-i18n="nt-type-label.1">Standard</div>
+              <div class="nt-type-title" data-i18n="nt-type-title.1">Permanent</div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.1">Time Travel</span><span class="nt-type-val yes" data-i18n="nt-type-val.1">0–90 days</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.2">Fail-Safe</span><span class="nt-type-val yes" data-i18n="nt-type-val.2">7 days</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.3">Persist after session</span><span class="nt-type-val yes" data-i18n="nt-type-val.3">Yes</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.4">Storage billing</span><span class="nt-type-val" data-i18n="nt-type-val.4">Full</span></div>
             </div>
             <div class="nt-type">
-              <div class="nt-type-label">Reduced overhead</div>
-              <div class="nt-type-title">Transient</div>
-              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val">0–1 day</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val no">None</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val yes">Yes</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Reduced</span></div>
+              <div class="nt-type-label" data-i18n="nt-type-label.2">Reduced overhead</div>
+              <div class="nt-type-title" data-i18n="nt-type-title.2">Transient</div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.5">Time Travel</span><span class="nt-type-val" data-i18n="nt-type-val.5">0–1 day</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.6">Fail-Safe</span><span class="nt-type-val no" data-i18n="nt-type-val.6">None</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.7">Persist after session</span><span class="nt-type-val yes" data-i18n="nt-type-val.7">Yes</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.8">Storage billing</span><span class="nt-type-val" data-i18n="nt-type-val.8">Reduced</span></div>
             </div>
             <div class="nt-type">
-              <div class="nt-type-label">Session-scoped</div>
-              <div class="nt-type-title">Temporary</div>
-              <div class="nt-type-row"><span class="nt-type-key">Time Travel</span><span class="nt-type-val">0–1 day</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Fail-Safe</span><span class="nt-type-val no">None</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Persist after session</span><span class="nt-type-val no">No</span></div>
-              <div class="nt-type-row"><span class="nt-type-key">Storage billing</span><span class="nt-type-val">Minimal</span></div>
+              <div class="nt-type-label" data-i18n="nt-type-label.3">Session-scoped</div>
+              <div class="nt-type-title" data-i18n="nt-type-title.3">Temporary</div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.9">Time Travel</span><span class="nt-type-val" data-i18n="nt-type-val.9">0–1 day</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.10">Fail-Safe</span><span class="nt-type-val no" data-i18n="nt-type-val.10">None</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.11">Persist after session</span><span class="nt-type-val no" data-i18n="nt-type-val.11">No</span></div>
+              <div class="nt-type-row"><span class="nt-type-key" data-i18n="nt-type-key.12">Storage billing</span><span class="nt-type-val" data-i18n="nt-type-val.12">Minimal</span></div>
             </div>
           </div>
 
@@ -173,10 +173,10 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-structured" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">DDL &amp; Data Types</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.1">DDL &amp; Data Types</div>
                   </div>
-                  <div class="nt-card-desc">Full ANSI type system: numeric, string, date/time, semi-structured (VARIANT/OBJECT/ARRAY), boolean, and binary. CTAS for instant table creation from queries, column defaults, expressions, and inline data type conversions.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">NUMBER</span><span class="nt-chip">VARCHAR</span><span class="nt-chip">VARIANT</span><span class="nt-chip">TIMESTAMP_NTZ</span><span class="nt-chip">CTAS</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.1">Full ANSI type system: numeric, string, date/time, semi-structured (VARIANT/OBJECT/ARRAY), boolean, and binary. CTAS for instant table creation from queries, column defaults, expressions, and inline data type conversions.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.1">NUMBER</span><span class="nt-chip" data-i18n="nt-chip.2">VARCHAR</span><span class="nt-chip" data-i18n="nt-chip.3">VARIANT</span><span class="nt-chip" data-i18n="nt-chip.4">TIMESTAMP_NTZ</span><span class="nt-chip" data-i18n="nt-chip.5">CTAS</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="table-props">
@@ -184,10 +184,10 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-horizon" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">Table Properties</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.2">Table Properties</div>
                   </div>
-                  <div class="nt-card-desc">Configure DATA_RETENTION_TIME_IN_DAYS per table for Time Travel. Enable CHANGE_TRACKING for stream-based CDC. Add TAG-based classification for Horizon governance. Set COMMENT for catalog documentation.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">DATA_RETENTION_TIME</span><span class="nt-chip">CHANGE_TRACKING</span><span class="nt-chip">TAG</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.2">Configure DATA_RETENTION_TIME_IN_DAYS per table for Time Travel. Enable CHANGE_TRACKING for stream-based CDC. Add TAG-based classification for Horizon governance. Set COMMENT for catalog documentation.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.6">DATA_RETENTION_TIME</span><span class="nt-chip" data-i18n="nt-chip.7">CHANGE_TRACKING</span><span class="nt-chip" data-i18n="nt-chip.8">TAG</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="constraints">
@@ -195,21 +195,21 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-security-gov" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">Constraints</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.3">Constraints</div>
                   </div>
-                  <div class="nt-card-desc">NOT NULL is enforced. UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are informational (NOVALIDATE, RELY) — used for documentation and query optimizer hints, not runtime enforcement. Define them for lineage tools, BI tools, and semantic models.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">NOT NULL</span><span class="nt-chip">PRIMARY KEY</span><span class="nt-chip">FOREIGN KEY</span><span class="nt-chip">RELY</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.3">NOT NULL is enforced. UNIQUE, PRIMARY KEY, and FOREIGN KEY constraints are informational (NOVALIDATE, RELY) — used for documentation and query optimizer hints, not runtime enforcement. Define them for lineage tools, BI tools, and semantic models.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.9">NOT NULL</span><span class="nt-chip" data-i18n="nt-chip.10">PRIMARY KEY</span><span class="nt-chip" data-i18n="nt-chip.11">FOREIGN KEY</span><span class="nt-chip" data-i18n="nt-chip.12">RELY</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="timetravel">
                   <div class="nt-card-head">
                     <div class="nt-card-icon">
-                      <span class="sf-img sf-icon-bcdr" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                      <span class="sf-img sf-icon-timetravel" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">Time Travel &amp; Fail-Safe</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.4">Time Travel &amp; Fail-Safe</div>
                   </div>
-                  <div class="nt-card-desc">Query any table as it existed at a past timestamp, offset, or query ID — without restoring a backup. UNDROP TABLE recovers a dropped table within the retention window. Fail-Safe extends 7 days beyond Time Travel for Snowflake-assisted recovery.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">AT(TIMESTAMP)</span><span class="nt-chip">BEFORE(STATEMENT)</span><span class="nt-chip">UNDROP</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.4">Query any table as it existed at a past timestamp, offset, or query ID — without restoring a backup. UNDROP TABLE recovers a dropped table within the retention window. Fail-Safe extends 7 days beyond Time Travel for Snowflake-assisted recovery.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.13">AT(TIMESTAMP)</span><span class="nt-chip" data-i18n="nt-chip.14">BEFORE(STATEMENT)</span><span class="nt-chip" data-i18n="nt-chip.15">UNDROP</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="dml">
@@ -217,10 +217,10 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-sql" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">DML — Insert, Update, Delete</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.5">DML — Insert, Update, Delete</div>
                   </div>
-                  <div class="nt-card-desc">Full ANSI DML with Snowflake extensions: INSERT OVERWRITE for full replace, multi-table INSERT, UPDATE FROM a source set, DELETE with USING for join-based deletes, and TRUNCATE for instant reset without logging overhead.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">INSERT OVERWRITE</span><span class="nt-chip">UPDATE FROM</span><span class="nt-chip">DELETE USING</span><span class="nt-chip">TRUNCATE</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.5">Full ANSI DML with Snowflake extensions: INSERT OVERWRITE for full replace, multi-table INSERT, UPDATE FROM a source set, DELETE with USING for join-based deletes, and TRUNCATE for instant reset without logging overhead.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.16">INSERT OVERWRITE</span><span class="nt-chip" data-i18n="nt-chip.17">UPDATE FROM</span><span class="nt-chip" data-i18n="nt-chip.18">DELETE USING</span><span class="nt-chip" data-i18n="nt-chip.19">TRUNCATE</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="clone">
@@ -228,10 +228,10 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-data-mesh" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">Zero-Copy Clone</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.6">Zero-Copy Clone</div>
                   </div>
-                  <div class="nt-card-desc">CREATE TABLE ... CLONE is a metadata-only operation — no data is copied at clone time. Clones share underlying micro-partitions with the source. New writes to either side diverge independently. Clone entire databases or schemas in milliseconds.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">Instant</span><span class="nt-chip">No data copy</span><span class="nt-chip">AT(TIMESTAMP)</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.6">CREATE TABLE ... CLONE is a metadata-only operation — no data is copied at clone time. Clones share underlying micro-partitions with the source. New writes to either side diverge independently. Clone entire databases or schemas in milliseconds.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.20">Instant</span><span class="nt-chip" data-i18n="nt-chip.21">No data copy</span><span class="nt-chip" data-i18n="nt-chip.22">AT(TIMESTAMP)</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="merge">
@@ -239,28 +239,28 @@
                     <div class="nt-card-icon">
                       <span class="sf-img sf-icon-data-eng" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">MERGE — Upsert Patterns</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.7">MERGE — Upsert Patterns</div>
                   </div>
-                  <div class="nt-card-desc">MERGE INTO handles upserts, SCD Type 1 and Type 2 patterns, and conditional logic in a single atomic operation. Supports multiple WHEN MATCHED clauses with different conditions and WHEN NOT MATCHED BY SOURCE for delete-from-target.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">MERGE INTO</span><span class="nt-chip">WHEN MATCHED</span><span class="nt-chip">SCD Type 1/2</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.7">MERGE INTO handles upserts, SCD Type 1 and Type 2 patterns, and conditional logic in a single atomic operation. Supports multiple WHEN MATCHED clauses with different conditions and WHEN NOT MATCHED BY SOURCE for delete-from-target.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.23">MERGE INTO</span><span class="nt-chip" data-i18n="nt-chip.24">WHEN MATCHED</span><span class="nt-chip" data-i18n="nt-chip.25">SCD Type 1/2</span></div>
                 </div>
 
                 <div class="nt-card" data-fn="change-tracking">
                   <div class="nt-card-head">
                     <div class="nt-card-icon">
-                      <span class="sf-img sf-icon-streams" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
+                      <span class="sf-img sf-icon-changetrack" style="width:14px;height:14px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="nt-card-title">Change Tracking</div>
+                    <div class="nt-card-title" data-i18n="nt-card-title.8">Change Tracking</div>
                   </div>
-                  <div class="nt-card-desc">Enable CHANGE_TRACKING on any table to capture row-level inserts, updates, and deletes. Query changes directly with CHANGES(INFORMATION =&gt; DEFAULT) or consume them via Streams for downstream pipeline triggers.</div>
-                  <div class="nt-card-chips"><span class="nt-chip">CHANGE_TRACKING</span><span class="nt-chip">CHANGES()</span><span class="nt-chip">Streams CDC</span></div>
+                  <div class="nt-card-desc" data-i18n="nt-card-desc.8">Enable CHANGE_TRACKING on any table to capture row-level inserts, updates, and deletes. Query changes directly with CHANGES(INFORMATION =&gt; DEFAULT) or consume them via Streams for downstream pipeline triggers.</div>
+                  <div class="nt-card-chips"><span class="nt-chip" data-i18n="nt-chip.26">CHANGE_TRACKING</span><span class="nt-chip" data-i18n="nt-chip.27">CHANGES()</span><span class="nt-chip" data-i18n="nt-chip.28">Streams CDC</span></div>
                 </div>
 
           </div><!-- /nt-cards -->
         </div><!-- /nt-page -->
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
       </div>
     </div>
   </div>

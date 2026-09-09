@@ -6,3 +6,8 @@ spec.yml
 deploy.sh
 .dockerignore
 check-links.sh
+spec-demo.yml
+deploy-demo.sh
+deploy-snowhouse.sh
+analytics-dashboard
+_speaker_test.html

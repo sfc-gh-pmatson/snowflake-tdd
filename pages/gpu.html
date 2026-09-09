@@ -93,8 +93,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="#" class="btn-back" onclick="history.back();return false;">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Compute</span>
-      <span class="nav-label">GPU Compute</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Compute</span>
+      <span class="nav-label" data-i18n="nav-label">GPU Compute</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -104,44 +104,44 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:6px;text-align:center;">GPU Compute</div>
-          <div class="s6-sub" style="text-align:center;">ML training, inference, fine-tuning, and GPU notebooks — inside the Snowflake security boundary. No data movement required.</div>
+          <div class="s6-header" style="margin-top:6px;text-align:center;" data-i18n="s6-header">GPU Compute</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">ML training, inference, fine-tuning, and GPU notebooks — inside the Snowflake security boundary. No data movement required.</div>
         </div>
 
         <div class="content-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 16px 10px;">
           <div class="gpu-grid">
             <div class="gpu-card" onclick="showPanel(0)">
-              <div class="gpu-card-label">GPU Compute Pools</div>
-              <div class="gpu-card-desc">NVIDIA A10G nodes (XS → L) for containerized ML workloads. Your model, your runtime, inside Snowflake.</div>
+              <div class="gpu-card-label" data-i18n="gpu-card-label.1">GPU Compute Pools</div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.1">NVIDIA A10G nodes (XS → L) for containerized ML workloads. Your model, your runtime, inside Snowflake.</div>
             </div>
             <div class="gpu-card" onclick="showPanel(1)">
-              <div class="gpu-card-label">ML Model Serving</div>
-              <div class="gpu-card-desc">Deploy custom models as persistent SPCS service endpoints. Call from SQL via service functions — no API keys, no egress.</div>
+              <div class="gpu-card-label" data-i18n="gpu-card-label.2">ML Model Serving</div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.2">Deploy custom models as persistent SPCS service endpoints. Call from SQL via service functions — no API keys, no egress.</div>
             </div>
             <div class="gpu-card" onclick="showPanel(2)">
-              <div class="gpu-card-label">Cortex Fine-Tuning</div>
-              <div class="gpu-card-desc">Fully managed LLM fine-tuning on your own data. Provide a training table, pick a base model, call FINETUNE() — no GPU ops required.</div>
+              <div class="gpu-card-label" data-i18n="gpu-card-label.3">Cortex Fine-Tuning</div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.3">Fully managed LLM fine-tuning on your own data. Provide a training table, pick a base model, call FINETUNE() — no GPU ops required.</div>
             </div>
             <div class="gpu-card" onclick="showPanel(3)">
-              <div class="gpu-card-label">Notebook Container Runtime</div>
-              <div class="gpu-card-desc">Attach GPU compute pools to Snowflake Notebooks. Interactive ML development with direct access to Snowflake tables — no data export.</div>
+              <div class="gpu-card-label" data-i18n="gpu-card-label.4">Notebook Container Runtime</div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.4">Attach GPU compute pools to Snowflake Notebooks. Interactive ML development with direct access to Snowflake tables — no data export.</div>
             </div>
             <div class="gpu-card" onclick="showPanel(4)">
-              <div class="gpu-card-label">Distributed Training</div>
-              <div class="gpu-card-desc">Multi-node GPU training via Snowpark ML MLJob. Scale PyTorch and XGBoost training across multiple GPU nodes without managing infrastructure.</div>
+              <div class="gpu-card-label" data-i18n="gpu-card-label.5">Distributed Training</div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.5">Multi-node GPU training via Snowpark ML MLJob. Scale PyTorch and XGBoost training across multiple GPU nodes without managing infrastructure.</div>
             </div>
             <div class="gpu-card" onclick="showPanel(5)">
-              <div class="gpu-card-label">Snowpark-Optimized <span style="font-size:0.7em;color:rgba(255,255,255,.4);font-weight:400;">* CPU</span></div>
-              <div class="gpu-card-desc">16× more memory per node vs standard warehouses. Heavy Python UDFs, large in-memory ML — CPU-based but the bridge before full GPU SPCS.</div>
+              <div class="gpu-card-label" data-i18n-html="gpu-card-label.6">Snowpark-Optimized <span style="font-size:0.7em;color:rgba(255,255,255,.4);font-weight:400;">* CPU</span></div>
+              <div class="gpu-card-desc" data-i18n="gpu-card-desc.6">16× more memory per node vs standard warehouses. Heavy Python UDFs, large in-memory ML — CPU-based but the bridge before full GPU SPCS.</div>
             </div>
           </div>
 
           <div class="gpu-panel" id="gpu-panel">
-            <div class="gpu-panel-code" id="gpu-code">-- Select a card above to explore GPU compute options</div>
+            <div class="gpu-panel-code" id="gpu-code" data-i18n="gpu-panel-code">-- Select a card above to explore GPU compute options</div>
             <div class="gpu-panel-explain" id="gpu-explain">
-              <h4>GPU Compute on Snowflake</h4>
-              <p>Click any card above to see SQL examples and explanations.</p>
-              <p>Snowflake offers two GPU surfaces: <strong>fully managed</strong> (Cortex Fine-Tuning, Notebook Container Runtime) where Snowflake handles the GPU, and <strong>self-managed</strong> (SPCS GPU Pools) where you containerize and deploy your own model.</p>
+              <h4 data-i18n="h4">GPU Compute on Snowflake</h4>
+              <p data-i18n="p.1">Click any card above to see SQL examples and explanations.</p>
+              <p data-i18n-html="p.2">Snowflake offers two GPU surfaces: <strong>fully managed</strong> (Cortex Fine-Tuning, Notebook Container Runtime) where Snowflake handles the GPU, and <strong>self-managed</strong> (SPCS GPU Pools) where you containerize and deploy your own model.</p>
             </div>
           </div>
         </div>

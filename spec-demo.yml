@@ -1,0 +1,18 @@
+spec:
+  containers:
+  - name: interactive-tdd
+    image: sfsenorthamerica-pmat-aws1.registry.snowflakecomputing.com/demo/public/images/interactive-tdd:latest
+    readinessProbe:
+      port: 80
+      path: /
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: "1"
+      requests:
+        memory: 256Mi
+        cpu: "0.25"
+  endpoints:
+  - name: ui
+    port: 80
+    public: true

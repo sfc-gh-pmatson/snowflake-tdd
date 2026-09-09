@@ -156,8 +156,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="../index.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Data Engineering</span>
-      <span class="nav-label">Data Engineering</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Data Engineering</span>
+      <span class="nav-label" data-i18n="nav-label">Data Engineering</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
       </div>
@@ -167,16 +167,16 @@
       <div id="module" class="sf-slide">
 
         <div class="s6-top">
-          <div class="s6-header" style="margin-top:4px;text-align:center;">Data Engineering on Snowflake</div>
-          <div class="s6-sub" style="text-align:center;">Ingest from any source, transform declaratively, orchestrate without external tools — one engine, one platform, zero data movement.</div>
+          <div class="s6-header" style="margin-top:4px;text-align:center;" data-i18n="s6-header">Data Engineering on Snowflake</div>
+          <div class="s6-sub" style="text-align:center;" data-i18n="s6-sub">Ingest from any source, transform declaratively, orchestrate without external tools — one engine, one platform, zero data movement.</div>
         </div>
 
         <div class="de-page content-wrap">
 
           <!-- Tab switcher -->
           <div class="de-tabs">
-            <button class="de-tab active" onclick="switchTab('ingest')">Ingestion</button>
-            <button class="de-tab" onclick="switchTab('transform')">Transformation &amp; Pipelines</button>
+            <button class="de-tab active" onclick="switchTab('ingest')" data-i18n="de-tab.1">Ingestion</button>
+            <button class="de-tab" onclick="switchTab('transform')" data-i18n="de-tab.2">Transformation &amp; Pipelines</button>
           </div>
 
           <div class="de-panel-wrap">
@@ -190,13 +190,13 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-structured" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">COPY INTO</div>
+                    <div class="de-card-title" data-i18n="de-card-title.1">COPY INTO</div>
                   </div>
-                  <div class="de-card-desc">Bulk-load files from internal or external stages into Snowflake tables. Supports CSV, JSON, Parquet, Avro, ORC, and XML. Transform data on load, validate before committing, and track load history to prevent duplicates.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.1">Bulk-load files from internal or external stages into Snowflake tables. Supports CSV, JSON, Parquet, Avro, ORC, and XML. Transform data on load, validate before committing, and track load history to prevent duplicates.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">Bulk load</span>
-                    <span class="de-chip">Multi-format</span>
-                    <span class="de-chip">Load history</span>
+                    <span class="de-chip" data-i18n="de-chip.1">Bulk load</span>
+                    <span class="de-chip" data-i18n="de-chip.2">Multi-format</span>
+                    <span class="de-chip" data-i18n="de-chip.3">Load history</span>
                   </div>
                 </div>
 
@@ -205,13 +205,13 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-pipe" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Snowpipe</div>
+                    <div class="de-card-title" data-i18n="de-card-title.2">Snowpipe</div>
                   </div>
-                  <div class="de-card-desc">Serverless, event-driven file ingestion from cloud storage. Create a pipe with AUTO_INGEST — files land in S3, Azure Blob, or GCS and are automatically loaded the moment they arrive.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.2">Serverless, event-driven file ingestion from cloud storage. Create a pipe with AUTO_INGEST — files land in S3, Azure Blob, or GCS and are automatically loaded the moment they arrive.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">AUTO_INGEST</span>
-                    <span class="de-chip">S3 · Azure · GCS</span>
-                    <span class="de-chip">Serverless</span>
+                    <span class="de-chip" data-i18n="de-chip.4">AUTO_INGEST</span>
+                    <span class="de-chip" data-i18n="de-chip.5">S3 · Azure · GCS</span>
+                    <span class="de-chip" data-i18n="de-chip.6">Serverless</span>
                   </div>
                 </div>
 
@@ -220,14 +220,14 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-connected" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Openflow</div>
+                    <div class="de-card-title" data-i18n="de-card-title.3">Openflow</div>
                   </div>
-                  <div class="de-card-desc">Snowflake-native data integration built on Apache NiFi. 200+ pre-built connectors for databases, SaaS, files, and APIs — with full CDC support from Oracle, MySQL, SQL Server, and Postgres. No-code pipeline builder, runs on SPCS.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.3">Snowflake-native data integration built on Apache NiFi. 200+ pre-built connectors for databases, SaaS, files, and APIs — with full CDC support from Oracle, MySQL, SQL Server, and Postgres. No-code pipeline builder, runs on SPCS.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">200+ connectors</span>
-                    <span class="de-chip">CDC</span>
-                    <span class="de-chip">No-code</span>
-                    <span class="de-chip">NiFi-based</span>
+                    <span class="de-chip" data-i18n="de-chip.7">200+ connectors</span>
+                    <span class="de-chip" data-i18n="de-chip.8">CDC</span>
+                    <span class="de-chip" data-i18n="de-chip.9">No-code</span>
+                    <span class="de-chip" data-i18n="de-chip.10">NiFi-based</span>
                   </div>
                 </div>
 
@@ -236,13 +236,13 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-data-eng" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Snowpipe Streaming</div>
+                    <div class="de-card-title" data-i18n="de-card-title.4">Snowpipe Streaming</div>
                   </div>
-                  <div class="de-card-desc">Sub-second, row-level ingestion via SDK — no staging files required. Push rows directly into Snowflake channels and query them within milliseconds of commit. Built for Kafka, CDC, and IoT workloads.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.4">Sub-second, row-level ingestion via SDK — no staging files required. Push rows directly into Snowflake channels and query them within milliseconds of commit. Built for Kafka, CDC, and IoT workloads.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">Sub-second</span>
-                    <span class="de-chip">Channels</span>
-                    <span class="de-chip">Kafka · CDC · IoT</span>
+                    <span class="de-chip" data-i18n="de-chip.11">Sub-second</span>
+                    <span class="de-chip" data-i18n="de-chip.12">Channels</span>
+                    <span class="de-chip" data-i18n="de-chip.13">Kafka · CDC · IoT</span>
                   </div>
                 </div>
 
@@ -258,29 +258,29 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-dynamic-tables" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Dynamic Tables</div>
+                    <div class="de-card-title" data-i18n="de-card-title.5">Dynamic Tables</div>
                   </div>
-                  <div class="de-card-desc">The declarative pipeline primitive — write a SELECT query, set a TARGET_LAG, and Snowflake handles scheduling, dependency tracking, and incremental refresh. Chain tables to build multi-step pipelines in pure SQL.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.5">The declarative pipeline primitive — write a SELECT query, set a TARGET_LAG, and Snowflake handles scheduling, dependency tracking, and incremental refresh. Chain tables to build multi-step pipelines in pure SQL.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">Declarative</span>
-                    <span class="de-chip">TARGET_LAG</span>
-                    <span class="de-chip">INCREMENTAL</span>
+                    <span class="de-chip" data-i18n="de-chip.14">Declarative</span>
+                    <span class="de-chip" data-i18n="de-chip.15">TARGET_LAG</span>
+                    <span class="de-chip" data-i18n="de-chip.16">INCREMENTAL</span>
                   </div>
                 </div>
 
                 <div class="de-card" data-fn="streams-tasks">
                   <div class="de-card-head">
                     <div class="de-card-icon">
-                      <span class="sf-img sf-icon-streams" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
+                      <span class="sf-img sf-icon-changetrack" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Streams &amp; Tasks</div>
+                    <div class="de-card-title" data-i18n="de-card-title.6">Streams &amp; Tasks</div>
                   </div>
-                  <div class="de-card-desc">Streams capture row-level change data (inserts, updates, deletes) on any table. Tasks trigger SQL or Snowpark execution on a schedule or when a stream has data — chain tasks with AFTER to build DAGs without an external orchestrator.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.6">Streams capture row-level change data (inserts, updates, deletes) on any table. Tasks trigger SQL or Snowpark execution on a schedule or when a stream has data — chain tasks with AFTER to build DAGs without an external orchestrator.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">CDC</span>
-                    <span class="de-chip">DAGs</span>
-                    <span class="de-chip">Event-driven</span>
-                    <span class="de-chip">Serverless</span>
+                    <span class="de-chip" data-i18n="de-chip.17">CDC</span>
+                    <span class="de-chip" data-i18n="de-chip.18">DAGs</span>
+                    <span class="de-chip" data-i18n="de-chip.19">Event-driven</span>
+                    <span class="de-chip" data-i18n="de-chip.20">Serverless</span>
                   </div>
                 </div>
 
@@ -289,13 +289,13 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-data-mesh" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">dbt in Snowflake</div>
+                    <div class="de-card-title" data-i18n="de-card-title.7">dbt in Snowflake</div>
                   </div>
-                  <div class="de-card-desc">Run dbt projects as native Snowflake objects — no external orchestration or dbt Cloud subscription needed. Deploy with <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snow dbt</code>, schedule with Tasks, and execute with a single SQL statement.</div>
+                  <div class="de-card-desc" data-i18n-html="de-card-desc.7">Run dbt projects as native Snowflake objects — no external orchestration or dbt Cloud subscription needed. Deploy with <code style="font-size:10px;background:rgba(41,181,232,.1);padding:1px 4px;border-radius:3px;color:var(--sf-blue);">snow dbt</code>, schedule with Tasks, and execute with a single SQL statement.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">EXECUTE DBT PROJECT</span>
-                    <span class="de-chip">snow dbt deploy</span>
-                    <span class="de-chip">Task-scheduled</span>
+                    <span class="de-chip" data-i18n="de-chip.21">EXECUTE DBT PROJECT</span>
+                    <span class="de-chip" data-i18n="de-chip.22">snow dbt deploy</span>
+                    <span class="de-chip" data-i18n="de-chip.23">Task-scheduled</span>
                   </div>
                 </div>
 
@@ -304,15 +304,15 @@
                     <div class="de-card-icon">
                       <span class="sf-img sf-icon-python" style="width:16px;height:16px;filter:brightness(0) invert(1);"></span>
                     </div>
-                    <div class="de-card-title">Snowpark</div>
+                    <div class="de-card-title" data-i18n="de-card-title.8">Snowpark</div>
                   </div>
-                  <div class="de-card-desc">Write DataFrame transformation pipelines in Python, Java, or Scala — running on Snowflake compute with no data leaving the platform. Build UDFs, UDTFs, and stored procedures natively.</div>
+                  <div class="de-card-desc" data-i18n="de-card-desc.8">Write DataFrame transformation pipelines in Python, Java, or Scala — running on Snowflake compute with no data leaving the platform. Build UDFs, UDTFs, and stored procedures natively.</div>
                   <div class="de-card-chips">
-                    <span class="de-chip">Python</span>
-                    <span class="de-chip">Java / Scala</span>
-                    <span class="de-chip">No data movement</span>
+                    <span class="de-chip" data-i18n="de-chip.24">Python</span>
+                    <span class="de-chip" data-i18n="de-chip.25">Java / Scala</span>
+                    <span class="de-chip" data-i18n="de-chip.26">No data movement</span>
                   </div>
-                  <div class="de-card-deepdive">Deep dive &#x2192;</div>
+                  <div class="de-card-deepdive" data-i18n="de-card-deepdive">Deep dive &#x2192;</div>
                 </a>
 
               </div>
@@ -323,7 +323,7 @@
         </div>
 
         <div class="resource-trigger"><div class="resource-bar"></div></div>
-        <div class="s6-footer"><span>&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
+        <div class="s6-footer"><span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span></div>
 
       </div>
     </div>

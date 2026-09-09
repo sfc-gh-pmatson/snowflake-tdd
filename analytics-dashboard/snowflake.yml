@@ -1,0 +1,13 @@
+definition_version: 2
+entities:
+  TDD_ANALYTICS_DASHBOARD:
+    type: streamlit
+    identifier:
+      name: TDD_ANALYTICS_DASHBOARD
+      database: TEMP
+      schema: PMATSON
+    query_warehouse: SNOWADHOC
+    main_file: streamlit_app.py
+    artifacts:
+      - streamlit_app.py
+      - pyproject.toml

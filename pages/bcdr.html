@@ -246,8 +246,8 @@
   <div style="position:relative;width:100%;height:100%;z-index:1">
     <div class="nav-bar">
       <a href="./snowgrid.html" class="btn-back">&#8592; Back</a>
-      <span class="slide-tag tag-blue" style="font-size:.68rem;">Platform</span>
-      <span class="nav-label">Business Continuity &amp; Disaster Recovery</span>
+      <span class="slide-tag tag-blue" style="font-size:.68rem;" data-i18n="slide-tag">Platform</span>
+      <span class="nav-label" data-i18n="nav-label">Business Continuity &amp; Disaster Recovery</span>
       <div class="nav-tags">
         <span class="nav-tag nav-tag-ga">Generally Available</span>
         <span class="nav-tag nav-tag-bc">Business Critical</span>
@@ -259,9 +259,9 @@
 
         <!-- ════════ Left: feature list ════════ -->
         <div class="bcdr-left">
-          <div class="bcdr-eyebrow">Trusted — Snowflake Platform</div>
-          <div class="bcdr-title">Business Continuity &amp;<br>Disaster Recovery</div>
-          <div class="bcdr-sub">Fast-track your business resilience with Snowflake</div>
+          <div class="bcdr-eyebrow" data-i18n="bcdr-eyebrow">Trusted — Snowflake Platform</div>
+          <div class="bcdr-title" data-i18n-html="bcdr-title">Business Continuity &amp;<br>Disaster Recovery</div>
+          <div class="bcdr-sub" data-i18n="bcdr-sub">Fast-track your business resilience with Snowflake</div>
 
           <!-- Feature 1 -->
           <div class="bcdr-feature">
@@ -274,8 +274,8 @@
               </svg>
             </div>
             <div class="bcdr-feature-text">
-              <div class="bcdr-feature-title">Get going in a few clicks</div>
-              <div class="bcdr-feature-body">Eliminate setup complexity and manage your operations with an easy-to-use interface.</div>
+              <div class="bcdr-feature-title" data-i18n="bcdr-feature-title.1">Get going in a few clicks</div>
+              <div class="bcdr-feature-body" data-i18n="bcdr-feature-body.1">Eliminate setup complexity and manage your operations with an easy-to-use interface.</div>
             </div>
           </div>
 
@@ -290,8 +290,8 @@
               </svg>
             </div>
             <div class="bcdr-feature-text">
-              <div class="bcdr-feature-title">Achieve near-zero downtime</div>
-              <div class="bcdr-feature-body">Trim Recovery Time Objectives (RTO) to less than a minute and automate key recovery processes.</div>
+              <div class="bcdr-feature-title" data-i18n="bcdr-feature-title.2">Achieve near-zero downtime</div>
+              <div class="bcdr-feature-body" data-i18n="bcdr-feature-body.2">Trim Recovery Time Objectives (RTO) to less than a minute and automate key recovery processes.</div>
             </div>
           </div>
 
@@ -305,8 +305,8 @@
               </svg>
             </div>
             <div class="bcdr-feature-text">
-              <div class="bcdr-feature-title">Safeguard your entire data estate</div>
-              <div class="bcdr-feature-body">Protect Snowflake data, metadata, and account information with one comprehensive platform.</div>
+              <div class="bcdr-feature-title" data-i18n="bcdr-feature-title.3">Safeguard your entire data estate</div>
+              <div class="bcdr-feature-body" data-i18n="bcdr-feature-body.3">Protect Snowflake data, metadata, and account information with one comprehensive platform.</div>
             </div>
           </div>
         </div>
@@ -322,8 +322,8 @@
               </svg>
             </div>
             <div class="bcdr-pin-label">
-              <span class="bcdr-pin-provider" style="color:#FF9900;">AWS</span>
-              <span class="bcdr-pin-region">Oregon</span>
+              <span class="bcdr-pin-provider" style="color:#FF9900;" data-i18n="bcdr-pin-provider.1">AWS</span>
+              <span class="bcdr-pin-region" data-i18n="bcdr-pin-region.1">Oregon</span>
             </div>
           </div>
 
@@ -335,8 +335,8 @@
               </svg>
             </div>
             <div class="bcdr-pin-label">
-              <span class="bcdr-pin-provider" style="color:#EB3474;">GCP</span>
-              <span class="bcdr-pin-region">Iowa</span>
+              <span class="bcdr-pin-provider" style="color:#EB3474;" data-i18n="bcdr-pin-provider.2">GCP</span>
+              <span class="bcdr-pin-region" data-i18n="bcdr-pin-region.2">Iowa</span>
             </div>
           </div>
 
@@ -348,8 +348,8 @@
               </svg>
             </div>
             <div class="bcdr-pin-label">
-              <span class="bcdr-pin-provider" style="color:#0078D4;">Azure</span>
-              <span class="bcdr-pin-region">Virginia</span>
+              <span class="bcdr-pin-provider" style="color:#0078D4;" data-i18n="bcdr-pin-provider.3">Azure</span>
+              <span class="bcdr-pin-region" data-i18n="bcdr-pin-region.3">Virginia</span>
             </div>
           </div>
 
@@ -358,9 +358,9 @@
             <div class="bcdr-client-card">
               <!-- Monitor / dashboard icon -->
               <span class="sf-img sf-icon-data-apps-hl" style="width:36px;height:36px;"></span>
-              <div class="bcdr-client-label">Client Applications</div>
+              <div class="bcdr-client-label" data-i18n="bcdr-client-label">Client Applications</div>
             </div>
-            <div class="bcdr-client-caption">
+            <div class="bcdr-client-caption" data-i18n-html="bcdr-client-caption">
               <strong>Client redirect</strong> redirects apps to the cloud region of your choice.
             </div>
           </div>
@@ -382,7 +382,7 @@
           <div class="resource-bar"></div>
         </div>
         <div class="s6-footer">
-          <span>&copy; 2026 Snowflake Inc. All Rights Reserved</span>
+          <span data-i18n="span">&copy; 2026 Snowflake Inc. All Rights Reserved</span>
         </div>
 
       </div><!-- /sf-slide -->
@@ -556,12 +556,12 @@
 <span class="code-punc">;</span></code></pre>
     </div>
     <div class="code-modal-explain">
-      <h4>What to replicate</h4>
-      <p><code>OBJECT_TYPES = ALL</code> replicates users, roles, warehouses, resource monitors, databases, network policies, integrations, and shares. You can scope this to specific object types if needed.</p>
-      <h4>Where to replicate it</h4>
-      <p><code>ALLOWED_ACCOUNTS</code> specifies the target account or list of target accounts to which replication and failover of specified objects from the source account is enabled.</p>
-      <h4>When to replicate</h4>
-      <p><code>REPLICATION_SCHEDULE = '10 MIN'</code> keeps the secondary in sync every 10 minutes, giving you a Recovery Point Objective (RPO) of &lt;10 minutes with near-zero RTO on failover. Can also use CRON.</p>
+      <h4 data-i18n="h4.1">What to replicate</h4>
+      <p data-i18n-html="p.1"><code>OBJECT_TYPES = ALL</code> replicates users, roles, warehouses, resource monitors, databases, network policies, integrations, and shares. You can scope this to specific object types if needed.</p>
+      <h4 data-i18n="h4.2">Where to replicate it</h4>
+      <p data-i18n-html="p.2"><code>ALLOWED_ACCOUNTS</code> specifies the target account or list of target accounts to which replication and failover of specified objects from the source account is enabled.</p>
+      <h4 data-i18n="h4.3">When to replicate</h4>
+      <p data-i18n-html="p.3"><code>REPLICATION_SCHEDULE = '10 MIN'</code> keeps the secondary in sync every 10 minutes, giving you a Recovery Point Objective (RPO) of &lt;10 minutes with near-zero RTO on failover. Can also use CRON.</p>
     </div>
   </div>
 
